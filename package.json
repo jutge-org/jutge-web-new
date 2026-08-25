@@ -11,7 +11,7 @@
         "format": "bun prettier --write --list-different .",
         "lint": "eslint",
         "knip": "knip",
-        "deploy": "ssh -t minipc 'cd Projectes/jutge-open-web && pm2 stop jutge && git pull && bun install && bun run build && pm2 restart jutge'"
+        "deploy": "ssh -t minipc 'cd Projectes/jutge-web-new && pm2 stop jutge && git pull && bun install && bun run build && pm2 restart jutge'"
     },
     "dependencies": {
         "@base-ui/react": "^1.6.0",
