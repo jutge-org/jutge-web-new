@@ -10,8 +10,6 @@ import { cn } from '@/lib/utils'
 
 export const MAX_SUBMISSIONS_PER_MINUTE = 20
 
-const NEON_BLUE = '#22d3ee'
-
 const INTERVALS = [
     { key: 'latest_01_minutes' as const, minutes: 1, label: '1m', period: 'the last minute' },
     { key: 'latest_05_minutes' as const, minutes: 5, label: '5m', period: 'the last 5 minutes' },
@@ -22,7 +20,7 @@ const INTERVALS = [
 const chartConfig = {
     submissions: {
         label: 'Submissions',
-        color: NEON_BLUE,
+        color: 'var(--color-brand)',
     },
     track: {
         label: 'Capacity',
@@ -33,6 +31,8 @@ const chartConfig = {
 type RecentSubmissionsCardProps = {
     recentSubmissions: HomepageStats['recent_submissions']
     replayKey?: number
+    className?: string
+    gridClassName?: string
 }
 
 function submissionPercentage(count: number, minutes: number): number {
@@ -113,14 +113,20 @@ function RadialGauge({ count, minutes, label, period, replayKey }: RadialGaugePr
     )
 }
 
-export function RecentSubmissionsCard({ recentSubmissions, replayKey = 0 }: RecentSubmissionsCardProps) {
+export function RecentSubmissionsCard({
+    recentSubmissions,
+    replayKey = 0,
+    className,
+    gridClassName,
+}: RecentSubmissionsCardProps) {
     return (
         <div
             className={cn(
                 'group flex flex-col gap-3 rounded-2xl border border-border border-t-4 border-t-cyan-400 bg-card px-2 pt-5 shadow-sm',
+                className,
             )}
         >
-            <div className="grid min-h-16 grid-cols-4 gap-1">
+            <div className={cn('grid min-h-16 grid-cols-4 gap-1', gridClassName)}>
                 <TooltipProvider>
                     {INTERVALS.map(({ key, minutes, label, period }) => (
                         <RadialGauge

@@ -1,6 +1,6 @@
 'use client'
 
-import { HomePageGuest } from '@/components/general/HomePageGuest'
+import { HomePageGuest } from '@/components/home/HomePageGuest'
 import { HomePageUser } from '@/components/general/HomePageUser'
 import { PageSpinner } from '@/components/ClientGates'
 import { useAuth } from '@/components/AuthProvider'

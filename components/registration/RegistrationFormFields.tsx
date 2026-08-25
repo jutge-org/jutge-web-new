@@ -161,7 +161,7 @@ export function RegistrationFormFields({
         <div className="mx-auto w-full max-w-3xl">
             <Alert className="p-4 mb-8">
                 <AlertDescription>
-                    If have forgotten your password, {}
+                    If you have forgotten your password, {}
                     <Link href="/password-reset" className="font-medium text-foreground">
                         reset your password
                     </Link>

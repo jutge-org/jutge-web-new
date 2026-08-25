@@ -19,7 +19,7 @@ type PlatformStats = HomepageStats & {
     compilers: number
 }
 
-export function HomePageGuest() {
+export function OldHomePageGuest() {
     const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null)
 
     useEffect(() => {

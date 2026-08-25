@@ -6,6 +6,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+    --color-brand: oklch(0.72 0.16 232);
+    --color-brand-secondary: oklch(0.62 0.18 250);
+    --color-smooth-200: oklch(0.945 0 0);
+    --color-smooth-900: oklch(0.47 0 0);
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-card: var(--card);
@@ -48,6 +52,10 @@
 
 :root {
     --radius: 0.3rem;
+    --color-brand: oklch(0.72 0.16 232);
+    --color-brand-secondary: oklch(0.62 0.18 250);
+    --color-smooth-200: oklch(0.945 0 0);
+    --color-smooth-900: oklch(0.47 0 0);
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -85,6 +93,8 @@
 }
 
 .dark {
+    --color-smooth-200: oklch(0.275 0 0);
+    --color-smooth-900: oklch(0.81 0 0);
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.85 0 0);
     --card: oklch(0.205 0 0);
@@ -359,4 +369,9 @@ html[data-reduced-motion='reduce'] *::after {
 .dark .ag-row.jutgeai-audit-total-row {
     background-color: rgba(255, 255, 255, 0.08);
     border-top: 2px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Hide reCAPTCHA v3 floating badge; attribution is shown via RecaptchaNotice instead. */
+.grecaptcha-badge {
+    visibility: hidden !important;
 }
