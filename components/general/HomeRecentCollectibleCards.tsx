@@ -77,7 +77,7 @@ export function HomeRecentCollectibleCards() {
                         <TooltipProvider>
                             <div className="flex flex-row gap-3 overflow-x-auto pb-2 scrollbar-thin">
                                 {recentCards.map((card) => {
-                                    const cardName = card.card_id.split('/')[1]?.replace('.png', '') || card.card_id
+                                    const cardName = card.card_id.split('/')[1]
                                     return (
                                         <Tooltip key={card.card_id}>
                                             <TooltipTrigger asChild>

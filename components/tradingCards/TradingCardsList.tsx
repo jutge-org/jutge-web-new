@@ -62,7 +62,7 @@ export function TradingCardDialog({
                 {card && (
                     <>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <a href={card.imageUrl} target="_blank" rel="noopener noreferrer">
+                        <a href={card.imageUrl.replace('.sm', '')} target="_blank" rel="noopener noreferrer">
                             <img
                                 src={card.imageUrl}
                                 alt={`Card ${tradingCardName(card.card_id)}`}

@@ -6,8 +6,12 @@ export type TradingCardRow = {
     created_at: string | number
 }
 
-export function tradingCardImageUrl(card_id: string): string {
-    return `https://jutge.org/img/trading-cards/${card_id}`
+export function tradingCardImageUrl(card_id: string, size: 'sm' | '' = ''): string {
+    if (size === '') {
+        return `https://jutge.org/img/trading-cards/${card_id}.webp`
+    } else {
+        return `https://jutge.org/img/trading-cards/${card_id}.${size}.webp`
+    }
 }
 
 function buildTradingCardRow(card: TradingCard): TradingCardRow {

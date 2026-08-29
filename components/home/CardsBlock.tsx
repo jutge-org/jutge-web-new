@@ -10,39 +10,33 @@ type CollectibleCardStub = {
     card_id: string
     title: string
     subtitle: string
-    location: string
 }
 
 const COLLECTIBLE_CARD_STUBS: CollectibleCardStub[] = [
     {
-        card_id: 'Travelling/rjkmigrjkmigrjkm.png',
+        card_id: 'Travelling/rjkmigrjkmigrjkm',
         title: 'Island Hop',
         subtitle: 'Earned on a long practice streak',
-        location: 'Across sunny ports of call',
     },
     {
-        card_id: 'Travelling/wl9jhqwl9jhqwl9j.png',
+        card_id: 'Travelling/wl9jhqwl9jhqwl9j',
         title: 'Open Road',
         subtitle: 'Unlocked after a travel challenge',
-        location: 'Wherever the next problem leads',
     },
     {
-        card_id: 'Coding/9rtv2s9rtv2s9rtv.png',
+        card_id: 'Coding/9rtv2s9rtv2s9rtv',
         title: 'Night Coder',
         subtitle: 'Awarded for late-night submissions',
-        location: 'Between green tests and coffee',
     },
     {
-        card_id: 'Coding/32p4ob32p4ob32p4.png',
+        card_id: 'Coding/32p4ob32p4ob32p4',
         title: 'Bug Hunter',
         subtitle: 'Collected by fixing stubborn cases',
-        location: 'Deep in the verdict log',
     },
     {
-        card_id: 'Misc/vdr5hlvdr5hlvdr5.png',
+        card_id: 'Misc/vdr5hlvdr5hlvdr5',
         title: 'Wildcard',
         subtitle: 'A surprise drop from the archive',
-        location: 'Somewhere off the beaten path',
     },
 ]
 
@@ -59,11 +53,11 @@ function stubToEvent(stub: CollectibleCardStub, index: number): Event {
     const family = tradingCardFamily(stub.card_id)
     return {
         id: index + 1,
-        image: tradingCardImageUrl(stub.card_id),
+        image: tradingCardImageUrl(stub.card_id, 'sm'),
         badge: family,
         title: stub.title,
         subtitle: stub.subtitle,
-        location: stub.location,
+        location: "",
     }
 }
 
