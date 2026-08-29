@@ -16,6 +16,7 @@ type MerchProduct = {
     id: string
     image: string
     title: string
+    subtitle: string
     price: number
     badge?: string
 }
@@ -24,33 +25,40 @@ const PRODUCTS: MerchProduct[] = [
     {
         id: '3d-model',
         image: '/shop/model.png',
-        title: 'Jutge toy (5cm tall)',
-        price: 35,
+        title: 'Jutge toy',
+        subtitle: '1 unit, 5cm tall',
+        price: 40,
         badge: 'New',
     },
     {
         id: 'mug',
         image: '/shop/mug.png',
         title: 'Coffee mug',
-        price: 16,
+        subtitle: '1 unit',
+        price: 17,
         badge: 'Sale',
     },
     {
         id: 'ac-stickers',
         image: '/svg/AC.svg',
-        title: 'AC Stickers (5 units, round 50mm)',
-        price: 2,
+        title: 'AC Stickers',
+        subtitle: '5 units, 50mm round',
+        price: 10,
+        badge: '5 units',
     },
     {
         id: 'wa-stickers',
         image: '/svg/WA.svg',
-        title: 'WA Stickers (5 units, round 50mm)',
-        price: 2,
+        title: 'WA Stickers',
+        subtitle: '5 units, 50mm round',
+        price: 10,
+        badge: '5 units',
     },
     {
         id: 'jutge-stickers',
-        image: '/svg/jutge.svg',
-        title: 'Jutge Stickers (5 units, die cut 50mm)',
+        image: '/shop/jutge-classic-die-cut.png',
+        title: 'Classic Sticker',
+        subtitle: '1 unit, 50mm die cut',
         price: 2,
     },
 ]
@@ -82,7 +90,7 @@ export function MerchandisingBlock() {
                         Merchandising
                     </h2>
                     <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
-                        Stickers, mugs, and a tiny judge for your desk — limited runs from the Jutge.org workshop.
+                        Stickers for your laptop, a mug and a Jutge figure for your desk. Limited runs available from our shop.
                     </p>
                 </motion.div>
 
@@ -93,9 +101,10 @@ export function MerchandisingBlock() {
                                 badge={product.badge}
                                 currency="€"
                                 image={product.image}
-                                onAddToCart={() => handleAddToCart(product.title)}
+                                onAddToCart={() => handleAddToCart(product.title)}                                
                                 price={product.price}
                                 title={product.title}
+                                subtitle={product.subtitle}
                             />
                         </li>
                     ))}

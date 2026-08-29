@@ -16,6 +16,7 @@ export interface ProductCardProps {
     price: number
     rating?: number
     title: string
+    subtitle: string
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -154,6 +155,7 @@ function RatingStars({ rating, title }: { rating: number; title: string }) {
 export default function ProductCard({
     image,
     title,
+    subtitle,
     price,
     originalPrice,
     currency = '$',
@@ -242,7 +244,7 @@ export default function ProductCard({
                                     ? 'bg-red-500 text-white'
                                     : badge.toLowerCase() === 'new'
                                       ? 'bg-emerald-500 text-white'
-                                      : 'bg-primary text-primary-foreground',
+                                      : 'bg-gray-500 text-white',
                             )}
                             initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, transform: 'scale(0.6)' }}
                             role="status"
@@ -271,9 +273,9 @@ export default function ProductCard({
             </div>
 
             {/* Content */}
-            <div className="flex flex-1 flex-col gap-2 p-4">
+            <div className="flex flex-1 flex-col gap-1 p-4">
                 <h3 className="line-clamp-1 font-semibold text-foreground text-sm tracking-tight">{title}</h3>
-
+                <p className="text-muted-foreground text-xs">{subtitle}</p>
                 {rating !== undefined && <RatingStars rating={rating} title={title} />}
 
                 <div className="flex items-baseline gap-2">
