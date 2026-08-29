@@ -18,7 +18,9 @@ type ProblemIconImageProps = {
 
 export function ProblemIconImage({ iconUrl, size = 'sm', className }: ProblemIconImageProps) {
     const { width, height } = sizeConfig[size]
-    iconUrl = iconUrl.replace('problem-icons/', `problem-icons/sm/`)
+    if (width <= 64) {
+        iconUrl = iconUrl.replace('.webp', `.sm.webp`)
+    }
 
     return (
         <Image

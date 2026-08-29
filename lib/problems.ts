@@ -7,7 +7,9 @@ export function problemIconUrl(icon: string | null | undefined): string | null {
         return null
     }
 
-    return `https://jutge.org/img/problem-icons/${icon}`
+    const result = `https://jutge.org/img/problems-icons/${icon.slice(0, 2)}/${icon}.webp`
+    // console.log(result)
+    return result
 }
 
 export function resolveProblemIconUrl(
