@@ -11,7 +11,9 @@
         "format": "bun prettier --write --list-different .",
         "lint": "eslint",
         "knip": "knip",
-        "deploy": "ssh -t minipc 'cd Projectes/jutge-web-new && pm2 stop jutge && git pull && bun install && bun run build && pm2 restart jutge'"
+        "deploy-minipc": "ssh -t minipc 'cd Projectes/jutge-web-new && pm2 stop jutge && git pull && bun install && bun run build && pm2 restart jutge'",
+        "deploy-jutge": "ssh -t jutge@jutge.org 'cd new.jutge.org/jutge-web-new && pm2 stop new && git pull && bun install && bun run build && pm2 restart new'",
+        "deploy": "bun run deploy-minipc && bun run deploy-jutge"
     },
     "dependencies": {
         "@base-ui/react": "^1.6.0",
