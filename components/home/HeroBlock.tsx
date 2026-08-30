@@ -120,7 +120,7 @@ export function HeroBlock() {
             >
                 <div>
                     <div className="flex justify-center">
-                        <Image src="/jutge/modern.png" alt="Jutge.org" width={192} height={192} />
+                        <Image src="/jutge/modern.png" alt="Jutge.org" width={192} height={192} loading="eager" />
                     </div>
 
                     <AnimatedText
