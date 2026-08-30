@@ -47,7 +47,7 @@ export function courseIconUrl(icon: string | null | undefined): string {
         return DEFAULT_COURSE_ICON_URL
     }
 
-    return `https://jutge.org/img/course-icons/${icon}.png`
+    return `https://jutge.org/img/courses-icons/${icon}.webp`
 }
 
 export function resolveCourseIconUrl(
