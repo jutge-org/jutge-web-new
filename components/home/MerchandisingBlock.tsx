@@ -72,10 +72,15 @@ const PRODUCTS: MerchProduct[] = [
     },
 ]
 
-export function MerchandisingBlock() {
+type MerchandisingBlockProps = {
+    embedded?: boolean
+}
+
+export function MerchandisingBlock({ embedded = false }: MerchandisingBlockProps) {
     const shouldReduceMotion = useReducedMotion()
     const [dialogOpen, setDialogOpen] = useState(false)
     const [selectedTitle, setSelectedTitle] = useState<string | null>(null)
+    const headingId = embedded ? 'about-merchandising-heading' : 'home-merchandising-heading'
 
     function handleAddToCart(product: MerchProduct) {
         if (product.linkUrl) {
@@ -87,8 +92,12 @@ export function MerchandisingBlock() {
     }
 
     return (
-        <section id="home-merchandising" aria-labelledby="home-merchandising-heading" className="scroll-mt-14">
-            <div className="mx-auto max-w-6xl px-6">
+        <section
+            id={embedded ? 'about-merchandising' : 'home-merchandising'}
+            aria-labelledby={headingId}
+            className="scroll-mt-14"
+        >
+            <div className={embedded ? undefined : 'mx-auto max-w-6xl px-6'}>
                 <motion.div
                     className="mx-auto mb-12 max-w-2xl text-center"
                     initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
@@ -98,7 +107,7 @@ export function MerchandisingBlock() {
                 >
                     <h2
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
-                        id="home-merchandising-heading"
+                        id={headingId}
                     >
                         Merchandising
                     </h2>

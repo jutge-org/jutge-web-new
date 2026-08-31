@@ -1,5 +1,13 @@
 export type AboutTab =
-    'index' | 'telegram' | 'terms-of-service' | 'honor-code' | 'accessibility' | 'pictures' | 'publications' | 'credits'
+    | 'index'
+    | 'telegram'
+    | 'terms-of-service'
+    | 'honor-code'
+    | 'accessibility'
+    | 'pictures'
+    | 'publications'
+    | 'merchandising'
+    | 'credits'
 
 export type AboutNavItem = {
     tab: AboutTab
@@ -16,6 +24,7 @@ export const aboutNavItems: AboutNavItem[] = [
     { tab: 'accessibility', label: 'Accessibility', href: '/about/accessibility' },
     { tab: 'pictures', label: 'Pictures', href: '/about/pictures' },
     { tab: 'publications', label: 'Publications', href: '/about/publications' },
+    { tab: 'merchandising', label: 'Merchandising', href: '/about/merchandising' },
     { tab: 'credits', label: 'Credits', href: '/about/credits' },
 ]
 
@@ -50,6 +59,11 @@ export const aboutIndexItems = [
         href: '/about/publications',
         label: 'Publications',
         description: 'Research and publications about Jutge.org',
+    },
+    {
+        href: '/about/merchandising',
+        label: 'Merchandising',
+        description: 'Stickers, t-shirts, and other Jutge.org merch',
     },
     {
         href: '/about/credits',

@@ -10,6 +10,7 @@ import {
     Megaphone,
     Send,
     Shield,
+    ShoppingBag as ShoppingBagIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -20,6 +21,7 @@ const indexIcons: Record<string, typeof Info> = {
     Accessibility: AccessibilityIcon,
     Pictures: Camera,
     Publications: FileText,
+    Merchandising: ShoppingBagIcon,
     Credits: Info,
 }
 

@@ -40,8 +40,8 @@ const GUEST_SECTIONS: HomeSectionNavItem[] = [
     { id: 'home-documentation', label: 'Documentation' },
     { id: 'home-github', label: 'Open source' },
     { id: 'home-collectible-cards', label: 'Collectible cards' },
-    { id: 'home-merchandising', label: 'Merchandising' },
     { id: 'home-testimonials', label: 'What people say' },
+    { id: 'home-merchandising', label: 'Merchandising' },
     { id: 'home-sponsors', label: 'Sponsors' },
 ]
 

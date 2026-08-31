@@ -71,6 +71,7 @@ import {
     MenuIcon,
     SearchIcon,
     ShieldIcon,
+    ShoppingBagIcon,
     StampIcon,
     StethoscopeIcon,
     TableIcon,
@@ -231,6 +232,8 @@ function MainNavAboutSubItemIcon({ href }: { href: string }) {
             return <CameraIcon aria-hidden />
         case '/about/publications':
             return <FileTextIcon aria-hidden />
+        case '/about/merchandising':
+            return <ShoppingBagIcon aria-hidden />
         case '/about/credits':
             return <Info aria-hidden />
         default:
