@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { StarIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
+import { shuffle } from 'radash'
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
 const EASE_BOUNCE = [0.68, -0.55, 0.265, 1.55] as const
@@ -25,7 +26,7 @@ const testimonials = [
     },
     {
         quote: 'Setting up exams used to take forever. Now I publish a list, open the exam window, and everything just works.',
-        name: 'Jordi Puig',
+        name: 'Jordi Pujolet',
         role: 'High-school teacher',
         initials: 'JP',
         stars: 5,
@@ -35,6 +36,13 @@ const testimonials = [
         name: 'Elena Rossi',
         role: 'Teaching assistant',
         initials: 'ER',
+        stars: 5,
+    },
+    {
+        quote: 'Contributing to Jutge.org (Mussol, Quizzes and the new web) has been a very enriching experience. The tutors have been incredibly kind and supportive throughout the process. Thanks to this project, I feel much more confident in my skills and much better prepared for future professional opportunities.',
+        name: 'Yeray Zalaya',
+        role: 'Student and contributor',
+        initials: 'YZ',
         stars: 5,
     },
 ]
@@ -69,7 +77,7 @@ export function TestimonialBlock() {
                     initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
                     transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, ease: EASE_OUT, delay: 0.2 }}
                 >
-                    {testimonials.map((testimonial, index) => (
+                    {shuffle(testimonials).slice(0, 4).map((testimonial, index) => (
                         <motion.div
                             animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                             className={cn(
