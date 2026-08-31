@@ -74,9 +74,10 @@ const PRODUCTS: MerchProduct[] = [
 
 type MerchandisingBlockProps = {
     embedded?: boolean
+    title?: boolean
 }
 
-export function MerchandisingBlock({ embedded = false }: MerchandisingBlockProps) {
+export function MerchandisingBlock({ embedded = false, title = true }: MerchandisingBlockProps) {
     const shouldReduceMotion = useReducedMotion()
     const [dialogOpen, setDialogOpen] = useState(false)
     const [selectedTitle, setSelectedTitle] = useState<string | null>(null)
@@ -98,6 +99,7 @@ export function MerchandisingBlock({ embedded = false }: MerchandisingBlockProps
             className="scroll-mt-14"
         >
             <div className={embedded ? undefined : 'mx-auto max-w-6xl px-6'}>
+            {title && (
                 <motion.div
                     className="mx-auto mb-12 max-w-2xl text-center"
                     initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
@@ -115,6 +117,7 @@ export function MerchandisingBlock({ embedded = false }: MerchandisingBlockProps
                         Stickers for your laptop, a t-shirt for your body, a mug for your coffee, and a figure for your desk. 
                     </p>
                 </motion.div>
+                )}
 
                 <ul className="mx-auto grid list-none grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:max-w-4xl lg:grid-cols-5">
                     {PRODUCTS.map((product) => (

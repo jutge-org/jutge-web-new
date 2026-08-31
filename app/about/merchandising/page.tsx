@@ -11,7 +11,7 @@ export default function AboutMerchandisingPage() {
             ]}
         >
             <div className="pt-6">
-            <MerchandisingBlock embedded/>
+            <MerchandisingBlock embedded title={false}/>
             </div>
         </AboutPageShell>
     )

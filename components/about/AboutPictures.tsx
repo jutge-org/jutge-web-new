@@ -16,12 +16,6 @@ const pictureGroups = [
         caption: 'Where Jutge.org runs',
         items: pictureItems.filter((picture) => /server/i.test(picture.alt) || /server/i.test(picture.title)),
     },
-    {
-        id: 'pictures-icons',
-        label: 'Icons',
-        caption: 'Visual identity',
-        items: pictureItems.filter((picture) => !(/server/i.test(picture.alt) || /server/i.test(picture.title))),
-    },
 ] as const
 
 function PictureThumbnail({ picture }: { picture: PictureItem }) {
