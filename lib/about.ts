@@ -94,10 +94,15 @@ export const maintenanceCredits: CreditPerson[] = [
         image: jutgeAsset('/img/credits/roura.png'),
         affiliation: 'Departament de Ciències de la Computació\nUniversitat Politècnica de Catalunya',
     },
+    {
+        name: 'Pau Fernández',
+        image: jutgeAsset('/img/credits/pauek.png'),
+        affiliation: 'Departament de Ciències de la Computació\nUniversitat Politècnica de Catalunya',
+    },
 ]
 
 export const developerCredits: CreditPerson[] = [
-    { name: 'Jordi Petit', image: jutgeAsset('/img/credits/jpetit.png'), role: 'leader' },
+    { name: 'Jordi Petit', image: jutgeAsset('/img/credits/jpetit.png')},
     { name: 'Salvador Roura', image: jutgeAsset('/img/credits/roura.png') },
     { name: 'Omer Giménez', image: jutgeAsset('/img/credits/omer.png') },
     { name: 'Alex Catarineu', image: jutgeAsset('/img/credits/user.png') },
@@ -110,14 +115,15 @@ export const developerCredits: CreditPerson[] = [
     { name: 'Cristina Raluca Vijulie', image: jutgeAsset('/img/credits/cristina.png') },
     { name: 'Jordi Reig Callis', image: jutgeAsset('/img/credits/jreig.png') },
     { name: 'Alejandro Adán Navarro', image: jutgeAsset('/img/credits/adan.png') },
-    { name: 'Carlos Martín Tresànchez', image: jutgeAsset('/img/credits/user.png') },
     { name: 'Pau Fernández', image: jutgeAsset('/img/credits/pauek.png') },
+    { name: 'Carlos Martín Tresànchez', image: jutgeAsset('/img/credits/user.png') },
     { name: 'Miquel Torner Viñals', image: jutgeAsset('/img/credits/mtorner.png') },
+    { name: 'Yeray Zalaya Domingo', image: jutgeAsset('/img/credits/yeray.png') },
 ]
 
 export const problemSetters = ['Salvador Roura', 'Jordi Petit', 'Omer Giménez', '... and many others']
 
-export const problemTranslators = ['Carlos Molina', 'Salvador Roura', 'Jordi Petit', 'Gabriel Vaiente', 'Albert Lobo']
+export const problemTranslators = ['Carlos Molina', 'Salvador Roura', 'Jordi Petit', 'Gabriel Vaiente', 'Albert Lobo', '... and many others']
 
 export type PictureItem = {
     src: string
@@ -160,6 +166,18 @@ export type PublicationItem = {
 export const publications: PublicationItem[] = [
     {
         html: `J. Petit, S. Roura, J. Carmona, J. Cortadella, A. Duch, O. Gimenez, A. Mani, J. Mas, E. Rodriguez-Carbonella, A. Rubio, J. de San Pedro, and D. Venkataramani. <a href="http://ieeexplore.ieee.org/document/7968379">Jutge.org: Characteristics and experiences</a>. IEEE Transactions on Learning Technologies, PP(99), 2017.`,
+    },
+    {
+        html: `M.&nbsp;J. Blesa, A.&nbsp;Duch, J.&nbsp;Gabarró, J.&nbsp;Petit, and M.&nbsp;Serna. <a href="http://hdl.handle.net/10045/125676">Análisis de la evolución de un curso: productividad y desigualdad</a>. In <cite>Actas de las XXII Jornadas sobre Enseñanza Universitaria de la Informática</cite>, volume 1, pages 161–168, 2016.`,
+    },
+    {
+        html: `Marta Ruiz Costa-jussà, Lluis Formiga, Oriol Torrillas, Jordi Petit, and José Adrián Rodríguez Fonollosa. <a href="http://dx.doi.org/10.19173/irrodl.v16i6.2145">A MOOC on approaches to machine translation</a>. <cite>International Review of Research in Open and Distributed Learning</cite>, 16(6), December 2015.`,
+    },
+    {
+        html: `M.&nbsp;J. Blesa, A.&nbsp;Duch, J.&nbsp;Gabarró, J.&nbsp;Petit, and M.&nbsp;J. Serna. <a href="http://dx.doi.org/10.1007/978-3-319-29585-5_18">Continuous assessment in the evolution of a CS1 course: The pass rate/workload ratio</a>. In <cite>Computer Supported Education - 7th International Conference, CSEDU 2015, Lisbon, Portugal, May 23-25, 2015, Revised Selected Papers</cite>, volume 583 of <em>Communications in Computer and Information Science</em>, pages 313–332. Springer, 2015.`,
+    },
+    {
+        html: `A.&nbsp;Duch, J.&nbsp;Gabarró, J.&nbsp;Petit, M.&nbsp;J. Blesa, and M.&nbsp;J. Serna. <a href="http://dx.doi.org/10.5220/0005432300570066">A cost-benefit analysis of continuous assessment</a>. In <cite>Proceedings of the 7th International Conference on Computer Supported Education</cite>, pages 57–66. SCITEPRESS, 2015.`,
     },
     {
         html: `Marta&nbsp;R. Costa-Jussà, Lluís Formiga, Jordi Petit, and José&nbsp;A.R. Fonollosa. <a href="http://dx.doi.org/10.1007/978-3-319-13647-9_10">Detailed description of the development of a MOOC in the topic of statistical machine translation</a>. In Alexander Gelbukh, Félix&nbsp;Castro Espinoza, and Sofía&nbsp;N. Galicia-Haro, editors, <em>Human-Inspired Computing and Its Applications</em>, volume 8856 of <em>Lecture Notes in Computer Science</em>, pages 92-98. Springer International Publishing, 2014.`,

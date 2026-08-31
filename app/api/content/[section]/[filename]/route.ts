@@ -9,7 +9,7 @@ type RouteParams = {
 export async function GET(_request: Request, { params }: RouteParams) {
     const { section, filename } = await params
 
-    if (section !== 'documentation' && section !== 'about') {
+    if (section !== 'documentation') {
         return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
     }
 

@@ -1,5 +1,5 @@
+import { AboutAccessibility } from '@/components/about/AboutAccessibility'
 import { AboutPageShell } from '@/components/about/AboutPageShell'
-import { MarkdownDoc } from '@/components/documentation/MarkdownDoc'
 
 export default function AboutAccessibilityPage() {
     return (
@@ -10,7 +10,7 @@ export default function AboutAccessibilityPage() {
                 { title: 'Accessibility', url: '/about/accessibility' },
             ]}
         >
-            <MarkdownDoc section="about" filename="accessibility.md" />
+            <AboutAccessibility />
         </AboutPageShell>
     )
 }

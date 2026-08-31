@@ -10,17 +10,16 @@ import remarkGfm from 'remark-gfm'
 
 type MarkdownDocProps = {
     filename: string
-    section?: 'documentation' | 'about'
 }
 
-export function MarkdownDoc({ filename, section = 'documentation' }: MarkdownDocProps) {
+export function MarkdownDoc({ filename }: MarkdownDocProps) {
     const [content, setContent] = useState<string | null>(null)
 
     useEffect(() => {
         let cancelled = false
 
         async function loadContent() {
-            const response = await fetch(`/api/content/${section}/${filename}`)
+            const response = await fetch(`/api/content/documentation/${filename}`)
             if (!response.ok || cancelled) {
                 return
             }
@@ -31,7 +30,7 @@ export function MarkdownDoc({ filename, section = 'documentation' }: MarkdownDoc
         return () => {
             cancelled = true
         }
-    }, [filename, section])
+    }, [filename])
 
     if (!content) {
         return <PageSpinner />

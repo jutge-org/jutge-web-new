@@ -1,89 +1,77 @@
-import type { ReactNode } from 'react'
+import { AboutInfoCard, AboutTimeline, AboutTimelineGroup, aboutCountLabel } from '@/components/about/AboutTimeline'
 import { developerCredits, maintenanceCredits, problemSetters, problemTranslators } from '@/lib/about'
-
-function CreditSection({ title, children }: { title: string; children: ReactNode }) {
-    return (
-        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-            <h2 className="border-b border-border bg-muted/40 px-6 py-3 text-sm font-semibold text-foreground">
-                {title}
-            </h2>
-            {children}
-        </section>
-    )
-}
-
-function MaintenancePerson({ name, image, affiliation }: { name: string; image: string; affiliation: string }) {
-    return (
-        <div className="flex gap-5 border-b border-border px-6 py-5 last:border-b-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt="" className="size-[120px] shrink-0 rounded-xl object-cover" />
-            <div className="min-w-0">
-                <h3 className="text-xl font-semibold text-foreground">{name}</h3>
-                <address className="mt-1 text-sm not-italic leading-relaxed text-muted-foreground whitespace-pre-line">
-                    {affiliation}
-                </address>
-            </div>
-        </div>
-    )
-}
-
-function DeveloperPerson({ name, image, role }: { name: string; image: string; role?: string }) {
-    return (
-        <div className="flex items-center gap-4 border-b border-border px-6 py-4 last:border-b-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt="" className="size-20 shrink-0 rounded-full object-cover" />
-            <p className="text-sm text-foreground">
-                {name}
-                {role ? ` (${role})` : ''}
-            </p>
-        </div>
-    )
-}
+import { LanguagesIcon, ListChecksIcon } from 'lucide-react'
 
 export function AboutCredits() {
     return (
-        <div className="flex flex-col gap-6">
-            <CreditSection title="Idea, development and maintenance">
+        <AboutTimeline labelWidth="11rem">
+            <AboutTimelineGroup
+                id="credits-core"
+                label="Lead"
+                caption={aboutCountLabel(maintenanceCredits.length, 'person', 'people')}
+            >
                 {maintenanceCredits.map((person) => (
-                    <MaintenancePerson
+                    <AboutInfoCard
                         key={person.name}
-                        name={person.name}
-                        image={person.image}
-                        affiliation={person.affiliation ?? ''}
+                        media={
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={person.image} alt="" className="size-20 shrink-0 rounded-xl object-cover" />
+                        }
+                        title={person.name}
+                        badge="Lead"
+                        description={
+                            person.affiliation ? (
+                                <address className="not-italic whitespace-pre-line">{person.affiliation}</address>
+                            ) : null
+                        }
                     />
                 ))}
-            </CreditSection>
+            </AboutTimelineGroup>
 
-            <CreditSection title="Developers">
-                {developerCredits.map((person) => (
-                    <DeveloperPerson
-                        key={`${person.name}-${person.role ?? 'dev'}`}
-                        name={person.name}
-                        image={person.image}
-                        role={person.role}
-                    />
-                ))}
-            </CreditSection>
-
-            <CreditSection title="Problem setters">
-                <ul className="divide-y divide-border">
-                    {problemSetters.map((name) => (
-                        <li key={name} className="px-6 py-3 text-sm text-muted-foreground">
-                            {name}
+            <AboutTimelineGroup
+                id="credits-team"
+                label="Developers"
+                caption={aboutCountLabel(developerCredits.length, 'person', 'people')}
+            >
+                <ul className="grid gap-3 sm:grid-cols-2">
+                    {developerCredits.map((person) => (
+                        <li key={`${person.name}-${person.role ?? 'dev'}`}>
+                            <AboutInfoCard
+                                media={
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                        src={person.image}
+                                        alt=""
+                                        className="size-11 shrink-0 rounded-full object-cover"
+                                    />
+                                }
+                                title={person.name}
+                                badge={person.role}
+                            />
                         </li>
                     ))}
                 </ul>
-            </CreditSection>
+            </AboutTimelineGroup>
 
-            <CreditSection title="Problem translators">
-                <ul className="divide-y divide-border">
-                    {problemTranslators.map((name) => (
-                        <li key={name} className="px-6 py-3 text-sm text-muted-foreground">
-                            {name}
-                        </li>
-                    ))}
-                </ul>
-            </CreditSection>
-        </div>
+            <AboutTimelineGroup id="credits-setters" label="Setters" caption="Problem authors">
+                <AboutInfoCard icon={ListChecksIcon} title="Problem setters" badge="Content">
+                    <ul className="mt-1.5 space-y-1 text-sm leading-relaxed text-muted-foreground">
+                        {problemSetters.map((name) => (
+                            <li key={name}>{name}</li>
+                        ))}
+                    </ul>
+                </AboutInfoCard>
+            </AboutTimelineGroup>
+
+            <AboutTimelineGroup id="credits-translators" label="Translators" caption="Problem translators">
+                <AboutInfoCard icon={LanguagesIcon} title="Problem translators" badge="Language">
+                    <ul className="mt-1.5 space-y-1 text-sm leading-relaxed text-muted-foreground">
+                        {problemTranslators.map((name) => (
+                            <li key={name}>{name}</li>
+                        ))}
+                    </ul>
+                </AboutInfoCard>
+            </AboutTimelineGroup>
+        </AboutTimeline>
     )
 }

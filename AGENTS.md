@@ -35,7 +35,7 @@ Use this section to locate code quickly. Prefer the **feature lookup table** fir
 | `lib/`                                                  | Pure helpers, domain logic, Monaco/highlight config. `lib/jutge.ts` is the browser singleton client.                                                            |
 | `hooks/`                                                | Client-side React hooks (preferences, Monaco/hljs themes, mobile).                                                                                              |
 | `store/`                                                | Zustand client state (e.g. `store/MainBreadcrumbs.ts`).                                                                                                         |
-| `content/`                                              | Markdown source for about/documentation pages (served via `app/api/content/**`).                                                                                |
+| `content/`                                              | Markdown source for documentation pages (served via `app/api/content/**`).                                                                                      |
 
 ### Data flow
 
@@ -50,7 +50,7 @@ Jutge API (HTTPS, token in jutge.meta from localStorage)
 ```
 
 - **Most pages are client components.** Data loads in `useEffect` via `lib/data/*` or direct `jutge` calls. Use `PageSpinner` from `ClientGates` while loading.
-- **Thin server pages** wrap about/docs shells (`AboutPageShell`, `DocumentationPageShell`): index pages, static `Prose` pages, and markdown pages that render `<MarkdownDoc />`. Some docs routes (verdicts, compilers) are thin server shells around client `*PageContent` components that fetch in `useEffect`.
+- **Thin server pages** wrap about/docs shells (`AboutPageShell`, `DocumentationPageShell`): about timeline pages, docs index, and markdown pages that render `<MarkdownDoc />`. Some docs routes (verdicts, compilers) are thin server shells around client `*PageContent` components that fetch in `useEffect`.
 - **Auth:** `components/AuthProvider.tsx` stores token/expiration in `localStorage`, sets `jutge.meta`, exposes `useAuth()`.
 - **Role gates:** `components/ClientGates.tsx` (`AuthedGate`, `InstructorGate`, `AdministratorGate`, `SupervisorGate`) use `LoginGate` / `AccessDeniedGate`.
 - **Instructor writes:** `lib/instructor/client.ts` via `withInstructorClient` (checks instructor role via `jutge.student.profile.get()`).
@@ -69,7 +69,7 @@ Jutge API (HTTPS, token in jutge.meta from localStorage)
 | Supervisors       | `/supervision/**`                                                                     | `components/supervision/`                                                | `lib/data/supervision.ts`, `lib/supervisor/client.ts`                         |
 | Instructors       | `/instructor/**`                                                                      | `components/instructor/**`                                               | `lib/instructor/client.ts`, `lib/instructor/*`, `lib/data/lists.ts`           |
 | Administrators    | `/administrator/**`                                                                   | `components/administrator/**`                                            | `lib/administrator/client.ts`                                                 |
-| Docs / about      | `/documentation/**`, `/about/**`                                                      | `components/documentation/`, `components/about/`                         | `lib/documentation.ts`, `lib/about.ts`, `lib/data/tables.ts`, `/api/content/` |
+| Docs / about      | `/documentation/**`, `/about/**`                                                      | `components/documentation/`, `components/about/`                         | `lib/documentation.ts`, `lib/about.ts`, `lib/data/tables.ts`                  |
 
 Instructor layout (`app/instructor/layout.tsx`) gates with `InstructorGate`. Administrator pages use `AdministratorGate`. Authed student pages use `AuthedGate`. Supervision pages use `SupervisorGate`.
 
@@ -99,7 +99,8 @@ Instructor layout (`app/instructor/layout.tsx`) gates with `InstructorGate`. Adm
 | JutgeAI (instructor)              | `instructor/jutgeai/**`                                                                    | `components/instructor/jutgeai/`                                               | direct `jutge` calls in views                                                                                            |
 | Admin dashboard                   | `administrator/**`                                                                         | `components/administrator/`                                                    | `lib/administrator/client.ts`                                                                                            |
 | Auth & session                    | —                                                                                          | `AuthProvider`, `SignInDialog`, `AuthToolbar`, `LoginGate`, `AccessDeniedGate` | `lib/jutge.ts`, `lib/session.ts`, `lib/data/auth.ts`                                                                     |
-| Docs / about markdown             | `documentation/faq`, `about/terms-of-service`, …                                           | `MarkdownDoc`, `DocumentationPageShell`, `AboutPageShell`                      | `app/api/content/[section]/[filename]/route.ts`                                                                          |
+| About                             | `/about/**`                                                                                | `AboutPageShell`, `AboutTimeline`, `components/about/`                         | `lib/about.ts`                                                                                                           |
+| Docs markdown                     | `documentation/faq`, `documentation/pylibs`, `documentation/code-metrics`                  | `MarkdownDoc`, `DocumentationPageShell`                                        | `app/api/content/[section]/[filename]/route.ts`                                                                          |
 | Docs tables (verdicts, compilers) | `documentation/verdicts/**`, `documentation/compilers/**`                                  | `VerdictsPageContent`, `CompilersPageContent`, …                               | `lib/data/tables.ts`                                                                                                     |
 
 ### Problem URLs and identifiers
