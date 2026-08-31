@@ -17,6 +17,8 @@ export interface ProductCardProps {
     rating?: number
     title: string
     subtitle: string
+    linkUrl?: string
+    linkText?: string
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -163,6 +165,8 @@ export default function ProductCard({
     badge,
     onAddToCart,
     onWishlist,
+    linkUrl,
+    linkText,
     className,
 }: ProductCardProps) {
     const shouldReduceMotion = useReducedMotion()
@@ -326,7 +330,7 @@ export default function ProductCard({
                                     key="cart"
                                     transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.15 }}
                                 >
-                                    <CartIcon /> Add to Cart
+                                    <CartIcon /> {linkText ?? 'Order now'}
                                 </motion.span>
                             )}
                         </AnimatePresence>
