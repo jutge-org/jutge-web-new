@@ -17,24 +17,31 @@ export function useHljsThemeStyles(theme: HljsThemeSelection) {
         const controller = new AbortController()
 
         async function loadTheme() {
-            const response = await fetch(`/api/hljs-themes/${theme}`, { signal: controller.signal })
-            if (!response.ok || cancelled) {
-                return
-            }
+            try {
+                const response = await fetch(`/api/hljs-themes/${theme}`, { signal: controller.signal })
+                if (!response.ok || cancelled) {
+                    return
+                }
 
-            const css = await response.text()
-            if (cancelled) {
-                return
-            }
+                const css = await response.text()
+                if (cancelled) {
+                    return
+                }
 
-            let style = document.getElementById(STYLE_ID) as HTMLStyleElement | null
-            if (!style) {
-                style = document.createElement('style')
-                style.id = STYLE_ID
-                document.head.appendChild(style)
-            }
+                let style = document.getElementById(STYLE_ID) as HTMLStyleElement | null
+                if (!style) {
+                    style = document.createElement('style')
+                    style.id = STYLE_ID
+                    document.head.appendChild(style)
+                }
 
-            style.textContent = css
+                style.textContent = css
+            } catch (error) {
+                if (error instanceof DOMException && error.name === 'AbortError') {
+                    return
+                }
+                throw error
+            }
         }
 
         void loadTheme()
