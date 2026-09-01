@@ -40,7 +40,7 @@ export const SUBMISSION_CALENDAR_HEIGHT_PX =
 function heatColor(value: number, max: number): string {
     if (value === 0) return 'var(--color-muted)'
     const intensity = 0.2 + (value / Math.max(max, 1)) * 0.8
-    return `color-mix(in srgb, var(--color-chart-1) ${Math.round(intensity * 100)}%, transparent)`
+    return `color-mix(in srgb, var(--submission-calendar-heat) ${Math.round(intensity * 100)}%, transparent)`
 }
 
 function cellLabel(cell: HeatmapCell): string {
