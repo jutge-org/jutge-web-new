@@ -18,7 +18,6 @@ import { DevIcon } from '@/components/administrator/DevIcon'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { ProblemTypeIcon } from '@/components/problems/ProblemTypeIcon'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { problemIconUrl } from '@/lib/problems'
@@ -85,18 +84,14 @@ export function ProblemInformation({ data }: ProblemInformationProps) {
             <Tooltip>
                 <TooltipTrigger asChild>
                     <DialogTrigger asChild>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-6 shrink-0 text-muted-foreground"
-                            aria-label="Problem information"
-                        >
-                            <InfoIcon className="size-3.5" aria-hidden />
-                        </Button>
+                        <Badge variant="outline" className="cursor-pointer hover:bg-muted px-1.5" asChild>
+                            <button type="button" aria-label="Problem information">
+                                <InfoIcon aria-hidden />
+                            </button>
+                        </Badge>
                     </DialogTrigger>
                 </TooltipTrigger>
-                <TooltipContent side="top">Problem information</TooltipContent>
+                <TooltipContent side="bottom">Problem information</TooltipContent>
             </Tooltip>
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
