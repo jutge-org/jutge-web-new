@@ -767,7 +767,7 @@ export function SignInBlock({ activeTab, onActiveTabChange, focusEmailKey = 0 }:
         <section id="home-account" aria-label="Account" className="scroll-mt-14">
             <div className="w-full px-6">
                 <motion.div
-                    className="relative flex flex-col gap-6 overflow-hidden rounded-xl border bg-primary/5 px-2 pt-2 pb-8"
+                    className="relative flex flex-col gap-6 overflow-hidden rounded-xl border bg-muted px-2 pt-2 pb-8 dark:bg-primary/5"
                     initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
                     transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.35, bounce: 0.1 }}
                     viewport={{ once: true, margin: '-80px' }}
@@ -775,11 +775,11 @@ export function SignInBlock({ activeTab, onActiveTabChange, focusEmailKey = 0 }:
                 >
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute -right-8 -top-8 size-40 rounded-full bg-brand/15 blur-2xl"
+                        className="pointer-events-none absolute -right-8 -top-8 hidden size-40 rounded-full bg-brand/15 blur-2xl dark:block"
                     />
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute -bottom-10 -left-6 size-36 rounded-full bg-primary/10 blur-2xl"
+                        className="pointer-events-none absolute -bottom-10 -left-6 hidden size-36 rounded-full bg-primary/10 blur-2xl dark:block"
                     />
 
                     <AnimatedTabs

@@ -57,14 +57,14 @@ export function RelatedSitesBlock() {
                 <div className="relative">
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute left-1/2 top-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-3xl sm:size-80"
+                        className="pointer-events-none absolute left-1/2 top-1/2 hidden size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-3xl dark:block sm:size-80"
                     />
                     <div className="relative grid grid-cols-2 gap-3 sm:gap-4">
                         {relatedSites.map((site, index) => {
                             const isExternal = site.href.startsWith('http')
                             return (
                                 <motion.a
-                                    className="group relative flex h-full flex-col items-center overflow-hidden rounded-xl border bg-primary/5 p-3 text-center ring-1 ring-primary/10 transition-all hover:scale-[1.02] hover:shadow-md sm:p-6"
+                                    className="group relative flex h-full flex-col items-center overflow-hidden rounded-xl border bg-muted p-3 text-center transition-all hover:scale-[1.02] hover:shadow-md sm:p-6 dark:bg-primary/5 dark:ring-1 dark:ring-primary/10"
                                     href={site.href}
                                     initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
                                     key={site.title}

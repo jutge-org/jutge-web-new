@@ -174,7 +174,7 @@ export function StatsBlock({ stats }: StatsBlockProps) {
                                 <p className="hidden text-foreground text-xs sm:block dark:text-foreground/70">{item.description}</p>
 
                                 <motion.div
-                                    className="absolute inset-0 bg-gradient-to-br from-brand/10 via-transparent to-transparent opacity-0 group-hover:opacity-100"
+                                    className="absolute inset-0 hidden bg-gradient-to-br from-brand/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 dark:block"
                                     initial={{ opacity: 0 }}
                                     transition={{ duration: 0.3 }}
                                     whileHover={{ opacity: 1 }}
@@ -209,7 +209,7 @@ export function StatsBlock({ stats }: StatsBlockProps) {
                             />
 
                             <motion.div
-                                className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/10 via-transparent to-transparent opacity-0 group-hover:opacity-100"
+                                className="pointer-events-none absolute inset-0 hidden bg-gradient-to-br from-brand/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 dark:block"
                                 initial={{ opacity: 0 }}
                                 transition={{ duration: 0.3 }}
                                 whileHover={{ opacity: 1 }}

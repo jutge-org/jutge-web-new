@@ -107,11 +107,11 @@ function ProblemListItem({ problem }: { problem: ProblemRow }) {
 function CoursesListCard({ courses }: { courses: GuestCourseRow[] | null }) {
     return (
         <div
-            className={`relative flex flex-col overflow-hidden rounded-2xl border bg-card p-4 shadow-sm ${CARD_HEIGHT}`}
+            className={`relative flex flex-col overflow-hidden rounded-2xl border bg-muted p-4 shadow-sm dark:bg-card ${CARD_HEIGHT}`}
         >
             <div
                 aria-hidden
-                className="pointer-events-none absolute -left-8 -top-8 size-40 rounded-full bg-brand/15 blur-2xl"
+                className="pointer-events-none absolute -left-8 -top-8 hidden size-40 rounded-full bg-brand/15 blur-2xl dark:block"
             />
             <div className="relative mb-2 flex shrink-0 items-center justify-between gap-2 px-2 pt-1">
                 <h3 className="font-semibold text-foreground text-lg">Featured public courses</h3>
@@ -161,11 +161,11 @@ function CoursesListCard({ courses }: { courses: GuestCourseRow[] | null }) {
 function ProblemsListCard({ problems }: { problems: ProblemRow[] | null }) {
     return (
         <div
-            className={`relative flex flex-col overflow-hidden rounded-2xl border bg-card p-4 shadow-sm ${CARD_HEIGHT}`}
+            className={`relative flex flex-col overflow-hidden rounded-2xl border bg-muted p-4 shadow-sm dark:bg-card ${CARD_HEIGHT}`}
         >
             <div
                 aria-hidden
-                className="pointer-events-none absolute -bottom-8 -left-8 size-40 rounded-full bg-brand/15 blur-2xl"
+                className="pointer-events-none absolute -bottom-8 -left-8 hidden size-40 rounded-full bg-brand/15 blur-2xl dark:block"
             />
             <div className="relative mb-2 flex shrink-0 items-center justify-between gap-2 px-2 pt-1">
                 <h3 className="font-semibold text-foreground text-lg">Sample public problems</h3>

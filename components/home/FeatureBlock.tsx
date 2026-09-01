@@ -44,8 +44,8 @@ function FeatureCard({ title, tagline, icon: Icon, features, variant }: FeatureC
         <div
             className={
                 variant === 'muted'
-                    ? 'relative flex flex-col overflow-hidden rounded-2xl border bg-muted/50 p-8'
-                    : 'relative flex flex-col overflow-hidden rounded-2xl border bg-card p-8 shadow-sm'
+                    ? 'relative flex flex-col overflow-hidden rounded-2xl border bg-muted p-8 dark:bg-muted/50'
+                    : 'relative flex flex-col overflow-hidden rounded-2xl border bg-muted p-8 shadow-sm dark:bg-card'
             }
         >
             {variant === 'muted' ? (
@@ -62,22 +62,22 @@ function FeatureCard({ title, tagline, icon: Icon, features, variant }: FeatureC
                 <>
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute top-1/2 -right-8 size-40 -translate-y-1/2 rounded-full bg-brand/15 blur-2xl"
+                        className="pointer-events-none absolute top-1/2 -right-8 hidden size-40 -translate-y-1/2 rounded-full bg-brand/15 blur-2xl dark:block"
                     />
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute top-1/2 -left-6 size-36 -translate-y-1/2 rounded-full bg-primary/10 blur-2xl"
+                        className="pointer-events-none absolute top-1/2 -left-6 hidden size-36 -translate-y-1/2 rounded-full bg-primary/10 blur-2xl dark:block"
                     />
                 </>
             ) : (
                 <>
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute top-1/2 -left-8 size-40 -translate-y-1/2 rounded-full bg-brand/15 blur-2xl"
+                        className="pointer-events-none absolute top-1/2 -left-8 hidden size-40 -translate-y-1/2 rounded-full bg-brand/15 blur-2xl dark:block"
                     />
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute top-1/2 -right-6 size-36 -translate-y-1/2 rounded-full bg-primary/10 blur-2xl"
+                        className="pointer-events-none absolute top-1/2 -right-6 hidden size-36 -translate-y-1/2 rounded-full bg-primary/10 blur-2xl dark:block"
                     />
                 </>
             )}

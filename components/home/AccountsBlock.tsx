@@ -90,7 +90,7 @@ export function AccountsBlock() {
                     {plans.map((plan, index) => (
                         <motion.div
                             animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                            className="group relative flex flex-col overflow-hidden rounded-2xl border bg-muted/50 p-8 transition-all hover:scale-[1.02] hover:shadow-md"
+                            className="group relative flex flex-col overflow-hidden rounded-2xl border bg-muted p-8 transition-all hover:scale-[1.02] hover:shadow-md dark:bg-muted/50"
                             initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 40 }}
                             key={plan.title}
                             transition={
@@ -134,7 +134,7 @@ export function AccountsBlock() {
 
                             <div
                                 aria-hidden
-                                className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                className="pointer-events-none absolute inset-0 hidden bg-gradient-to-br from-brand/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:block"
                             />
                         </motion.div>
                     ))}
