@@ -41,6 +41,7 @@ function buildSubmissionSearchHaystack(row: SubmissionRow): string {
         row.submission_id,
         row.verdict,
         row.verdictFullName,
+        row.verdict_info ?? '',
         row.compiler_id,
         row.compilerFullName,
         row.annotation ?? '',
@@ -232,6 +233,7 @@ export type SubmissionRow = {
     iconUrl: string | null
     verdict: string
     verdictFullName: string
+    verdict_info: string | null
     verdictEmoji?: string
     compiler_id: string
     compilerFullName: string
@@ -275,6 +277,7 @@ export function buildSubmissionRow(
         iconUrl,
         verdict,
         verdictFullName: verdictMeta?.name ?? verdict,
+        verdict_info: submission.veredict_info,
         verdictEmoji: verdictMeta?.emoji,
         compiler_id: submission.compiler_id,
         compilerFullName: compilerMeta?.name ?? submission.compiler_id,

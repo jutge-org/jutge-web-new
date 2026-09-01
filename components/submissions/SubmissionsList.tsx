@@ -194,19 +194,34 @@ export function SubmissionsList(props: SubmissionsListProps) {
             {
                 field: 'verdict',
                 headerName: 'Verdict',
-                width: 100,
+                width: 180,
                 sortable: true,
                 filter: true,
                 hide: !columnVisibility.verdict,
                 cellRenderer: (params: { data: SubmissionRow }) => (
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <span>{params.data.verdict}</span>
+                            <span className="flex min-w-0 items-baseline gap-1">
+                                <span className="shrink-0">{params.data.verdict}</span>
+                                {params.data.verdict_info ? (
+                                    <span className="ml-2 min-w-0 truncate text-xs text-muted-foreground">
+                                        {params.data.verdict_info}
+                                    </span>
+                                ) : null}
+                            </span>
                         </TooltipTrigger>
-                        <TooltipContent side="top">{params.data.verdictFullName}</TooltipContent>
+                        <TooltipContent side="left" className="flex flex-col">
+                            <p>{params.data.verdictFullName}</p>
+                            {params.data.verdict_info ? (
+                                <p className="text-xs">({params.data.verdict_info})</p>
+                            ) : null}
+                        </TooltipContent>
                     </Tooltip>
                 ),
-                valueGetter: (params: { data: SubmissionRow }) => params.data.verdict,
+                valueGetter: (params: { data: SubmissionRow }) =>
+                    params.data.verdict_info
+                        ? `${params.data.verdict} ${params.data.verdict_info}`
+                        : params.data.verdict,
             },
             {
                 field: 'compiler_id',
