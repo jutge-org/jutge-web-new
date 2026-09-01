@@ -26,7 +26,7 @@ type MerchProduct = {
 const PRODUCTS: MerchProduct[] = [
     {
         id: 'stickers',
-        image: '/svg/AC.svg',
+        image: '/verdicts/svg/AC.svg',
         title: 'AC/WA Stickers',
         subtitle: '5 units, ⌀50mm',
         price: 9,
