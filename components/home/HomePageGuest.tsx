@@ -27,9 +27,9 @@ const HEADER_OFFSET_PX = 56
 const GUEST_SECTIONS: HomeSectionNavItem[] = [
     { id: 'home-hero', label: 'Jutge.org' },
     { id: 'home-account', label: 'Sign in' },
+    { id: 'home-stats', label: 'Platform at a glance' },
     { id: 'home-features', label: 'Learn and teach' },
     { id: 'home-courses-problems', label: 'Courses and problems' },
-    { id: 'home-stats', label: 'Platform at a glance' },
     { id: 'home-accounts', label: 'Accounts' },
     { id: 'home-related-sites', label: 'Related sites' },
     { id: 'home-telegram', label: 'Stay informed' },
@@ -132,9 +132,9 @@ export function HomePageGuest() {
             <div className="mt-6 flex flex-col gap-16 md:gap-24">
                 <HeroBlock />
                 <SignInBlock activeTab={accountTab} onActiveTabChange={setAccountTab} focusEmailKey={focusEmailKey} />
+                <StatsBlock />
                 <FeatureBlock />
                 <CoursesAndProblemsBlock />
-                <StatsBlock />
                 <AccountsBlock />
                 <RelatedSitesBlock />
                 <TelegramBlock />
