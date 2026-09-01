@@ -1,0 +1,27 @@
+
+*** These modified files were found in JOE when it aborted on Tue Sep  1 15:06:09 2026
+*** JOE was aborted because the terminal closed
+
+*** File '(Unnamed)'
+jutge
+prof
+Email: 
+
+*** File '(Unnamed)'
+/Users/jpetit/Library/KeyBindings/DefaultKeyBinding.dict
+/etc/hosts
+.ssh/config
+.ssh/config
+package.json
+.ssh/config
+.ssh/config
+.ssh/config
+mails.txt
+mails.txt
+IC.svg
+
+*** File '* Startup Log *'
+Processing '/opt/homebrew/Cellar/joe/4.8/etc/joe/joerc'...
+Processing '/opt/homebrew/Cellar/joe/4.8/etc/joe/ftyperc'...
+Finished processing /opt/homebrew/Cellar/joe/4.8/etc/joe/ftyperc
+Finished processing /opt/homebrew/Cellar/joe/4.8/etc/joe/joerc

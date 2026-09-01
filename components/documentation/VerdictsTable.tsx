@@ -1,6 +1,6 @@
 'use client'
 
-import { AgTableFull } from '@/components/administrator/AgTable'
+import { AgTableAutoHeight } from '@/components/administrator/AgTable'
 import type { Verdict } from '@/lib/jutge_api_client'
 import Link from 'next/link'
 
@@ -41,5 +41,5 @@ const colDefs = [
 ]
 
 export function VerdictsTable({ verdicts }: VerdictsTableProps) {
-    return <AgTableFull rowData={verdicts} columnDefs={colDefs} />
+    return <AgTableAutoHeight rowData={verdicts} columnDefs={colDefs} />
 }
