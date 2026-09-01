@@ -40,7 +40,7 @@ export function tallyProblemStatuses(
     return { total: distinct.size, ok, scored, ko }
 }
 
-const DEFAULT_COURSE_ICON_URL = 'https://jutge.org/img/course-icons/default/jutge-neon.png'
+const DEFAULT_COURSE_ICON_URL = 'https://jutge.org/img/courses-icons/default/jutge-neon.webp'
 
 export function courseIconUrl(icon: string | null | undefined): string {
     if (!icon) {
