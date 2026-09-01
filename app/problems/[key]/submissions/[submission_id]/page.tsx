@@ -8,7 +8,7 @@ import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
 import { ProblemDetail } from '@/components/problems/ProblemDetail'
 import { SubmissionDetailView } from '@/components/submissions/SubmissionDetailView'
 import { SubmissionPendingRefresh } from '@/components/submissions/SubmissionPendingRefresh'
-import { useProblemShell } from '@/hooks/useProblemShell'
+import { hasInstructorProblemAccess, useProblemShell } from '@/hooks/useProblemShell'
 import jutge from '@/lib/jutge'
 import { buildSubmissionNavLinks, type SubmissionNavLinks } from '@/lib/submissions'
 import { problemLoadedBreadcrumbs, problemTrailBreadcrumbs } from '@/lib/problemBreadcrumbs'
@@ -87,7 +87,8 @@ function ProblemSubmissionDetailPageContent({ isAdministrator }: { isAdministrat
               ])
 
     const codeHref = `${submissionHref}/code`
-    const debugHref = `${submissionHref}/debug/view`
+    const access = hasInstructorProblemAccess(shell.isInstructorOwner, isAdministrator)
+    const debugHref = access === true ? `${submissionHref}/debug/view` : undefined
     const submissionLoading = submissionDetail === undefined
 
     return (

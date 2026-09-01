@@ -10,7 +10,7 @@ import jutge from '@/lib/jutge'
 import { getDebugInformationFields, hasDebugInformation } from '@/lib/debugInformation'
 import { parseProblemKey } from '@/lib/problems'
 import { buildSubmissionNavLinks } from '@/lib/submissions'
-import { fetchProblemDetail, resolveProblemId } from '@/lib/data/problemDetail'
+import { fetchInstructorOwnsProblem, fetchProblemDetail, resolveProblemId } from '@/lib/data/problemDetail'
 import { fetchSubmissionDetail } from '@/lib/data/submissions'
 
 type PageData = {
@@ -54,6 +54,12 @@ function ProblemSubmissionDebugViewPageContent({ isAdministrator }: { isAdminist
 
             const parsed = parseProblemKey(problemId)
             const problem_nm = parsed.kind === 'problem_id' ? parsed.problem_nm : data.problem.problem_nm
+
+            const isInstructorOwner = await fetchInstructorOwnsProblem(problem_nm)
+            if (!isInstructorOwner && !isAdministrator) {
+                setPageData(null)
+                return
+            }
 
             const isExamOrContest = await jutge.student.exam.get().then(
                 () => true,
