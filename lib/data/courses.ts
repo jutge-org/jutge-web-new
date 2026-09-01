@@ -13,7 +13,13 @@ import {
     type GuestCourseRow,
 } from '@/lib/courses'
 import jutge from '@/lib/jutge'
-import { JutgeApiClient, type Course, type PublicCourse, type PublicCourses } from '@/lib/jutge_api_client'
+import {
+    JutgeApiClient,
+    type BriefCourse,
+    type Course,
+    type PublicCourse,
+    type PublicCourses,
+} from '@/lib/jutge_api_client'
 
 async function resolveEnrolledCourseKey(client: JutgeApiClient, courseKeyParam: string): Promise<string | null> {
     const normalized = normalizeCourseKeyParam(courseKeyParam)
@@ -52,7 +58,7 @@ function normalizeCourseKeyForMatch(key: string): string {
 function isArchivedEnrolledCourse(
     archivedKeys: readonly string[],
     apiKey: string,
-    course: { owner: { username: string | null; email: string }; course_nm: string },
+    course: Pick<BriefCourse, 'owner' | 'course_nm'>,
 ): boolean {
     const aliases = new Set(
         [apiKey, buildCourseKey(course.owner, course.course_nm), `${course.owner.email}:${course.course_nm}`].map(
