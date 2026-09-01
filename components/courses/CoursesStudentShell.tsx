@@ -45,6 +45,8 @@ export function CoursesTabPage({ activeTab, userId }: CoursesTabPageProps) {
     const [data, setData] = useState<CoursesData | null>(null)
     const [progress, setProgress] = useState<Record<string, CourseProgress> | undefined>(undefined)
     const [progressLoading, setProgressLoading] = useState(false)
+    // Bumped after enroll/archive/etc. router.refresh() does not re-run this client fetch.
+    const [reloadToken, setReloadToken] = useState(0)
 
     useEffect(() => {
         let cancelled = false
@@ -61,6 +63,7 @@ export function CoursesTabPage({ activeTab, userId }: CoursesTabPageProps) {
             // Archived courses are still enrolled, so both tabs can show progress.
             const courseKeys = [...coursesData.enrolled, ...coursesData.archived].map((course) => course.course_key)
             if (courseKeys.length === 0) {
+                setProgress(undefined)
                 return
             }
 
@@ -80,7 +83,7 @@ export function CoursesTabPage({ activeTab, userId }: CoursesTabPageProps) {
         return () => {
             cancelled = true
         }
-    }, [])
+    }, [reloadToken])
 
     // Available courses carry no progress: the student has not worked on them yet.
     const tabHasProgress = activeTab !== 'available'
@@ -94,6 +97,7 @@ export function CoursesTabPage({ activeTab, userId }: CoursesTabPageProps) {
                 loading={data === null}
                 progress={tabHasProgress ? progress : undefined}
                 progressLoading={tabHasProgress && progressLoading}
+                onCoursesChanged={() => setReloadToken((token) => token + 1)}
             />
         </CoursesStudentShell>
     )

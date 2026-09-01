@@ -57,6 +57,8 @@ type CoursesListProps = {
     /** Per-course progress, keyed by course key. Loaded after the cards first render. */
     progress?: Record<string, CourseProgress>
     progressLoading?: boolean
+    /** Re-fetch the list. This page loads on the client, so router.refresh() does not re-run it. */
+    onCoursesChanged?: () => void
 }
 
 type CourseAction = CourseStudentAction
@@ -201,6 +203,7 @@ export function CoursesList({
     loading = false,
     progress,
     progressLoading = false,
+    onCoursesChanged,
 }: CoursesListProps) {
     const router = useRouter()
     const [pendingKey, setPendingKey] = useState<string | null>(null)
@@ -256,6 +259,7 @@ export function CoursesList({
             if (result.ok) {
                 toast.success(courseActionSuccessMessage(action, course.title, course.ownerName))
                 router.refresh()
+                onCoursesChanged?.()
                 return
             }
 

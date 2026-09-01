@@ -37,6 +37,32 @@ async function resolveEnrolledCourseKey(client: JutgeApiClient, courseKeyParam: 
     return null
 }
 
+function normalizeCourseKeyForMatch(key: string): string {
+    try {
+        return normalizeCourseKeyParam(key).toLowerCase()
+    } catch {
+        return key.trim().toLowerCase()
+    }
+}
+
+/**
+ * Enrolled index keys and archived keys are not guaranteed to use the same spelling
+ * (username vs email, casing, encoding). Treat a course as archived if any known alias matches.
+ */
+function isArchivedEnrolledCourse(
+    archivedKeys: readonly string[],
+    apiKey: string,
+    course: { owner: { username: string | null; email: string }; course_nm: string },
+): boolean {
+    const aliases = new Set(
+        [apiKey, buildCourseKey(course.owner, course.course_nm), `${course.owner.email}:${course.course_nm}`].map(
+            normalizeCourseKeyForMatch,
+        ),
+    )
+
+    return archivedKeys.some((archivedKey) => aliases.has(normalizeCourseKeyForMatch(archivedKey)))
+}
+
 async function resolveAvailableCourseKey(client: JutgeApiClient, courseKeyParam: string): Promise<string | null> {
     const normalized = normalizeCourseKeyParam(courseKeyParam)
     const availableMap = await client.student.courses.indexAvailable()
@@ -84,18 +110,18 @@ export async function fetchCoursesData(client: JutgeApiClient): Promise<CoursesD
         fetchPublicProblemCounts(),
     ])
 
-    const archivedKeySet = new Set(archivedKeys)
     const enrolledRows: ReturnType<typeof buildCourseRow>[] = []
     const archivedRows: ReturnType<typeof buildCourseRow>[] = []
 
     for (const [apiKey, course] of Object.entries(enrolledMap)) {
+        const archived = isArchivedEnrolledCourse(archivedKeys, apiKey, course)
         const row = buildCourseRow(
             course,
-            archivedKeySet.has(apiKey) ? 'archived' : 'enrolled',
+            archived ? 'archived' : 'enrolled',
             apiKey,
             isCourseOwnedByUser(course.owner, profile),
         )
-        if (archivedKeySet.has(apiKey)) {
+        if (archived) {
             archivedRows.push(row)
         } else {
             enrolledRows.push(row)
@@ -133,14 +159,18 @@ export async function fetchCourse(client: JutgeApiClient, courseKeyParam: string
                 client.student.courses.getEnrolled(enrolledKey),
                 client.student.courses.getArchivedKeys(),
             ])
-            const status: CourseStatus = archivedKeys.includes(enrolledKey) ? 'archived' : 'enrolled'
+            const status: CourseStatus = isArchivedEnrolledCourse(archivedKeys, enrolledKey, course)
+                ? 'archived'
+                : 'enrolled'
             return { courseKey: enrolledKey, course, status }
         } catch {
             const enrolledMap = await client.student.courses.indexEnrolled()
             const brief = enrolledMap[enrolledKey]
             if (brief) {
                 const archivedKeys = await client.student.courses.getArchivedKeys()
-                const status: CourseStatus = archivedKeys.includes(enrolledKey) ? 'archived' : 'enrolled'
+                const status: CourseStatus = isArchivedEnrolledCourse(archivedKeys, enrolledKey, brief)
+                    ? 'archived'
+                    : 'enrolled'
                 return { courseKey: enrolledKey, course: { ...brief, lists: [] }, status }
             }
         }
