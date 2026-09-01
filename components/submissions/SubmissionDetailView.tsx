@@ -1,6 +1,8 @@
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { ChevronLeftIcon, ChevronRightIcon, ChevronsRightIcon, ChevronUpIcon } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 import { CircuitErrorReportCard } from '@/components/submissions/CircuitErrorReportCard'
 import { CircuitErrorTraceCard } from '@/components/submissions/CircuitErrorTraceCard'
@@ -17,7 +19,8 @@ import { SubmissionSourceCodeCard } from '@/components/submissions/SubmissionSou
 import { WidgetSpinner } from '@/components/general/WidgetSpinner'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { compilerIdToSlug } from '@/lib/documentation'
 import { parseSubmissionTime, type SubmissionNavLinks } from '@/lib/submissions'
 import { cn } from '@/lib/utils'
 import type { ScoringRow, SubmissionDetailData } from '@/lib/data/submissions'
@@ -58,8 +61,8 @@ type SubmissionDetailViewProps =
 
 function DetailRow({ label, children }: { label: string; children: ReactNode }) {
     return (
-        <div className="grid gap-1 border-b border-border py-2 last:border-b-0 sm:grid-cols-[8rem_1fr] sm:gap-3">
-            <dt className="text-sm font-medium text-foreground">{label}</dt>
+        <div className="grid gap-0.5 py-0.5 sm:grid-cols-[8rem_1fr] sm:gap-3">
+            <dt className="text-sm font-medium text-foreground sm:text-right pr-4">{label}</dt>
             <dd className="text-sm text-muted-foreground">{children}</dd>
         </div>
     )
@@ -112,7 +115,7 @@ export function SubmissionDetailView(props: SubmissionDetailViewProps) {
                                     data-recent-verdict-emoji={data.verdictEmoji}
                                     className={cn('text-xl', isPending && 'animate-pulse')}
                                 >
-                                    {data.verdictEmoji}
+                                    Submission
                                 </span>
                             ) : null}
                             <span>{data.submission.submission_id}</span>
@@ -136,54 +139,58 @@ export function SubmissionDetailView(props: SubmissionDetailViewProps) {
                             </CardAction>
                         ) : null}
                     </CardHeader>
-                    <CardContent className="px-6 py-0">
-                        <dl>
-                            <DetailRow label="Verdict">
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <span
-                                            className={cn(
-                                                'inline-flex items-center gap-1.5',
-                                                isPending && 'animate-pulse',
-                                            )}
+                    <CardContent className="px-6 py-4">
+                        <div className="flex items-center gap-0">
+                            <Image
+                                src={`/verdicts/svg/${data.verdict}.svg`}
+                                alt=""
+                                width={110}
+                                height={110}
+                                className={cn('shrink-0', isPending && 'animate-pulse')}
+                            />
+                            <dl className="min-w-0 flex-1">
+                                <DetailRow label="Verdict">
+                                    <span
+                                        className={cn(
+                                            'inline-flex flex-wrap items-center',
+                                            isPending && 'animate-pulse',
+                                        )}
+                                    >
+                                        <Link
+                                            href={`/documentation/verdicts/${data.verdict}`}
+                                            className="font-medium text-primary underline-offset-4 hover:underline"
                                         >
-                                            {data.verdictEmoji ? <span aria-hidden>{data.verdictEmoji}</span> : null}
-                                            {data.verdict}
-                                            {scoringSummary ? (
-                                                <span
-                                                    className="tabular-nums text-foreground"
-                                                    aria-label={`${scoringSummary.obtained} of ${scoringSummary.total} points`}
-                                                >
-                                                    {scoringSummary.obtained}/{scoringSummary.total}
-                                                </span>
-                                            ) : null}
-                                        </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">{data.verdictFullName}</TooltipContent>
-                                </Tooltip>
-                            </DetailRow>
-                            <DetailRow label="Compiler">
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <span>{submission.compiler_id}</span>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">{data.compilerFullName}</TooltipContent>
-                                </Tooltip>
-                            </DetailRow>
-                            <DetailRow label="Submitted">{submittedAtLabel}</DetailRow>
-                            {submission.annotation ? (
-                                <DetailRow label="Annotation">{submission.annotation}</DetailRow>
-                            ) : null}
-                            {submission.veredict_info ? (
-                                <DetailRow label="Verdict info">{submission.veredict_info}</DetailRow>
-                            ) : null}
-                            {submission.ok_publics_but_wrong > 0 ? (
-                                <DetailRow label="Public failures">
-                                    {submission.ok_publics_but_wrong} public test case
-                                    {submission.ok_publics_but_wrong === 1 ? '' : 's'} failed
+                                            {data.verdictFullName}
+                                        </Link>
+                                        {submission.veredict_info && 
+                                            <span className="ml-1">
+                                                ({submission.veredict_info})
+                                            </span>
+                                        }
+                                        {scoringSummary ? (
+                                            <span
+                                                className="tabular-nums text-foreground"
+                                                aria-label={`${scoringSummary.obtained} of ${scoringSummary.total} points`}
+                                            >
+                                                {scoringSummary.obtained}/{scoringSummary.total}
+                                            </span>
+                                        ) : null}
+                                    </span>
                                 </DetailRow>
-                            ) : null}
-                        </dl>
+                                <DetailRow label="Compiler">
+                                    <Link
+                                        href={`/documentation/compilers/${compilerIdToSlug(submission.compiler_id)}`}
+                                        className="font-medium text-primary underline-offset-4 hover:underline"
+                                    >
+                                        {submission.compiler_id}
+                                    </Link>
+                                </DetailRow>
+                                <DetailRow label="Submitted">{submittedAtLabel}</DetailRow>
+                                {submission.annotation ? (
+                                    <DetailRow label="Annotation">{submission.annotation}</DetailRow>
+                                ) : null}                                
+                            </dl>
+                        </div>
                     </CardContent>
                 </Card>
 
