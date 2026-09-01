@@ -13,6 +13,7 @@ export type SupervisionCourseOption = {
     courseKey: string
     title: string
     iconUrl: string
+    archived: boolean
 }
 
 export type SupervisionStudentOption = {

@@ -6,7 +6,14 @@ import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ProfileFormRow } from '@/components/profile/ProfileFormRow'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandItem,
+    CommandList,
+    CommandSeparator,
+} from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useSupervisionCoursePreference } from '@/hooks/use-supervision-course-preference'
 import { useSupervisionStudentPreference } from '@/hooks/use-supervision-student-preference'
@@ -56,6 +63,25 @@ function CourseCombobox({
             (course) => includesForSearch(course.title, search) || includesForSearch(course.courseKey, search),
         )
     }, [courses, search])
+    const activeCourses = filteredCourses.filter((course) => !course.archived)
+    const archivedCourses = filteredCourses.filter((course) => course.archived)
+
+    function renderCourseItem(course: SupervisionCourseOption) {
+        return (
+            <CommandItem
+                key={course.courseKey}
+                value={course.courseKey}
+                onSelect={() => {
+                    onValueChange(course.courseKey)
+                    setOpen(false)
+                    setSearch('')
+                }}
+            >
+                <CourseIconImage iconUrl={course.iconUrl} size="xs" className="rounded" />
+                <span className="truncate">{course.title}</span>
+            </CommandItem>
+        )
+    }
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -83,22 +109,15 @@ function CourseCombobox({
                     <CommandSearchInput placeholder="Search courses…" value={search} onValueChange={setSearch} />
                     <CommandList>
                         <CommandEmpty>No matching courses found.</CommandEmpty>
-                        <CommandGroup>
-                            {filteredCourses.map((course) => (
-                                <CommandItem
-                                    key={course.courseKey}
-                                    value={course.courseKey}
-                                    onSelect={() => {
-                                        onValueChange(course.courseKey)
-                                        setOpen(false)
-                                        setSearch('')
-                                    }}
-                                >
-                                    <CourseIconImage iconUrl={course.iconUrl} size="xs" className="rounded" />
-                                    <span className="truncate">{course.title}</span>
-                                </CommandItem>
-                            ))}
-                        </CommandGroup>
+                        {activeCourses.length > 0 ? (
+                            <CommandGroup>{activeCourses.map(renderCourseItem)}</CommandGroup>
+                        ) : null}
+                        {activeCourses.length > 0 && archivedCourses.length > 0 ? <CommandSeparator /> : null}
+                        {archivedCourses.length > 0 ? (
+                            <CommandGroup heading="Archived courses">
+                                {archivedCourses.map(renderCourseItem)}
+                            </CommandGroup>
+                        ) : null}
                     </CommandList>
                 </Command>
             </PopoverContent>

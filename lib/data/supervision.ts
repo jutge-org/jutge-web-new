@@ -12,6 +12,14 @@ import { fetchCourse, fetchCoursesData } from '@/lib/data/courses'
 import { fetchCourseListsData, type CourseListData } from '@/lib/data/lists'
 import { fetchAllAbstractProblems, fetchLanguages } from '@/lib/data/problems'
 
+function compareSupervisionCourseOptions(a: SupervisionCourseOption, b: SupervisionCourseOption): number {
+    if (a.archived !== b.archived) {
+        return a.archived ? 1 : -1
+    }
+
+    return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+}
+
 export async function fetchSupervisionCourseOptions(): Promise<SupervisionCourseOption[]> {
     const client = await getCurrentClient()
     const [courseKeys, coursesData] = await Promise.all([
@@ -19,16 +27,19 @@ export async function fetchSupervisionCourseOptions(): Promise<SupervisionCourse
         fetchCoursesData(client),
     ])
 
-    const enrolledByKey = new Map(coursesData.enrolled.map((course) => [course.course_key, course]))
+    const knownCourses = [...coursesData.enrolled, ...coursesData.archived]
+    const knownByKey = new Map(knownCourses.map((course) => [course.course_key, course]))
+    const knownByLowerKey = new Map(knownCourses.map((course) => [course.course_key.toLowerCase(), course]))
     const options: SupervisionCourseOption[] = []
 
     for (const courseKey of courseKeys) {
-        const enrolled = enrolledByKey.get(courseKey)
-        if (enrolled) {
+        const known = knownByKey.get(courseKey) ?? knownByLowerKey.get(courseKey.toLowerCase())
+        if (known) {
             options.push({
                 courseKey,
-                title: enrolled.title,
-                iconUrl: enrolled.iconUrl,
+                title: known.title,
+                iconUrl: known.iconUrl,
+                archived: known.status === 'archived',
             })
             continue
         }
@@ -40,6 +51,7 @@ export async function fetchSupervisionCourseOptions(): Promise<SupervisionCourse
                 courseKey,
                 title: row.title,
                 iconUrl: row.iconUrl,
+                archived: fetched.status === 'archived',
             })
             continue
         }
@@ -48,10 +60,11 @@ export async function fetchSupervisionCourseOptions(): Promise<SupervisionCourse
             courseKey,
             title: listTitleFromKey(courseKey),
             iconUrl: courseIconUrl(null),
+            archived: false,
         })
     }
 
-    return options.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }))
+    return options.sort(compareSupervisionCourseOptions)
 }
 
 export type SupervisionStudentPageData = {
