@@ -11,7 +11,6 @@ import { decodeSubmissionCodeBase64 } from '@/lib/makePro2SourceCode'
 import { isGraphicProblem, parseProblemKey } from '@/lib/problems'
 import {
     buildProblemSubmissionRow,
-    formatSubmissionTime,
     submissionVerdict,
     type ProblemSubmissionRow,
 } from '@/lib/submissions'
@@ -19,6 +18,7 @@ import { supervisionProblemHref, supervisionSubmissionHref, type SupervisionCont
 import { withSupervisorClient } from '@/lib/supervisor/client'
 import jutge from '@/lib/jutge'
 import type {
+    AllTables,
     CompilationErrors,
     JutgeApiClient,
     Scoring,
@@ -30,7 +30,17 @@ import type {
 } from '@/lib/jutge_api_client'
 
 import { fetchAbstractProblem } from './problemDetail'
-import type { SubmissionDetailData, SubmissionTestcaseAnalysisData } from './submissions'
+import {
+    buildSubmissionDetailCore,
+    decorateAnalysis,
+    decorateScoring,
+    EMPTY_SUBMISSION_SECTIONS,
+    type SubmissionDetailData,
+    type SubmissionDetailResolved,
+    type SubmissionDetailSections,
+    type SubmissionSourceContent,
+    type SubmissionTestcaseAnalysisData,
+} from './submissions'
 
 function tutorSubmissionParams(ctx: SupervisionContext, problem_id: string, submission_id: string) {
     return {
@@ -166,43 +176,120 @@ async function fetchSupervisionSubmissionCodeMetrics(
     })
 }
 
-export async function fetchSupervisionSubmissionDetail(
+export async function fetchSupervisionSubmissionDetailCore(
     ctx: SupervisionContext,
     key: string,
     submission_id: string,
-): Promise<SubmissionDetailData | null> {
+): Promise<SubmissionDetailResolved | null> {
     const resolvedProblemId = await resolveProblemId(key)
     if (!resolvedProblemId) {
         return null
     }
 
-    const submission = await resolveSupervisionSubmission(ctx, key, resolvedProblemId, submission_id)
+    const [submission, tables] = await Promise.all([
+        resolveSupervisionSubmission(ctx, key, resolvedProblemId, submission_id),
+        withSupervisorClient((client) => client.tables.get()),
+    ])
     if (!submission || !submissionMatchesProblemKey(submission, key, resolvedProblemId)) {
         return null
     }
 
-    const params = tutorSubmissionParams(ctx, submission.problem_id, submission_id)
+    return {
+        core: buildSubmissionDetailCore(submission as Submission, tables, submission.problem_id),
+        tables,
+    }
+}
 
-    const [tables, codeB64, analysis, scoring, compilationErrorsResult] = await withSupervisorClient(async (client) => {
-        const verdict = submissionVerdict(submission)
-        const [tablesResult, code, analysisResult, scoringResult, compilationErrors] = await Promise.all([
-            client.tables.get(),
-            submission.state === 'done'
-                ? client.tutor.submissions.getCodeAsB64(params).catch(() => null)
-                : Promise.resolve(null),
-            submission.state === 'done'
-                ? client.tutor.submissions.getAnalysis(params).catch(() => [] as SubmissionAnalysis[])
-                : Promise.resolve([] as SubmissionAnalysis[]),
-            submission.state === 'done'
-                ? client.tutor.submissions.getScoring(params).catch(() => null)
-                : Promise.resolve(null as Scoring),
-            verdict === 'CE' && submission.state === 'done'
+export async function fetchSupervisionSubmissionSections(
+    ctx: SupervisionContext,
+    submission: Submission,
+    tables: AllTables,
+): Promise<SubmissionDetailSections> {
+    if (submission.state !== 'done') {
+        return EMPTY_SUBMISSION_SECTIONS
+    }
+
+    const params = tutorSubmissionParams(ctx, submission.problem_id, submission.submission_id)
+    const verdict = submissionVerdict(submission)
+
+    return withSupervisorClient(async (client) => {
+        const [analysis, scoring, compilationErrors] = await Promise.all([
+            client.tutor.submissions.getAnalysis(params).catch(() => [] as SubmissionAnalysis[]),
+            client.tutor.submissions.getScoring(params).catch(() => null as Scoring),
+            verdict === 'CE'
                 ? client.tutor.submissions.getCompilationErrors(params).catch(() => null)
                 : Promise.resolve(null as CompilationErrors | null),
         ])
 
-        return [tablesResult, code, analysisResult, scoringResult, compilationErrors] as const
+        return {
+            analysis: decorateAnalysis(analysis, tables),
+            scoring: decorateScoring(scoring, tables),
+            compilationErrors,
+            circuitModules: null,
+            circuitErrorReports: null,
+            circuitErrorTraces: null,
+        }
     })
+}
+
+export async function fetchSupervisionSubmissionSource(
+    ctx: SupervisionContext,
+    submission: Submission,
+    tables: AllTables,
+): Promise<SubmissionSourceContent | null> {
+    if (submission.state !== 'done') {
+        return null
+    }
+
+    const params = tutorSubmissionParams(ctx, submission.problem_id, submission.submission_id)
+    const codeB64 = await withSupervisorClient((client) =>
+        client.tutor.submissions.getCodeAsB64(params).catch(() => null),
+    )
+    if (!codeB64) {
+        return null
+    }
+
+    const defaultExtension = tables.compilers[submission.compiler_id]?.extension ?? 'txt'
+    const decoded = decodeSubmissionCodeBase64(codeB64, submission.compiler_id, defaultExtension)
+
+    return {
+        code: decoded.code,
+        codeExtension: decoded.extension,
+        codeFilename: `${submission.submission_id}.${defaultExtension}`,
+    }
+}
+
+export async function fetchSupervisionSubmissionCodeMetricsForDetail(
+    ctx: SupervisionContext,
+    submission: Submission,
+    verdict: string,
+): Promise<SubmissionCodeMetricsData | null> {
+    if (
+        !shouldShowCodeMetrics({
+            submission,
+            verdict,
+            isAdministrator: false,
+            isExamOrContest: false,
+        })
+    ) {
+        return null
+    }
+
+    return fetchSupervisionSubmissionCodeMetrics(ctx, submission as TutorSubmission)
+}
+
+export async function fetchSupervisionSubmissionDetail(
+    ctx: SupervisionContext,
+    key: string,
+    submission_id: string,
+): Promise<SubmissionDetailData | null> {
+    const resolved = await fetchSupervisionSubmissionDetailCore(ctx, key, submission_id)
+    if (!resolved) {
+        return null
+    }
+
+    const { tables, core } = resolved
+    const { submission } = core
 
     const parsed = parseProblemKey(submission.problem_id)
     const problem_nm = parsed.kind === 'problem_id' ? parsed.problem_nm : submission.problem_id
@@ -219,51 +306,22 @@ export async function fetchSupervisionSubmissionDetail(
         // Title falls back to the problem id.
     }
 
-    const verdict = submissionVerdict(submission)
-    const verdictMeta = tables.verdicts[verdict]
-    const compilerMeta = tables.compilers[submission.compiler_id]
-
-    const defaultExtension = compilerMeta?.extension ?? 'txt'
-    const decodedCode = codeB64 ? decodeSubmissionCodeBase64(codeB64, submission.compiler_id, defaultExtension) : null
-
-    const showMetrics = shouldShowCodeMetrics({
-        submission,
-        verdict,
-        isAdministrator: false,
-        isExamOrContest: false,
-    })
-    const codeMetrics = showMetrics ? await fetchSupervisionSubmissionCodeMetrics(ctx, submission) : null
+    const [sections, source, codeMetrics] = await Promise.all([
+        fetchSupervisionSubmissionSections(ctx, submission, tables),
+        fetchSupervisionSubmissionSource(ctx, submission, tables),
+        fetchSupervisionSubmissionCodeMetricsForDetail(ctx, submission, core.verdict),
+    ])
 
     return {
-        submission,
+        ...core,
         problemTitle,
-        verdict,
-        verdictFullName: verdictMeta?.name ?? verdict,
-        verdictEmoji: verdictMeta?.emoji,
-        compilerFullName: compilerMeta?.name ?? submission.compiler_id,
-        time_in: formatSubmissionTime(submission.time_in),
-        code: decodedCode?.code ?? null,
-        codeExtension: decodedCode?.extension ?? null,
-        codeFilename: codeB64 ? `${submission_id}.${defaultExtension}` : null,
-        analysis: analysis.map((row) => ({
-            ...row,
-            verdictEmoji: tables.verdicts[row.verdict]?.emoji,
-            verdictFullName: tables.verdicts[row.verdict]?.name ?? row.verdict,
-        })),
-        scoring: scoring
-            ? scoring.map((row) => ({
-                  ...row,
-                  verdictEmoji: tables.verdicts[row.verdict]?.emoji,
-                  verdictFullName: tables.verdicts[row.verdict]?.name ?? row.verdict,
-              }))
-            : null,
+        ...sections,
+        code: source?.code ?? null,
+        codeExtension: source?.codeExtension ?? null,
+        codeFilename: source?.codeFilename ?? null,
         codeMetrics,
-        compilationErrors: compilationErrorsResult,
         awards: [],
         debugInformation: null,
-        circuitModules: null,
-        circuitErrorReports: null,
-        circuitErrorTraces: null,
     }
 }
 

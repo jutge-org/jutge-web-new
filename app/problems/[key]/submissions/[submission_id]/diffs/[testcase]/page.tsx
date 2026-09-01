@@ -33,7 +33,7 @@ function ProblemSubmissionTestcaseAnalysisPageContent({ isAdministrator }: { isA
     const testcase = params.testcase
     const submissionHref = `/problems/${key}/submissions/${submission_id}`
     const testcaseHref = `${submissionHref}/diffs/${testcase}`
-    const shell = useProblemShell({ key, isAuthenticated: true })
+    const shell = useProblemShell({ key, isAuthenticated: true, includeAssets: false })
     const [testcaseAnalysis, setTestcaseAnalysis] = useState<SubmissionTestcaseAnalysisData | null | undefined>(
         undefined,
     )

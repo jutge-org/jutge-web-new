@@ -44,7 +44,7 @@ function SupervisionSubmissionTestcaseAnalysisPageContent() {
     const baseContext = useSupervisionParams()
     const meta = useSupervisionPageMeta(baseContext)
     const context = useMemo(() => supervisionContextWithMeta(baseContext, meta), [baseContext, meta])
-    const shell = useSupervisionProblemShell({ key, context })
+    const shell = useSupervisionProblemShell({ key, context, includeAssets: false })
     const [testcaseAnalysis, setTestcaseAnalysis] = useState<SubmissionTestcaseAnalysisData | null | undefined>(
         undefined,
     )

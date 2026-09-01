@@ -9,7 +9,7 @@ import { SubmissionCodeEditor } from '@/components/submissions/SubmissionCodeEdi
 import jutge from '@/lib/jutge'
 import { parseProblemKey } from '@/lib/problems'
 import { buildSubmissionNavLinks } from '@/lib/submissions'
-import { fetchProblemDetail, resolveProblemId } from '@/lib/data/problemDetail'
+import { fetchProblemShell, resolveProblemId } from '@/lib/data/problemDetail'
 import { fetchSubmissionDetail } from '@/lib/data/submissions'
 
 type PageData = {
@@ -48,7 +48,7 @@ function ProblemSubmissionCodeViewPageContent({ isAdministrator }: { isAdministr
                 return
             }
 
-            const data = await fetchProblemDetail(problemId)
+            const data = await fetchProblemShell(problemId)
             if (!data) {
                 setPageData(null)
                 return

@@ -10,7 +10,7 @@ import jutge from '@/lib/jutge'
 import { getDebugInformationFields, hasDebugInformation } from '@/lib/debugInformation'
 import { parseProblemKey } from '@/lib/problems'
 import { buildSubmissionNavLinks } from '@/lib/submissions'
-import { fetchInstructorOwnsProblem, fetchProblemDetail, resolveProblemId } from '@/lib/data/problemDetail'
+import { fetchInstructorOwnsProblem, fetchProblemShell, resolveProblemId } from '@/lib/data/problemDetail'
 import { fetchSubmissionDetail } from '@/lib/data/submissions'
 
 type PageData = {
@@ -46,7 +46,7 @@ function ProblemSubmissionDebugViewPageContent({ isAdministrator }: { isAdminist
                 return
             }
 
-            const data = await fetchProblemDetail(problemId)
+            const data = await fetchProblemShell(problemId)
             if (!data) {
                 setPageData(null)
                 return

@@ -16,6 +16,7 @@ import { SubmissionAnalysisCard } from '@/components/submissions/SubmissionAnaly
 import { SubmissionCodeMetricsCard } from '@/components/submissions/SubmissionCodeMetricsCard'
 import { SubmissionNavButton } from '@/components/submissions/SubmissionNavButton'
 import { SubmissionSourceCodeCard } from '@/components/submissions/SubmissionSourceCodeCard'
+import { ProblemWidgetCard } from '@/components/problems/ProblemWidgetCard'
 import { WidgetSpinner } from '@/components/general/WidgetSpinner'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,7 +24,13 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { compilerIdToSlug } from '@/lib/documentation'
 import { parseSubmissionTime, type SubmissionNavLinks } from '@/lib/submissions'
 import { cn } from '@/lib/utils'
-import type { ScoringRow, SubmissionDetailData } from '@/lib/data/submissions'
+import type { SubmissionCodeMetricsData } from '@/lib/codeMetrics'
+import type {
+    ScoringRow,
+    SubmissionDetailCore,
+    SubmissionDetailSections,
+    SubmissionSourceContent,
+} from '@/lib/data/submissions'
 import type { ReactNode } from 'react'
 
 dayjs.extend(relativeTime)
@@ -43,6 +50,9 @@ type SubmissionDetailViewProps =
           loading: true
           submissionId?: string
           data?: never
+          sections?: never
+          source?: never
+          codeMetrics?: never
           codeHref?: never
           debugHref?: never
           problemKey?: never
@@ -51,7 +61,13 @@ type SubmissionDetailViewProps =
       }
     | {
           loading?: false
-          data: SubmissionDetailData
+          data: SubmissionDetailCore
+          /** undefined = still loading */
+          sections?: SubmissionDetailSections
+          /** undefined = still loading, null = none */
+          source?: SubmissionSourceContent | null
+          /** undefined = still loading, null = none */
+          codeMetrics?: SubmissionCodeMetricsData | null
           codeHref: string
           debugHref?: string
           problemKey: string
@@ -79,16 +95,19 @@ function SubmissionDetailViewLoading({ submissionId }: { submissionId?: string }
                     <WidgetSpinner label="Loading submission" />
                 </CardContent>
             </Card>
-            <Card className="ring-0 border border-border shadow-sm">
-                <CardHeader className="border-b border-border">
-                    <CardTitle>Source code</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <WidgetSpinner label="Loading source code" />
-                </CardContent>
-            </Card>
+            <ProblemWidgetCard title="Source code" />
         </div>
     )
+}
+
+function sectionsPlaceholderTitle(verdict: string): string | null {
+    if (verdict === 'CE') {
+        return 'Compilation errors'
+    }
+    if (verdict === 'SC') {
+        return 'Scoring'
+    }
+    return 'Analysis'
 }
 
 export function SubmissionDetailView(props: SubmissionDetailViewProps) {
@@ -96,12 +115,16 @@ export function SubmissionDetailView(props: SubmissionDetailViewProps) {
         return <SubmissionDetailViewLoading submissionId={props.submissionId} />
     }
 
-    const { data, codeHref, debugHref, problemKey, navigation, getTestcaseHref } = props
+    const { data, sections, source, codeMetrics, codeHref, debugHref, problemKey, navigation, getTestcaseHref } =
+        props
     const { submission } = data
     const isPending = submission.state !== 'done'
     const submittedAt = dayjs(parseSubmissionTime(submission.time_in))
     const submittedAtLabel = `${submittedAt.isSame(dayjs(), 'day') ? submittedAt.format('HH:mm:ss') : submittedAt.format('YYYY-MM-DD HH:mm:ss')} (${submittedAt.fromNow()})`
-    const scoringSummary = data.verdict === 'SC' && data.scoring ? scoringTotals(data.scoring) : null
+    const scoringSummary = data.verdict === 'SC' && sections?.scoring ? scoringTotals(sections.scoring) : null
+    const sectionsLoading = !isPending && sections === undefined
+    const sourceLoading = !isPending && source === undefined
+    const placeholderTitle = sectionsLoading ? sectionsPlaceholderTitle(data.verdict) : null
 
     return (
         <TooltipProvider>
@@ -162,11 +185,9 @@ export function SubmissionDetailView(props: SubmissionDetailViewProps) {
                                         >
                                             {data.verdictFullName}
                                         </Link>
-                                        {submission.veredict_info && 
-                                            <span className="ml-1">
-                                                ({submission.veredict_info})
-                                            </span>
-                                        }
+                                        {submission.veredict_info && (
+                                            <span className="ml-1">({submission.veredict_info})</span>
+                                        )}
                                         {scoringSummary ? (
                                             <span
                                                 className="tabular-nums text-foreground"
@@ -188,53 +209,57 @@ export function SubmissionDetailView(props: SubmissionDetailViewProps) {
                                 <DetailRow label="Submitted">{submittedAtLabel}</DetailRow>
                                 {submission.annotation ? (
                                     <DetailRow label="Annotation">{submission.annotation}</DetailRow>
-                                ) : null}                                
+                                ) : null}
                             </dl>
                         </div>
                     </CardContent>
                 </Card>
 
-                {data.verdict === 'CE' && data.compilationErrors ? (
-                    <CompilationErrorsCard data={data.compilationErrors} compilerId={submission.compiler_id} />
+                {placeholderTitle ? <ProblemWidgetCard title={placeholderTitle} /> : null}
+
+                {sections?.compilationErrors && data.verdict === 'CE' ? (
+                    <CompilationErrorsCard data={sections.compilationErrors} compilerId={submission.compiler_id} />
                 ) : null}
 
                 {/* Awards temporarily unwired */}
                 {/* {data.awards.length > 0 ? <SubmissionAwardsCard awards={data.awards} /> : null} */}
 
-                {data.scoring ? <ScoringCard scoring={data.scoring} /> : null}
+                {sections?.scoring ? <ScoringCard scoring={sections.scoring} /> : null}
 
-                {data.analysis.length > 0 ? (
+                {sections && sections.analysis.length > 0 ? (
                     <SubmissionAnalysisCard
-                        analysis={data.analysis}
+                        analysis={sections.analysis}
                         problemKey={problemKey}
                         submissionId={submission.submission_id}
                         getTestcaseHref={getTestcaseHref}
                     />
                 ) : null}
 
-                {data.codeMetrics ? <SubmissionCodeMetricsCard data={data.codeMetrics} /> : null}
+                {codeMetrics ? <SubmissionCodeMetricsCard data={codeMetrics} /> : null}
 
-                {data.circuitModules ? (
+                {sections?.circuitModules ? (
                     <CircuitModulesCard
-                        modules={data.circuitModules}
+                        modules={sections.circuitModules}
                         problemKey={problemKey}
                         submissionId={submission.submission_id}
                     />
                 ) : null}
 
-                {data.circuitErrorReports?.map((trace, index) => (
+                {sections?.circuitErrorReports?.map((trace, index) => (
                     <CircuitErrorReportCard key={index + 1} index={index + 1} trace={trace} />
                 ))}
 
-                {data.circuitErrorTraces?.map((svg, index) => (
+                {sections?.circuitErrorTraces?.map((svg, index) => (
                     <CircuitErrorTraceCard key={index + 1} index={index + 1} svg={svg} />
                 ))}
 
-                {data.code && data.codeFilename ? (
+                {sourceLoading ? <ProblemWidgetCard title="Source code" /> : null}
+
+                {source ? (
                     <SubmissionSourceCodeCard
-                        code={data.code}
-                        codeExtension={data.codeExtension}
-                        codeFilename={data.codeFilename}
+                        code={source.code}
+                        codeExtension={source.codeExtension}
+                        codeFilename={source.codeFilename}
                         codeHref={codeHref}
                     />
                 ) : null}

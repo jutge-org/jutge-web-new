@@ -12,7 +12,17 @@ import { hasInstructorProblemAccess, useProblemShell } from '@/hooks/useProblemS
 import jutge from '@/lib/jutge'
 import { buildSubmissionNavLinks, type SubmissionNavLinks } from '@/lib/submissions'
 import { problemLoadedBreadcrumbs, problemTrailBreadcrumbs } from '@/lib/problemBreadcrumbs'
-import { fetchSubmissionDetail, type SubmissionDetailData } from '@/lib/data/submissions'
+import type { SubmissionCodeMetricsData } from '@/lib/codeMetrics'
+import {
+    EMPTY_SUBMISSION_SECTIONS,
+    fetchSubmissionCodeMetricsForDetail,
+    fetchSubmissionDetailCore,
+    fetchSubmissionSections,
+    fetchSubmissionSource,
+    type SubmissionDetailCore,
+    type SubmissionDetailSections,
+    type SubmissionSourceContent,
+} from '@/lib/data/submissions'
 
 export default function ProblemSubmissionDetailPage() {
     return (
@@ -25,24 +35,57 @@ function ProblemSubmissionDetailPageContent({ isAdministrator }: { isAdministrat
     const key = params.key
     const submission_id = params.submission_id
     const submissionHref = `/problems/${key}/submissions/${submission_id}`
-    const shell = useProblemShell({ key, isAuthenticated: true })
-    const [submissionDetail, setSubmissionDetail] = useState<SubmissionDetailData | null | undefined>(undefined)
+    const shell = useProblemShell({ key, isAuthenticated: true, includeAssets: false })
+    const [core, setCore] = useState<SubmissionDetailCore | null | undefined>(undefined)
+    const [sections, setSections] = useState<SubmissionDetailSections | undefined>(undefined)
+    const [source, setSource] = useState<SubmissionSourceContent | null | undefined>(undefined)
+    const [codeMetrics, setCodeMetrics] = useState<SubmissionCodeMetricsData | null | undefined>(undefined)
     const [navigation, setNavigation] = useState<SubmissionNavLinks | null | undefined>(undefined)
 
     useEffect(() => {
         let cancelled = false
-        setSubmissionDetail(undefined)
+        setCore(undefined)
+        setSections(undefined)
+        setSource(undefined)
+        setCodeMetrics(undefined)
+
+        const examPromise = jutge.student.exam.get().then(
+            () => true,
+            () => false,
+        )
 
         void (async () => {
-            const isExamOrContest = await jutge.student.exam.get().then(
-                () => true,
-                () => false,
-            )
-            const detail = await fetchSubmissionDetail(jutge, key, submission_id, {
-                isAdministrator,
-                isExamOrContest,
+            const resolved = await fetchSubmissionDetailCore(jutge, key, submission_id)
+            if (cancelled) return
+            if (!resolved) {
+                setCore(null)
+                return
+            }
+
+            setCore(resolved.core)
+
+            const { submission } = resolved.core
+            if (submission.state !== 'done') {
+                setSections(EMPTY_SUBMISSION_SECTIONS)
+                setSource(null)
+                setCodeMetrics(null)
+                return
+            }
+
+            void fetchSubmissionSections(jutge, submission, resolved.tables).then((result) => {
+                if (!cancelled) setSections(result)
             })
-            if (!cancelled) setSubmissionDetail(detail)
+            void fetchSubmissionSource(jutge, submission, resolved.tables).then((result) => {
+                if (!cancelled) setSource(result)
+            })
+            void examPromise.then((isExamOrContest) =>
+                fetchSubmissionCodeMetricsForDetail(jutge, submission, resolved.core.verdict, {
+                    isAdministrator,
+                    isExamOrContest,
+                }).then((result) => {
+                    if (!cancelled) setCodeMetrics(result)
+                }),
+            )
         })()
 
         return () => {
@@ -71,7 +114,7 @@ function ProblemSubmissionDetailPageContent({ isAdministrator }: { isAdministrat
         notFound()
     }
 
-    if (submissionDetail === null) {
+    if (core === null) {
         notFound()
     }
 
@@ -89,7 +132,23 @@ function ProblemSubmissionDetailPageContent({ isAdministrator }: { isAdministrat
     const codeHref = `${submissionHref}/code`
     const access = hasInstructorProblemAccess(shell.isInstructorOwner, isAdministrator)
     const debugHref = access === true ? `${submissionHref}/debug/view` : undefined
-    const submissionLoading = submissionDetail === undefined
+    const submissionView = !core ? (
+        <SubmissionDetailView loading submissionId={submission_id} />
+    ) : (
+        <>
+            <SubmissionPendingRefresh isPending={core.verdict === 'Pending'} />
+            <SubmissionDetailView
+                data={core}
+                sections={sections}
+                source={source}
+                codeMetrics={codeMetrics}
+                codeHref={codeHref}
+                debugHref={debugHref}
+                problemKey={key}
+                navigation={navigation ?? null}
+            />
+        </>
+    )
 
     return (
         <div className="flex flex-col gap-6">
@@ -105,24 +164,11 @@ function ProblemSubmissionDetailPageContent({ isAdministrator }: { isAdministrat
                     showStatement={false}
                     showTestcases={false}
                 >
-                    {submissionLoading ? (
-                        <SubmissionDetailView loading submissionId={submission_id} />
-                    ) : (
-                        <>
-                            <SubmissionPendingRefresh isPending={submissionDetail!.verdict === 'Pending'} />
-                            <SubmissionDetailView
-                                data={submissionDetail!}
-                                codeHref={codeHref}
-                                debugHref={debugHref}
-                                problemKey={key}
-                                navigation={navigation ?? null}
-                            />
-                        </>
-                    )}
+                    {submissionView}
                 </ProblemDetail>
             ) : (
                 <ProblemDetail loading pageKey={key} showStatement={false} showTestcases={false}>
-                    <SubmissionDetailView loading submissionId={submission_id} />
+                    {submissionView}
                 </ProblemDetail>
             )}
         </div>

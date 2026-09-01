@@ -25,9 +25,18 @@ export type ProblemShellState = {
 type UseProblemShellOptions = {
     key: string
     isAuthenticated: boolean
+    /**
+     * When false, skip statement HTML, templates, and testcases.
+     * Use on pages that hide those widgets (submission routes).
+     */
+    includeAssets?: boolean
 }
 
-export function useProblemShell({ key, isAuthenticated }: UseProblemShellOptions): ProblemShellState {
+export function useProblemShell({
+    key,
+    isAuthenticated,
+    includeAssets = true,
+}: UseProblemShellOptions): ProblemShellState {
     const [detail, setDetail] = useState<ProblemDetailData | null | undefined>(undefined)
     const [status, setStatus] = useState<AbstractStatus | null | undefined>(undefined)
     const [defaultCompilerId, setDefaultCompilerId] = useState<string | null | undefined>(undefined)
@@ -51,7 +60,7 @@ export function useProblemShell({ key, isAuthenticated }: UseProblemShellOptions
                 return
             }
 
-            const data = await fetchProblemDetail(problemId)
+            const data = await fetchProblemDetail(problemId, { includeAssets })
             if (cancelled) return
             if (!data) {
                 setDetail(null)
@@ -85,7 +94,7 @@ export function useProblemShell({ key, isAuthenticated }: UseProblemShellOptions
         return () => {
             cancelled = true
         }
-    }, [isAuthenticated, key])
+    }, [includeAssets, isAuthenticated, key])
 
     return { detail, status, defaultCompilerId, isInstructorOwner, problem_nm }
 }

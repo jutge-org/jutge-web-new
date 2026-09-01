@@ -22,7 +22,7 @@ function ProblemSubmissionsPageContent({ isAdministrator }: { isAdministrator: b
     const params = useParams<{ key: string }>()
     const key = params.key
     const fallbackProblemNm = problemNmFromKey(key) ?? key
-    const shell = useProblemShell({ key, isAuthenticated: true })
+    const shell = useProblemShell({ key, isAuthenticated: true, includeAssets: false })
     const [rows, setRows] = useState<ProblemSubmissionRow[] | null>(null)
 
     useEffect(() => {

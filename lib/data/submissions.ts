@@ -20,6 +20,7 @@ import {
 } from '@/lib/submissions'
 import type { AwardRow } from '@/lib/awards'
 import type {
+    AllTables,
     CompilationErrors,
     DebugInformation,
     JutgeApiClient,
@@ -142,7 +143,7 @@ export type ScoringRow = ScoringPart & {
     verdictFullName: string
 }
 
-export type SubmissionDetailData = {
+export type SubmissionDetailCore = {
     submission: Submission
     problemTitle: string
     verdict: string
@@ -150,18 +151,45 @@ export type SubmissionDetailData = {
     verdictEmoji?: string
     compilerFullName: string
     time_in: string
-    code: string | null
-    codeExtension: string | null
-    codeFilename: string | null
+}
+
+export type SubmissionDetailSections = {
     analysis: SubmissionAnalysisRow[]
     scoring: ScoringRow[] | null
-    codeMetrics: SubmissionCodeMetricsData | null
     compilationErrors: CompilationErrors | null
-    awards: AwardRow[]
-    debugInformation: DebugInformation | null
     circuitModules: Record<string, string> | null
     circuitErrorReports: CircuitTrace[] | null
     circuitErrorTraces: string[] | null
+}
+
+export type SubmissionSourceContent = {
+    code: string
+    codeExtension: string | null
+    codeFilename: string
+}
+
+export const EMPTY_SUBMISSION_SECTIONS: SubmissionDetailSections = {
+    analysis: [],
+    scoring: null,
+    compilationErrors: null,
+    circuitModules: null,
+    circuitErrorReports: null,
+    circuitErrorTraces: null,
+}
+
+export type SubmissionDetailData = SubmissionDetailCore &
+    SubmissionDetailSections & {
+        code: string | null
+        codeExtension: string | null
+        codeFilename: string | null
+        codeMetrics: SubmissionCodeMetricsData | null
+        awards: AwardRow[]
+        debugInformation: DebugInformation | null
+    }
+
+export type FetchSubmissionDetailOptions = {
+    isAdministrator?: boolean
+    isExamOrContest?: boolean
 }
 
 export type SubmissionCodeData = {
@@ -281,6 +309,62 @@ export async function fetchSubmissionCode(
     }
 }
 
+export function decorateAnalysis(analysis: SubmissionAnalysis[], tables: AllTables): SubmissionAnalysisRow[] {
+    return analysis.map((row) => ({
+        ...row,
+        verdictEmoji: tables.verdicts[row.verdict]?.emoji,
+        verdictFullName: tables.verdicts[row.verdict]?.name ?? row.verdict,
+    }))
+}
+
+export function decorateScoring(scoring: Scoring | null, tables: AllTables): ScoringRow[] | null {
+    if (!scoring) {
+        return null
+    }
+
+    return scoring.map((row) => ({
+        ...row,
+        verdictEmoji: tables.verdicts[row.verdict]?.emoji,
+        verdictFullName: tables.verdicts[row.verdict]?.name ?? row.verdict,
+    }))
+}
+
+export function buildSubmissionDetailCore(
+    submission: Submission,
+    tables: AllTables,
+    problemTitle: string,
+): SubmissionDetailCore {
+    const verdict = submissionVerdict(submission)
+    const verdictMeta = tables.verdicts[verdict]
+    const compilerMeta = tables.compilers[submission.compiler_id]
+
+    return {
+        submission,
+        problemTitle,
+        verdict,
+        verdictFullName: verdictMeta?.name ?? verdict,
+        verdictEmoji: verdictMeta?.emoji,
+        compilerFullName: compilerMeta?.name ?? submission.compiler_id,
+        time_in: formatSubmissionTime(submission.time_in),
+    }
+}
+
+async function fetchSubmissionProblemTitle(client: JutgeApiClient, submission: Submission): Promise<string> {
+    const parsed = parseProblemKey(submission.problem_id)
+    const problem_nm = parsed.kind === 'problem_id' ? parsed.problem_nm : submission.problem_id
+
+    try {
+        const [abstractProblems, preferredLanguageId] = await Promise.all([
+            client.problems.getAbstractProblems(problem_nm),
+            getPreferredLanguageId(),
+        ])
+        const titles = abstractProblemsToTitleMap(abstractProblems, preferredLanguageId)
+        return titles.get(submission.problem_id) ?? titles.get(problem_nm) ?? submission.problem_id
+    } catch {
+        return submission.problem_id
+    }
+}
+
 async function fetchSubmissionCodeMetrics(
     client: JutgeApiClient,
     submission: Submission,
@@ -297,134 +381,156 @@ async function fetchSubmissionCodeMetrics(
     return buildSubmissionCodeMetricsData(metrics, solmetrics)
 }
 
-export async function fetchSubmissionDetail(
+export type SubmissionDetailResolved = {
+    core: SubmissionDetailCore
+    tables: AllTables
+}
+
+export async function fetchSubmissionDetailCore(
     client: JutgeApiClient,
     key: string,
     submission_id: string,
-    options?: { isAdministrator?: boolean; isExamOrContest?: boolean },
-): Promise<SubmissionDetailData | null> {
+): Promise<SubmissionDetailResolved | null> {
     const resolvedProblemId = await resolveProblemId(key)
     if (!resolvedProblemId) {
         return null
     }
 
-    const submission = await resolveSubmission(client, key, resolvedProblemId, submission_id)
+    const [submission, tables] = await Promise.all([
+        resolveSubmission(client, key, resolvedProblemId, submission_id),
+        client.tables.get(),
+    ])
     if (!submission || !submissionMatchesProblemKey(submission, key, resolvedProblemId)) {
         return null
     }
 
-    const [tables, codeB64, analysis, scoring, awards] = await Promise.all([
-        client.tables.get(),
-        submission.state === 'done'
-            ? client.student.submissions
-                  .getCodeAsB64({ problem_id: submission.problem_id, submission_id })
-                  .catch(() => null)
-            : Promise.resolve(null),
-        submission.state === 'done'
-            ? client.student.submissions
-                  .getAnalysis({ problem_id: submission.problem_id, submission_id })
-                  .catch(() => [] as SubmissionAnalysis[])
-            : Promise.resolve([] as SubmissionAnalysis[]),
-        submission.state === 'done'
-            ? client.student.submissions
-                  .getScoring({ problem_id: submission.problem_id, submission_id })
-                  .catch(() => null)
-            : Promise.resolve(null as Scoring),
-        // Awards temporarily unwired
-        // submission.state === 'done'
-        //     ? fetchSubmissionAwards(client, submission.problem_id, submission_id)
-        //     : Promise.resolve([] as AwardRow[]),
-        Promise.resolve([] as AwardRow[]),
-    ])
+    return {
+        core: buildSubmissionDetailCore(submission, tables, submission.problem_id),
+        tables,
+    }
+}
 
-    const parsed = parseProblemKey(submission.problem_id)
-    const problem_nm = parsed.kind === 'problem_id' ? parsed.problem_nm : submission.problem_id
-    let problemTitle = submission.problem_id
-
-    try {
-        const [abstractProblems, preferredLanguageId] = await Promise.all([
-            client.problems.getAbstractProblems(problem_nm),
-            getPreferredLanguageId(),
-        ])
-        const titles = abstractProblemsToTitleMap(abstractProblems, preferredLanguageId)
-        problemTitle = titles.get(submission.problem_id) ?? titles.get(problem_nm) ?? submission.problem_id
-    } catch {
-        // Title falls back to the problem id.
+export async function fetchSubmissionSections(
+    client: JutgeApiClient,
+    submission: Submission,
+    tables: AllTables,
+): Promise<SubmissionDetailSections> {
+    if (submission.state !== 'done') {
+        return EMPTY_SUBMISSION_SECTIONS
     }
 
     const verdict = submissionVerdict(submission)
-    const verdictMeta = tables.verdicts[verdict]
-    const compilerMeta = tables.compilers[submission.compiler_id]
+    const params = { problem_id: submission.problem_id, submission_id: submission.submission_id }
+    const isCircuitsSubmission = submission.compiler_id === CIRCUITS_COMPILER_ID
 
-    const defaultExtension = compilerMeta?.extension ?? 'txt'
-    const decodedCode = codeB64 ? decodeSubmissionCodeBase64(codeB64, submission.compiler_id, defaultExtension) : null
-
-    const isCircuitsSubmission = submission.compiler_id === CIRCUITS_COMPILER_ID && submission.state === 'done'
-
-    const [codeMetrics, compilationErrors, circuitModules, circuitTracesJson, circuitTracesSvg] = await Promise.all([
-        shouldShowCodeMetrics({
-            submission,
-            verdict,
-            isAdministrator: options?.isAdministrator ?? false,
-            isExamOrContest: options?.isExamOrContest ?? false,
-        })
-            ? fetchSubmissionCodeMetrics(client, submission)
-            : Promise.resolve(null),
-        verdict === 'CE' && submission.state === 'done'
-            ? client.student.submissions
-                  .getCompilationErrors({ problem_id: submission.problem_id, submission_id })
-                  .catch(() => null)
-            : Promise.resolve(null),
-        isCircuitsSubmission
-            ? client.student.submissions
-                  .getCircuitModules({ problem_id: submission.problem_id, submission_id })
-                  .catch(() => ({}) as Record<string, string>)
-            : Promise.resolve(null as Record<string, string> | null),
-        isCircuitsSubmission && verdict === 'WA'
-            ? client.student.submissions
-                  .getCircuitTracesJson({ problem_id: submission.problem_id, submission_id })
-                  .catch(() => null)
-            : Promise.resolve(null),
-        isCircuitsSubmission && verdict === 'WA'
-            ? client.student.submissions
-                  .getCircuitTracesSvg({ problem_id: submission.problem_id, submission_id })
-                  .catch(() => null)
-            : Promise.resolve(null),
-    ])
+    const [analysis, scoring, compilationErrors, circuitModules, circuitTracesJson, circuitTracesSvg] =
+        await Promise.all([
+            client.student.submissions.getAnalysis(params).catch(() => [] as SubmissionAnalysis[]),
+            client.student.submissions.getScoring(params).catch(() => null as Scoring),
+            verdict === 'CE'
+                ? client.student.submissions.getCompilationErrors(params).catch(() => null)
+                : Promise.resolve(null),
+            isCircuitsSubmission
+                ? client.student.submissions.getCircuitModules(params).catch(() => ({}) as Record<string, string>)
+                : Promise.resolve(null as Record<string, string> | null),
+            isCircuitsSubmission && verdict === 'WA'
+                ? client.student.submissions.getCircuitTracesJson(params).catch(() => null)
+                : Promise.resolve(null),
+            isCircuitsSubmission && verdict === 'WA'
+                ? client.student.submissions.getCircuitTracesSvg(params).catch(() => null)
+                : Promise.resolve(null),
+        ])
 
     const circuitErrorReports = circuitTracesJson ? parseCircuitTracesJson(circuitTracesJson) : []
     const circuitErrorTraces = circuitTracesSvg ? parseCircuitTracesSvg(circuitTracesSvg) : []
 
     return {
-        submission,
-        problemTitle,
-        verdict,
-        verdictFullName: verdictMeta?.name ?? verdict,
-        verdictEmoji: verdictMeta?.emoji,
-        compilerFullName: compilerMeta?.name ?? submission.compiler_id,
-        time_in: formatSubmissionTime(submission.time_in),
-        code: decodedCode?.code ?? null,
-        codeExtension: decodedCode?.extension ?? null,
-        codeFilename: codeB64 ? `${submission_id}.${defaultExtension}` : null,
-        analysis: analysis.map((row) => ({
-            ...row,
-            verdictEmoji: tables.verdicts[row.verdict]?.emoji,
-            verdictFullName: tables.verdicts[row.verdict]?.name ?? row.verdict,
-        })),
-        scoring: scoring
-            ? scoring.map((row) => ({
-                  ...row,
-                  verdictEmoji: tables.verdicts[row.verdict]?.emoji,
-                  verdictFullName: tables.verdicts[row.verdict]?.name ?? row.verdict,
-              }))
-            : null,
-        codeMetrics,
+        analysis: decorateAnalysis(analysis, tables),
+        scoring: decorateScoring(scoring, tables),
         compilationErrors,
-        awards,
-        debugInformation: null,
         circuitModules: circuitModules && Object.keys(circuitModules).length > 0 ? circuitModules : null,
         circuitErrorReports: circuitErrorReports.length > 0 ? circuitErrorReports : null,
         circuitErrorTraces: circuitErrorTraces.length > 0 ? circuitErrorTraces : null,
+    }
+}
+
+export async function fetchSubmissionSource(
+    client: JutgeApiClient,
+    submission: Submission,
+    tables: AllTables,
+): Promise<SubmissionSourceContent | null> {
+    if (submission.state !== 'done') {
+        return null
+    }
+
+    const codeB64 = await client.student.submissions
+        .getCodeAsB64({ problem_id: submission.problem_id, submission_id: submission.submission_id })
+        .catch(() => null)
+    if (!codeB64) {
+        return null
+    }
+
+    const defaultExtension = tables.compilers[submission.compiler_id]?.extension ?? 'txt'
+    const decoded = decodeSubmissionCodeBase64(codeB64, submission.compiler_id, defaultExtension)
+
+    return {
+        code: decoded.code,
+        codeExtension: decoded.extension,
+        codeFilename: `${submission.submission_id}.${defaultExtension}`,
+    }
+}
+
+export async function fetchSubmissionCodeMetricsForDetail(
+    client: JutgeApiClient,
+    submission: Submission,
+    verdict: string,
+    options: FetchSubmissionDetailOptions,
+): Promise<SubmissionCodeMetricsData | null> {
+    if (
+        !shouldShowCodeMetrics({
+            submission,
+            verdict,
+            isAdministrator: options.isAdministrator ?? false,
+            isExamOrContest: options.isExamOrContest ?? false,
+        })
+    ) {
+        return null
+    }
+
+    return fetchSubmissionCodeMetrics(client, submission)
+}
+
+export async function fetchSubmissionDetail(
+    client: JutgeApiClient,
+    key: string,
+    submission_id: string,
+    options?: FetchSubmissionDetailOptions,
+): Promise<SubmissionDetailData | null> {
+    const resolved = await fetchSubmissionDetailCore(client, key, submission_id)
+    if (!resolved) {
+        return null
+    }
+
+    const { tables } = resolved
+    const { submission } = resolved.core
+
+    const [problemTitle, sections, source, codeMetrics] = await Promise.all([
+        fetchSubmissionProblemTitle(client, submission),
+        fetchSubmissionSections(client, submission, tables),
+        fetchSubmissionSource(client, submission, tables),
+        fetchSubmissionCodeMetricsForDetail(client, submission, resolved.core.verdict, options ?? {}),
+    ])
+
+    return {
+        ...resolved.core,
+        problemTitle,
+        ...sections,
+        code: source?.code ?? null,
+        codeExtension: source?.codeExtension ?? null,
+        codeFilename: source?.codeFilename ?? null,
+        codeMetrics,
+        awards: [],
+        debugInformation: null,
     }
 }
 

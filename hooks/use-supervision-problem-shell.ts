@@ -22,11 +22,17 @@ export type SupervisionProblemShellState = {
 type UseSupervisionProblemShellOptions = {
     key: string
     context: SupervisionContext
+    /**
+     * When false, skip statement HTML, templates, and testcases.
+     * Use on pages that hide those widgets (submission routes).
+     */
+    includeAssets?: boolean
 }
 
 export function useSupervisionProblemShell({
     key,
     context,
+    includeAssets = true,
 }: UseSupervisionProblemShellOptions): SupervisionProblemShellState {
     const [detail, setDetail] = useState<ProblemDetailData | null | undefined>(undefined)
     const [status, setStatus] = useState<AbstractStatus | null | undefined>(undefined)
@@ -47,7 +53,7 @@ export function useSupervisionProblemShell({
                 return
             }
 
-            const data = await fetchProblemDetail(problemId)
+            const data = await fetchProblemDetail(problemId, { includeAssets })
             if (cancelled) return
             if (!data) {
                 setDetail(null)
@@ -73,7 +79,7 @@ export function useSupervisionProblemShell({
         return () => {
             cancelled = true
         }
-    }, [context, key])
+    }, [context, includeAssets, key])
 
     return { detail, status, problem_nm }
 }

@@ -8,7 +8,7 @@ import { FullscreenEditorLoading } from '@/components/general/FullscreenEditorLo
 import { SubmissionCodeEditor } from '@/components/submissions/SubmissionCodeEditor'
 import { useSupervisionPageMeta, supervisionContextWithMeta } from '@/hooks/use-supervision-page-meta'
 import { useSupervisionParams } from '@/hooks/use-supervision-params'
-import { fetchProblemDetail, resolveProblemId } from '@/lib/data/problemDetail'
+import { fetchProblemShell, resolveProblemId } from '@/lib/data/problemDetail'
 import {
     fetchSupervisionSubmissionDetail,
     fetchSupervisionSubmissionsForProblem,
@@ -59,7 +59,7 @@ function SupervisionSubmissionCodePageContent() {
                     return
                 }
 
-                const data = await fetchProblemDetail(problemId)
+                const data = await fetchProblemShell(problemId)
                 if (!data) {
                     if (!cancelled) setPageData(null)
                     return

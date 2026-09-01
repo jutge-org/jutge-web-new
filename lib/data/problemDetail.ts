@@ -40,6 +40,14 @@ export type ProblemDetailData = {
     compilers: Compiler[]
 }
 
+export type FetchProblemDetailOptions = {
+    /**
+     * When false, skip statement HTML, templates, and testcases.
+     * Use on pages that hide those widgets (submission routes).
+     */
+    includeAssets?: boolean
+}
+
 export function decodeTestcase(testcase: Testcase, outputAsImage: boolean): DecodedTestcase {
     const decoded: DecodedTestcase = {
         name: testcase.name,
@@ -108,7 +116,17 @@ export async function fetchInstructorOwnsProblem(problem_nm: string): Promise<bo
     }
 }
 
-export async function fetchProblemDetail(problemId: string): Promise<ProblemDetailData | null> {
+/** Header and nav data only — skips statement, templates, and testcases. */
+export async function fetchProblemShell(problemId: string): Promise<ProblemDetailData | null> {
+    return fetchProblemDetail(problemId, { includeAssets: false })
+}
+
+export async function fetchProblemDetail(
+    problemId: string,
+    options?: FetchProblemDetailOptions,
+): Promise<ProblemDetailData | null> {
+    const includeAssets = options?.includeAssets ?? true
+
     try {
         const client = await getProblemsApiClient()
         const problem = await client.problems.getProblem(problemId)
@@ -123,13 +141,13 @@ export async function fetchProblemDetail(problemId: string): Promise<ProblemDeta
             languages,
             allCompilers,
         ] = await Promise.all([
-            client.problems.getShortHtmlStatement(problemId),
-            client.problems.getTemplates(problemId),
-            client.problems.getSampleTestcases(problemId),
-            client.problems.getPublicTestcases(problemId),
+            includeAssets ? client.problems.getShortHtmlStatement(problemId) : Promise.resolve(''),
+            includeAssets ? client.problems.getTemplates(problemId) : Promise.resolve([] as string[]),
+            includeAssets ? client.problems.getSampleTestcases(problemId) : Promise.resolve([] as Testcase[]),
+            includeAssets ? client.problems.getPublicTestcases(problemId) : Promise.resolve([] as Testcase[]),
             client.problems.getProblemSuppl(problemId),
             fetchAbstractProblem(problem.problem_nm),
-            fetchLanguages(),
+            includeAssets ? fetchLanguages() : Promise.resolve({} as Record<string, Language>),
             fetchCompilers(),
         ])
 
