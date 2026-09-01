@@ -19,12 +19,8 @@ import { TestimonialBlock } from '@/components/home/TestimonialBlock'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { countActiveProglangs, getActiveCompilers } from '@/lib/documentation'
-import { fetchHomepageStats } from '@/lib/data/misc'
-import { fetchCompilers } from '@/lib/data/tables'
-import type { HomepageStats } from '@/lib/jutge_api_client'
 import { ArrowUpIcon, BookMarkedIcon, LogInIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 const HEADER_OFFSET_PX = 56
 
@@ -44,11 +40,6 @@ const GUEST_SECTIONS: HomeSectionNavItem[] = [
     { id: 'home-merchandising', label: 'Merchandising' },
     { id: 'home-sponsors', label: 'Sponsors' },
 ]
-
-type PlatformStats = HomepageStats & {
-    languages: number
-    compilers: number
-}
 
 type BottomActionsProps = {
     onOpenAccountTab: (tab: AccountTabId) => void
@@ -118,7 +109,6 @@ function BottomActions({ onOpenAccountTab }: BottomActionsProps) {
 }
 
 export function HomePageGuest() {
-    const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null)
     const [accountTab, setAccountTab] = useState<AccountTabId>('signin')
     const [focusEmailKey, setFocusEmailKey] = useState(0)
 
@@ -127,30 +117,6 @@ export function HomePageGuest() {
         setFocusEmailKey((key) => key + 1)
         scrollToAccountSection()
     }
-
-    useEffect(() => {
-        let cancelled = false
-
-        async function loadStats() {
-            const [homepageStats, compilers] = await Promise.all([fetchHomepageStats(), fetchCompilers()])
-            if (cancelled || !homepageStats) {
-                return
-            }
-            const activeCompilers = getActiveCompilers(compilers)
-            setPlatformStats({
-                ...homepageStats,
-                languages: countActiveProglangs(compilers),
-                compilers: activeCompilers.length,
-            })
-        }
-
-        void loadStats()
-        return () => {
-            cancelled = true
-        }
-    }, [])
-
-    const sections = platformStats ? GUEST_SECTIONS : GUEST_SECTIONS.filter((section) => section.id !== 'home-stats')
 
     return (
         <div
@@ -162,17 +128,13 @@ export function HomePageGuest() {
             }
         >
             <HomeYearsRibbon />
-            <HomeSectionNav sections={sections} />
+            <HomeSectionNav sections={GUEST_SECTIONS} />
             <div className="mt-6 flex flex-col gap-16 md:gap-24">
                 <HeroBlock />
-                <SignInBlock
-                    activeTab={accountTab}
-                    onActiveTabChange={setAccountTab}
-                    focusEmailKey={focusEmailKey}
-                />
+                <SignInBlock activeTab={accountTab} onActiveTabChange={setAccountTab} focusEmailKey={focusEmailKey} />
                 <FeatureBlock />
                 <CoursesAndProblemsBlock />
-                {platformStats ? <StatsBlock stats={platformStats} /> : null}
+                <StatsBlock />
                 <AccountsBlock />
                 <RelatedSitesBlock />
                 <TelegramBlock />

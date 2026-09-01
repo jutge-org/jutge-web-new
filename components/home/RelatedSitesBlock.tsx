@@ -66,7 +66,7 @@ export function RelatedSitesBlock() {
                                 <motion.a
                                     className="group relative flex h-full flex-col items-center overflow-hidden rounded-xl border bg-muted p-3 text-center transition-all hover:scale-[1.02] hover:shadow-md sm:p-6 dark:bg-primary/5 dark:ring-1 dark:ring-primary/10"
                                     href={site.href}
-                                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
+                                    initial={false}
                                     key={site.title}
                                     rel={isExternal ? 'noopener noreferrer' : undefined}
                                     target={isExternal ? '_blank' : undefined}
@@ -87,7 +87,9 @@ export function RelatedSitesBlock() {
                                         {site.title}
                                         {isExternal ? <span className="sr-only"> (opens in new window)</span> : null}
                                     </h3>
-                                    <p className="text-foreground text-xs leading-relaxed sm:text-sm dark:text-foreground/70">{site.description}</p>
+                                    <p className="text-foreground text-xs leading-relaxed sm:text-sm dark:text-foreground/70">
+                                        {site.description}
+                                    </p>
                                 </motion.a>
                             )
                         })}

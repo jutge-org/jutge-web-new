@@ -1,6 +1,7 @@
 'use client'
 
 import AppleInvites, { type Event } from '@/components/smoothui/apple-invites'
+import { Skeleton } from '@/components/ui/skeleton'
 import { tradingCardImageUrl } from '@/lib/data/tradingCards'
 import { tradingCardFamily } from '@/lib/tradingCards'
 import { motion, useReducedMotion } from 'motion/react'
@@ -57,7 +58,7 @@ function stubToEvent(stub: CollectibleCardStub, index: number): Event {
         badge: family,
         title: stub.title,
         subtitle: stub.subtitle,
-        location: "",
+        location: '',
     }
 }
 
@@ -74,7 +75,7 @@ export function CardsBlock() {
             <div className="mx-auto max-w-5xl px-6">
                 <motion.div
                     className="mx-auto mb-12 max-w-2xl text-center"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.35, bounce: 0.1 }}
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
@@ -105,8 +106,13 @@ export function CardsBlock() {
                             aria-busy="true"
                             aria-label="Loading collectible cards"
                             className="flex h-full items-center justify-center"
+                            role="status"
                         >
-                            <div className="size-8 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
+                            <div className="relative h-[300px] w-[200px] md:h-[360px] md:w-[240px]">
+                                <Skeleton className="absolute inset-0 origin-bottom rotate-[-8deg] rounded-2xl" />
+                                <Skeleton className="absolute inset-0 origin-bottom rotate-[6deg] rounded-2xl" />
+                                <Skeleton className="absolute inset-0 rounded-2xl" />
+                            </div>
                         </div>
                     )}
                 </div>

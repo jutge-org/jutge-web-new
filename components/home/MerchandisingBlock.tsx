@@ -99,24 +99,27 @@ export function MerchandisingBlock({ embedded = false, title = true }: Merchandi
             className="scroll-mt-14"
         >
             <div className={embedded ? undefined : 'mx-auto max-w-6xl px-6'}>
-            {title && (
-                <motion.div
-                    className="mx-auto mb-12 max-w-2xl text-center"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
-                    transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.35, bounce: 0.1 }}
-                    viewport={{ once: true, margin: '-80px' }}
-                    whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                >
-                    <h2
-                        className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
-                        id={headingId}
+                {title && (
+                    <motion.div
+                        className="mx-auto mb-12 max-w-2xl text-center"
+                        initial={false}
+                        transition={
+                            shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.35, bounce: 0.1 }
+                        }
+                        viewport={{ once: true, margin: '-80px' }}
+                        whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                     >
-                        Merchandising
-                    </h2>
-                    <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
-                        Stickers for your laptop, a t-shirt for your body, a mug for your coffee, and a figure for your desk. 
-                    </p>
-                </motion.div>
+                        <h2
+                            className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
+                            id={headingId}
+                        >
+                            Merchandising
+                        </h2>
+                        <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
+                            Stickers for your laptop, a t-shirt for your body, a mug for your coffee, and a figure for
+                            your desk.
+                        </p>
+                    </motion.div>
                 )}
 
                 <ul className="mx-auto grid list-none grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:max-w-4xl lg:grid-cols-5">
@@ -126,7 +129,7 @@ export function MerchandisingBlock({ embedded = false, title = true }: Merchandi
                                 badge={product.badge}
                                 currency="€"
                                 image={product.image}
-                                onAddToCart={() => handleAddToCart(product)}                                
+                                onAddToCart={() => handleAddToCart(product)}
                                 price={product.price}
                                 title={product.title}
                                 subtitle={product.subtitle}
@@ -143,8 +146,8 @@ export function MerchandisingBlock({ embedded = false, title = true }: Merchandi
                     <DialogHeader>
                         <DialogTitle>Order {selectedTitle}</DialogTitle>
                         <DialogDescription className="text-pretty leading-relaxed py-4">
-                            This product is only available for order.
-                            Reach out to the Jutge.org administrators to order your product when available.
+                            This product is only available for order. Reach out to the Jutge.org administrators to order
+                            your product when available.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter showCloseButton />

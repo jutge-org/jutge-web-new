@@ -3,6 +3,7 @@
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { fetchPublicCourses } from '@/lib/data/courses'
 import { fetchAllAbstractProblems, type ProblemRow } from '@/lib/data/problems'
@@ -27,6 +28,112 @@ const FEATURED_COURSE_NMS = [
     'Jutge:OIE',
 ]
 
+// just a bunch of problems to show while the API is loading
+const defaultProblems: ProblemRow[] = [
+    {
+        "problem_nm": "P20195",
+        "title": "Solitaire game",
+        "iconUrl": "https://jutge.org/img/problems-icons/ea/ea1e6017e614490885777f03a5a90fd2.webp",
+        "language_ids": [
+            "en"
+        ],
+        "driver_id": "std",
+        "author": "Salvador Roura",
+        "created_at": "2015-06-30T13:29:01.000Z",
+        "updated_at": "2026-07-15T12:44:29.545Z"
+    },
+    {
+        "problem_nm": "P47610",
+        "title": "Never trust Ivan",
+        "iconUrl": "https://jutge.org/img/problems-icons/ee/ee5a5a01c49243ab944938c0da069030.webp",
+        "language_ids": [
+            "en"
+        ],
+        "driver_id": "std",
+        "author": "Ivan Geffner",
+        "created_at": "2014-09-30T13:52:57.000Z",
+        "updated_at": "2026-07-15T12:44:27.541Z"
+    },
+    {
+        "problem_nm": "P56276",
+        "title": "The thirty-five camels",
+        "iconUrl": "https://jutge.org/img/problems-icons/d0/d0592f255c494205ae4da4096626b8c6.webp",
+        "language_ids": [
+            "en",
+            "es"
+        ],
+        "driver_id": "std",
+        "author": "Salvador Roura",
+        "created_at": "2013-02-15T10:44:10.000Z",
+        "updated_at": "2026-07-15T12:44:30.065Z"
+    },
+    {
+        "problem_nm": "P61930",
+        "title": "Multiples of three",
+        "iconUrl": "https://jutge.org/img/problems-icons/bd/bd44ffa7bf9b43a8adb0900c8527672c.webp",
+        "language_ids": [
+            "ca",
+            "en"
+        ],
+        "driver_id": "std",
+        "author": "Salvador Roura",
+        "created_at": "2007-03-15T16:39:59.000Z",
+        "updated_at": "2026-07-15T12:44:27.693Z"
+    },
+    {
+        "problem_nm": "P41202",
+        "title": "The game of trains",
+        "iconUrl": "https://jutge.org/img/problems-icons/4f/4fd03728edf2407cb72f78e4f369a79d.webp",
+        "language_ids": [
+            "en",
+            "es"
+        ],
+        "driver_id": "std",
+        "author": "Omer Giménez",
+        "created_at": "2010-07-28T13:53:41.000Z",
+        "updated_at": "2026-07-15T12:44:27.363Z"
+    },
+    {
+        "problem_nm": "P57443",
+        "title": "Barcodes",
+        "iconUrl": "https://jutge.org/img/problems-icons/ea/ea6b1b27304e448783ccb678ea0c8020.webp",
+        "language_ids": [
+            "ca",
+            "en"
+        ],
+        "driver_id": "std",
+        "author": "Jordi Petit",
+        "created_at": "2010-07-28T13:55:31.000Z",
+        "updated_at": "2026-07-15T12:44:30.113Z"
+    },
+    {
+        "problem_nm": "P88905",
+        "title": "Products of matrices",
+        "iconUrl": "https://jutge.org/img/problems-icons/1f/1fc95ccfdd3b4e04a48b035d73faeaee.webp",
+        "language_ids": [
+            "ca",
+            "en"
+        ],
+        "driver_id": "std",
+        "author": "Jordi Petit",
+        "created_at": "2010-07-28T13:58:40.000Z",
+        "updated_at": "2026-07-15T12:44:29.654Z"
+    },
+    {
+        "problem_nm": "P71356",
+        "title": "Old Dalmatian",
+        "iconUrl": "https://jutge.org/img/problems-icons/14/14976a143c564359889c3298d6a846d5.webp",
+        "language_ids": [
+            "en"
+        ],
+        "driver_id": "std",
+        "author": "Edgar Gonzàlez",
+        "created_at": "2010-07-28T13:57:00.000Z",
+        "updated_at": "2026-07-15T12:44:28.004Z"
+    }
+]
+ 
+
 function filterFeaturedCourses(courses: GuestCourseRow[]): GuestCourseRow[] {
     const byKey = new Map(courses.map((course) => [course.course_key, course]))
     const featured = FEATURED_COURSE_NMS.flatMap((courseKey) => {
@@ -49,6 +156,22 @@ function pickRandomProblems(problems: ProblemRow[]): ProblemRow[] {
         ;[eligible[i], eligible[j]] = [eligible[j], eligible[i]]
     }
     return eligible.slice(0, SAMPLE_SIZE)
+}
+
+function ListItemsSkeleton({ iconClassName }: { iconClassName: string }) {
+    return (
+        <ul className="flex flex-col gap-0 pb-1">
+            {Array.from({ length: SAMPLE_SIZE }, (_, index) => (
+                <li key={index} className="flex items-center gap-3 px-2 py-2">
+                    <Skeleton className={`shrink-0 rounded-sm bg-foreground/10 ${iconClassName}`} />
+                    <div className="min-w-0 flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4 bg-foreground/10" />
+                        <Skeleton className="h-3 w-1/2 bg-foreground/10" />
+                    </div>
+                </li>
+            ))}
+        </ul>
+    )
 }
 
 function CourseListItem({ course }: { course: GuestCourseRow }) {
@@ -133,14 +256,14 @@ function CoursesListCard({ courses }: { courses: GuestCourseRow[] | null }) {
                     </Tooltip>
                 </TooltipProvider>
             </div>
-            <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-1">
+            <div
+                className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-1"
+                aria-busy={courses === null}
+                aria-live="polite"
+            >
                 {courses === null ? (
-                    <div className="flex h-full items-center justify-center" aria-busy="true" aria-live="polite">
-                        <div
-                            className="size-8 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground"
-                            role="status"
-                            aria-label="Loading courses"
-                        />
+                    <div role="status" aria-label="Loading courses">
+                        <ListItemsSkeleton iconClassName="size-12" />
                     </div>
                 ) : courses.length === 0 ? (
                     <p className="px-2 py-8 text-center text-muted-foreground text-sm">
@@ -187,14 +310,14 @@ function ProblemsListCard({ problems }: { problems: ProblemRow[] | null }) {
                     </Tooltip>
                 </TooltipProvider>
             </div>
-            <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-1">
+            <div
+                className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-1"
+                aria-busy={problems === null}
+                aria-live="polite"
+            >
                 {problems === null ? (
-                    <div className="flex h-full items-center justify-center" aria-busy="true" aria-live="polite">
-                        <div
-                            className="size-8 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground"
-                            role="status"
-                            aria-label="Loading problems"
-                        />
+                    <div role="status" aria-label="Loading problems">
+                        <ListItemsSkeleton iconClassName="size-12" />
                     </div>
                 ) : problems.length === 0 ? (
                     <p className="px-2 py-8 text-center text-muted-foreground text-sm">
@@ -215,7 +338,7 @@ function ProblemsListCard({ problems }: { problems: ProblemRow[] | null }) {
 export function CoursesAndProblemsBlock() {
     const shouldReduceMotion = useReducedMotion()
     const [courses, setCourses] = useState<GuestCourseRow[] | null>(null)
-    const [problems, setProblems] = useState<ProblemRow[] | null>(null)
+    const [problems, setProblems] = useState<ProblemRow[] | null>(defaultProblems)
 
     useEffect(() => {
         let cancelled = false
@@ -223,7 +346,11 @@ export function CoursesAndProblemsBlock() {
             if (!cancelled) setCourses(filterFeaturedCourses(rows))
         })
         void fetchAllAbstractProblems('en').then((rows) => {
-            if (!cancelled) setProblems(pickRandomProblems(rows))
+            if (!cancelled) {
+                const rndProblems = pickRandomProblems(rows)
+                setProblems(rndProblems)
+                // console.log(rndProblems)
+            }
         })
         return () => {
             cancelled = true
@@ -235,7 +362,7 @@ export function CoursesAndProblemsBlock() {
             <div className="mx-auto max-w-5xl px-6">
                 <motion.div
                     className="mx-auto mb-12 max-w-2xl text-center"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.35, bounce: 0.1 }}
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
@@ -253,7 +380,7 @@ export function CoursesAndProblemsBlock() {
 
                 <motion.div
                     className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.4, bounce: 0.1 }}
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}

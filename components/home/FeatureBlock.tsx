@@ -109,7 +109,7 @@ export function FeatureBlock() {
             <div className="mx-auto max-w-5xl px-6">
                 <motion.div
                     className="mx-auto mb-12 max-w-2xl text-center"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.35, bounce: 0.1 }}
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
@@ -129,7 +129,7 @@ export function FeatureBlock() {
 
                 <motion.div
                     className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.4, bounce: 0.1 }}
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}

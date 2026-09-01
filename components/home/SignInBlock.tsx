@@ -10,6 +10,7 @@ import { TermsOfServiceDialog } from '@/components/registration/TermsOfServiceDi
 import AnimatedTabs from '@/components/smoothui/animated-tabs'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Skeleton } from '@/components/ui/skeleton'
 import { requestPasswordResetAction } from '@/lib/data/passwordResetActions'
 import { registerAction } from '@/lib/data/registrationActions'
 import { fetchCountries } from '@/lib/data/tables'
@@ -319,11 +320,13 @@ function isStrongPassword(password: string): boolean {
 
 function SignUpPanelFields({
     countries,
+    countriesLoading = false,
     recaptchaConfigured,
     executeRecaptcha,
     focusEmailKey,
 }: {
     countries: Country[]
+    countriesLoading?: boolean
     recaptchaConfigured: boolean
     executeRecaptcha?: (action?: string) => Promise<string>
     focusEmailKey: number
@@ -474,8 +477,10 @@ function SignUpPanelFields({
     return (
         <form onSubmit={handleSubmit} noValidate className="mx-auto flex w-full max-w-96 flex-col gap-4 px-2 md:px-0">
             <div className={signUpFieldClass}>
-                <div className={cn(signUpLabelClass, 'inline-flex items-center gap-0.5')}>                    
-                    <label htmlFor={nameId}>Name: <CompleteNameHelpDialog /></label>
+                <div className={cn(signUpLabelClass, 'inline-flex items-center gap-0.5')}>
+                    <label htmlFor={nameId}>
+                        Name: <CompleteNameHelpDialog />
+                    </label>
                 </div>
                 <input
                     ref={nameRef}
@@ -570,27 +575,31 @@ function SignUpPanelFields({
                 <label htmlFor={countryIdField} className={signUpLabelClass}>
                     Country:
                 </label>
-                <select
-                    ref={countryRef}
-                    id={countryIdField}
-                    name="country_id"
-                    required
-                    value={countryId}
-                    onChange={(e) => {
-                        setCountryId(e.target.value)
-                        clearError()
-                    }}
-                    aria-invalid={errorMessage ? true : undefined}
-                    aria-describedby={errorMessage ? errorId : undefined}
-                    className={cn(underlineInputClass, 'appearance-none')}
-                >
-                    <option value="">Select a country</option>
-                    {countries.map((country) => (
-                        <option key={country.country_id} value={country.country_id}>
-                            {country.eng_name}
-                        </option>
-                    ))}
-                </select>
+                {countriesLoading ? (
+                    <Skeleton className="h-8 min-w-0 flex-1 bg-foreground/10" aria-label="Loading countries" />
+                ) : (
+                    <select
+                        ref={countryRef}
+                        id={countryIdField}
+                        name="country_id"
+                        required
+                        value={countryId}
+                        onChange={(e) => {
+                            setCountryId(e.target.value)
+                            clearError()
+                        }}
+                        aria-invalid={errorMessage ? true : undefined}
+                        aria-describedby={errorMessage ? errorId : undefined}
+                        className={cn(underlineInputClass, 'appearance-none')}
+                    >
+                        <option value="">Select a country</option>
+                        {countries.map((country) => (
+                            <option key={country.country_id} value={country.country_id}>
+                                {country.eng_name}
+                            </option>
+                        ))}
+                    </select>
+                )}
             </div>
 
             <div className={cn(signUpFieldClass, 'md:items-start')}>
@@ -696,12 +705,21 @@ function SignUpPanelFields({
     )
 }
 
-function SignUpPanelWithRecaptcha({ countries, focusEmailKey }: { countries: Country[]; focusEmailKey: number }) {
+function SignUpPanelWithRecaptcha({
+    countries,
+    countriesLoading,
+    focusEmailKey,
+}: {
+    countries: Country[]
+    countriesLoading?: boolean
+    focusEmailKey: number
+}) {
     const { executeRecaptcha } = useGoogleReCaptcha()
 
     return (
         <SignUpPanelFields
             countries={countries}
+            countriesLoading={countriesLoading}
             recaptchaConfigured
             executeRecaptcha={executeRecaptcha ?? undefined}
             focusEmailKey={focusEmailKey}
@@ -723,11 +741,7 @@ function SignUpForm({ focusEmailKey }: { focusEmailKey: number }) {
         }
     }, [])
 
-    if (!countries) {
-        return <p className="text-center text-sm text-muted-foreground">Loading…</p>
-    }
-
-    if (countries.length === 0) {
+    if (countries && countries.length === 0) {
         return (
             <p className="text-center text-sm text-muted-foreground">
                 Could not load registration form. Please try again later or{' '}
@@ -739,13 +753,27 @@ function SignUpForm({ focusEmailKey }: { focusEmailKey: number }) {
         )
     }
 
+    const countriesList = countries ?? []
+    const countriesLoading = countries === null
+
     if (!siteKey) {
-        return <SignUpPanelFields countries={countries} recaptchaConfigured={false} focusEmailKey={focusEmailKey} />
+        return (
+            <SignUpPanelFields
+                countries={countriesList}
+                countriesLoading={countriesLoading}
+                recaptchaConfigured={false}
+                focusEmailKey={focusEmailKey}
+            />
+        )
     }
 
     return (
         <GoogleReCaptchaProvider reCaptchaKey={siteKey}>
-            <SignUpPanelWithRecaptcha countries={countries} focusEmailKey={focusEmailKey} />
+            <SignUpPanelWithRecaptcha
+                countries={countriesList}
+                countriesLoading={countriesLoading}
+                focusEmailKey={focusEmailKey}
+            />
         </GoogleReCaptchaProvider>
     )
 }
@@ -768,7 +796,7 @@ export function SignInBlock({ activeTab, onActiveTabChange, focusEmailKey = 0 }:
             <div className="w-full px-6">
                 <motion.div
                     className="relative flex flex-col gap-6 overflow-hidden rounded-xl border bg-muted px-2 pt-2 pb-8 dark:bg-primary/5"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.35, bounce: 0.1 }}
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { StarIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { shuffle } from 'radash'
+import { useEffect, useState } from 'react'
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
 const EASE_BOUNCE = [0.68, -0.55, 0.265, 1.55] as const
@@ -49,6 +50,11 @@ const testimonials = [
 
 export function TestimonialBlock() {
     const shouldReduceMotion = useReducedMotion()
+    const [items, setItems] = useState(() => testimonials.slice(0, 4))
+
+    useEffect(() => {
+        setItems(shuffle(testimonials).slice(0, 4))
+    }, [])
 
     return (
         <section id="home-testimonials" aria-labelledby="home-testimonials-heading" className="scroll-mt-14">
@@ -56,7 +62,7 @@ export function TestimonialBlock() {
                 <motion.div
                     animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                     className="mx-auto mb-16 max-w-2xl text-center"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, ease: EASE_OUT }}
                 >
                     <h2
@@ -74,17 +80,17 @@ export function TestimonialBlock() {
                 <motion.div
                     animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1 }}
                     className="grid gap-4 md:gap-6 lg:grid-cols-2 3xl:grid-cols-3 3xl:gap-12"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, ease: EASE_OUT, delay: 0.2 }}
                 >
-                    {shuffle(testimonials).slice(0, 4).map((testimonial, index) => (
+                    {items.map((testimonial, index) => (
                         <motion.div
                             animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                             className={cn(
                                 'group relative overflow-hidden rounded-xl border bg-primary/5 p-4 ring-1 ring-primary/10 transition-all hover:scale-[1.02] hover:shadow-md md:p-6',
                                 index >= 3 && 'hidden lg:block',
                             )}
-                            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 30 }}
+                            initial={false}
                             key={testimonial.name}
                             transition={
                                 shouldReduceMotion
@@ -99,7 +105,7 @@ export function TestimonialBlock() {
                             <motion.div
                                 animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
                                 className="flex gap-0.5 md:gap-1"
-                                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.8 }}
+                                initial={false}
                                 transition={
                                     shouldReduceMotion
                                         ? { duration: 0 }
@@ -113,7 +119,7 @@ export function TestimonialBlock() {
                                 {Array.from({ length: 5 }).map((_, i) => (
                                     <motion.div
                                         animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-                                        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0 }}
+                                        initial={false}
                                         key={`${testimonial.name}-star-${i}`}
                                         transition={
                                             shouldReduceMotion
@@ -142,7 +148,7 @@ export function TestimonialBlock() {
                             <motion.blockquote
                                 animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                                 className="my-3 text-foreground text-sm md:my-4 md:text-base"
-                                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+                                initial={false}
                                 transition={
                                     shouldReduceMotion
                                         ? { duration: 0 }
@@ -159,7 +165,7 @@ export function TestimonialBlock() {
                             <motion.div
                                 animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
                                 className="flex items-center gap-1.5 md:gap-2"
-                                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: -10 }}
+                                initial={false}
                                 transition={
                                     shouldReduceMotion
                                         ? { duration: 0 }
@@ -175,9 +181,7 @@ export function TestimonialBlock() {
                                         {testimonial.initials}
                                     </AvatarFallback>
                                 </Avatar>
-                                <div className="font-medium text-foreground text-xs md:text-sm">
-                                    {testimonial.name}
-                                </div>
+                                <div className="font-medium text-foreground text-xs md:text-sm">{testimonial.name}</div>
                                 <span aria-hidden="true" className="size-1 rounded-full bg-foreground/25" />
                                 <span className="text-muted-foreground text-xs md:text-sm">{testimonial.role}</span>
                             </motion.div>

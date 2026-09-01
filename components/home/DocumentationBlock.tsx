@@ -12,7 +12,7 @@ export function DocumentationBlock() {
         <section id="home-documentation" aria-labelledby="home-documentation-heading" className="scroll-mt-14">
             <div className="mx-auto max-w-2xl px-6 text-center">
                 <motion.div
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.35, bounce: 0.1 }}
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}

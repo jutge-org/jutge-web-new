@@ -78,7 +78,7 @@ export function LogoCloudBlock() {
                 <motion.div
                     animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                     className="mb-16 text-center"
-                    initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
+                    initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6 }}
                 >
                     <h2
@@ -126,7 +126,7 @@ export function LogoCloudBlock() {
                                 sponsors.map((sponsor, index) => (
                                     <motion.div
                                         animate={{ opacity: 1, scale: 1 }}
-                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        initial={false}
                                         key={`${setIndex}-${sponsor.href}`}
                                         transition={{
                                             duration: 0.4,

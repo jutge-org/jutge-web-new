@@ -91,7 +91,7 @@ export function AccountsBlock() {
                         <motion.div
                             animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                             className="group relative flex flex-col overflow-hidden rounded-2xl border bg-muted p-8 transition-all hover:scale-[1.02] hover:shadow-md dark:bg-muted/50"
-                            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 40 }}
+                            initial={false}
                             key={plan.title}
                             transition={
                                 shouldReduceMotion
@@ -110,7 +110,9 @@ export function AccountsBlock() {
                                     <Link href={plan.ctaHref}>{plan.ctaLabel}</Link>
                                 </SmoothButton>
 
-                                <p className="mb-6 text-foreground text-sm dark:text-foreground/70 leading-relaxed">{plan.description}</p>
+                                <p className="mb-6 text-foreground text-sm dark:text-foreground/70 leading-relaxed">
+                                    {plan.description}
+                                </p>
 
                                 <div className="space-y-4">
                                     <h4 className="font-medium text-foreground text-xs dark:text-foreground/70 uppercase tracking-wider">
