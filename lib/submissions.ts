@@ -78,6 +78,26 @@ export function filterSubmissions<T extends SubmissionRow>(
     )
 }
 
+export type SubmissionOkKoCounts = {
+    ok: number
+    ko: number
+}
+
+export function tallySubmissionOkKo(rows: Pick<SubmissionRow, 'verdict'>[]): SubmissionOkKoCounts {
+    let ok = 0
+    let ko = 0
+
+    for (const row of rows) {
+        if (row.verdict === 'AC') {
+            ok += 1
+        } else if (row.verdict !== 'Pending') {
+            ko += 1
+        }
+    }
+
+    return { ok, ko }
+}
+
 export function parseSubmissionTime(time_in: Submission['time_in']): Date {
     if (typeof time_in === 'number') return new Date(time_in)
     return new Date(time_in)

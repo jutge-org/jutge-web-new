@@ -181,6 +181,7 @@ export function ProblemHeaderCard({
                                         </Tooltip>
                                     )
                                 })}
+                                <ProblemInformation data={data} />
                             </p>
                             <p className="flex items-center gap-1 text-sm text-muted-foreground">
                                 <SignatureIcon className="size-3 shrink-0" aria-hidden />
@@ -192,9 +193,6 @@ export function ProblemHeaderCard({
                                     {problem.translator}
                                 </p>
                             ) : null}
-                            <div className="-ml-1.5">
-                                <ProblemInformation data={data} />
-                            </div>
                         </div>
                     </div>
                     {showActions ? (

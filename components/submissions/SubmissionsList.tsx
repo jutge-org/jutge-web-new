@@ -24,6 +24,7 @@ import {
     type SubmissionsVerdictFilter,
     buildProblemSubmissionSearchHaystack,
     filterSubmissions,
+    tallySubmissionOkKo,
 } from '@/lib/submissions'
 
 dayjs.extend(relativeTime)
@@ -108,6 +109,8 @@ export function SubmissionsList(props: SubmissionsListProps) {
 
         return filterSubmissions(rows as SubmissionRow[], searchQuery, verdictFilter)
     }, [rows, searchQuery, verdictFilter, variant])
+
+    const okKoCounts = useMemo(() => tallySubmissionOkKo(rows), [rows])
 
     function handleColumnVisibilityChange(field: SubmissionsColumnField, visible: boolean) {
         setColumnVisibility((current) => ({ ...current, [field]: visible }))
@@ -304,6 +307,8 @@ export function SubmissionsList(props: SubmissionsListProps) {
                 onColumnVisibilityChange={handleColumnVisibilityChange}
                 visibleCount={visibleRows.length}
                 totalCount={rows.length}
+                okCount={okKoCounts.ok}
+                koCount={okKoCounts.ko}
                 showHelp={showHelp}
             />
 

@@ -2,6 +2,7 @@
 
 import { Columns3Icon, FunnelIcon } from 'lucide-react'
 
+import { ProblemCountBadge } from '@/components/courses/ProblemCountBadge'
 import { SubmissionsHelpDialog } from '@/components/submissions/SubmissionsHelpDialog'
 import { SearchInput } from '@/components/SearchInput'
 import { Badge } from '@/components/ui/badge'
@@ -54,6 +55,8 @@ type SubmissionsListToolbarProps = {
     onColumnVisibilityChange: (field: SubmissionsColumnField, visible: boolean) => void
     visibleCount?: number
     totalCount?: number
+    okCount?: number
+    koCount?: number
     showHelp?: boolean
 }
 
@@ -67,18 +70,31 @@ export function SubmissionsListToolbar({
     onColumnVisibilityChange,
     visibleCount,
     totalCount,
+    okCount,
+    koCount,
     showHelp = false,
 }: SubmissionsListToolbarProps) {
     const columns = variant === 'problem' ? PROBLEM_TOGGLEABLE_COLUMNS : DEFAULT_TOGGLEABLE_COLUMNS
-    const showCountBadge = visibleCount !== undefined && totalCount !== undefined
+    const showCountBadge = false && visibleCount !== undefined && totalCount !== undefined
+    const showOkKoBadges = okCount !== undefined && koCount !== undefined
 
     return (
         <TooltipProvider>
             <div className="flex flex-row items-center justify-end gap-2">
-                {showCountBadge ? (
-                    <Badge variant="outline" className="tabular-nums">
-                        {visibleCount === totalCount ? visibleCount : `${visibleCount}/${totalCount}`}
-                    </Badge>
+                {showOkKoBadges || showCountBadge ? (
+                    <div className="flex items-center gap-1.5">
+                        {showOkKoBadges && okCount > 0 ? (
+                            <ProblemCountBadge tone="ok" count={okCount} label="Accepted submissions" />
+                        ) : null}
+                        {showOkKoBadges && koCount > 0 ? (
+                            <ProblemCountBadge tone="ko" count={koCount} label="Rejected submissions" />
+                        ) : null}
+                        {showCountBadge ? (
+                            <Badge variant="outline" className="tabular-nums ml-2">
+                                {visibleCount === totalCount ? visibleCount : `${visibleCount}/${totalCount}`}
+                            </Badge>
+                        ) : null}
+                    </div>
                 ) : null}
                 <ButtonGroup>
                     <DropdownMenu>
