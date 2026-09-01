@@ -20,10 +20,10 @@ export function CompleteNameHelpDialog() {
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="size-6 shrink-0"
+                                className="size-6 shrink-0 -translate-y-1"
                                 aria-label="How to write your complete name"
                             >
-                                <InfoIcon className="size-4" aria-hidden />
+                                <InfoIcon className="size-3" aria-hidden />
                             </Button>
                         </DialogTrigger>
                     </TooltipTrigger>

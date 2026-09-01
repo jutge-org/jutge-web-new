@@ -474,9 +474,8 @@ function SignUpPanelFields({
     return (
         <form onSubmit={handleSubmit} noValidate className="mx-auto flex w-full max-w-96 flex-col gap-4 px-2 md:px-0">
             <div className={signUpFieldClass}>
-                <div className={cn(signUpLabelClass, 'inline-flex items-center gap-0.5')}>
-                    <CompleteNameHelpDialog />
-                    <label htmlFor={nameId}>Name:</label>
+                <div className={cn(signUpLabelClass, 'inline-flex items-center gap-0.5')}>                    
+                    <label htmlFor={nameId}>Name: <CompleteNameHelpDialog /></label>
                 </div>
                 <input
                     ref={nameRef}

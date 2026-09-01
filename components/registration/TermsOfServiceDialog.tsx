@@ -12,7 +12,7 @@ export function TermsOfServiceDialog() {
             <DialogTrigger asChild>
                 <button
                     type="button"
-                    className="text-primary underline-offset-4 hover:underline"
+                    className="text-primary underline-offset-4 underline"
                     onPointerDown={(event) => event.preventDefault()}
                 >
                     Terms of Service
