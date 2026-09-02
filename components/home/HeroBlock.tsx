@@ -10,8 +10,12 @@ import { isSoundEffectsEnabled } from '@/lib/soundEffects'
 
 const VERDICT_IMAGE_SRCS = ['/verdicts/svg/AC.svg', '/verdicts/svg/WA.svg'] as const
 const PARTICLE_SCALAR = 8
+// Firefox smears CanvasPattern edge pixels into "tails" when opaque pixels
+// touch the bitmap boundary (https://github.com/catdad/canvas-confetti/issues/213).
+const BITMAP_EDGE_PADDING_RATIO = 0.25
 
 let verdictShapesPromise: Promise<confetti.Shape[]> | null = null
+let verdictCanvas: HTMLCanvasElement | null = null
 let verdictConfetti: confetti.CreateTypes | null = null
 
 const AUDIO_SRC = '/sounds/u_o8xh7gwsrj-cute_happy_victory-476376.mp3'
@@ -23,8 +27,39 @@ function playWelcomeSound() {
     void audioClip.play()
 }
 
+function syncConfettiCanvasSize(canvas: HTMLCanvasElement) {
+    const width = document.documentElement.clientWidth
+    const height = document.documentElement.clientHeight
+    canvas.style.width = `${width}px`
+    canvas.style.height = `${height}px`
+    if (canvas.width !== width) {
+        canvas.width = width
+    }
+    if (canvas.height !== height) {
+        canvas.height = height
+    }
+}
+
 function getVerdictConfetti() {
-    verdictConfetti ??= confetti.create(undefined, { resize: true, useWorker: false })
+    if (verdictConfetti && verdictCanvas) {
+        syncConfettiCanvasSize(verdictCanvas)
+        return verdictConfetti
+    }
+
+    const canvas = document.createElement('canvas')
+    canvas.setAttribute('aria-hidden', 'true')
+    canvas.style.position = 'fixed'
+    canvas.style.top = '0px'
+    canvas.style.left = '0px'
+    canvas.style.pointerEvents = 'none'
+    canvas.style.zIndex = '100'
+    document.body.appendChild(canvas)
+    syncConfettiCanvasSize(canvas)
+    window.addEventListener('resize', () => syncConfettiCanvasSize(canvas))
+
+    verdictCanvas = canvas
+    // Size the buffer ourselves so CSS box and pixel buffer stay 1:1 in Firefox.
+    verdictConfetti = confetti.create(canvas, { resize: false, useWorker: false })
     return verdictConfetti
 }
 
@@ -38,16 +73,18 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 }
 
 async function shapeFromImage(src: string, scalar: number): Promise<confetti.Shape> {
-    const size = Math.round(10 * scalar)
+    const imageSize = Math.round(10 * scalar)
+    const padding = Math.max(8, Math.round(imageSize * BITMAP_EDGE_PADDING_RATIO))
+    const canvasSize = imageSize + padding * 2
     const img = await loadImage(src)
     const canvas = document.createElement('canvas')
-    canvas.width = size
-    canvas.height = size
+    canvas.width = canvasSize
+    canvas.height = canvasSize
     const ctx = canvas.getContext('2d')
     if (!ctx) {
         throw new Error('Could not create canvas context')
     }
-    ctx.drawImage(img, 0, 0, size, size)
+    ctx.drawImage(img, padding, padding, imageSize, imageSize)
     const bitmap = await createImageBitmap(canvas)
     const scale = 1 / scalar
 
@@ -67,14 +104,13 @@ async function launchVerdictConfetti(originEl: HTMLElement, playSound: boolean) 
     const shapes = await getVerdictShapes()
     const rect = originEl.getBoundingClientRect()
     const origin = {
-        x: (rect.left + rect.width / 2) / window.innerWidth,
-        y: (rect.top + rect.height / 2) / window.innerHeight,
+        x: (rect.left + rect.width / 2) / document.documentElement.clientWidth,
+        y: (rect.top + rect.height / 2) / document.documentElement.clientHeight,
     }
 
     if (playSound) {
         playWelcomeSound()
     }
-
 
     const fire = getVerdictConfetti()
 
