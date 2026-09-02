@@ -4,13 +4,12 @@ import dayjs from 'dayjs'
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
 import jutge from '@/lib/jutge'
-import type { CredentialsIn, Download, Profile } from '@/lib/jutge_api_client'
+import type { CredentialsIn, Profile } from '@/lib/jutge_api_client'
 import { profileToSessionUser, type SessionUser } from '@/lib/session'
 
 export type AuthContextValue = {
     user: SessionUser | null
     profile: Profile | null
-    avatar: Download | null
     loading: boolean
     login(credentials: CredentialsIn): Promise<{ ok: true; userName: string } | { ok: false; error: string }>
     logout(): Promise<void>
@@ -23,7 +22,6 @@ function warmAbstractProblemsCache() {
 const AuthContext = createContext<AuthContextValue>({
     user: null,
     profile: null,
-    avatar: null,
     loading: true,
     login: async () => ({ ok: false, error: 'Auth not initialized' }),
     logout: async () => {},
@@ -32,7 +30,6 @@ const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<SessionUser | null>(null)
     const [profile, setProfile] = useState<Profile | null>(null)
-    const [avatar, setAvatar] = useState<Download | null>(null)
     const [loading, setLoading] = useState(true)
 
     const restoreSession = useCallback(async () => {
@@ -50,12 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const fetchedProfile = await jutge.student.profile.get()
             setProfile(fetchedProfile)
             setUser(profileToSessionUser(fetchedProfile))
-            try {
-                const fetchedAvatar = await jutge.student.profile.getAvatar()
-                setAvatar(fetchedAvatar)
-            } catch {
-                setAvatar(null)
-            }
             return true
         } catch {
             localStorage.removeItem('token')
@@ -80,12 +71,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const fetchedProfile = await jutge.student.profile.get()
             setProfile(fetchedProfile)
             setUser(profileToSessionUser(fetchedProfile))
-            try {
-                const fetchedAvatar = await jutge.student.profile.getAvatar()
-                setAvatar(fetchedAvatar)
-            } catch {
-                setAvatar(null)
-            }
             localStorage.setItem('token', credentialsOut.token)
             localStorage.setItem('expiration', credentialsOut.expiration.toString())
             localStorage.setItem('user_uid', fetchedProfile.user_uid)
@@ -103,7 +88,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem('user_uid')
             setUser(null)
             setProfile(null)
-            setAvatar(null)
             await jutge.logout()
         } catch {
             jutge.meta = null
@@ -111,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, profile, avatar, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, profile, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     )

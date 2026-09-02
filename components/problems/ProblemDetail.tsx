@@ -32,6 +32,8 @@ type ProblemDetailLoadingProps = ProblemDetailBaseProps & {
 type ProblemDetailLoadedProps = ProblemDetailBaseProps & {
     loading?: false
     data: ProblemDetailData
+    /** When true, statement and testcase widgets show spinners while assets load. */
+    assetsLoading?: boolean
     status?: AbstractStatus | null
     defaultCompilerId?: string | null
     isInstructorOwner?: boolean
@@ -79,6 +81,7 @@ export function ProblemDetail(props: ProblemDetailProps) {
 
     const {
         data,
+        assetsLoading = false,
         status,
         defaultCompilerId,
         isInstructorOwner = false,
@@ -113,16 +116,24 @@ export function ProblemDetail(props: ProblemDetailProps) {
             <ProblemHealthCard problem={problem} />
 
             {showStatement ? (
-                <ProblemStatement
-                    pageKey={pageKey}
-                    problemId={problem.problem_id}
-                    shortHtmlStatement={data.shortHtmlStatement}
-                    templates={data.templates}
-                />
+                assetsLoading ? (
+                    <ProblemWidgetCard title="Statement" />
+                ) : (
+                    <ProblemStatement
+                        pageKey={pageKey}
+                        problemId={problem.problem_id}
+                        shortHtmlStatement={data.shortHtmlStatement}
+                        templates={data.templates}
+                    />
+                )
             ) : null}
 
-            {showTestcases && data.publicTestcases.length > 0 ? (
-                <PublicTestcases testcases={data.publicTestcases} />
+            {showTestcases ? (
+                assetsLoading ? (
+                    <ProblemWidgetCard title="Public test cases" />
+                ) : data.publicTestcases.length > 0 ? (
+                    <PublicTestcases testcases={data.publicTestcases} />
+                ) : null
             ) : null}
         </div>
     )

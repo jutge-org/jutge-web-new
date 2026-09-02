@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { notFound, useParams } from 'next/navigation'
 
 import { useAuth } from '@/components/AuthProvider'
@@ -8,109 +7,64 @@ import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
 import { PageTitle } from '@/components/general/PageTitle'
 import { ProblemDetail } from '@/components/problems/ProblemDetail'
 import { QuizProblemUnsupportedCard } from '@/components/problems/QuizProblemUnsupportedCard'
+import { useProblemAssets } from '@/hooks/useProblemAssets'
 import { useProblemShell } from '@/hooks/useProblemShell'
-import { getPreferredLanguageId } from '@/lib/data/auth'
-import { fetchAbstractProblem } from '@/lib/data/problemDetail'
-import { getPreferredProblemVariant } from '@/lib/problemVariants'
-import { isQuizProblem, parseProblemKey } from '@/lib/problems'
+import { isQuizProblem } from '@/lib/problems'
 import { problemBaseBreadcrumbs, problemLoadedBreadcrumbs } from '@/lib/problemBreadcrumbs'
 
-type QuizData = {
-    problem_nm: string
-    title: string
-    author: string | null
-}
-
 export default function ProblemPage() {
-    const { user, loading: authLoading } = useAuth()
+    const { user } = useAuth()
     const params = useParams<{ key: string }>()
     const key = params.key
     const authenticated = user !== null
 
-    const [quiz, setQuiz] = useState<QuizData | null | undefined>(undefined)
-    const shell = useProblemShell({ key, isAuthenticated: authenticated })
+    const shell = useProblemShell({ key, isAuthenticated: authenticated, includeAssets: false })
+    const { assets, assetsLoading } = useProblemAssets(
+        shell.detail?.problem.problem_id,
+        shell.detail?.problem.abstract_problem.driver_id,
+    )
+    const detailData = shell.detail && assets ? { ...shell.detail, ...assets } : shell.detail
 
-    useEffect(() => {
-        if (authLoading) return
-
-        let cancelled = false
-        setQuiz(undefined)
-
-        void (async () => {
-            const parsed = parseProblemKey(key)
-            if (parsed.kind === 'invalid') {
-                if (!cancelled) setQuiz(null)
-                return
-            }
-
-            const abstractProblem = await fetchAbstractProblem(parsed.problem_nm)
-            if (cancelled) return
-            if (!abstractProblem) {
-                setQuiz(null)
-                return
-            }
-
-            if (!isQuizProblem(abstractProblem.driver_id)) {
-                setQuiz(null)
-                return
-            }
-
-            const preferredLanguageId = await getPreferredLanguageId()
-            if (cancelled) return
-
-            const variant = getPreferredProblemVariant(abstractProblem, preferredLanguageId)
-            setQuiz({
-                problem_nm: parsed.problem_nm,
-                title: variant?.title ?? parsed.problem_nm,
-                author: abstractProblem.author,
-            })
-        })()
-
-        return () => {
-            cancelled = true
-        }
-    }, [authLoading, key])
-
-    const quizResolved = quiz !== undefined
-    const isQuiz = quizResolved && quiz !== null
-    const shellActive = quizResolved && quiz === null
-    const loading = authLoading || !quizResolved || (shellActive && shell.detail === undefined)
-
-    if (!loading && shellActive && shell.detail === null) {
+    if (shell.detail === null) {
         notFound()
     }
 
-    if (isQuiz && quiz) {
+    if (shell.detail && isQuizProblem(shell.detail.problem.abstract_problem.driver_id)) {
+        const { problem } = shell.detail
         return (
             <div className="flex flex-col gap-6">
                 <MainBreadcrumbs
-                    breadcrumbs={problemLoadedBreadcrumbs(key, quiz.problem_nm, quiz.title, [], authenticated)}
+                    breadcrumbs={problemLoadedBreadcrumbs(
+                        key,
+                        problem.problem_nm,
+                        problem.title,
+                        [],
+                        authenticated,
+                    )}
                 />
                 {!authenticated ? <PageTitle section="/problems" authenticated={false} hidden={false} /> : null}
-                <QuizProblemUnsupportedCard title={quiz.title} problemNm={quiz.problem_nm} author={quiz.author} />
+                <QuizProblemUnsupportedCard
+                    title={problem.title}
+                    problemNm={problem.problem_nm}
+                    author={problem.abstract_problem.author}
+                />
             </div>
         )
     }
 
-    const breadcrumbs =
-        shellActive && shell.detail
-            ? problemLoadedBreadcrumbs(
-                  key,
-                  shell.detail.problem.problem_nm,
-                  shell.detail.problem.title,
-                  [],
-                  authenticated,
-              )
-            : problemBaseBreadcrumbs(key, authenticated)
+    const breadcrumbs = shell.detail
+        ? problemLoadedBreadcrumbs(key, shell.detail.problem.problem_nm, shell.detail.problem.title, [], authenticated)
+        : problemBaseBreadcrumbs(key, authenticated)
 
     return (
         <div className="flex flex-col gap-6">
             <MainBreadcrumbs breadcrumbs={breadcrumbs} />
             {!authenticated ? <PageTitle section="/problems" authenticated={false} hidden={false} /> : null}
-            {shellActive && shell.detail ? (
+            {detailData ? (
                 <ProblemDetail
                     pageKey={key}
-                    data={shell.detail}
+                    data={detailData}
+                    assetsLoading={assetsLoading}
                     status={shell.status}
                     defaultCompilerId={shell.defaultCompilerId}
                     isInstructorOwner={shell.isInstructorOwner ?? false}

@@ -1,5 +1,5 @@
 import { getCurrentClient, getPreferredLanguageId, getProblemsApiClient, tryGetCurrentUser } from '@/lib/data/auth'
-import { isGraphicProblem, parseProblemCompilerIds, parseProblemKey } from '@/lib/problems'
+import { isGraphicProblem, parseProblemCompilerIds, parseProblemKey, splitProblemId } from '@/lib/problems'
 import { resolveProblemIdFromAbstract } from '@/lib/problemVariants'
 import {
     type JutgeApiClient,
@@ -39,6 +39,11 @@ export type ProblemDetailData = {
     languages: Record<string, Language>
     compilers: Compiler[]
 }
+
+export type ProblemDetailAssets = Pick<
+    ProblemDetailData,
+    'shortHtmlStatement' | 'templates' | 'publicTestcases' | 'languages'
+>
 
 export type FetchProblemDetailOptions = {
     /**
@@ -121,6 +126,34 @@ export async function fetchProblemShell(problemId: string): Promise<ProblemDetai
     return fetchProblemDetail(problemId, { includeAssets: false })
 }
 
+/** Statement, templates, testcases, and language table — loaded after the shell on detail pages. */
+export async function fetchProblemAssets(
+    problemId: string,
+    driverId: string | null,
+): Promise<ProblemDetailAssets | null> {
+    try {
+        const client = await getProblemsApiClient()
+        const [shortHtmlStatement, templates, sampleTestcases, publicTestcases, languages] = await Promise.all([
+            client.problems.getShortHtmlStatement(problemId),
+            client.problems.getTemplates(problemId),
+            client.problems.getSampleTestcases(problemId),
+            client.problems.getPublicTestcases(problemId),
+            fetchLanguages(),
+        ])
+
+        return {
+            shortHtmlStatement,
+            templates,
+            publicTestcases: [...sampleTestcases, ...publicTestcases].map((testcase) =>
+                decodeTestcase(testcase, isGraphicProblem(driverId)),
+            ),
+            languages,
+        }
+    } catch {
+        return null
+    }
+}
+
 export async function fetchProblemDetail(
     problemId: string,
     options?: FetchProblemDetailOptions,
@@ -129,9 +162,11 @@ export async function fetchProblemDetail(
 
     try {
         const client = await getProblemsApiClient()
-        const problem = await client.problems.getProblem(problemId)
+        const parsed = parseProblemKey(problemId)
+        const problemNm = parsed.kind !== 'invalid' ? parsed.problem_nm : splitProblemId(problemId).main
 
         const [
+            problem,
             shortHtmlStatement,
             templates,
             sampleTestcases,
@@ -141,12 +176,13 @@ export async function fetchProblemDetail(
             languages,
             allCompilers,
         ] = await Promise.all([
+            client.problems.getProblem(problemId),
             includeAssets ? client.problems.getShortHtmlStatement(problemId) : Promise.resolve(''),
             includeAssets ? client.problems.getTemplates(problemId) : Promise.resolve([] as string[]),
             includeAssets ? client.problems.getSampleTestcases(problemId) : Promise.resolve([] as Testcase[]),
             includeAssets ? client.problems.getPublicTestcases(problemId) : Promise.resolve([] as Testcase[]),
             client.problems.getProblemSuppl(problemId),
-            fetchAbstractProblem(problem.problem_nm),
+            fetchAbstractProblem(problemNm),
             includeAssets ? fetchLanguages() : Promise.resolve({} as Record<string, Language>),
             fetchCompilers(),
         ])
