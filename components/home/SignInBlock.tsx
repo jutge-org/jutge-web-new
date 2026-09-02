@@ -793,7 +793,7 @@ export function SignInBlock({ activeTab, onActiveTabChange, focusEmailKey = 0 }:
 
     return (
         <section id="home-account" aria-label="Account" className="scroll-mt-14">
-            <div className="w-full px-6">
+            <div className="w-full px-0 sm:px-6">
                 <motion.div
                     className="relative flex flex-col gap-6 overflow-hidden rounded-xl border bg-muted px-2 pt-2 pb-8 dark:bg-primary/5"
                     initial={false}

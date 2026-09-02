@@ -98,7 +98,7 @@ export function MerchandisingBlock({ embedded = false, title = true }: Merchandi
             aria-labelledby={headingId}
             className="scroll-mt-14"
         >
-            <div className={embedded ? undefined : 'mx-auto max-w-6xl px-6'}>
+            <div className={embedded ? undefined : 'mx-auto max-w-6xl px-0 sm:px-6'}>
                 {title && (
                     <motion.div
                         className="mx-auto mb-12 max-w-2xl text-center"

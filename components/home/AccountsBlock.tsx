@@ -73,7 +73,7 @@ export function AccountsBlock() {
 
     return (
         <section id="home-accounts" aria-labelledby="home-accounts-heading" className="scroll-mt-14">
-            <div className="mx-auto max-w-5xl px-6">
+            <div className="mx-auto max-w-5xl px-0 sm:px-6">
                 <div className="mx-auto max-w-2xl text-center">
                     <h2
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"

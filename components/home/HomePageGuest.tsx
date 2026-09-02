@@ -57,7 +57,7 @@ function scrollToAccountSection() {
 
 function BottomActions({ onOpenAccountTab }: BottomActionsProps) {
     return (
-        <div className="flex justify-end px-6 pb-8">
+        <div className="flex justify-end px-0 pb-8 sm:px-6">
             <TooltipProvider>
                 <ButtonGroup>
                     <Tooltip>

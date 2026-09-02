@@ -58,7 +58,7 @@ export function TestimonialBlock() {
 
     return (
         <section id="home-testimonials" aria-labelledby="home-testimonials-heading" className="scroll-mt-14">
-            <div className="mx-auto w-full max-w-5xl px-6">
+            <div className="mx-auto w-full max-w-5xl px-0 sm:px-6">
                 <motion.div
                     animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                     className="mx-auto mb-16 max-w-2xl text-center"

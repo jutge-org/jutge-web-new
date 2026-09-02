@@ -138,7 +138,7 @@ export function HeroBlock() {
                 <div>
                     <HeroLogo />
 
-                    <h1 className="mb-6 inline-block pb-1 font-normal text-4xl leading-[1.2] tracking-wide text-balance text-8xl text-[var(--color-brand-title)] dark:bg-linear-to-r dark:from-cyan-300 dark:via-sky-400 dark:to-blue-500 dark:bg-clip-text font-thin dark:text-transparent">
+                    <h1 className="mb-6 inline-block pb-1 font-normal leading-[1.2] tracking-wide text-balance text-7xl sm:text-8xl text-[var(--color-brand-title)] dark:bg-linear-to-r dark:from-cyan-300 dark:via-sky-400 dark:to-blue-500 dark:bg-clip-text font-thin dark:text-transparent">
                         Jutge.org
                     </h1>
                     <p className="mx-auto max-w-3xl text-muted-foreground lg:text-2xl dark:font-thin">

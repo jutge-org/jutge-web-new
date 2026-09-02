@@ -42,7 +42,7 @@ export function RelatedSitesBlock() {
 
     return (
         <section id="home-related-sites" aria-labelledby="home-related-sites-heading" className="scroll-mt-14">
-            <div className="mx-auto max-w-6xl px-6">
+            <div className="mx-auto max-w-6xl px-0 sm:px-6">
                 <div className="mx-auto mb-16 max-w-2xl text-center">
                     <h2
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
@@ -59,12 +59,12 @@ export function RelatedSitesBlock() {
                         aria-hidden
                         className="pointer-events-none absolute left-1/2 top-1/2 hidden size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-3xl dark:block sm:size-80"
                     />
-                    <div className="relative grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2">
                         {relatedSites.map((site, index) => {
                             const isExternal = site.href.startsWith('http')
                             return (
                                 <motion.a
-                                    className="group relative flex h-full flex-col items-center overflow-hidden rounded-xl border bg-muted p-3 text-center transition-all hover:scale-[1.02] hover:shadow-md sm:p-6 dark:bg-primary/5 dark:ring-1 dark:ring-primary/10"
+                                    className="group relative flex h-full flex-col items-center overflow-hidden rounded-xl border bg-muted p-6 text-center transition-all hover:scale-[1.02] hover:shadow-md dark:bg-primary/5 dark:ring-1 dark:ring-primary/10"
                                     href={site.href}
                                     initial={false}
                                     key={site.title}
@@ -81,13 +81,13 @@ export function RelatedSitesBlock() {
                                         alt=""
                                         width={128}
                                         height={128}
-                                        className="mb-2 size-16 rounded-md object-contain sm:mb-3 sm:size-32"
+                                        className="mb-3 size-32 rounded-md object-contain"
                                     />
-                                    <h3 className="mb-1 font-semibold text-[var(--color-brand-title)] text-base sm:text-2xl">
+                                    <h3 className="mb-1 font-semibold text-[var(--color-brand-title)] text-2xl">
                                         {site.title}
                                         {isExternal ? <span className="sr-only"> (opens in new window)</span> : null}
                                     </h3>
-                                    <p className="text-foreground text-xs leading-relaxed sm:text-sm dark:text-foreground/70">
+                                    <p className="text-foreground text-sm leading-relaxed dark:text-foreground/70">
                                         {site.description}
                                     </p>
                                 </motion.a>

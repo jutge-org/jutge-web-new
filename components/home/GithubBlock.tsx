@@ -11,7 +11,7 @@ export function GithubBlock() {
 
     return (
         <section id="home-github" aria-labelledby="home-github-heading" className="scroll-mt-14">
-            <div className="mx-auto max-w-2xl px-6 text-center">
+            <div className="mx-auto max-w-2xl px-0 sm:px-6 text-center">
                 <motion.div
                     initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', duration: 0.35, bounce: 0.1 }}

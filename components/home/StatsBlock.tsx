@@ -101,7 +101,7 @@ function StatsBlockView({ stats, loading }: StatsBlockProps) {
 
     return (
         <section id="home-stats" aria-labelledby="home-stats-heading" aria-busy={loading} className="scroll-mt-14">
-            <div className="mx-auto max-w-7xl px-6">
+            <div className="mx-auto max-w-7xl px-0 sm:px-6">
                 <motion.div
                     className="mb-16 text-center"
                     initial={false}

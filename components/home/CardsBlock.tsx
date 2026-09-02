@@ -72,7 +72,7 @@ export function CardsBlock() {
 
     return (
         <section id="home-collectible-cards" aria-labelledby="home-collectible-cards-heading" className="scroll-mt-14">
-            <div className="mx-auto max-w-5xl px-6">
+            <div className="mx-auto max-w-5xl px-0 sm:px-6">
                 <motion.div
                     className="mx-auto mb-12 max-w-2xl text-center"
                     initial={false}

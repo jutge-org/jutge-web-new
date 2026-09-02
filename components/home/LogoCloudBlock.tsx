@@ -74,7 +74,7 @@ export function LogoCloudBlock() {
 
     return (
         <section id="home-sponsors" aria-labelledby="home-sponsors-heading" className="scroll-mt-14 overflow-hidden">
-            <div className="mx-auto max-w-7xl px-6">
+            <div className="mx-auto max-w-7xl px-0 sm:px-6">
                 <motion.div
                     animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                     className="mb-16 text-center"
