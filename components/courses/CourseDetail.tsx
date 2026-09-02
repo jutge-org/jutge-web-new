@@ -1,5 +1,8 @@
+'use client'
+
 import { ArchiveIcon, BookOpenCheckIcon, Globe, ShieldCheck, SignatureIcon, UsersIcon } from 'lucide-react'
 
+import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import { CourseDescriptionDialog } from '@/components/courses/CourseDescriptionDialog'
 import { CourseDetailActions } from '@/components/courses/CourseDetailActions'
 import { CourseGuestLists } from '@/components/courses/CourseGuestLists'
@@ -13,6 +16,8 @@ import { buildCourseRow, type CourseStatus } from '@/lib/courses'
 import type { LastSubmissionInfo } from '@/lib/submissions'
 import type { AbstractStatus, Course, Language } from '@/lib/jutge_api_client'
 import type { CourseListData } from '@/lib/data/lists'
+import { isMotionReduced } from '@/lib/reducedMotion'
+import { cn } from '@/lib/utils'
 
 /** PageTitle-style shell: transparent, overlaps the sticky header. */
 const courseTitleShellClassName =
@@ -107,6 +112,19 @@ export function CourseDetailLoading() {
     )
 }
 
+function CourseHeaderIconImage({ iconUrl }: { iconUrl: string }) {
+    const { reducedMotion } = useAppearancePreferences()
+    const motionReduced = isMotionReduced(reducedMotion)
+
+    return (
+        <CourseIconImage
+            iconUrl={iconUrl}
+            size="lg"
+            className={cn('shrink-0', !motionReduced && 'hover:animate-pulse')}
+        />
+    )
+}
+
 export function CourseDetail({
     courseKey,
     course,
@@ -128,7 +146,7 @@ export function CourseDetail({
         <div className="flex flex-col gap-6">
             <div className={courseTitleShellClassName}>
                 <div className="flex items-start gap-5">
-                    <CourseIconImage iconUrl={row.iconUrl} size="lg" className="shrink-0" />
+                    <CourseHeaderIconImage iconUrl={row.iconUrl} />
                     <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-4">
                             <h1
