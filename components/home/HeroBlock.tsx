@@ -133,8 +133,8 @@ function HeroLogo() {
 
 export function HeroBlock() {
     return (
-        <section id="home-hero" className="relative scroll-mt-14" aria-label="Jutge.org">
-            <div className="relative z-10 flex flex-col items-center gap-6 text-center">
+        <section id="home-hero" className="scroll-mt-14" aria-label="Jutge.org">
+            <div className="flex flex-col items-center gap-6 text-center">
                 <div>
                     <HeroLogo />
 

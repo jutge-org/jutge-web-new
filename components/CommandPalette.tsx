@@ -394,7 +394,7 @@ export function CommandPalette() {
                             type="button"
                             aria-label="Quick search"
                             onClick={() => setOpen(true)}
-                            className="inline-flex h-8 w-40 items-center gap-2 rounded-md border border-input bg-muted/40 px-2.5 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            className="hidden h-8 w-40 items-center gap-2 rounded-md border border-input bg-muted/40 px-2.5 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:inline-flex"
                         >
                             <SearchIcon className="size-4 shrink-0" aria-hidden />
                             <span className="min-w-0 flex-1 truncate text-left">Search…</span>

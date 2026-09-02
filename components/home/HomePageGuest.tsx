@@ -1,6 +1,7 @@
 'use client'
 
 import { HomeYearsRibbon } from '@/components/general/HomeYearsRibbon'
+import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
 import { AccountsBlock } from '@/components/home/AccountsBlock'
 import { CardsBlock } from '@/components/home/CardsBlock'
 import { CoursesAndProblemsBlock } from '@/components/home/CoursesAndProblemsBlock'
@@ -127,9 +128,10 @@ export function HomePageGuest() {
                 'dark:[--color-brand:inherit] dark:[--color-brand-secondary:inherit] dark:[--color-brand-title:inherit]'
             }
         >
+            <MainBreadcrumbs breadcrumbs={[{ title: 'Jutge.org', url: '/' }]} />
             <HomeYearsRibbon />
             <HomeSectionNav sections={GUEST_SECTIONS} />
-            <div className="mt-6 flex flex-col gap-16 md:gap-24">
+            <div className="-mx-4 mt-6 flex flex-col gap-16 px-2 sm:mx-0 sm:px-0 md:gap-24">
                 <HeroBlock />
                 <SignInBlock activeTab={accountTab} onActiveTabChange={setAccountTab} focusEmailKey={focusEmailKey} />
                 <StatsBlock />
