@@ -2,8 +2,10 @@
 
 import { adminSetCoursePublicAndOfficial, fetchAdminCourses } from '@/lib/administrator/client'
 import { AgTableFull } from '@/components/administrator/AgTable'
+import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { Switch } from '@/components/ui/switch'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { courseIconUrl } from '@/lib/courses'
 import type { AdminCourse } from '@/lib/jutge_api_client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -73,6 +75,29 @@ export default function CoursesView() {
 
     const colDefs = useMemo(() => {
         const columns = [
+            {
+                field: 'icon',
+                headerName: '',
+                width: 56,
+                minWidth: 56,
+                maxWidth: 56,
+                sortable: false,
+                filter: false,
+                resizable: false,
+                suppressHeaderMenuButton: true,
+                cellStyle: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingLeft: 8,
+                    paddingRight: 8,
+                },
+                cellRenderer: (params: { data: AdminCourse }) => (
+                    <div className="flex h-full w-full items-center justify-center">
+                        <CourseIconImage iconUrl={courseIconUrl(params.data.icon)} size="2sm" className="block" />
+                    </div>
+                ),
+            },
             { field: 'title', headerName: 'Name', flex: 2, filter: true, sort: 'asc' },
             ...(isMobile
                 ? []

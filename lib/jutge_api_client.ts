@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-02T13:47:32.949Z
+ * This file has been automatically generated at 2026-09-02T14:10:22.721Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -1168,6 +1168,7 @@ export type AdminCourse = {
     public: number
     created_at: string | string | string | number
     updated_at: string | string | string | number
+    icon: string | null
     instructor: AdminCourseInstructor
 }
 
@@ -1466,8 +1467,6 @@ export class JutgeApiClient {
         }
         if (this.logCache) console.log("fetch")
 
-        const startTime = new Date()
-
         // prepare form
         const iform = new FormData()
         const idata = { func, input, meta: this.meta }
@@ -1514,10 +1513,6 @@ export class JutgeApiClient {
             const key = JSON.stringify({ func, input })
             this.cache.set(key, { output, ofiles, epoch: new Date().valueOf() })
         }
-
-        const endTime = new Date()
-        const callDuration = endTime.getTime() - startTime.getTime()
-        console.log(`${func}: ${callDuration}ms`)
 
         return [output, ofiles]
     }
