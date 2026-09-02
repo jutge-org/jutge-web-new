@@ -5,6 +5,7 @@ import { useAppearancePreferences } from '@/components/AppearancePreferencesProv
 import { isSoundEffectsEnabled } from '@/lib/soundEffects'
 
 import '@/styles/years-ribbon.css'
+import { isMotionReduced } from '@/lib/reducedMotion'
 
 const AUDIO_SRC = '/sounds/352655__foolboymedia__piano-notification-5a.mp3'
 
@@ -50,6 +51,8 @@ function launchConfetti(playSound: boolean) {
 
 export function HomeYearsRibbon() {
     const { soundEffects } = useAppearancePreferences()
+    const { reducedMotion } = useAppearancePreferences()
+    const motionReduced = isMotionReduced(reducedMotion)
 
     return (
         <button
@@ -57,7 +60,13 @@ export function HomeYearsRibbon() {
             className="years-ribbon"
             data-ribbon="20 Years 🎂"
             aria-label="Celebrate 20 years of Jutge.org"
-            onClick={() => launchConfetti(isSoundEffectsEnabled(soundEffects))}
+            onClick={() => 
+                {
+                    if (!motionReduced) {
+                        launchConfetti(isSoundEffectsEnabled(soundEffects))
+                    }
+                }
+            }
         />
     )
 }
