@@ -4,12 +4,14 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { isMotionReduced } from '@/lib/reducedMotion'
 import type { SolvedProblemRow } from '@/lib/statistics/data'
 import { cn } from '@/lib/utils'
 
@@ -74,6 +76,8 @@ function SolvedProblemDialog({
 
 export function SolvedProblemsCard({ problems, loading }: SolvedProblemsCardProps) {
     const [selectedProblem, setSelectedProblem] = useState<SolvedProblemRow | null>(null)
+    const { reducedMotion } = useAppearancePreferences()
+    const motionReduced = isMotionReduced(reducedMotion)
 
     return (
         <>
@@ -95,13 +99,21 @@ export function SolvedProblemsCard({ problems, loading }: SolvedProblemsCardProp
                                                     type="button"
                                                     onClick={() => setSelectedProblem(problem)}
                                                     className={cn(
-                                                        'shrink-0 rounded-md transition-opacity hover:opacity-80',
+                                                        'shrink-0 rounded-md',
                                                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                                     )}
                                                     aria-label={`${problem.problem_nm}: ${problem.title}`}
                                                 >
                                                     {problem.iconUrl ? (
-                                                        <ProblemIconImage iconUrl={problem.iconUrl} size="lg" />
+                                                        <ProblemIconImage
+                                                            iconUrl={problem.iconUrl}
+                                                            size="lg"
+                                                            className={cn(
+                                                                'shrink-0',
+                                                                !motionReduced &&
+                                                                    'hover:animate-[spin_3s_linear_infinite]',
+                                                            )}
+                                                        />
                                                     ) : (
                                                         <span className="flex size-28 items-center justify-center rounded-sm bg-muted px-2 text-center text-sm font-medium">
                                                             {problem.problem_nm}
