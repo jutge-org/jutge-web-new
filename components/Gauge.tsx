@@ -113,8 +113,8 @@ export function Gauge({
     const cx = 100
     const cy = 100
     const radius = 70
-    const handleHubRadius = handleWidth * 1.25
-    const needleLength = radius + strokeWidth / 2
+    const handleHubRadius = handleWidth * 2
+    const needleLength = radius + strokeWidth / 2 + 2
     const tickLabelSize = 9 * textScale
     const valueSize = 18 * textScale
     const titleSize = 11 * textScale

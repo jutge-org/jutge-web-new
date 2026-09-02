@@ -56,7 +56,7 @@ function MetricGauge({ value, minimum, maximum, tickInterval, intervals, acronym
                             title={acronym}
                             textScale={2}
                             handleWidth={4}
-                            strokeWidth={10}
+                            strokeWidth={18}
                         />
                     </div>
                 </div>
