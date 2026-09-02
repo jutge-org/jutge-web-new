@@ -373,12 +373,12 @@ async function fetchSubmissionCodeMetrics(
         .getCodeMetrics({ problem_id: submission.problem_id, submission_id: submission.submission_id })
         .catch(() => null)
 
-    const { metrics, solmetrics } = parseCodeMetricsResponse(raw)
-    if (!metrics) {
+    const { userMetrics, solutionMetrics } = parseCodeMetricsResponse(raw)
+    if (!userMetrics && !solutionMetrics) {
         return null
     }
 
-    return buildSubmissionCodeMetricsData(metrics, solmetrics)
+    return buildSubmissionCodeMetricsData(userMetrics, solutionMetrics)
 }
 
 export type SubmissionDetailResolved = {

@@ -9,11 +9,7 @@ import {
 } from '@/lib/codeMetrics'
 import { decodeSubmissionCodeBase64 } from '@/lib/makePro2SourceCode'
 import { isGraphicProblem, parseProblemKey } from '@/lib/problems'
-import {
-    buildProblemSubmissionRow,
-    submissionVerdict,
-    type ProblemSubmissionRow,
-} from '@/lib/submissions'
+import { buildProblemSubmissionRow, submissionVerdict, type ProblemSubmissionRow } from '@/lib/submissions'
 import { supervisionProblemHref, supervisionSubmissionHref, type SupervisionContext } from '@/lib/supervision'
 import { withSupervisorClient } from '@/lib/supervisor/client'
 import jutge from '@/lib/jutge'
@@ -167,12 +163,12 @@ async function fetchSupervisionSubmissionCodeMetrics(
             .getCodeMetrics(tutorSubmissionParams(ctx, submission.problem_id, submission.submission_id))
             .catch(() => null)
 
-        const { metrics, solmetrics } = parseCodeMetricsResponse(raw)
-        if (!metrics) {
+        const { userMetrics, solutionMetrics } = parseCodeMetricsResponse(raw)
+        if (!userMetrics && !solutionMetrics) {
             return null
         }
 
-        return buildSubmissionCodeMetricsData(metrics, solmetrics)
+        return buildSubmissionCodeMetricsData(userMetrics, solutionMetrics)
     })
 }
 

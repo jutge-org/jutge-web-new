@@ -1,4 +1,4 @@
-import type { CodeMetrics, Submission } from '@/lib/jutge_api_client'
+import type { CodeMetrics, CodeMetricsResult, Submission } from '@/lib/jutge_api_client'
 
 const HIDDEN_COMPILER_IDS = new Set(['quiz', 'MakePRO2'])
 const HIDDEN_VERDICTS = new Set(['CE', 'IE', 'FE', 'Pending'])
@@ -38,13 +38,37 @@ export const RATIO_GAUGE_INTERVALS = [
     { minimum: 2.25, maximum: 3, color: GAUGE_RED },
 ] as const
 
-type CodeMetricsPayload = {
-    metrics?: CodeMetrics
-    solmetrics?: CodeMetrics | null
+export type CodeMetricId = 'ccn' | 'dif' | 'mnt' | 'com'
+
+export const CODE_METRICS: Record<CodeMetricId, { acronym: string; name: string; help: string }> = {
+    ccn: {
+        acronym: 'CCN',
+        name: 'Cyclomatic complexity',
+        help: "McCabe's Cyclomatic complexity indicates the complexity of a program measuring the number of linearly independent paths through a program's source code. It is considered that cyclomatic complexities up to 9 are all right, up to 14 are difficult, and above 14 are too much complicated.",
+    },
+    dif: {
+        acronym: 'DIF',
+        name: "Halstead's difficulty",
+        help: 'Halstead complexity measures vocabulary, program length, volume, difficulty, and effort by a static inspection of the code. In particular, difficulty relates to the difficulty of understanding the program when reading or writing it.',
+    },
+    mnt: {
+        acronym: 'MI',
+        name: 'Maintainability index',
+        help: 'The maintainability index is a composite metric calculated from cyclomatic complexity, Halstead volume, and lines of code. It estimates how easy a codebase is to maintain, with higher values indicating better maintainability.',
+    },
+    com: {
+        acronym: 'DI',
+        name: 'Documentation index',
+        help: 'The ratio of comment lines to total lines of code, giving an indication of how well the code is documented. Quite crude!',
+    },
 }
+
+export const CODE_METRICS_RATIO_HELP =
+    "Jutge.org also provides a comparison between your code metrics and those of the official solution. The ratio between both can be quite revealing: if your metrics are consistently much higher than the solution's, it is worth stopping to reflect on what is happening — your code may be more complex, longer, harder to read, or harder to maintain than it can be."
 
 export type CodeMetricsTableRow = {
     metric: string
+    acronym: string
     value: string
     ref: string
     ratio: string
@@ -52,10 +76,10 @@ export type CodeMetricsTableRow = {
 
 export type SubmissionCodeMetricsData = {
     rows: CodeMetricsTableRow[]
-    cyclomaticComplexity: number
-    halsteadDifficulty: number
-    maintainabilityIndex: number
-    documentationIndex: number
+    cyclomaticComplexity: number | null
+    halsteadDifficulty: number | null
+    maintainabilityIndex: number | null
+    documentationIndex: number | null
     ccnRatio: number | null
     difRatio: number | null
 }
@@ -90,106 +114,113 @@ export function shouldShowCodeMetrics({
     return submission.state === 'done'
 }
 
+function isFiniteNumber(value: number | undefined | null): value is number {
+    return typeof value === 'number' && Number.isFinite(value)
+}
+
+function finiteOrNull(value: number | undefined | null): number | null {
+    return isFiniteNumber(value) ? value : null
+}
+
 function formatDecimal(value: number): string {
     return value.toFixed(1)
 }
 
-function formatRatio(numerator: number, denominator: number | undefined | null): string {
-    if (denominator === undefined || denominator === null) {
-        return '-'
-    }
-
-    if (denominator === 0) {
-        return 'NaN'
-    }
-
-    return (numerator / denominator).toFixed(1)
-}
-
-function formatRef(value: number | undefined | null, formatter: (value: number) => string): string {
-    if (value === undefined || value === null) {
+function formatMetric(value: number | undefined | null, formatter: (value: number) => string): string {
+    if (!isFiniteNumber(value)) {
         return '-'
     }
 
     return formatter(value)
 }
 
-function computeRatio(numerator: number, denominator: number | undefined | null): number | null {
-    if (denominator === undefined || denominator === null || denominator === 0) {
+function computeRatio(numerator: number | undefined | null, denominator: number | undefined | null): number | null {
+    if (!isFiniteNumber(numerator) || !isFiniteNumber(denominator) || denominator === 0) {
         return null
     }
 
-    return numerator / denominator
-}
-
-export function parseCodeMetricsResponse(raw: CodeMetrics | null): {
-    metrics: CodeMetrics | null
-    solmetrics: CodeMetrics | null
-} {
-    if (!raw) {
-        return { metrics: null, solmetrics: null }
+    const ratio = numerator / denominator
+    if (!Number.isFinite(ratio)) {
+        return null
     }
 
-    const payload = raw as CodeMetrics & CodeMetricsPayload
+    return ratio
+}
 
-    if (payload.metrics) {
+function formatRatio(numerator: number | undefined | null, denominator: number | undefined | null): string {
+    const ratio = computeRatio(numerator, denominator)
+    if (ratio === null) {
+        return '–'
+    }
+
+    return ratio.toFixed(1)
+}
+
+function isCodeMetricsResult(raw: CodeMetricsResult | CodeMetrics): raw is CodeMetricsResult {
+    return 'userMetrics' in raw || 'solutionMetrics' in raw
+}
+
+export function parseCodeMetricsResponse(raw: CodeMetricsResult | CodeMetrics | null): CodeMetricsResult {
+    if (!raw) {
+        return { userMetrics: null, solutionMetrics: null }
+    }
+
+    if (isCodeMetricsResult(raw)) {
         return {
-            metrics: payload.metrics,
-            solmetrics: payload.solmetrics ?? null,
+            userMetrics: raw.userMetrics ?? null,
+            solutionMetrics: raw.solutionMetrics ?? null,
         }
     }
 
-    if (typeof payload.cyclomatic_complexity === 'number') {
-        return { metrics: payload, solmetrics: null }
+    if (typeof raw.cyclomatic_complexity === 'number') {
+        return { userMetrics: raw, solutionMetrics: null }
     }
 
-    return { metrics: null, solmetrics: null }
+    return { userMetrics: null, solutionMetrics: null }
 }
 
 export function buildSubmissionCodeMetricsData(
-    metrics: CodeMetrics,
-    solmetrics: CodeMetrics | null,
+    userMetrics: CodeMetrics | null,
+    solutionMetrics: CodeMetrics | null,
 ): SubmissionCodeMetricsData {
     const rows: CodeMetricsTableRow[] = [
         {
-            metric: 'cyclomatic complexity',
-            value: formatDecimal(metrics.cyclomatic_complexity),
-            ref: formatRef(solmetrics?.cyclomatic_complexity, formatDecimal),
-            ratio: formatRatio(metrics.cyclomatic_complexity, solmetrics?.cyclomatic_complexity),
+            metric: CODE_METRICS.ccn.name,
+            acronym: CODE_METRICS.ccn.acronym,
+            value: formatMetric(userMetrics?.cyclomatic_complexity, formatDecimal),
+            ref: formatMetric(solutionMetrics?.cyclomatic_complexity, formatDecimal),
+            ratio: formatRatio(userMetrics?.cyclomatic_complexity, solutionMetrics?.cyclomatic_complexity),
         },
         {
-            metric: 'halstead difficulty',
-            value: formatDecimal(metrics.halstead_difficulty),
-            ref: formatRef(solmetrics?.halstead_difficulty, formatDecimal),
-            ratio: formatRatio(metrics.halstead_difficulty, solmetrics?.halstead_difficulty),
+            metric: CODE_METRICS.dif.name,
+            acronym: CODE_METRICS.dif.acronym,
+            value: formatMetric(userMetrics?.halstead_difficulty, formatDecimal),
+            ref: formatMetric(solutionMetrics?.halstead_difficulty, formatDecimal),
+            ratio: formatRatio(userMetrics?.halstead_difficulty, solutionMetrics?.halstead_difficulty),
         },
         {
-            metric: 'maintainability index',
-            value: formatDecimal(metrics.maintainability_index),
-            ref: formatRef(solmetrics?.maintainability_index, formatDecimal),
-            ratio: formatRatio(metrics.maintainability_index, solmetrics?.maintainability_index),
+            metric: CODE_METRICS.mnt.name,
+            acronym: CODE_METRICS.mnt.acronym,
+            value: formatMetric(userMetrics?.maintainability_index, formatDecimal),
+            ref: formatMetric(solutionMetrics?.maintainability_index, formatDecimal),
+            ratio: formatRatio(userMetrics?.maintainability_index, solutionMetrics?.maintainability_index),
         },
         {
-            metric: 'documentation index',
-            value: formatDecimal(metrics.comment_ratio),
-            ref: formatRef(solmetrics?.comment_ratio, formatDecimal),
-            ratio: formatRatio(metrics.comment_ratio, solmetrics?.comment_ratio),
-        },
-        {
-            metric: 'lines of code',
-            value: String(metrics.loc),
-            ref: formatRef(solmetrics?.loc, String),
-            ratio: formatRatio(metrics.loc, solmetrics?.loc),
+            metric: CODE_METRICS.com.name,
+            acronym: CODE_METRICS.com.acronym,
+            value: formatMetric(userMetrics?.comment_ratio, formatDecimal),
+            ref: formatMetric(solutionMetrics?.comment_ratio, formatDecimal),
+            ratio: formatRatio(userMetrics?.comment_ratio, solutionMetrics?.comment_ratio),
         },
     ]
 
     return {
         rows,
-        cyclomaticComplexity: metrics.cyclomatic_complexity,
-        halsteadDifficulty: metrics.halstead_difficulty,
-        maintainabilityIndex: metrics.maintainability_index,
-        documentationIndex: metrics.comment_ratio,
-        ccnRatio: computeRatio(metrics.cyclomatic_complexity, solmetrics?.cyclomatic_complexity),
-        difRatio: computeRatio(metrics.halstead_difficulty, solmetrics?.halstead_difficulty),
+        cyclomaticComplexity: finiteOrNull(userMetrics?.cyclomatic_complexity),
+        halsteadDifficulty: finiteOrNull(userMetrics?.halstead_difficulty),
+        maintainabilityIndex: finiteOrNull(userMetrics?.maintainability_index),
+        documentationIndex: finiteOrNull(userMetrics?.comment_ratio),
+        ccnRatio: computeRatio(userMetrics?.cyclomatic_complexity, solutionMetrics?.cyclomatic_complexity),
+        difRatio: computeRatio(userMetrics?.halstead_difficulty, solutionMetrics?.halstead_difficulty),
     }
 }

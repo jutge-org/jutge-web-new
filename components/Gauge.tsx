@@ -153,8 +153,9 @@ export function Gauge({
     const needlePoint = topSemicirclePoint(cx, cy, needleLength, valueFraction)
     const bottomArcPath = describeBottomArc(cx, cy, radius)
     const arcBottom = cy + radius + strokeWidth / 2
-    const titleY = cy + 46
-    const viewBoxHeight = title ? arcBottom + 6 : arcBottom + 4
+    const valueY = cy + 50
+    const titleY = showValue ? valueY + valueSize / 2 + titleSize / 2 + 4 : cy + 46
+    const viewBoxHeight = title ? Math.max(arcBottom + 6, titleY + titleSize / 2 + 6) : arcBottom + 4
 
     return (
         <div className={cn('inline-flex flex-col items-center', className)}>
@@ -222,10 +223,10 @@ export function Gauge({
                 {showValue ? (
                     <text
                         x={cx}
-                        y={cy + 28}
+                        y={valueY}
                         fill="currentColor"
-                        fontSize={valueSize}
-                        fontWeight={600}
+                        fontSize={valueSize*0.8}
+                        fontWeight={500}
                         textAnchor="middle"
                         dominantBaseline="middle"
                     >
