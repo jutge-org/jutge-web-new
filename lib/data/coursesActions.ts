@@ -58,6 +58,26 @@ export async function archiveCourseAction(courseKey: string): Promise<CourseActi
     }
 }
 
+export async function archiveAllCoursesAction(courseKeys: string[]): Promise<CourseActionResult> {
+    const keys = [...new Set(courseKeys.map((key) => key.trim()).filter(Boolean))]
+    if (keys.length === 0) {
+        return { ok: false, error: 'No courses to archive.' }
+    }
+
+    try {
+        const client = await getCurrentClient()
+        const results = await Promise.allSettled(keys.map((key) => archiveCourse(client, key)))
+        const failed = results.filter((result) => result.status === 'rejected').length
+        if (failed > 0) {
+            return { ok: false, error: `Failed to archive ${failed} of ${keys.length} courses.` }
+        }
+        return { ok: true }
+    } catch (e) {
+        const message = e instanceof Error ? e.message : 'Failed to archive courses.'
+        return { ok: false, error: message }
+    }
+}
+
 export async function unarchiveCourseAction(courseKey: string): Promise<CourseActionResult> {
     const trimmed = courseKey.trim()
     if (!trimmed) {

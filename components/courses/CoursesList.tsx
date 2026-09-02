@@ -17,6 +17,7 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 
 import {
+    archiveAllCoursesAction,
     archiveCourseAction,
     enrollCourseAction,
     unarchiveCourseAction,
@@ -49,6 +50,9 @@ import {
 const UNENROLL_CONFIRMATION =
     'Please take into account that, after unenrolling from it, your instructor will not be able to see your progress. This could have strong consequences in the event your grade depends on it. You can enroll it again at any time.'
 
+const ARCHIVE_ALL_PENDING_KEY = '*'
+const ARCHIVE_ALL_MIN_COURSES = 4
+
 type CoursesListProps = {
     tab: CoursesTab
     courses: CourseRow[]
@@ -70,7 +74,9 @@ type StudentCourseCardProps = {
     userId: string
     progress?: CourseProgress
     progressLoading: boolean
+    showArchiveAll: boolean
     onAction: (course: CourseRow, action: CourseAction) => void
+    onArchiveAll: () => void
 }
 
 function StudentCourseCard({
@@ -80,9 +86,11 @@ function StudentCourseCard({
     userId,
     progress,
     progressLoading,
+    showArchiveAll,
     onAction,
+    onArchiveAll,
 }: StudentCourseCardProps) {
-    const isPending = pendingKey === course.course_key
+    const isPending = pendingKey === course.course_key || pendingKey === ARCHIVE_ALL_PENDING_KEY
 
     return (
         <CourseCardShell>
@@ -155,6 +163,12 @@ function StudentCourseCard({
                                 <ArchiveIcon aria-hidden />
                                 Archive
                             </DropdownMenuItem>
+                            {showArchiveAll ? (
+                                <DropdownMenuItem onClick={onArchiveAll}>
+                                    <ArchiveIcon aria-hidden />
+                                    Archive all
+                                </DropdownMenuItem>
+                            ) : null}
                         </>
                     ) : null}
                     {tab === 'archived' ? (
@@ -228,6 +242,8 @@ export function CoursesList({
         [courses, instructorFilter, officialFilter, searchQuery, sortField],
     )
 
+    const showArchiveAll = tab === 'enrolled' && courses.length >= ARCHIVE_ALL_MIN_COURSES
+
     async function handleAction(course: CourseRow, action: CourseAction) {
         const title = course.title
         let confirmed = false
@@ -264,6 +280,30 @@ export function CoursesList({
             }
 
             toast.error(result.error)
+        })
+    }
+
+    async function handleArchiveAll() {
+        const count = courses.length
+        const confirmed = await runConfirmDialog(`Are you sure you want to archive all ${count} enrolled courses? (You can unarchive them later.)`)
+        if (!confirmed) {
+            return
+        }
+
+        setPendingKey(ARCHIVE_ALL_PENDING_KEY)
+        startTransition(async () => {
+            const result = await archiveAllCoursesAction(courses.map((course) => course.course_key))
+            setPendingKey(null)
+
+            if (result.ok) {
+                toast.success(`Archived ${count} courses`)
+                router.refresh()
+                onCoursesChanged?.()
+                return
+            }
+
+            toast.error(result.error)
+            onCoursesChanged?.()
         })
     }
 
@@ -350,7 +390,9 @@ export function CoursesList({
                                     userId={userId}
                                     progress={progress?.[course.course_key]}
                                     progressLoading={progressLoading}
+                                    showArchiveAll={showArchiveAll}
                                     onAction={handleAction}
+                                    onArchiveAll={handleArchiveAll}
                                 />
                             ))}
                         </div>
