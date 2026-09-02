@@ -101,6 +101,7 @@ export function ProblemDetail(props: ProblemDetailProps) {
             {isGame ? <GameProblemCompetitionsCard /> : null}
 
             <ProblemHeaderCard
+                pageKey={pageKey}
                 data={data}
                 status={status}
                 defaultCompilerId={defaultCompilerId}

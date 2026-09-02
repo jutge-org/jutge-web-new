@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { PlusIcon } from 'lucide-react'
+import { SendHorizonalIcon } from 'lucide-react'
 
 import { useAuth } from '@/components/AuthProvider'
 import { SubmissionDialog } from '@/components/problems/SubmissionDialog'
-import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Compiler } from '@/lib/jutge_api_client'
+import { Button } from '../ui/button'
 
 type ProblemSubmitButtonProps = {
     problemId: string
@@ -28,17 +28,19 @@ export function ProblemSubmitButton({ problemId, compilers, defaultCompilerId }:
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Button
-                        type="button"
                         variant="default"
                         size="icon-lg"
-                        className="size-16 shrink-0 rounded-full"
-                        aria-label="Submit"
+                        className="size-16 shrink-0 rounded-full hover:bg-primary/80"
+                        aria-label="New submission"
                         onClick={() => setDialogOpen(true)}
                     >
-                        <PlusIcon className="size-8 stroke-[1.5] shrink-0" aria-hidden />
+                        <SendHorizonalIcon
+                            className="size-8 shrink-0 translate-x-0.5 stroke-[1.5] transition-transform duration-200 ease-out group-hover:translate-x-1"
+                            aria-hidden
+                        />
                     </Button>
                 </TooltipTrigger>
-                <TooltipContent side="left">New submission</TooltipContent>
+                <TooltipContent side="top">New submission</TooltipContent>
             </Tooltip>
             <SubmissionDialog
                 open={dialogOpen}
