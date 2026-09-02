@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { fetchPublicCourses } from '@/lib/data/courses'
-import { fetchAllAbstractProblems, type ProblemRow } from '@/lib/data/problems'
+import { abstractProblemsToRows, fetchAllAbstractProblems, type ProblemRow } from '@/lib/data/problems'
 import { publicCourseHref, type GuestCourseRow } from '@/lib/courses'
 import { ArrowRightIcon, FileBracesCornerIcon, SignatureIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import jutge from '@/lib/jutge'
+import { problemIconUrl } from '@/lib/problems'
 
 const CARD_HEIGHT = 'min-h-96 h-96 md:h-96'
 const SAMPLE_SIZE = 8
@@ -345,11 +347,26 @@ export function CoursesAndProblemsBlock() {
         void fetchPublicCourses().then((rows) => {
             if (!cancelled) setCourses(filterFeaturedCourses(rows))
         })
-        void fetchAllAbstractProblems('en').then((rows) => {
+        void jutge.problems.getSomeAbstractProblems({regexp: 'P[0-9]+', limit: SAMPLE_SIZE*4}).then((someProblems) => {
             if (!cancelled) {
-                const rndProblems = pickRandomProblems(rows)
-                setProblems(rndProblems)
-                // console.log(rndProblems)
+                const rows: ProblemRow[] = []
+                for (const aproblem of Object.values(someProblems)) {
+                    const problem_id = aproblem.problem_nm + "_en"
+                    if (problem_id in aproblem.problems) {
+                        rows.push({
+                            problem_nm: problem_id,
+                            title: aproblem.problems[problem_id].title,
+                            iconUrl: problemIconUrl(aproblem.icon),
+                            language_ids: [aproblem.problems[problem_id].language_id],
+                            driver_id: aproblem.driver_id,
+                            author: aproblem.author,
+                            created_at: aproblem.created_at,
+                            updated_at: aproblem.updated_at,
+                        })
+                    }
+                    if (rows.length >= SAMPLE_SIZE) break
+                }
+                setProblems(rows)
             }
         })
         return () => {

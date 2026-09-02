@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-02T09:06:16.686Z
+ * This file has been automatically generated at 2026-09-02T13:47:32.949Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -309,6 +309,11 @@ export type SearchResult = {
 }
 
 export type SearchResults = SearchResult[]
+
+export type GetSomeAbstractProblemsIn = {
+    regexp: string
+    limit: number
+}
 
 export type AllKeys = {
     problems: string[]
@@ -1461,6 +1466,8 @@ export class JutgeApiClient {
         }
         if (this.logCache) console.log("fetch")
 
+        const startTime = new Date()
+
         // prepare form
         const iform = new FormData()
         const idata = { func, input, meta: this.meta }
@@ -1507,6 +1514,10 @@ export class JutgeApiClient {
             const key = JSON.stringify({ func, input })
             this.cache.set(key, { output, ofiles, epoch: new Date().valueOf() })
         }
+
+        const endTime = new Date()
+        const callDuration = endTime.getTime() - startTime.getTime()
+        console.log(`${func}: ${callDuration}ms`)
 
         return [output, ofiles]
     }
@@ -1632,6 +1643,7 @@ export class JutgeApiClient {
         this.clientTTLs.set("courses.indexPublic", 300)
         this.clientTTLs.set("problems.getAllAbstractProblems", 3600)
         this.clientTTLs.set("problems.getAllAbstractProblemsRaw", 3600)
+        this.clientTTLs.set("problems.getSomeAbstractProblems", 600)
     }
 }
 
@@ -2214,6 +2226,18 @@ class Module_problems {
      */
     async getAbstractProblems(problem_nms: string): Promise<Record<string, AbstractProblem>> {
         const [output, ofiles] = await this.root.execute("problems.getAbstractProblems", problem_nms)
+        return output
+    }
+
+    /**
+     * Get some available abstract problems with a given regexp and a limit.
+     *
+     * 🔐 Authentication: any
+     * No warnings
+     * Includes problems.
+     */
+    async getSomeAbstractProblems(data: GetSomeAbstractProblemsIn): Promise<Record<string, AbstractProblem>> {
+        const [output, ofiles] = await this.root.execute("problems.getSomeAbstractProblems", data)
         return output
     }
 
