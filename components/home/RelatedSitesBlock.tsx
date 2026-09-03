@@ -11,29 +11,35 @@ const SPRING = {
 
 const relatedSites = [
     {
-        title: 'Quizzes by Jutge.org',
-        description: 'Play and learn, share your knowledge — wrong answers welcome! Currently under development.',
-        href: 'https://quizzes.jutge.org',
-        imageSrc: '/news/quizzes-jutge.png',
-    },
-    {
-        title: 'VSCode extension',
-        description: 'Solve Jutge.org problems directly within your favorite IDE.',
-        href: 'vscode:extension/jutge-org.jutge-vscode',
-        imageSrc: '/news/vscode-jutge.png',
+        title: 'Lliçons',
+        description: "El recull de lliçons d'algorísmia i programació de Jutge.org.",
+        href: 'https://lliçons.jutge.org',
+        imageSrc: '/news/llicons.webp',
     },
     {
         title: 'API for Jutge.org',
         description:
             'Write programs to interact with Jutge.org: obtain information, test AIs, configure things automatically.',
         href: 'https://api.jutge.org',
-        imageSrc: '/news/api-jutge.png',
+        imageSrc: '/news/api.webp',
     },
     {
-        title: 'Lliçons',
-        description: "El recull de lliçons d'algorísmia i programació de Jutge.org.",
-        href: 'https://lliçons.jutge.org',
-        imageSrc: '/news/llicons.png',
+        title: 'VSCode extension',
+        description: 'Solve Jutge.org problems directly within your favorite IDE.',
+        href: 'vscode:extension/jutge-org.jutge-vscode',
+        imageSrc: '/news/vscode-jutge.webp',
+    },
+    {
+        title: 'Quizzes by Jutge.org',
+        description: 'Play and learn, share your knowledge — wrong answers welcome! Currently under development.',
+        href: 'https://quizzes.jutge.org',
+        imageSrc: '/news/quizzes-jutge.png',
+    },
+    {
+        title: 'Mussol',
+        description: "The peer grading tool of Jutge.org",
+        href: 'https://mussol.jutge.org',
+        imageSrc: '/news/mussol.webp',
     },
 ]
 
@@ -59,7 +65,7 @@ export function RelatedSitesBlock() {
                         aria-hidden
                         className="pointer-events-none absolute left-1/2 top-1/2 hidden size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-3xl dark:block sm:size-80"
                     />
-                    <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-3">
                         {relatedSites.map((site, index) => {
                             const isExternal = site.href.startsWith('http')
                             return (
