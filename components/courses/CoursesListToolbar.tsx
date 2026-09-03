@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowDownWideNarrowIcon, FunnelIcon, PlusIcon } from 'lucide-react'
+import { ArrowDownWideNarrowIcon, FolderPenIcon, FunnelIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { useAuth } from '@/components/AuthProvider'
@@ -132,16 +132,28 @@ export function CoursesListToolbar({
                     aria-label="Search courses"
                 />
                 {user?.instructor ? (
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button asChild variant="outline" size="icon">
-                                <Link href="/instructor/courses/new" aria-label="New course">
-                                    <PlusIcon aria-hidden />
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top">New course</TooltipContent>
-                    </Tooltip>
+                    <ButtonGroup>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button asChild variant="outline" size="icon">
+                                    <Link href="/instructor/courses/new" aria-label="New course">
+                                        <PlusIcon aria-hidden />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">New course</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button asChild variant="outline" size="icon">
+                                    <Link href="/instructor/courses" aria-label="Manage courses">
+                                        <FolderPenIcon aria-hidden />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">Manage courses</TooltipContent>
+                        </Tooltip>
+                    </ButtonGroup>
                 ) : null}
                 {showHelp ? <CoursesHelpDialog /> : null}
             </div>

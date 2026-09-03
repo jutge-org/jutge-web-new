@@ -110,7 +110,14 @@ export function ProblemDetail(props: ProblemDetailProps) {
                 overlapHeader={headerOverlap}
             />
 
-            {showNav ? <ProblemNav pageKey={pageKey} showInstructorTabs={showInstructorTabs} /> : null}
+            {showNav ? (
+                <ProblemNav
+                    pageKey={pageKey}
+                    showInstructorTabs={showInstructorTabs}
+                    problem_nm={problem.problem_nm}
+                    isInstructorOwner={isInstructorOwner}
+                />
+            ) : null}
 
             {children}
 

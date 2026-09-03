@@ -1,6 +1,6 @@
 'use client'
 
-import { BinocularsIcon, Columns3Icon, PlusIcon } from 'lucide-react'
+import { BinocularsIcon, Columns3Icon, FolderPenIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { useAuth } from '@/components/AuthProvider'
@@ -114,16 +114,28 @@ export function ProblemsListToolbar({
                     <TooltipContent side="top">Simple search</TooltipContent>
                 </Tooltip>
                 {user?.instructor ? (
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button asChild variant="outline" size="icon">
-                                <Link href="/instructor/problems/new" aria-label="New problem">
-                                    <PlusIcon aria-hidden />
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top">New problem</TooltipContent>
-                    </Tooltip>
+                    <ButtonGroup>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button asChild variant="outline" size="icon">
+                                    <Link href="/instructor/problems/new" aria-label="New problem">
+                                        <PlusIcon aria-hidden />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">New problem</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button asChild variant="outline" size="icon">
+                                    <Link href="/instructor/problems" aria-label="Manage problems">
+                                        <FolderPenIcon aria-hidden />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">Manage problems</TooltipContent>
+                        </Tooltip>
+                    </ButtonGroup>
                 ) : null}
                 {showHelp ? <ProblemsHelpDialog /> : null}
             </div>

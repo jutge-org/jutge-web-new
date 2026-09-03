@@ -1,4 +1,4 @@
-export type ProblemTab = 'statement' | 'submissions' | 'solutions' | 'testcases'
+export type ProblemTab = 'statement' | 'submissions' | 'solutions' | 'testcases' | 'properties'
 
 export type ProblemNavItem = {
     tab: ProblemTab
@@ -10,7 +10,12 @@ export function showInstructorProblemTabs(isInstructorOwner: boolean, isAdminist
     return isInstructorOwner || isAdministrator
 }
 
-export function problemNavItems(pageKey: string, showInstructorTabs: boolean): ProblemNavItem[] {
+export function problemNavItems(
+    pageKey: string,
+    showInstructorTabs: boolean,
+    problem_nm?: string | null,
+    isInstructorOwner = false,
+): ProblemNavItem[] {
     const items: ProblemNavItem[] = [
         { tab: 'statement', label: 'Statement', href: `/problems/${pageKey}` },
         { tab: 'submissions', label: 'Submissions', href: `/problems/${pageKey}/submissions` },
@@ -21,6 +26,14 @@ export function problemNavItems(pageKey: string, showInstructorTabs: boolean): P
             { tab: 'solutions', label: 'Solutions', href: `/problems/${pageKey}/solutions` },
             { tab: 'testcases', label: 'Test cases', href: `/problems/${pageKey}/testcases` },
         )
+    }
+
+    if (isInstructorOwner && problem_nm) {
+        items.push({
+            tab: 'properties',
+            label: 'Properties',
+            href: `/instructor/problems/${problem_nm}`,
+        })
     }
 
     return items
