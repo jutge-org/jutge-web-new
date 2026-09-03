@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 
+    allowedDevOrigins: process.env.ALLOWED_DEV_ORIGINS?.split(',') || [],
+
     images: {
         remotePatterns: [
             {
@@ -16,29 +18,9 @@ const nextConfig: NextConfig = {
 
     async redirects() {
         return [
-            {
+            {   // not used, just kept as an example
                 source: '/statistics',
                 destination: '/activity',
-                permanent: true,
-            },
-            {
-                source: '/courses/enrolled',
-                destination: '/courses',
-                permanent: true,
-            },
-            {
-                source: '/courses/archived',
-                destination: '/courses?tab=archived',
-                permanent: true,
-            },
-            {
-                source: '/courses/available',
-                destination: '/courses?tab=available',
-                permanent: true,
-            },
-            {
-                source: '/courses/public/:course_key',
-                destination: '/courses/public',
                 permanent: true,
             },
         ];
