@@ -1,28 +1,20 @@
 'use client'
 
-import Link from 'next/link'
-
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SubNav } from '@/components/general/SubNav'
 import { profileNavItems, type ProfileTab } from '@/lib/profile'
+import type { SubNavItem } from '@/store/SubNav'
+
+const profileSubNavItems: readonly SubNavItem[] = profileNavItems.map(({ tab, label, href }) => ({
+    key: tab,
+    label,
+    href,
+}))
 
 type ProfileNavProps = {
     activeTab: ProfileTab
 }
 
+/** Registers profile section links in the sticky header sub-nav. */
 export function ProfileNav({ activeTab }: ProfileNavProps) {
-    return (
-        <nav aria-label="Profile sections" className="w-full">
-            <Tabs value={activeTab}>
-                <TabsList className="w-full min-w-max">
-                    {profileNavItems.map(({ tab, label, href }) => (
-                        <TabsTrigger key={tab} value={tab} asChild>
-                            <Link href={href} aria-current={tab === activeTab ? 'page' : undefined}>
-                                {label}
-                            </Link>
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
-            </Tabs>
-        </nav>
-    )
+    return <SubNav ariaLabel="Profile sections" activeKey={activeTab} items={profileSubNavItems} />
 }

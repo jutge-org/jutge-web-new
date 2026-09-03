@@ -140,6 +140,10 @@ const profileSectionMeta: Record<
         description: 'Change your account password',
         keywords: ['Change password', 'Credentials'],
     },
+    email: {
+        description: 'Change your account email address',
+        keywords: ['Change email', 'Email address'],
+    },
 }
 
 export function getCommandPaletteProfileSections(context: SiteNavLinksContext): CommandPaletteSection[] {
