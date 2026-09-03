@@ -19,7 +19,7 @@ const relatedSites = [
     {
         title: 'API for Jutge.org',
         description:
-            'Write programs to interact with Jutge.org: obtain information, test AIs, configure things automatically.',
+            'Interact programatically with Jutge.org.',
         href: 'https://api.jutge.org',
         imageSrc: '/news/api.webp',
     },
@@ -31,9 +31,9 @@ const relatedSites = [
     },
     {
         title: 'Quizzes by Jutge.org',
-        description: 'Play and learn, share your knowledge — wrong answers welcome! Currently under development.',
+        description: 'Play, learn, and share your knowledgein a fun way.',
         href: 'https://quizzes.jutge.org',
-        imageSrc: '/news/quizzes-jutge.png',
+        imageSrc: '/news/quizzes.webp',
     },
     {
         title: 'Mussol',
@@ -65,12 +65,12 @@ export function RelatedSitesBlock() {
                         aria-hidden
                         className="pointer-events-none absolute left-1/2 top-1/2 hidden size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-3xl dark:block sm:size-80"
                     />
-                    <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {relatedSites.map((site, index) => {
                             const isExternal = site.href.startsWith('http')
                             return (
                                 <motion.a
-                                    className="group relative flex h-full flex-col items-center overflow-hidden rounded-xl border bg-muted p-6 text-center transition-all hover:scale-[1.02] hover:shadow-md dark:bg-primary/5 dark:ring-1 dark:ring-primary/10"
+                                    className="group relative flex h-full flex-col items-center overflow-hidden rounded-xl border bg-muted p-6 text-center transition-all hover:scale-[1.02] hover:shadow-md max-sm:flex-row max-sm:gap-4 max-sm:p-4 max-sm:text-left dark:bg-primary/5 dark:ring-1 dark:ring-primary/10"
                                     href={site.href}
                                     initial={false}
                                     key={site.title}
@@ -87,15 +87,19 @@ export function RelatedSitesBlock() {
                                         alt=""
                                         width={128}
                                         height={128}
-                                        className="mb-3 size-32 rounded-md object-contain"
+                                        className="mb-3 size-32 rounded-md object-contain max-sm:mb-0 max-sm:size-20 max-sm:shrink-0"
                                     />
-                                    <h3 className="mb-1 font-semibold text-[var(--color-brand-title)] text-2xl">
-                                        {site.title}
-                                        {isExternal ? <span className="sr-only"> (opens in new window)</span> : null}
-                                    </h3>
-                                    <p className="text-foreground text-sm leading-relaxed dark:text-foreground/70">
-                                        {site.description}
-                                    </p>
+                                    <div className="contents max-sm:block max-sm:min-w-0 max-sm:flex-1">
+                                        <h3 className="mb-1 font-semibold text-[var(--color-brand-title)] text-2xl max-sm:text-xl">
+                                            {site.title}
+                                            {isExternal ? (
+                                                <span className="sr-only"> (opens in new window)</span>
+                                            ) : null}
+                                        </h3>
+                                        <p className="text-foreground text-sm leading-relaxed dark:text-foreground/70">
+                                            {site.description}
+                                        </p>
+                                    </div>
                                 </motion.a>
                             )
                         })}
