@@ -50,7 +50,8 @@ import { DEFAULT_STATEMENT_ET_BOOK, parseStatementEtBook, type StatementEtBookPr
 
 export const OPENWEB_SETTINGS_API_KEY = 'openweb'
 export const LOCAL_SETTINGS_STORAGE_KEY = 'settings'
-export const OPENWEB_SETTINGS_VERSION = 1 as const
+/** Bumped to 2 when the welcome dashboard module was introduced, so existing layouts get it once. */
+export const OPENWEB_SETTINGS_VERSION = 2 as const
 
 export type ThemePreference = 'light' | 'dark' | 'system'
 
@@ -233,6 +234,13 @@ export function parseOpenWebSettings(raw: unknown): OpenWebSettings {
     const parsed = raw as Partial<OpenWebSettings>
     const appearance = parsed.appearance
     const ui = parsed.ui
+    const rawVersion = typeof parsed.version === 'number' ? parsed.version : 0
+    let modules = parseDashboardModules(parsed.dashboard?.modules)
+    // Settings saved before v2 never listed `welcome`; prepend it once so existing users see it
+    // until they dismiss it (which persists a v2 layout without the module).
+    if (rawVersion < 2 && !modules.includes('welcome')) {
+        modules = ['welcome', ...modules]
+    }
 
     return {
         version: OPENWEB_SETTINGS_VERSION,
@@ -263,7 +271,7 @@ export function parseOpenWebSettings(raw: unknown): OpenWebSettings {
             upcomingExamsCollapsed: parseUpcomingExamsCollapsed(ui?.upcomingExamsCollapsed),
         },
         dashboard: {
-            modules: parseDashboardModules(parsed.dashboard?.modules),
+            modules,
             cardSize: parseDashboardCardSize(parsed.dashboard?.cardSize),
             suggestionMode: parseSuggestionMode(parsed.dashboard?.suggestionMode),
         },

@@ -142,7 +142,7 @@ function HeroLogo() {
     const { soundEffects } = useAppearancePreferences()
     const playSound = isSoundEffectsEnabled(soundEffects)
 
-    const image = <Image src="/jutge/modern.png" alt="Jutge.org" width={192} height={192} loading="eager" />
+    const image = <Image src="/jutge/modern.webp" alt="Jutge.org" width={192} height={192} loading="eager" />
 
     if (motionReduced) {
         return <div className="flex justify-center">{image}</div>
@@ -161,7 +161,7 @@ function HeroLogo() {
                     }
                 }}
             >
-                <Image src="/jutge/modern.png" alt="" width={192} height={192} loading="eager" />
+                <Image src="/jutge/modern.webp" alt="" width={192} height={192} loading="eager" />
             </button>
         </div>
     )

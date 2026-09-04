@@ -50,7 +50,7 @@ export function OldHomePageGuest() {
             <MainBreadcrumbs breadcrumbs={[{ title: 'Jutge.org', url: '/' }]} />
             <div className="flex flex-col items-center space-y-4 pt-8 text-center">
                 <Image
-                    src="/jutge/modern.png"
+                    src="/jutge/modern.webp"
                     alt="Jutge.org"
                     width={250}
                     height={250}

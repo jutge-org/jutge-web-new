@@ -1,6 +1,7 @@
 import {
     ActivityIcon,
     BookOpenIcon,
+    ConstructionIcon,
     FileCodeIcon,
     LayersIcon,
     SendIcon,
@@ -16,6 +17,7 @@ import {
  */
 
 export const DASHBOARD_MODULE_IDS = [
+    'welcome',
     'recentCourses',
     'recentProblems',
     'recentSubmissions',
@@ -37,6 +39,12 @@ export type DashboardModuleDef = {
 }
 
 export const DASHBOARD_MODULES: Record<DashboardModuleId, DashboardModuleDef> = {
+    welcome: {
+        title: 'Welcome!',
+        description: 'A note about this site being under construction.',
+        size: 'full',
+        icon: ConstructionIcon,
+    },
     recentCourses: {
         title: 'Recently visited courses',
         description: 'The courses you last opened.',
