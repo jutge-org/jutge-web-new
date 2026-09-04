@@ -11,8 +11,11 @@
         "format": "bun prettier --write --list-different .",
         "lint": "eslint",
         "knip": "knip",
+        "docker-build": "docker build -t web-new .",
+        "docker-build-amd64": "docker build --platform linux/amd64/v2 -t web-new .",
+        "docker-run": "docker run -p 8015:8015 web-new",
         "deploy-minipc": "ssh -t minipc 'cd Projectes/jutge-web-new && pm2 stop jutge && git pull && bun install && bun run build && pm2 restart jutge'",
-        "deploy-jutge": "ssh -t jutge@jutge.org 'cd new.jutge.org/jutge-web-new && pm2 stop new && git pull && bun install && bun run build && pm2 restart new'",
+        "deploy-jutge": "bun run docker-build-amd64 && (docker save web-new | ssh jutge@jutge.org 'docker load') && ssh jutge@jutge.org 'docker compose up -d --force-recreate'",
         "deploy": "bun run deploy-minipc && bun run deploy-jutge"
     },
     "dependencies": {

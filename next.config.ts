@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 
+    // Only use standalone when building for Docker
+    output: process.env.DOCKER_BUILD === 'true' ? 'standalone' : undefined,
+
     allowedDevOrigins: process.env.ALLOWED_DEV_ORIGINS?.split(',') || [],
 
     images: {
