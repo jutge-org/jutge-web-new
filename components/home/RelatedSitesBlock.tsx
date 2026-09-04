@@ -41,6 +41,14 @@ const relatedSites = [
         href: 'https://mussol.jutge.org',
         imageSrc: '/news/mussol.webp',
     },
+    /*    
+    {
+        title: 'Games',
+        description: "Battles of brains and code",
+        href: 'https://games.jutge.org',
+        imageSrc: '/news/games.webp',
+    },
+    */
 ]
 
 export function RelatedSitesBlock() {
