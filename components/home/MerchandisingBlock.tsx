@@ -27,7 +27,7 @@ const PRODUCTS: MerchProduct[] = [
     {
         id: 'stickers',
         image: '/verdicts/svg/AC.svg',
-        title: 'AC/WA Stickers',
+        title: 'Stickers',
         subtitle: '5 units, ⌀50mm',
         price: 9,
         linkUrl: 'https://www.stickermule.com/es/jutgeorg?filter=pegatinas',
@@ -37,7 +37,7 @@ const PRODUCTS: MerchProduct[] = [
     {
         id: 'tshirts',
         image: '/shop/t-shirt.png',
-        title: 'AC/WA T-shirts',
+        title: 'T-shirts',
         subtitle: '(choose color & size)',
         price: 17,
         linkUrl: 'https://www.stickermule.com/es/jutgeorg?filter=camisetas',
@@ -47,7 +47,7 @@ const PRODUCTS: MerchProduct[] = [
     {
         id: 'coasters',
         image: '/shop/coaster.png',
-        title: 'AC/WA Coasters',
+        title: 'Coasters',
         subtitle: '(10 units, ⌀94mm)',
         price: 17,
         linkUrl: 'https://www.stickermule.com/es/jutgeorg?filter=posavasos',
