@@ -12,11 +12,16 @@ const EASE_BOUNCE = [0.68, -0.55, 0.265, 1.55] as const
 
 const testimonials = [
     {
-        quote: 'Jutge.org turned my programming course into something students actually look forward to. Instant feedback makes all the difference.',
-        name: 'Maria Soler',
-        role: 'Lecturer, Computer Science',
-        initials: 'MS',
-        stars: 4,
+        quote: `
+I am the coordinator or co-coordinator of four courses taught at FIB.
+All the problem sets are on Jutge, the exams
+are held on Jutge, and the laboratory sessions are based on Jutge.
+It's clear, isn't it? Right now, I don't know what I'd do without Jutge.org.
+`,
+        name: 'Jordi Delgado',
+        role: 'Professor at UPC',
+        initials: 'JD',
+        stars: 5,
     },
     {
         quote: 'I practiced every day with the public problems and finally felt ready for my algorithms exam. The verdicts taught me more than any textbook.',
@@ -96,10 +101,10 @@ export function TestimonialBlock() {
                                 shouldReduceMotion
                                     ? { duration: 0 }
                                     : {
-                                          duration: 0.5,
-                                          ease: EASE_OUT,
-                                          delay: index * 0.15,
-                                      }
+                                        duration: 0.5,
+                                        ease: EASE_OUT,
+                                        delay: index * 0.15,
+                                    }
                             }
                         >
                             <motion.div
@@ -110,10 +115,10 @@ export function TestimonialBlock() {
                                     shouldReduceMotion
                                         ? { duration: 0 }
                                         : {
-                                              duration: 0.4,
-                                              delay: index * 0.15 + 0.2,
-                                              ease: EASE_OUT,
-                                          }
+                                            duration: 0.4,
+                                            delay: index * 0.15 + 0.2,
+                                            ease: EASE_OUT,
+                                        }
                                 }
                             >
                                 {Array.from({ length: 5 }).map((_, i) => (
@@ -125,10 +130,10 @@ export function TestimonialBlock() {
                                             shouldReduceMotion
                                                 ? { duration: 0 }
                                                 : {
-                                                      duration: 0.3,
-                                                      delay: index * 0.15 + 0.2 + i * 0.05,
-                                                      ease: EASE_BOUNCE,
-                                                  }
+                                                    duration: 0.3,
+                                                    delay: index * 0.15 + 0.2 + i * 0.05,
+                                                    ease: EASE_BOUNCE,
+                                                }
                                         }
                                     >
                                         <StarIcon
@@ -153,10 +158,10 @@ export function TestimonialBlock() {
                                     shouldReduceMotion
                                         ? { duration: 0 }
                                         : {
-                                              duration: 0.4,
-                                              delay: index * 0.15 + 0.4,
-                                              ease: EASE_OUT,
-                                          }
+                                            duration: 0.4,
+                                            delay: index * 0.15 + 0.4,
+                                            ease: EASE_OUT,
+                                        }
                                 }
                             >
                                 {testimonial.quote}
@@ -170,10 +175,10 @@ export function TestimonialBlock() {
                                     shouldReduceMotion
                                         ? { duration: 0 }
                                         : {
-                                              duration: 0.3,
-                                              delay: index * 0.15 + 0.5,
-                                              ease: EASE_OUT,
-                                          }
+                                            duration: 0.3,
+                                            delay: index * 0.15 + 0.5,
+                                            ease: EASE_OUT,
+                                        }
                                 }
                             >
                                 <Avatar className="size-5 border border-transparent shadow ring-1 ring-foreground/10 md:size-6">
