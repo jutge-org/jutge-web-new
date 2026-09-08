@@ -102,15 +102,22 @@ export function AuthToolbar() {
 
     return (
         <>
-            <Button
-                variant="outline"
-                size="icon"
-                type="button"
-                aria-label="Sign in"
-                onClick={() => setDialogOpen(true)}
-            >
-                <SignIn aria-hidden />
-            </Button>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            type="button"
+                            aria-label="Sign in"
+                            onClick={() => setDialogOpen(true)}
+                        >
+                            <SignIn aria-hidden />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Sign in</TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
 
             <SignInDialog
                 open={dialogOpen}
