@@ -64,15 +64,7 @@ type AboutInfoCardProps = {
     hover?: boolean
 }
 
-export function AboutInfoCard({
-    icon: Icon,
-    media,
-    title,
-    href,
-    description,
-    children,
-    hover,
-}: AboutInfoCardProps) {
+export function AboutInfoCard({ icon: Icon, media, title, href, description, children, hover }: AboutInfoCardProps) {
     const heading = href ? (
         <ExternalLink
             href={href}

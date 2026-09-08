@@ -34,13 +34,7 @@ export default function ProblemPage() {
         return (
             <div className="flex flex-col gap-6">
                 <MainBreadcrumbs
-                    breadcrumbs={problemLoadedBreadcrumbs(
-                        key,
-                        problem.problem_nm,
-                        problem.title,
-                        [],
-                        authenticated,
-                    )}
+                    breadcrumbs={problemLoadedBreadcrumbs(key, problem.problem_nm, problem.title, [], authenticated)}
                 />
                 {!authenticated ? <PageTitle section="/problems" authenticated={false} hidden={false} /> : null}
                 <QuizProblemUnsupportedCard

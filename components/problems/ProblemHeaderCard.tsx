@@ -43,26 +43,14 @@ function ProblemHeaderAction({ children }: { children: ReactNode }) {
             className={cn('inline-flex', !motionReduced && 'group')}
             whileHover={motionReduced ? undefined : { scale: 1.08, y: -2 }}
             whileTap={motionReduced ? undefined : { scale: 0.96 }}
-            transition={
-                motionReduced
-                    ? { duration: 0 }
-                    : { type: 'spring', stiffness: 420, damping: 22 }
-            }
+            transition={motionReduced ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 22 }}
         >
             {children}
         </motion.div>
     )
 }
 
-function ProblemHeaderNavButton({
-    href,
-    label,
-    children,
-}: {
-    href: string
-    label: string
-    children: ReactNode
-}) {
+function ProblemHeaderNavButton({ href, label, children }: { href: string; label: string; children: ReactNode }) {
     return (
         <ProblemHeaderAction>
             <Tooltip>

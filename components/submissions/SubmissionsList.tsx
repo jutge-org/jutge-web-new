@@ -212,9 +212,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
                         </TooltipTrigger>
                         <TooltipContent side="left" className="flex flex-col">
                             <p>{params.data.verdictFullName}</p>
-                            {params.data.verdict_info ? (
-                                <p className="text-xs">({params.data.verdict_info})</p>
-                            ) : null}
+                            {params.data.verdict_info ? <p className="text-xs">({params.data.verdict_info})</p> : null}
                         </TooltipContent>
                     </Tooltip>
                 ),

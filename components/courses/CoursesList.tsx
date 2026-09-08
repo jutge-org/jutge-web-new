@@ -285,7 +285,9 @@ export function CoursesList({
 
     async function handleArchiveAll() {
         const count = courses.length
-        const confirmed = await runConfirmDialog(`Are you sure you want to archive all ${count} enrolled courses? (You can unarchive them later.)`)
+        const confirmed = await runConfirmDialog(
+            `Are you sure you want to archive all ${count} enrolled courses? (You can unarchive them later.)`,
+        )
         if (!confirmed) {
             return
         }

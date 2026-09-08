@@ -33,108 +33,86 @@ const FEATURED_COURSE_NMS = [
 // just a bunch of problems to show while the API is loading
 const defaultProblems: ProblemRow[] = [
     {
-        "problem_nm": "P20195",
-        "title": "Solitaire game",
-        "iconUrl": "https://jutge.org/img/problems-icons/ea/ea1e6017e614490885777f03a5a90fd2.webp",
-        "language_ids": [
-            "en"
-        ],
-        "driver_id": "std",
-        "author": "Salvador Roura",
-        "created_at": "2015-06-30T13:29:01.000Z",
-        "updated_at": "2026-07-15T12:44:29.545Z"
+        problem_nm: 'P20195',
+        title: 'Solitaire game',
+        iconUrl: 'https://jutge.org/img/problems-icons/ea/ea1e6017e614490885777f03a5a90fd2.webp',
+        language_ids: ['en'],
+        driver_id: 'std',
+        author: 'Salvador Roura',
+        created_at: '2015-06-30T13:29:01.000Z',
+        updated_at: '2026-07-15T12:44:29.545Z',
     },
     {
-        "problem_nm": "P47610",
-        "title": "Never trust Ivan",
-        "iconUrl": "https://jutge.org/img/problems-icons/ee/ee5a5a01c49243ab944938c0da069030.webp",
-        "language_ids": [
-            "en"
-        ],
-        "driver_id": "std",
-        "author": "Ivan Geffner",
-        "created_at": "2014-09-30T13:52:57.000Z",
-        "updated_at": "2026-07-15T12:44:27.541Z"
+        problem_nm: 'P47610',
+        title: 'Never trust Ivan',
+        iconUrl: 'https://jutge.org/img/problems-icons/ee/ee5a5a01c49243ab944938c0da069030.webp',
+        language_ids: ['en'],
+        driver_id: 'std',
+        author: 'Ivan Geffner',
+        created_at: '2014-09-30T13:52:57.000Z',
+        updated_at: '2026-07-15T12:44:27.541Z',
     },
     {
-        "problem_nm": "P56276",
-        "title": "The thirty-five camels",
-        "iconUrl": "https://jutge.org/img/problems-icons/d0/d0592f255c494205ae4da4096626b8c6.webp",
-        "language_ids": [
-            "en",
-            "es"
-        ],
-        "driver_id": "std",
-        "author": "Salvador Roura",
-        "created_at": "2013-02-15T10:44:10.000Z",
-        "updated_at": "2026-07-15T12:44:30.065Z"
+        problem_nm: 'P56276',
+        title: 'The thirty-five camels',
+        iconUrl: 'https://jutge.org/img/problems-icons/d0/d0592f255c494205ae4da4096626b8c6.webp',
+        language_ids: ['en', 'es'],
+        driver_id: 'std',
+        author: 'Salvador Roura',
+        created_at: '2013-02-15T10:44:10.000Z',
+        updated_at: '2026-07-15T12:44:30.065Z',
     },
     {
-        "problem_nm": "P61930",
-        "title": "Multiples of three",
-        "iconUrl": "https://jutge.org/img/problems-icons/bd/bd44ffa7bf9b43a8adb0900c8527672c.webp",
-        "language_ids": [
-            "ca",
-            "en"
-        ],
-        "driver_id": "std",
-        "author": "Salvador Roura",
-        "created_at": "2007-03-15T16:39:59.000Z",
-        "updated_at": "2026-07-15T12:44:27.693Z"
+        problem_nm: 'P61930',
+        title: 'Multiples of three',
+        iconUrl: 'https://jutge.org/img/problems-icons/bd/bd44ffa7bf9b43a8adb0900c8527672c.webp',
+        language_ids: ['ca', 'en'],
+        driver_id: 'std',
+        author: 'Salvador Roura',
+        created_at: '2007-03-15T16:39:59.000Z',
+        updated_at: '2026-07-15T12:44:27.693Z',
     },
     {
-        "problem_nm": "P41202",
-        "title": "The game of trains",
-        "iconUrl": "https://jutge.org/img/problems-icons/4f/4fd03728edf2407cb72f78e4f369a79d.webp",
-        "language_ids": [
-            "en",
-            "es"
-        ],
-        "driver_id": "std",
-        "author": "Omer Giménez",
-        "created_at": "2010-07-28T13:53:41.000Z",
-        "updated_at": "2026-07-15T12:44:27.363Z"
+        problem_nm: 'P41202',
+        title: 'The game of trains',
+        iconUrl: 'https://jutge.org/img/problems-icons/4f/4fd03728edf2407cb72f78e4f369a79d.webp',
+        language_ids: ['en', 'es'],
+        driver_id: 'std',
+        author: 'Omer Giménez',
+        created_at: '2010-07-28T13:53:41.000Z',
+        updated_at: '2026-07-15T12:44:27.363Z',
     },
     {
-        "problem_nm": "P57443",
-        "title": "Barcodes",
-        "iconUrl": "https://jutge.org/img/problems-icons/ea/ea6b1b27304e448783ccb678ea0c8020.webp",
-        "language_ids": [
-            "ca",
-            "en"
-        ],
-        "driver_id": "std",
-        "author": "Jordi Petit",
-        "created_at": "2010-07-28T13:55:31.000Z",
-        "updated_at": "2026-07-15T12:44:30.113Z"
+        problem_nm: 'P57443',
+        title: 'Barcodes',
+        iconUrl: 'https://jutge.org/img/problems-icons/ea/ea6b1b27304e448783ccb678ea0c8020.webp',
+        language_ids: ['ca', 'en'],
+        driver_id: 'std',
+        author: 'Jordi Petit',
+        created_at: '2010-07-28T13:55:31.000Z',
+        updated_at: '2026-07-15T12:44:30.113Z',
     },
     {
-        "problem_nm": "P88905",
-        "title": "Products of matrices",
-        "iconUrl": "https://jutge.org/img/problems-icons/1f/1fc95ccfdd3b4e04a48b035d73faeaee.webp",
-        "language_ids": [
-            "ca",
-            "en"
-        ],
-        "driver_id": "std",
-        "author": "Jordi Petit",
-        "created_at": "2010-07-28T13:58:40.000Z",
-        "updated_at": "2026-07-15T12:44:29.654Z"
+        problem_nm: 'P88905',
+        title: 'Products of matrices',
+        iconUrl: 'https://jutge.org/img/problems-icons/1f/1fc95ccfdd3b4e04a48b035d73faeaee.webp',
+        language_ids: ['ca', 'en'],
+        driver_id: 'std',
+        author: 'Jordi Petit',
+        created_at: '2010-07-28T13:58:40.000Z',
+        updated_at: '2026-07-15T12:44:29.654Z',
     },
     {
-        "problem_nm": "P71356",
-        "title": "Old Dalmatian",
-        "iconUrl": "https://jutge.org/img/problems-icons/14/14976a143c564359889c3298d6a846d5.webp",
-        "language_ids": [
-            "en"
-        ],
-        "driver_id": "std",
-        "author": "Edgar Gonzàlez",
-        "created_at": "2010-07-28T13:57:00.000Z",
-        "updated_at": "2026-07-15T12:44:28.004Z"
-    }
+        problem_nm: 'P71356',
+        title: 'Old Dalmatian',
+        iconUrl: 'https://jutge.org/img/problems-icons/14/14976a143c564359889c3298d6a846d5.webp',
+        language_ids: ['en'],
+        driver_id: 'std',
+        author: 'Edgar Gonzàlez',
+        created_at: '2010-07-28T13:57:00.000Z',
+        updated_at: '2026-07-15T12:44:28.004Z',
+    },
 ]
- 
 
 function filterFeaturedCourses(courses: GuestCourseRow[]): GuestCourseRow[] {
     const byKey = new Map(courses.map((course) => [course.course_key, course]))
@@ -336,28 +314,30 @@ export function CoursesAndProblemsBlock() {
         void fetchPublicCourses().then((rows) => {
             if (!cancelled) setCourses(filterFeaturedCourses(rows))
         })
-        void jutge.problems.getSomeAbstractProblems({regexp: 'P[0-9]+', limit: SAMPLE_SIZE*4}).then((someProblems) => {
-            if (!cancelled) {
-                const rows: ProblemRow[] = []
-                for (const aproblem of Object.values(someProblems)) {
-                    const problem_id = aproblem.problem_nm + "_en"
-                    if (problem_id in aproblem.problems) {
-                        rows.push({
-                            problem_nm: problem_id,
-                            title: aproblem.problems[problem_id].title,
-                            iconUrl: problemIconUrl(aproblem.icon),
-                            language_ids: [aproblem.problems[problem_id].language_id],
-                            driver_id: aproblem.driver_id,
-                            author: aproblem.author,
-                            created_at: aproblem.created_at,
-                            updated_at: aproblem.updated_at,
-                        })
+        void jutge.problems
+            .getSomeAbstractProblems({ regexp: 'P[0-9]+', limit: SAMPLE_SIZE * 4 })
+            .then((someProblems) => {
+                if (!cancelled) {
+                    const rows: ProblemRow[] = []
+                    for (const aproblem of Object.values(someProblems)) {
+                        const problem_id = aproblem.problem_nm + '_en'
+                        if (problem_id in aproblem.problems) {
+                            rows.push({
+                                problem_nm: problem_id,
+                                title: aproblem.problems[problem_id].title,
+                                iconUrl: problemIconUrl(aproblem.icon),
+                                language_ids: [aproblem.problems[problem_id].language_id],
+                                driver_id: aproblem.driver_id,
+                                author: aproblem.author,
+                                created_at: aproblem.created_at,
+                                updated_at: aproblem.updated_at,
+                            })
+                        }
+                        if (rows.length >= SAMPLE_SIZE) break
                     }
-                    if (rows.length >= SAMPLE_SIZE) break
+                    setProblems(rows)
                 }
-                setProblems(rows)
-            }
-        })
+            })
         return () => {
             cancelled = true
         }

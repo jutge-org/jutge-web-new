@@ -53,25 +53,24 @@ export function HomeWelcome() {
                     aria-hidden
                 />
                 <div className="max-w-sm flex flex-col gap-2">
-                <p className="min-w-0 text-sm leading-relaxed text-muted-foreground">
-                    This site is under construction and, in the future, will be the definitive website of Jutge.org.
-                    Please use{' '}
-                    <ExternalLink
-                        href={GITHUB_REPO_URL}
-                        className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
-                    >
-                        https://jutge.org
-                    </ExternalLink>{' '}
-                    if you find any problem.
-                    Please report issues and contribute enhancements through the{' '}
-                    <ExternalLink
-                        href={GITHUB_REPO_URL}
-                        className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
-                    >
-                        GitHub repository
-                    </ExternalLink>
-                    .
-                </p>
+                    <p className="min-w-0 text-sm leading-relaxed text-muted-foreground">
+                        This site is under construction and, in the future, will be the definitive website of Jutge.org.
+                        Please use{' '}
+                        <ExternalLink
+                            href={GITHUB_REPO_URL}
+                            className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
+                        >
+                            https://jutge.org
+                        </ExternalLink>{' '}
+                        if you find any problem. Please report issues and contribute enhancements through the{' '}
+                        <ExternalLink
+                            href={GITHUB_REPO_URL}
+                            className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
+                        >
+                            GitHub repository
+                        </ExternalLink>
+                        .
+                    </p>
                 </div>
             </div>
         </HomeWidgetCard>

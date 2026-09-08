@@ -1,9 +1,6 @@
 import dayjs from 'dayjs'
 
-import {
-    fetchSupervisionCourseStudents,
-    fetchTutorCourseSubmissions,
-} from '@/lib/data/supervisionActions'
+import { fetchSupervisionCourseStudents, fetchTutorCourseSubmissions } from '@/lib/data/supervisionActions'
 import type { Compiler, CourseSubmission, Verdict } from '@/lib/jutge_api_client'
 import jutge from '@/lib/jutge'
 import { parseProblemKey } from '@/lib/problems'
@@ -53,9 +50,7 @@ function problemNmFromSubmission(submission: CourseSubmission): string {
 }
 
 /** Latest course submissions for the `/courses/[course_key]/submissions` tab. */
-export async function fetchCourseSubmissionsPageData(data: {
-    courseKey: string
-}): Promise<CourseSubmissionsPageData> {
+export async function fetchCourseSubmissionsPageData(data: { courseKey: string }): Promise<CourseSubmissionsPageData> {
     const [students, submissions, compilers, verdicts] = await Promise.all([
         fetchSupervisionCourseStudents(data.courseKey),
         fetchTutorCourseSubmissions(data.courseKey),
@@ -83,11 +78,7 @@ export async function fetchCourseSubmissionsPageData(data: {
             problem_nm,
             problemHref,
             submission_id: submission.submission_id,
-            submissionHref: supervisionSubmissionHref(
-                supervisionCtx,
-                submission.problem_id,
-                submission.submission_id,
-            ),
+            submissionHref: supervisionSubmissionHref(supervisionCtx, submission.problem_id, submission.submission_id),
             verdict: submission.verdict,
             compiler_id: submission.compiler_id,
         }

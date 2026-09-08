@@ -55,10 +55,7 @@ export function CourseManageShell({ userId, children }: CourseManageShellProps) 
         setCourseData(undefined)
 
         void (async () => {
-            const [result, profile] = await Promise.all([
-                fetchCourse(jutge, urlCourseKey),
-                jutge.student.profile.get(),
-            ])
+            const [result, profile] = await Promise.all([fetchCourse(jutge, urlCourseKey), jutge.student.profile.get()])
             if (cancelled) {
                 return
             }

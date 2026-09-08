@@ -46,9 +46,7 @@ function CourseStatisticsContent({ courseKey, course }: Pick<CourseManageCoreDat
         return <p className="text-sm text-muted-foreground">Could not load statistics.</p>
     }
 
-    return (
-        <CourseStatisticsView data={data} statisticsBaseHref={`${courseHref(courseKey)}/statistics`} />
-    )
+    return <CourseStatisticsView data={data} statisticsBaseHref={`${courseHref(courseKey)}/statistics`} />
 }
 
 export default function CourseStatisticsPage() {

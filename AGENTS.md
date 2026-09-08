@@ -62,14 +62,14 @@ Jutge API (HTTPS, token in jutge.meta from localStorage)
 
 ### Routes by audience
 
-| Audience          | Route prefix                                                                          | Components                                                               | Data layer                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| Students (public) | `/problems/public`, `/courses/public`                                                 | `components/problems/`, `components/courses/`                            | `lib/data/problems.ts`, `lib/data/courses.ts`                                 |
-| Students (authed) | `/problems`, `/submissions`, `/exams`, `/courses`, `/awards`, `/activity`, `/profile` | `components/problems/`, `submissions/`, `exams/`, `courses/`, `profile/` | `lib/data/submissions.ts`, `lib/data/exams.ts`, `lib/data/statistics.ts`, …   |
-| Supervisors       | `/supervision/**`                                                                     | `components/supervision/`                                                | `lib/data/supervision.ts`, `lib/supervisor/client.ts`                         |
-| Instructors       | `/instructor/**`                                                                      | `components/instructor/**`                                               | `lib/instructor/client.ts`, `lib/instructor/*`, `lib/data/lists.ts`           |
-| Administrators    | `/administrator/**`                                                                   | `components/administrator/**`                                            | `lib/administrator/client.ts`                                                 |
-| Docs / about      | `/documentation/**`, `/about/**`                                                      | `components/documentation/`, `components/about/`                         | `lib/documentation.ts`, `lib/about.ts`, `lib/data/tables.ts`                  |
+| Audience          | Route prefix                                                                          | Components                                                               | Data layer                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| Students (public) | `/problems/public`, `/courses/public`                                                 | `components/problems/`, `components/courses/`                            | `lib/data/problems.ts`, `lib/data/courses.ts`                               |
+| Students (authed) | `/problems`, `/submissions`, `/exams`, `/courses`, `/awards`, `/activity`, `/profile` | `components/problems/`, `submissions/`, `exams/`, `courses/`, `profile/` | `lib/data/submissions.ts`, `lib/data/exams.ts`, `lib/data/statistics.ts`, … |
+| Supervisors       | `/supervision/**`                                                                     | `components/supervision/`                                                | `lib/data/supervision.ts`, `lib/supervisor/client.ts`                       |
+| Instructors       | `/instructor/**`                                                                      | `components/instructor/**`                                               | `lib/instructor/client.ts`, `lib/instructor/*`, `lib/data/lists.ts`         |
+| Administrators    | `/administrator/**`                                                                   | `components/administrator/**`                                            | `lib/administrator/client.ts`                                               |
+| Docs / about      | `/documentation/**`, `/about/**`                                                      | `components/documentation/`, `components/about/`                         | `lib/documentation.ts`, `lib/about.ts`, `lib/data/tables.ts`                |
 
 Instructor layout (`app/instructor/layout.tsx`) gates with `InstructorGate`. Administrator pages use `AdministratorGate`. Authed student pages use `AuthedGate`. Supervision pages use `SupervisorGate`.
 

@@ -54,10 +54,7 @@ function profilesFromStudents(
     students: Awaited<ReturnType<typeof fetchSupervisionCourseStudents>>,
 ): Dict<StudentProfile> {
     return Object.fromEntries(
-        students.map((student) => [
-            student.email,
-            { email: student.email, name: student.name?.trim() || '' },
-        ]),
+        students.map((student) => [student.email, { email: student.email, name: student.name?.trim() || '' }]),
     )
 }
 

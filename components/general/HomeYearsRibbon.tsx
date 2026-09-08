@@ -60,13 +60,11 @@ export function HomeYearsRibbon() {
             className="years-ribbon"
             data-ribbon="20 Years 🎂"
             aria-label="Celebrate 20 years of Jutge.org"
-            onClick={() => 
-                {
-                    if (!motionReduced) {
-                        launchConfetti(isSoundEffectsEnabled(soundEffects))
-                    }
+            onClick={() => {
+                if (!motionReduced) {
+                    launchConfetti(isSoundEffectsEnabled(soundEffects))
                 }
-            }
+            }}
         />
     )
 }

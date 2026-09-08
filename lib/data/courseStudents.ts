@@ -1,8 +1,5 @@
 import { fetchSupervisionCourseStudents } from '@/lib/data/supervisionActions'
-import {
-    fetchInstructorCourse,
-    fetchInstructorCourseStudentProfiles,
-} from '@/lib/instructor/client'
+import { fetchInstructorCourse, fetchInstructorCourseStudentProfiles } from '@/lib/instructor/client'
 
 export type CourseStudentRow = {
     email: string

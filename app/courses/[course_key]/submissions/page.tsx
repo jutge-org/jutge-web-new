@@ -9,9 +9,7 @@ export default function CourseSubmissionsPage() {
         <AuthedGate>
             {(user) => (
                 <CourseManageShell userId={user.id}>
-                    {(course) => (
-                        <CourseSubmissionsView courseKey={course.courseKey} />
-                    )}
+                    {(course) => <CourseSubmissionsView courseKey={course.courseKey} />}
                 </CourseManageShell>
             )}
         </AuthedGate>

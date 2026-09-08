@@ -102,7 +102,7 @@ export const maintenanceCredits: CreditPerson[] = [
 ]
 
 export const developerCredits: CreditPerson[] = [
-    { name: 'Jordi Petit', image: jutgeAsset('/img/credits/jpetit.png')},
+    { name: 'Jordi Petit', image: jutgeAsset('/img/credits/jpetit.png') },
     { name: 'Salvador Roura', image: jutgeAsset('/img/credits/roura.png') },
     { name: 'Omer Giménez', image: jutgeAsset('/img/credits/omer.png') },
     { name: 'Alex Catarineu', image: jutgeAsset('/img/credits/user.png') },
@@ -123,7 +123,14 @@ export const developerCredits: CreditPerson[] = [
 
 export const problemSetters = ['Salvador Roura', 'Jordi Petit', 'Omer Giménez', '... and many others']
 
-export const problemTranslators = ['Carlos Molina', 'Salvador Roura', 'Jordi Petit', 'Gabriel Vaiente', 'Albert Lobo', '... and many others']
+export const problemTranslators = [
+    'Carlos Molina',
+    'Salvador Roura',
+    'Jordi Petit',
+    'Gabriel Vaiente',
+    'Albert Lobo',
+    '... and many others',
+]
 
 export type PictureItem = {
     src: string

@@ -158,7 +158,7 @@ export function CourseDetailActions({
                                 <DropdownMenuItem asChild>
                                     <Link href={instructorCoursePropertiesHref(courseKey)}>
                                         <EditIcon aria-hidden />
-                                        Manage 
+                                        Manage
                                     </Link>
                                 </DropdownMenuItem>
                             ) : null}

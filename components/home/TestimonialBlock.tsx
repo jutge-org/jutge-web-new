@@ -101,10 +101,10 @@ export function TestimonialBlock() {
                                 shouldReduceMotion
                                     ? { duration: 0 }
                                     : {
-                                        duration: 0.5,
-                                        ease: EASE_OUT,
-                                        delay: index * 0.15,
-                                    }
+                                          duration: 0.5,
+                                          ease: EASE_OUT,
+                                          delay: index * 0.15,
+                                      }
                             }
                         >
                             <motion.div
@@ -115,10 +115,10 @@ export function TestimonialBlock() {
                                     shouldReduceMotion
                                         ? { duration: 0 }
                                         : {
-                                            duration: 0.4,
-                                            delay: index * 0.15 + 0.2,
-                                            ease: EASE_OUT,
-                                        }
+                                              duration: 0.4,
+                                              delay: index * 0.15 + 0.2,
+                                              ease: EASE_OUT,
+                                          }
                                 }
                             >
                                 {Array.from({ length: 5 }).map((_, i) => (
@@ -130,10 +130,10 @@ export function TestimonialBlock() {
                                             shouldReduceMotion
                                                 ? { duration: 0 }
                                                 : {
-                                                    duration: 0.3,
-                                                    delay: index * 0.15 + 0.2 + i * 0.05,
-                                                    ease: EASE_BOUNCE,
-                                                }
+                                                      duration: 0.3,
+                                                      delay: index * 0.15 + 0.2 + i * 0.05,
+                                                      ease: EASE_BOUNCE,
+                                                  }
                                         }
                                     >
                                         <StarIcon
@@ -158,10 +158,10 @@ export function TestimonialBlock() {
                                     shouldReduceMotion
                                         ? { duration: 0 }
                                         : {
-                                            duration: 0.4,
-                                            delay: index * 0.15 + 0.4,
-                                            ease: EASE_OUT,
-                                        }
+                                              duration: 0.4,
+                                              delay: index * 0.15 + 0.4,
+                                              ease: EASE_OUT,
+                                          }
                                 }
                             >
                                 {testimonial.quote}
@@ -175,10 +175,10 @@ export function TestimonialBlock() {
                                     shouldReduceMotion
                                         ? { duration: 0 }
                                         : {
-                                            duration: 0.3,
-                                            delay: index * 0.15 + 0.5,
-                                            ease: EASE_OUT,
-                                        }
+                                              duration: 0.3,
+                                              delay: index * 0.15 + 0.5,
+                                              ease: EASE_OUT,
+                                          }
                                 }
                             >
                                 <Avatar className="size-5 border border-transparent shadow ring-1 ring-foreground/10 md:size-6">

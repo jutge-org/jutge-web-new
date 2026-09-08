@@ -126,10 +126,7 @@ function buildColumnDefs(
                     title={params.data.problem_id}
                     preferredLanguageId={preferredLanguageId}
                 >
-                    <Link
-                        href={params.data.problemHref}
-                        className="text-sm hover:text-primary hover:underline"
-                    >
+                    <Link href={params.data.problemHref} className="text-sm hover:text-primary hover:underline">
                         <ProblemIdLabel problemId={params.data.problem_id} />
                     </Link>
                 </ProblemTitleSummaryTooltip>
@@ -141,10 +138,7 @@ function buildColumnDefs(
             width: 130,
             filter: true,
             cellRenderer: (params: { data: CourseSubmissionRow }) => (
-                <Link
-                    href={params.data.submissionHref}
-                    className="text-sm hover:text-primary hover:underline"
-                >
+                <Link href={params.data.submissionHref} className="text-sm hover:text-primary hover:underline">
                     {params.data.submission_id}
                 </Link>
             ),
@@ -170,13 +164,7 @@ function buildColumnDefs(
     ]
 }
 
-function VerdictCell({
-    verdict,
-    verdicts,
-}: {
-    verdict: string
-    verdicts: Record<string, Verdict>
-}) {
+function VerdictCell({ verdict, verdicts }: { verdict: string; verdicts: Record<string, Verdict> }) {
     let emoji = '🔘'
     let klass = 'animate-pulse'
     const info = verdicts[verdict]
@@ -195,13 +183,7 @@ function VerdictCell({
     )
 }
 
-function CompilerCell({
-    compilerId,
-    compilers,
-}: {
-    compilerId: string
-    compilers: Record<string, Compiler>
-}) {
+function CompilerCell({ compilerId, compilers }: { compilerId: string; compilers: Record<string, Compiler> }) {
     const language = compilers[compilerId]?.language ?? 'Unknown'
     return (
         <div className="flex flex-row items-center gap-2">

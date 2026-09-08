@@ -115,8 +115,7 @@ export function SubmissionDetailView(props: SubmissionDetailViewProps) {
         return <SubmissionDetailViewLoading submissionId={props.submissionId} />
     }
 
-    const { data, sections, source, codeMetrics, codeHref, debugHref, problemKey, navigation, getTestcaseHref } =
-        props
+    const { data, sections, source, codeMetrics, codeHref, debugHref, problemKey, navigation, getTestcaseHref } = props
     const { submission } = data
     const isPending = submission.state !== 'done'
     const submittedAt = dayjs(parseSubmissionTime(submission.time_in))

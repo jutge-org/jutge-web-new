@@ -91,7 +91,7 @@ async function shapeFromImage(src: string, scalar: number): Promise<confetti.Sha
     return {
         type: 'bitmap',
         bitmap,
-        matrix: [scale, 0, 0, scale, -bitmap.width * scale / 2, -bitmap.height * scale / 2],
+        matrix: [scale, 0, 0, scale, (-bitmap.width * scale) / 2, (-bitmap.height * scale) / 2],
     } as unknown as confetti.Shape
 }
 

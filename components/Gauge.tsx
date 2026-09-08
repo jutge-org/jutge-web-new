@@ -225,7 +225,7 @@ export function Gauge({
                         x={cx}
                         y={valueY}
                         fill="currentColor"
-                        fontSize={valueSize*0.8}
+                        fontSize={valueSize * 0.8}
                         fontWeight={500}
                         textAnchor="middle"
                         dominantBaseline="middle"

@@ -9,10 +9,7 @@ import { AgTableFull } from '@/components/administrator/AgTable'
 import { PageSpinner } from '@/components/ClientGates'
 import { Button } from '@/components/ui/button'
 import { emailRenderer } from '@/lib/administrator/grid-renderers'
-import {
-    fetchCourseManageStudents,
-    type CourseStudentRow,
-} from '@/lib/data/courseStudents'
+import { fetchCourseManageStudents, type CourseStudentRow } from '@/lib/data/courseStudents'
 import { supervisionHref } from '@/lib/supervision'
 
 type CourseStudentsViewProps = {

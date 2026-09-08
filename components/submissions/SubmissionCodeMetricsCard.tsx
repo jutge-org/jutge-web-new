@@ -143,7 +143,6 @@ function CodeMetricsGauges({ data }: { data: SubmissionCodeMetricsData }) {
 
     return (
         <div className="flex min-w-0 flex-1 flex-wrap items-stretch justify-center gap-x-2 gap-y-6">
-
             {data.ccnRatio !== null ? (
                 <MetricGauge
                     value={data.ccnRatio}
@@ -169,9 +168,7 @@ function CodeMetricsGauges({ data }: { data: SubmissionCodeMetricsData }) {
                 />
             ) : null}
 
-            {hasUserGauges && hasRatioGauges ? (
-                <Separator orientation="vertical" className="mx-4 -my-4" />
-            ) : null}
+            {hasUserGauges && hasRatioGauges ? <Separator orientation="vertical" className="mx-4 -my-4" /> : null}
 
             {data.cyclomaticComplexity !== null ? (
                 <MetricGauge

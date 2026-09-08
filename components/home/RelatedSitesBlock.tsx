@@ -18,8 +18,7 @@ const relatedSites = [
     },
     {
         title: 'API for Jutge.org',
-        description:
-            'Interact programatically with Jutge.org.',
+        description: 'Interact programatically with Jutge.org.',
         href: 'https://api.jutge.org',
         imageSrc: '/news/api.webp',
     },
@@ -37,7 +36,7 @@ const relatedSites = [
     },
     {
         title: 'Mussol',
-        description: "The peer grading tool of Jutge.org",
+        description: 'The peer grading tool of Jutge.org',
         href: 'https://mussol.jutge.org',
         imageSrc: '/news/mussol.webp',
     },

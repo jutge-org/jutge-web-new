@@ -61,7 +61,7 @@ export function TradingCardDialog({
                 </DialogHeader>
                 {card && (
                     <>
-                        { }
+                        {}
                         <a href={card.imageUrl.replace('.sm', '')} target="_blank" rel="noopener noreferrer">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img

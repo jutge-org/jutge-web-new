@@ -7,10 +7,7 @@ import { UserProfilePasswordForm } from '@/components/profile/UserProfilePasswor
 export default function ProfilePasswordPage() {
     return (
         <AuthedGate>
-            <ProfilePageShell
-                activeTab="password"
-                subpage={{ title: 'Change password', url: '/profile/password' }}
-            >
+            <ProfilePageShell activeTab="password" subpage={{ title: 'Change password', url: '/profile/password' }}>
                 <UserProfilePasswordForm />
             </ProfilePageShell>
         </AuthedGate>

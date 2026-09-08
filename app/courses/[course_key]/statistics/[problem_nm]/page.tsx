@@ -12,13 +12,7 @@ import {
     type CourseProblemStatisticsPageData,
 } from '@/lib/instructor/loadCourseProblemStatisticsData'
 
-function CourseProblemStatisticsContent({
-    courseKey,
-    problem_nm,
-}: {
-    courseKey: string
-    problem_nm: string
-}) {
+function CourseProblemStatisticsContent({ courseKey, problem_nm }: { courseKey: string; problem_nm: string }) {
     const course_nm = courseNmFromKey(courseKey)
     const [data, setData] = useState<CourseProblemStatisticsPageData | null>(null)
 
@@ -33,13 +27,7 @@ function CourseProblemStatisticsContent({
 
     const href = courseHref(courseKey)
 
-    return (
-        <CourseProblemStatisticsView
-            data={data}
-            courseStatsHref={`${href}/statistics`}
-            courseHref={href}
-        />
-    )
+    return <CourseProblemStatisticsView data={data} courseStatsHref={`${href}/statistics`} courseHref={href} />
 }
 
 export default function CourseProblemStatisticsPage() {
@@ -50,10 +38,7 @@ export default function CourseProblemStatisticsPage() {
             {(user) => (
                 <CourseManageShell userId={user.id}>
                     {(courseData: CourseManageCoreData) => (
-                        <CourseProblemStatisticsContent
-                            courseKey={courseData.courseKey}
-                            problem_nm={problem_nm}
-                        />
+                        <CourseProblemStatisticsContent courseKey={courseData.courseKey} problem_nm={problem_nm} />
                     )}
                 </CourseManageShell>
             )}
