@@ -5,6 +5,7 @@ import { ArchiveIcon, BookOpenCheckIcon, Globe, ShieldCheck, SignatureIcon, User
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import { CourseDescriptionDialog } from '@/components/courses/CourseDescriptionDialog'
 import { CourseDetailActions } from '@/components/courses/CourseDetailActions'
+import { CourseDetailNav } from '@/components/courses/CourseDetailNav'
 import { CourseGuestLists } from '@/components/courses/CourseGuestLists'
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { CourseLists } from '@/components/courses/CourseLists'
@@ -23,21 +24,24 @@ import { cn } from '@/lib/utils'
 const courseTitleShellClassName =
     '-mt-6 flex min-h-22 flex-col gap-2 rounded-2xl border border-border px-4 py-5 text-left shadow-sm'
 
-type CourseDetailProps = {
+type CourseDetailHeaderProps = {
     courseKey: string
     course: Course
     status: CourseStatus
     isOwner: boolean
     isTutor: boolean
     userId: string
+    problemCount?: number
+    /** Called after enrolling, archiving, etc. so the page can fetch the course again. */
+    onCourseChanged?: () => void
+}
+
+type CourseDetailProps = CourseDetailHeaderProps & {
     lists: CourseListData[]
     languages: Record<string, Language>
     statuses?: Record<string, AbstractStatus>
     lastSubmissions?: Record<string, LastSubmissionInfo>
     listsLoading?: boolean
-    problemCount?: number
-    /** Called after enrolling, archiving, etc. so the page can fetch the course again. */
-    onCourseChanged?: () => void
 }
 
 function CourseListCardLoading() {
@@ -125,6 +129,95 @@ function CourseHeaderIconImage({ iconUrl }: { iconUrl: string }) {
     )
 }
 
+export function CourseDetailHeader({
+    courseKey,
+    course,
+    status,
+    isOwner,
+    isTutor,
+    userId,
+    problemCount,
+    onCourseChanged,
+}: CourseDetailHeaderProps) {
+    const row = buildCourseRow(course, status, courseKey, isOwner)
+
+    return (
+        <div className={courseTitleShellClassName}>
+            <div className="flex items-start gap-5">
+                <CourseHeaderIconImage iconUrl={row.iconUrl} />
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-4">
+                        <h1
+                            className="my-0 min-w-0 text-2xl font-semibold tracking-tight text-foreground"
+                            data-recent-course-icon-url={row.iconUrl}
+                        >
+                            {row.title}
+                        </h1>
+                        <CourseDetailActions
+                            courseKey={courseKey}
+                            title={row.title}
+                            ownerName={row.ownerName}
+                            status={status}
+                            isOwner={isOwner}
+                            isTutor={isTutor}
+                            userId={userId}
+                            onCourseChanged={onCourseChanged}
+                        />
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between gap-2">
+                        <p className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
+                            <SignatureIcon className="size-3 shrink-0" aria-hidden />
+                            <span className="min-w-0 truncate">{row.ownerName}</span>
+                        </p>
+                        <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
+                            {row.isOfficial ? (
+                                <Badge variant="outline" className="gap-1">
+                                    <ShieldCheck aria-hidden />
+                                    Official
+                                </Badge>
+                            ) : null}
+                            {row.isPublic ? (
+                                <Badge variant="outline" className="gap-1">
+                                    <Globe aria-hidden />
+                                    Public
+                                </Badge>
+                            ) : null}
+                            {isTutor ? (
+                                <Badge variant="outline" className="gap-1">
+                                    <UsersIcon aria-hidden />
+                                    Tutor
+                                </Badge>
+                            ) : null}
+                            {status === 'enrolled' && !isTutor ? (
+                                <Badge variant="outline" className="gap-1">
+                                    <BookOpenCheckIcon aria-hidden />
+                                    Enrolled
+                                </Badge>
+                            ) : null}
+                            {status === 'archived' ? (
+                                <Badge variant="outline" className="gap-1">
+                                    <ArchiveIcon aria-hidden />
+                                    Archived
+                                </Badge>
+                            ) : null}
+                        </div>
+                    </div>
+                    {row.description ? (
+                        <div className="-ml-1.5">
+                            <CourseDescriptionDialog
+                                title={row.title}
+                                ownerName={row.ownerName}
+                                description={row.description}
+                            />
+                        </div>
+                    ) : null}
+                </div>
+            </div>
+            {status === 'available' ? <CourseGuestLists lists={course.lists} problemCount={problemCount} /> : null}
+        </div>
+    )
+}
+
 export function CourseDetail({
     courseKey,
     course,
@@ -140,83 +233,19 @@ export function CourseDetail({
     problemCount,
     onCourseChanged,
 }: CourseDetailProps) {
-    const row = buildCourseRow(course, status, courseKey, isOwner)
-
     return (
         <div className="flex flex-col gap-6">
-            <div className={courseTitleShellClassName}>
-                <div className="flex items-start gap-5">
-                    <CourseHeaderIconImage iconUrl={row.iconUrl} />
-                    <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-4">
-                            <h1
-                                className="my-0 min-w-0 text-2xl font-semibold tracking-tight text-foreground"
-                                data-recent-course-icon-url={row.iconUrl}
-                            >
-                                {row.title}
-                            </h1>
-                            <CourseDetailActions
-                                courseKey={courseKey}
-                                title={row.title}
-                                ownerName={row.ownerName}
-                                status={status}
-                                isOwner={isOwner}
-                                isTutor={isTutor}
-                                userId={userId}
-                                onCourseChanged={onCourseChanged}
-                            />
-                        </div>
-                        <div className="mt-1.5 flex items-center justify-between gap-2">
-                            <p className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
-                                <SignatureIcon className="size-3 shrink-0" aria-hidden />
-                                <span className="min-w-0 truncate">{row.ownerName}</span>
-                            </p>
-                            <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
-                                {row.isOfficial ? (
-                                    <Badge variant="outline" className="gap-1">
-                                        <ShieldCheck aria-hidden />
-                                        Official
-                                    </Badge>
-                                ) : null}
-                                {row.isPublic ? (
-                                    <Badge variant="outline" className="gap-1">
-                                        <Globe aria-hidden />
-                                        Public
-                                    </Badge>
-                                ) : null}
-                                {isTutor ? (
-                                    <Badge variant="outline" className="gap-1">
-                                        <UsersIcon aria-hidden />
-                                        Tutor
-                                    </Badge>
-                                ) : null}
-                                {status === 'enrolled' && !isTutor ? (
-                                    <Badge variant="outline" className="gap-1">
-                                        <BookOpenCheckIcon aria-hidden />
-                                        Enrolled
-                                    </Badge>
-                                ) : null}
-                                {status === 'archived' ? (
-                                    <Badge variant="outline" className="gap-1">
-                                        <ArchiveIcon aria-hidden />
-                                        Archived
-                                    </Badge>
-                                ) : null}
-                            </div>
-                        </div>
-                        {row.description ? (
-                            <div className="-ml-1.5">
-                                <CourseDescriptionDialog
-                                    title={row.title}
-                                    ownerName={row.ownerName}
-                                    description={row.description}
-                                />
-                            </div>
-                        ) : null}
-                    </div>
-                </div>
-                {status === 'available' ? <CourseGuestLists lists={course.lists} problemCount={problemCount} /> : null}
-            </div>
+            <CourseDetailNav courseKey={courseKey} isOwner={isOwner} isTutor={isTutor} />
+            <CourseDetailHeader
+                courseKey={courseKey}
+                course={course}
+                status={status}
+                isOwner={isOwner}
+                isTutor={isTutor}
+                userId={userId}
+                problemCount={problemCount}
+                onCourseChanged={onCourseChanged}
+            />
 
             {status !== 'available' && listsLoading ? (
                 <CourseListsLoading count={course.lists.length} />
