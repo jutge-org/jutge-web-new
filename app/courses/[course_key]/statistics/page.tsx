@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { AuthedGate, PageSpinner } from '@/components/ClientGates'
+import { AuthedGate } from '@/components/ClientGates'
 import { CourseManageShell, type CourseManageCoreData } from '@/components/courses/CourseManageShell'
 import { CourseStatisticsView } from '@/components/instructor/courses/CourseStatisticsView'
+import SwitchboardCard from '@/components/smoothui/switchboard-card'
 import { courseHref } from '@/lib/courses'
 import { loadCourseStatisticsData, type CourseStatisticsPageData } from '@/lib/instructor/loadCourseStatisticsData'
 
@@ -39,7 +40,16 @@ function CourseStatisticsContent({ courseKey, course }: Pick<CourseManageCoreDat
     }, [courseKey, listKeys, course.course_nm])
 
     if (data === undefined) {
-        return <PageSpinner />
+        return (
+            <div className="mx-auto w-full max-w-lg py-4" aria-busy="true" aria-label="Loading statistics">
+                <SwitchboardCard
+                    title="Loading statistics..."
+                    subtitle="Gathering submissions and preparing charts for this course."
+                    randomLights
+                    className="h-[220px]"
+                />
+            </div>
+        )
     }
 
     if (data === null) {
