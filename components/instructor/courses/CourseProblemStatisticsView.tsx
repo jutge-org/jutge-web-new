@@ -8,14 +8,24 @@ import { useMemo } from 'react'
 
 type CourseProblemStatisticsViewProps = {
     data: CourseProblemStatisticsPageData
+    courseStatsHref?: string
+    courseHref?: string
 }
 
-export function CourseProblemStatisticsView({ data }: CourseProblemStatisticsViewProps) {
+export function CourseProblemStatisticsView({
+    data,
+    courseStatsHref,
+    courseHref,
+}: CourseProblemStatisticsViewProps) {
     const submissions = useMemo(() => data.submissions.map(toStatisticsSubmissionFromCourse), [data.submissions])
 
     return (
         <div className="flex w-full flex-col gap-4">
-            <CourseProblemStatisticsContextCard data={data} />
+            <CourseProblemStatisticsContextCard
+                data={data}
+                courseStatsHref={courseStatsHref}
+                courseHref={courseHref}
+            />
             <ProblemStatisticsPanel
                 problem_nm={data.problem_nm}
                 submissions={submissions}

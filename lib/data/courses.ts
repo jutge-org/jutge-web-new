@@ -3,6 +3,7 @@ import {
     buildCourseRow,
     buildCoursesNavItems,
     buildGuestCourseRow,
+    courseNmFromKey,
     isCourseOwnedByUser,
     normalizeCourseKeyParam,
     sortCourseRows,
@@ -38,6 +39,18 @@ async function resolveEnrolledCourseKey(client: JutgeApiClient, courseKeyParam: 
         if (buildCourseKey(course.owner, course.course_nm) === normalized) {
             return apiKey
         }
+        if (`${course.owner.email}:${course.course_nm}` === normalized) {
+            return apiKey
+        }
+    }
+
+    // Tutor URL keys (`owner:course_nm`) and enrolled index keys can disagree; match by course_nm when unique.
+    const targetNm = courseNmFromKey(normalized) ?? normalized
+    const nmMatches = Object.entries(enrolledMap).filter(
+        ([apiKey, course]) => course.course_nm === targetNm || courseNmFromKey(apiKey) === targetNm,
+    )
+    if (nmMatches.length === 1) {
+        return nmMatches[0]![0]
     }
 
     return null

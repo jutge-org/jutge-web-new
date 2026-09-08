@@ -9,7 +9,10 @@ import { InstructorPageShell } from '@/components/instructor/InstructorPageShell
 import { InstructorSubNav } from '@/components/instructor/InstructorSubNav'
 import { FullWidthBreakout } from '@/components/layout/FullWidthBreakout'
 import { instructorCourseSubNav } from '@/lib/instructor/menus'
-import { loadCourseStatisticsData, type CourseStatisticsPageData } from '@/lib/instructor/loadCourseStatisticsData'
+import {
+    loadCourseStatisticsDataByNm,
+    type CourseStatisticsPageData,
+} from '@/lib/instructor/loadCourseStatisticsData'
 
 export default function InstructorCourseStatisticsPage() {
     const { course_nm } = useParams<{ course_nm: string }>()
@@ -17,7 +20,7 @@ export default function InstructorCourseStatisticsPage() {
     const [data, setData] = useState<CourseStatisticsPageData | null>(null)
 
     useEffect(() => {
-        void loadCourseStatisticsData(course_nm).then(setData)
+        void loadCourseStatisticsDataByNm(course_nm).then(setData)
     }, [course_nm])
 
     if (!data) {

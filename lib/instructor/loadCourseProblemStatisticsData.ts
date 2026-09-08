@@ -1,12 +1,12 @@
 import {
     fetchAbstractProblem,
     fetchInstructorCourse,
-    fetchInstructorCourseSubmissions,
     fetchInstructorCourseTutorProfiles,
     fetchMiscHexColors,
     fetchTablesLanguages,
 } from '@/lib/instructor/client'
 import type { Dict } from '@/lib/instructor/utils'
+import { fetchTutorCourseSubmissions, resolveTutorCourseKey } from '@/lib/data/supervisionActions'
 import { parseProblemKey } from '@/lib/problems'
 import type {
     AbstractProblem,
@@ -37,12 +37,18 @@ function filterCourseSubmissionsByProblem(submissions: CourseSubmission[], probl
 export async function loadCourseProblemStatisticsData(
     course_nm: string,
     problem_nm: string,
+    courseKey?: string,
 ): Promise<CourseProblemStatisticsPageData> {
+    const resolvedCourseKey = courseKey ?? (await resolveTutorCourseKey(course_nm))
+    if (!resolvedCourseKey) {
+        throw new Error(`Course key not found for ${course_nm}`)
+    }
+
     const [course, tutorProfiles, allSubmissions, abstractProblem, colors, languagesTable] = await Promise.all([
         fetchInstructorCourse(course_nm),
         fetchInstructorCourseTutorProfiles(course_nm),
         // TODO: replace with getCourseSubmissionsForProblem when available
-        fetchInstructorCourseSubmissions(course_nm),
+        fetchTutorCourseSubmissions(resolvedCourseKey),
         fetchAbstractProblem(problem_nm),
         fetchMiscHexColors(),
         fetchTablesLanguages(),

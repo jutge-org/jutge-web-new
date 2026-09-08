@@ -20,6 +20,8 @@ import { useMemo, useState } from 'react'
 
 type CourseStatisticsViewProps = {
     data: CourseStatisticsPageData
+    /** Base path for problem drill-down links. Defaults to instructor course statistics. */
+    statisticsBaseHref?: string
 }
 
 function initialStartDate(submissions: CourseStatisticsPageData['submissions']): Date {
@@ -28,8 +30,9 @@ function initialStartDate(submissions: CourseStatisticsPageData['submissions']):
     return dayjs(sorted[0].time).startOf('day').toDate()
 }
 
-export function CourseStatisticsView({ data }: CourseStatisticsViewProps) {
+export function CourseStatisticsView({ data, statisticsBaseHref }: CourseStatisticsViewProps) {
     const { submissions, colors, course, profiles, lists, abstractProblems, heatmap } = data
+    const problemStatsBaseHref = statisticsBaseHref ?? `/instructor/courses/${course.course_nm}/statistics`
     const [settingsOpen, setSettingsOpen] = useState(false)
 
     const defaultStartDate = useMemo(() => initialStartDate(submissions), [submissions])
@@ -96,6 +99,7 @@ export function CourseStatisticsView({ data }: CourseStatisticsViewProps) {
                 lists={lists}
                 submissions={submissions}
                 abstractProblems={abstractProblems}
+                statisticsBaseHref={problemStatsBaseHref}
             />
             <CourseStatisticsPeriodDialog
                 open={settingsOpen}

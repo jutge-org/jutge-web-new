@@ -24,6 +24,7 @@ type CourseProblemRankingCardProps = {
     lists: InstructorList[]
     submissions: CourseSubmission[]
     abstractProblems: Dict<AbstractProblem>
+    statisticsBaseHref?: string
 }
 
 export function CourseProblemRankingCard({
@@ -31,7 +32,9 @@ export function CourseProblemRankingCard({
     lists,
     submissions,
     abstractProblems,
+    statisticsBaseHref,
 }: CourseProblemRankingCardProps) {
+    const baseHref = statisticsBaseHref ?? `/instructor/courses/${course.course_nm}/statistics`
     const colDefs = useMemo(
         () => [
             {
@@ -119,9 +122,7 @@ export function CourseProblemRankingCard({
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" className="size-8" asChild>
-                                    <Link
-                                        href={`/instructor/courses/${course.course_nm}/statistics/${params.data!.problem_nm}`}
-                                    >
+                                    <Link href={`${baseHref}/${params.data!.problem_nm}`}>
                                         <BarChart3Icon className="size-4" aria-hidden />
                                         <span className="sr-only">Problem statistics</span>
                                     </Link>
@@ -133,7 +134,7 @@ export function CourseProblemRankingCard({
                 ),
             },
         ],
-        [course.course_nm, abstractProblems],
+        [baseHref, abstractProblems],
     )
 
     const rows = useMemo(

@@ -13,6 +13,7 @@ const eslintConfig = defineConfig([
         'out/**',
         'build/**',
         'components/ui/**',
+        'components/smoothui/**',
         'hooks/use-mobile.ts',
         'next-env.d.ts',
         'lib/jutge_api_client.ts',

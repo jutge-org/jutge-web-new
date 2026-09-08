@@ -1,6 +1,6 @@
 import { courseHref } from '@/lib/courses'
 
-export type CourseDetailTab = 'lists' | 'students' | 'statistics' | 'ranking' | 'calendar'
+export type CourseDetailTab = 'lists' | 'students' | 'statistics' | 'submissions'
 
 export type CourseDetailNavItem = {
     tab: CourseDetailTab
@@ -8,20 +8,13 @@ export type CourseDetailNavItem = {
     href: string
 }
 
-const COURSE_DETAIL_TABS: readonly CourseDetailTab[] = [
-    'lists',
-    'students',
-    'statistics',
-    'ranking',
-    'calendar',
-]
+const COURSE_DETAIL_TABS: readonly CourseDetailTab[] = ['lists', 'students', 'submissions', 'statistics']
 
 const COURSE_DETAIL_LABELS: Record<CourseDetailTab, string> = {
-    lists: 'Lists',
+    lists: 'Problems',
     students: 'Students',
+    submissions: 'Submissions',
     statistics: 'Statistics',
-    ranking: 'Ranking',
-    calendar: 'Calendar',
 }
 
 export function courseDetailNavItems(courseKey: string): CourseDetailNavItem[] {

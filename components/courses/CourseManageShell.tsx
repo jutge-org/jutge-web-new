@@ -13,13 +13,20 @@ import {
     courseHref,
     isCourseOwnedByUser,
     isCourseTutor,
+    normalizeCourseKeyParam,
     type CourseStatus,
 } from '@/lib/courses'
 import { fetchCourse, fetchPublicCourse } from '@/lib/data/courses'
+import { resolveCanonicalTutorCourseKey } from '@/lib/data/supervisionActions'
 import type { Course } from '@/lib/jutge_api_client'
 import jutge from '@/lib/jutge'
 
-type CourseManageCoreData = {
+function courseKeyFromParams(courseKeyParam: string | string[] | undefined): string {
+    const raw = Array.isArray(courseKeyParam) ? courseKeyParam.join(':') : (courseKeyParam ?? '')
+    return normalizeCourseKeyParam(raw)
+}
+
+export type CourseManageCoreData = {
     courseKey: string
     course: Course
     status: CourseStatus
@@ -31,7 +38,7 @@ type CourseManageCoreData = {
 
 type CourseManageShellProps = {
     userId: string
-    children?: ReactNode
+    children?: ReactNode | ((data: CourseManageCoreData) => ReactNode)
 }
 
 /** Shared shell for course owner/tutor management tabs under `/courses/[course_key]/*`. */
@@ -40,6 +47,8 @@ export function CourseManageShell({ userId, children }: CourseManageShellProps) 
     const [courseData, setCourseData] = useState<CourseManageCoreData | null | undefined>(undefined)
     const [reloadToken, setReloadToken] = useState(0)
 
+    const urlCourseKey = courseKeyFromParams(params.course_key)
+
     useEffect(() => {
         let cancelled = false
 
@@ -47,7 +56,7 @@ export function CourseManageShell({ userId, children }: CourseManageShellProps) 
 
         void (async () => {
             const [result, profile] = await Promise.all([
-                fetchCourse(jutge, params.course_key),
+                fetchCourse(jutge, urlCourseKey),
                 jutge.student.profile.get(),
             ])
             if (cancelled) {
@@ -59,9 +68,12 @@ export function CourseManageShell({ userId, children }: CourseManageShellProps) 
                 return
             }
 
-            const { courseKey, course, status } = result
+            const { course, status } = result
             const isOwner = isCourseOwnedByUser(course.owner, profile)
             const isTutor = isCourseTutor(course, isOwner)
+            // Tutor APIs require the exact key from getCoursesKeys (may differ from URL / enrolled index).
+            const canonicalTutorKey = await resolveCanonicalTutorCourseKey(urlCourseKey || result.courseKey)
+            const courseKey = canonicalTutorKey || urlCourseKey || result.courseKey
             const row = buildCourseRow(course, status, courseKey, isOwner)
 
             let problemCount: number | undefined
@@ -86,13 +98,13 @@ export function CourseManageShell({ userId, children }: CourseManageShellProps) 
         return () => {
             cancelled = true
         }
-    }, [params.course_key, reloadToken])
+    }, [urlCourseKey, reloadToken])
 
     if (courseData === null) {
         notFound()
     }
 
-    const href = courseHref(params.course_key)
+    const href = courseHref(urlCourseKey)
 
     if (courseData !== undefined && !canSuperviseCourse(courseData)) {
         return <AccessDeniedGate />
@@ -125,13 +137,9 @@ export function CourseManageShell({ userId, children }: CourseManageShellProps) 
                         problemCount={courseData.problemCount}
                         onCourseChanged={() => setReloadToken((token) => token + 1)}
                     />
-                    {children}
+                    {typeof children === 'function' ? children(courseData) : children}
                 </>
             )}
         </div>
     )
-}
-
-export function CourseInConstruction() {
-    return <p className="text-muted-foreground">In construction.</p>
 }

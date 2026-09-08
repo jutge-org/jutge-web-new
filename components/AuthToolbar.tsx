@@ -62,7 +62,7 @@ export function AuthToolbar() {
                                 </Button>
                             </DropdownMenuTrigger>
                         </TooltipTrigger>
-                        <TooltipContent>User menu</TooltipContent>
+                        <TooltipContent>{userName ?? 'User menu'}</TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
                 <DropdownMenuContent

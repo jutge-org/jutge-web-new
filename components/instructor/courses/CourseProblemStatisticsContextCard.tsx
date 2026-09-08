@@ -22,6 +22,8 @@ type CourseProblemStatisticsContextCardProps = {
         CourseProblemStatisticsPageData,
         'course' | 'tutorProfiles' | 'problem_nm' | 'abstractProblem' | 'submissions'
     >
+    courseStatsHref?: string
+    courseHref?: string
 }
 
 function formatTutorNames(data: CourseProblemStatisticsContextCardProps['data']): string {
@@ -39,13 +41,18 @@ function formatTutorNames(data: CourseProblemStatisticsContextCardProps['data'])
     return 'No tutors listed'
 }
 
-export function CourseProblemStatisticsContextCard({ data }: CourseProblemStatisticsContextCardProps) {
+export function CourseProblemStatisticsContextCard({
+    data,
+    courseStatsHref,
+    courseHref,
+}: CourseProblemStatisticsContextCardProps) {
     const { course, problem_nm, abstractProblem, submissions } = data
     const problemTitle = getAbstractProblemTitle(problem_nm, { [problem_nm]: abstractProblem })
     const author = abstractProblem.author?.trim()
     const tutorLabel = formatTutorNames(data)
     const studentCount = course.students.enrolled.length + course.students.invited.length
-    const courseStatsHref = `/instructor/courses/${course.course_nm}/statistics`
+    const statsHref = courseStatsHref ?? `/instructor/courses/${course.course_nm}/statistics`
+    const coursePageHref = courseHref ?? `/instructor/courses/${course.course_nm}/properties`
 
     return (
         <section
@@ -58,7 +65,7 @@ export function CourseProblemStatisticsContextCard({ data }: CourseProblemStatis
                     <span>Statistics scoped to this course</span>
                 </div>
                 <Link
-                    href={courseStatsHref}
+                    href={statsHref}
                     className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
                 >
                     <ArrowLeftIcon className="size-4" aria-hidden />
@@ -116,7 +123,7 @@ export function CourseProblemStatisticsContextCard({ data }: CourseProblemStatis
                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Course</p>
                             <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                                 <Link
-                                    href={`/instructor/courses/${course.course_nm}/properties`}
+                                    href={coursePageHref}
                                     className="text-lg font-semibold text-foreground hover:text-primary hover:underline"
                                 >
                                     {course.course_nm}

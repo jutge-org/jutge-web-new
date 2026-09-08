@@ -2,19 +2,15 @@
 
 import { AuthedGate } from '@/components/ClientGates'
 import { CourseManageShell } from '@/components/courses/CourseManageShell'
-import { CourseStudentsView } from '@/components/courses/CourseStudentsView'
+import { CourseSubmissionsView } from '@/components/courses/CourseSubmissionsView'
 
-export default function CourseStudentsPage() {
+export default function CourseSubmissionsPage() {
     return (
         <AuthedGate>
             {(user) => (
                 <CourseManageShell userId={user.id}>
                     {(course) => (
-                        <CourseStudentsView
-                            courseKey={course.courseKey}
-                            courseNm={course.course.course_nm}
-                            isOwner={course.isOwner}
-                        />
+                        <CourseSubmissionsView courseKey={course.courseKey} />
                     )}
                 </CourseManageShell>
             )}

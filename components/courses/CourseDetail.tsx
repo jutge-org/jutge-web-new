@@ -1,6 +1,14 @@
 'use client'
 
-import { ArchiveIcon, BookOpenCheckIcon, Globe, ShieldCheck, SignatureIcon, UsersIcon } from 'lucide-react'
+import {
+    ArchiveIcon,
+    BookOpenCheckIcon,
+    Globe,
+    GraduationCapIcon,
+    ShieldCheck,
+    SignatureIcon,
+    UsersIcon,
+} from 'lucide-react'
 
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import { CourseDescriptionDialog } from '@/components/courses/CourseDescriptionDialog'
@@ -142,8 +150,8 @@ export function CourseDetailHeader({
     const row = buildCourseRow(course, status, courseKey, isOwner)
 
     return (
-        <div className={courseTitleShellClassName}>
-            <div className="flex items-start gap-5">
+        <div className={cn(courseTitleShellClassName, '')}>
+            <div className="flex items-start gap-5 -mb-2">
                 <CourseHeaderIconImage iconUrl={row.iconUrl} />
                 <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-4">
@@ -182,13 +190,19 @@ export function CourseDetailHeader({
                                     Public
                                 </Badge>
                             ) : null}
+                            {isOwner ? (
+                                <Badge variant="outline" className="gap-1">
+                                    <GraduationCapIcon aria-hidden />
+                                    Instructor
+                                </Badge>
+                            ) : null}
                             {isTutor ? (
                                 <Badge variant="outline" className="gap-1">
                                     <UsersIcon aria-hidden />
                                     Tutor
                                 </Badge>
                             ) : null}
-                            {status === 'enrolled' && !isTutor ? (
+                            {status === 'enrolled' && !isOwner && !isTutor ? (
                                 <Badge variant="outline" className="gap-1">
                                     <BookOpenCheckIcon aria-hidden />
                                     Enrolled

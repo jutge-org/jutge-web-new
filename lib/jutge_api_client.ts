@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-02T14:10:22.721Z
+ * This file has been automatically generated at 2026-09-08T09:38:43.409Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -714,6 +714,19 @@ export type EnrolledStudent = {
     email: string
 }
 
+export type EnrolledTutor = EnrolledStudent
+
+export type CourseSubmission = {
+    time: string
+    user_uid: string
+    email: string
+    problem_id: string
+    submission_id: string
+    verdict: string
+    compiler_id: string
+    proglang: string
+}
+
 export type TutorSubmission = {
     problem_id: string
     submission_id: string
@@ -823,16 +836,6 @@ export type InstructorCourse = {
 export type StudentProfile = {
     name: string
     email: string
-}
-
-export type CourseSubmission = {
-    time: string
-    user_uid: string
-    email: string
-    problem_id: string
-    verdict: string
-    compiler_id: string
-    proglang: string
 }
 
 export type InstructorCourseCreation = {
@@ -3572,6 +3575,30 @@ class Module_tutor_courses {
         const [output, ofiles] = await this.root.execute("tutor.courses.getEnrolledStudents", course_key)
         return output
     }
+
+    /**
+     * Get tutors enrolled in a course.
+     *
+     * 🔐 Authentication: tutor
+     * No warnings
+     * Returns name and email for each tutor enrolled in the given course. Gated to courses the user can tutorize.
+     */
+    async getEnrolledTutors(course_key: string): Promise<EnrolledStudent[]> {
+        const [output, ofiles] = await this.root.execute("tutor.courses.getEnrolledTutors", course_key)
+        return output
+    }
+
+    /**
+     * Get all submissions for a course.
+     *
+     * 🔐 Authentication: tutor
+     * No warnings
+     * Returns all submissions for all problems in all lists of the course, from all enrolled students. Each submission includes the student user uid, email, time, problem id, verdict, compiler id, and programming language. Gated to courses the user can tutorize.
+     */
+    async getCourseSubmissions(course_key: string): Promise<CourseSubmission[]> {
+        const [output, ofiles] = await this.root.execute("tutor.courses.getCourseSubmissions", course_key)
+        return output
+    }
 }
 
 /**
@@ -4225,18 +4252,6 @@ class Module_instructor_courses {
      */
     async sendInviteToTutors(course_nm: string): Promise<void> {
         const [output, ofiles] = await this.root.execute("instructor.courses.sendInviteToTutors", course_nm)
-        return output
-    }
-
-    /**
-     * Get all submissions for a course.
-     *
-     * 🔐 Authentication: instructor
-     * No warnings
-     * Returns all submissions for all problems in all lists of the course, from all enrolled students. Each submission includes the student user uid, email, time, problem id, verdict, compiler id, and programming language.
-     */
-    async getCourseSubmissions(course_nm: string): Promise<CourseSubmission[]> {
-        const [output, ofiles] = await this.root.execute("instructor.courses.getCourseSubmissions", course_nm)
         return output
     }
 

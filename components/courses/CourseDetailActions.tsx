@@ -150,7 +150,7 @@ export function CourseDetailActions({
                                 )}
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="w-32">
                             {canSuperviseCourse({ isOwner, isTutor }) ? (
                                 <SuperviseCourseMenuItem userId={userId} courseKey={courseKey} />
                             ) : null}
@@ -158,7 +158,7 @@ export function CourseDetailActions({
                                 <DropdownMenuItem asChild>
                                     <Link href={instructorCoursePropertiesHref(courseKey)}>
                                         <EditIcon aria-hidden />
-                                        Edit
+                                        Manage 
                                     </Link>
                                 </DropdownMenuItem>
                             ) : null}

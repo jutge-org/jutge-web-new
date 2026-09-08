@@ -113,10 +113,6 @@ export async function fetchInstructorCourseStudentProfiles(course_nm: string) {
     return withInstructorClient((c) => c.instructor.courses.getStudentProfiles(course_nm))
 }
 
-export async function fetchInstructorCourseSubmissions(course_nm: string) {
-    return withInstructorClient((c) => c.instructor.courses.getCourseSubmissions(course_nm))
-}
-
 export async function fetchInstructorCourseTutorProfiles(course_nm: string) {
     return withInstructorClient((c) => c.instructor.courses.getTutorProfiles(course_nm))
 }
