@@ -37,28 +37,59 @@ export function HomeSectionNav({ sections }: HomeSectionNavProps) {
     const openRef = useRef(false)
     const sideRef = useRef<NavSide>('left')
 
-    const clearCloseTimer = useEffectEvent(() => {
+    function clearCloseTimer() {
         if (closeTimer.current) {
             clearTimeout(closeTimer.current)
             closeTimer.current = null
         }
-    })
+    }
 
-    const scheduleClose = useEffectEvent(() => {
+    function scheduleClose() {
         if (!openRef.current) return
         clearCloseTimer()
         closeTimer.current = setTimeout(() => {
             openRef.current = false
             setOpen(false)
         }, CLOSE_DELAY_MS)
-    })
+    }
 
-    const openOnSide = useEffectEvent((nextSide: NavSide) => {
+    function openOnSide(nextSide: NavSide) {
         clearCloseTimer()
         openRef.current = true
         sideRef.current = nextSide
         setSide(nextSide)
         setOpen(true)
+    }
+
+    const onEdgePointerMove = useEffectEvent((event: PointerEvent) => {
+        if (event.pointerType !== 'mouse') return
+
+        const nearLeft = event.clientX <= EDGE_ZONE_PX
+        const nearRight = event.clientX >= window.innerWidth - EDGE_ZONE_PX
+
+        if (nearLeft) {
+            openOnSide('left')
+            return
+        }
+        if (nearRight) {
+            openOnSide('right')
+            return
+        }
+
+        const panel = panelRef.current
+        if (panel) {
+            const rect = panel.getBoundingClientRect()
+            if (
+                event.clientX >= rect.left &&
+                event.clientX <= rect.right &&
+                event.clientY >= rect.top &&
+                event.clientY <= rect.bottom
+            ) {
+                openOnSide(sideRef.current)
+                return
+            }
+        }
+        scheduleClose()
     })
 
     useEffect(() => {
@@ -76,32 +107,8 @@ export function HomeSectionNav({ sections }: HomeSectionNavProps) {
             return
         }
 
-        function isOverPanel(clientX: number, clientY: number) {
-            const panel = panelRef.current
-            if (!panel) return false
-            const rect = panel.getBoundingClientRect()
-            return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom
-        }
-
         function onPointerMove(event: PointerEvent) {
-            if (event.pointerType !== 'mouse') return
-
-            const nearLeft = event.clientX <= EDGE_ZONE_PX
-            const nearRight = event.clientX >= window.innerWidth - EDGE_ZONE_PX
-
-            if (nearLeft) {
-                openOnSide('left')
-                return
-            }
-            if (nearRight) {
-                openOnSide('right')
-                return
-            }
-            if (isOverPanel(event.clientX, event.clientY)) {
-                openOnSide(sideRef.current)
-                return
-            }
-            scheduleClose()
+            onEdgePointerMove(event)
         }
 
         function onKeyDown(event: KeyboardEvent) {

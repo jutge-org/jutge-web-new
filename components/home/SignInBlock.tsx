@@ -66,11 +66,6 @@ function SignInPanel({ focusEmailKey }: { focusEmailKey: number }) {
 
     useEffect(() => {
         emailRef.current?.focus({ preventScroll: focusEmailKey > 0 })
-    }, [])
-
-    useEffect(() => {
-        if (focusEmailKey === 0) return
-        emailRef.current?.focus({ preventScroll: true })
     }, [focusEmailKey])
 
     function handleSubmit(event: FormEvent<HTMLFormElement>) {

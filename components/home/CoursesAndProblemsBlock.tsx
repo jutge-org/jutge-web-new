@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { fetchPublicCourses } from '@/lib/data/courses'
-import { abstractProblemsToRows, fetchAllAbstractProblems, type ProblemRow } from '@/lib/data/problems'
+import { type ProblemRow } from '@/lib/data/problems'
 import { publicCourseHref, type GuestCourseRow } from '@/lib/courses'
 import { ArrowRightIcon, FileBracesCornerIcon, SignatureIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
@@ -147,17 +147,6 @@ function filterFeaturedCourses(courses: GuestCourseRow[]): GuestCourseRow[] {
         ;[featured[i], featured[j]] = [featured[j], featured[i]]
     }
     return featured
-}
-
-function pickRandomProblems(problems: ProblemRow[]): ProblemRow[] {
-    const eligible = problems.filter(
-        (problem) => problem.problem_nm.startsWith('P') && problem.language_ids.includes('en'),
-    )
-    for (let i = eligible.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[eligible[i], eligible[j]] = [eligible[j], eligible[i]]
-    }
-    return eligible.slice(0, SAMPLE_SIZE)
 }
 
 function ListItemsSkeleton({ iconClassName }: { iconClassName: string }) {

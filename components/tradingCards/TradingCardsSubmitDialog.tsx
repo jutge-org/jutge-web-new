@@ -5,14 +5,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 const SAMPLE_PROMPT = `A high resolution very detailed collectible trading card with the given character in a Hawaian beach. He is standing on the beach, taking a selfie of himself with a simple phone with one hand and making a thumbs up sign with other hand.

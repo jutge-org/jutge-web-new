@@ -68,7 +68,6 @@ export function AboutInfoCard({
     icon: Icon,
     media,
     title,
-    badge,
     href,
     description,
     children,

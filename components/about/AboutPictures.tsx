@@ -53,8 +53,9 @@ function PictureDialog({
                 </DialogHeader>
                 {picture ? (
                     <>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        { }
                         <a href={picture.src} target="_blank" rel="noopener noreferrer" className="block w-full">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={picture.src}
                                 alt={picture.alt}

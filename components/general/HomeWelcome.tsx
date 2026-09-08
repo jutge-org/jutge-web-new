@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { GITHUB_REPO_URL } from '@/lib/github'
 import { useOpenWebSettingsStore } from '@/store/openWebSettings'
-import { GithubIcon } from '../GithubIcon'
 
 export function HomeWelcome() {
     const modules = useOpenWebSettingsStore((state) => state.settings.dashboard.modules)

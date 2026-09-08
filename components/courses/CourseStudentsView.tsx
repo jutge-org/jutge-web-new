@@ -53,8 +53,10 @@ export function CourseStudentsView({ courseKey, courseNm, isOwner }: CourseStude
         return <PageSpinner />
     }
 
+    const studentRows = rows
+
     async function copyEmails() {
-        const emails = rows
+        const emails = studentRows
             .map((row) => row.email)
             .sort()
             .join('\n')
@@ -71,7 +73,7 @@ export function CourseStudentsView({ courseKey, courseNm, isOwner }: CourseStude
         }
     }
 
-    const countLabel = rows.length === 1 ? 'student' : 'students'
+    const countLabel = studentRows.length === 1 ? 'student' : 'students'
 
     return (
         <div className="flex flex-col gap-4">
@@ -86,11 +88,11 @@ export function CourseStudentsView({ courseKey, courseNm, isOwner }: CourseStude
                 </Button>
                 <div className="flex-grow" />
                 <div className="text-xs text-muted-foreground">
-                    {rows.length} {countLabel}
+                    {studentRows.length} {countLabel}
                 </div>
             </div>
 
-            <AgTableFull rowData={rows} columnDefs={colDefs} />
+            <AgTableFull rowData={studentRows} columnDefs={colDefs} />
         </div>
     )
 }
