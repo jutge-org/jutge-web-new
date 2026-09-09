@@ -6,11 +6,15 @@ import { useState, useTransition } from 'react'
 import {
     ArchiveIcon,
     ArchiveRestoreIcon,
+    BookOpenCheckIcon,
+    ChevronDownIcon,
     EditIcon,
-    Loader2,
+    GraduationCapIcon,
+    Loader2Icon,
     LogInIcon,
     LogOutIcon,
-    EllipsisVerticalIcon,
+    UsersIcon,
+    type LucideIcon,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -24,6 +28,7 @@ import { useConfirmDialog } from '@/components/administrator/ConfirmDialog'
 import { SuperviseCourseMenuItem } from '@/components/supervision/SuperviseCourseMenuItem'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
     canSuperviseCourse,
     courseActionSuccessMessage,
@@ -31,6 +36,39 @@ import {
     type CourseStatus,
     type CourseStudentAction,
 } from '@/lib/courses'
+
+export type CourseViewerRole = {
+    label: string
+    Icon: LucideIcon
+}
+
+export function courseShowsActionsMenu(status: CourseStatus, isOwner: boolean): boolean {
+    return isOwner || status === 'enrolled' || status === 'archived'
+}
+
+export function getCourseViewerRole({
+    isOwner,
+    isTutor,
+    status,
+}: {
+    isOwner: boolean
+    isTutor: boolean
+    status: CourseStatus
+}): CourseViewerRole | null {
+    if (isOwner) {
+        return { label: 'Instructor', Icon: GraduationCapIcon }
+    }
+    if (isTutor) {
+        return { label: 'Tutor', Icon: UsersIcon }
+    }
+    if (status === 'archived') {
+        return { label: 'Archived', Icon: ArchiveIcon }
+    }
+    if (status === 'enrolled') {
+        return { label: 'Enrolled', Icon: BookOpenCheckIcon }
+    }
+    return null
+}
 
 const UNENROLL_CONFIRMATION =
     'Please take into account that, after unenrolling from it, your instructor will not be able to see your progress. This could have strong consequences in the event your grade depends on it. You can enroll it again at any time.'
@@ -116,7 +154,9 @@ export function CourseDetailActions({
 
     const showEnrollButton = status === 'available'
     const showUnenrollMenuItem = status !== 'available' && !isOwner
-    const hasMenuItems = isOwner || status === 'enrolled' || status === 'archived'
+    const hasMenuItems = courseShowsActionsMenu(status, isOwner)
+    const viewerRole = getCourseViewerRole({ isOwner, isTutor, status })
+    const RoleIcon = viewerRole?.Icon
 
     return (
         <>
@@ -128,29 +168,43 @@ export function CourseDetailActions({
                         disabled={isPending}
                         className="bg-blue-600 text-white hover:bg-blue-700"
                     >
-                        {isPending ? <Loader2 className="animate-spin" aria-hidden /> : <LogInIcon aria-hidden />}
+                        {isPending ? <Loader2Icon className="animate-spin" aria-hidden /> : <LogInIcon aria-hidden />}
                         Enroll this course
                     </Button>
                 ) : null}
                 {hasMenuItems ? (
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="size-8 shrink-0"
-                                disabled={isPending}
-                                aria-label={`Actions for ${title}`}
-                            >
-                                {isPending ? (
-                                    <Loader2 className="size-4 animate-spin" aria-hidden />
-                                ) : (
-                                    <EllipsisVerticalIcon className="size-4" aria-hidden />
-                                )}
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            disabled={isPending}
+                                            aria-label={
+                                                viewerRole
+                                                    ? `Course actions (${viewerRole.label})`
+                                                    : `Actions for ${title}`
+                                            }
+                                        >
+                                            {isPending ? (
+                                                <Loader2Icon className="size-4 animate-spin" aria-hidden />
+                                            ) : RoleIcon ? (
+                                                <RoleIcon aria-hidden />
+                                            ) : null}
+                                            {viewerRole?.label ?? 'Actions'}
+                                            <ChevronDownIcon
+                                                className="size-4 shrink-0 text-muted-foreground"
+                                                aria-hidden
+                                            />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">Course actions</TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <DropdownMenuContent align="end" className="min-w-40">
                             {canSuperviseCourse({ isOwner, isTutor }) ? (
                                 <SuperviseCourseMenuItem userId={userId} courseKey={courseKey} />
                             ) : null}

@@ -1,18 +1,14 @@
 'use client'
 
-import {
-    ArchiveIcon,
-    BookOpenCheckIcon,
-    Globe,
-    GraduationCapIcon,
-    ShieldCheck,
-    SignatureIcon,
-    UsersIcon,
-} from 'lucide-react'
+import { ArchiveIcon, Globe, ShieldCheck, SignatureIcon, UsersIcon } from 'lucide-react'
 
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import { CourseDescriptionDialog } from '@/components/courses/CourseDescriptionDialog'
-import { CourseDetailActions } from '@/components/courses/CourseDetailActions'
+import {
+    CourseDetailActions,
+    courseShowsActionsMenu,
+    getCourseViewerRole,
+} from '@/components/courses/CourseDetailActions'
 import { CourseDetailNav } from '@/components/courses/CourseDetailNav'
 import { CourseGuestLists } from '@/components/courses/CourseGuestLists'
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
@@ -117,7 +113,7 @@ export function CourseDetailLoading() {
                             </div>
                         </div>
                     </div>
-                    <Skeleton className="size-8 shrink-0 rounded-md" />
+                    <Skeleton className="h-8 w-28 shrink-0 rounded-md" />
                 </div>
             </div>
         </div>
@@ -148,6 +144,14 @@ export function CourseDetailHeader({
     onCourseChanged,
 }: CourseDetailHeaderProps) {
     const row = buildCourseRow(course, status, courseKey, isOwner)
+    const roleInActions = courseShowsActionsMenu(status, isOwner)
+        ? getCourseViewerRole({ isOwner, isTutor, status })?.label
+        : null
+    const showOfficialBadge = row.isOfficial
+    const showPublicBadge = row.isPublic
+    const showTutorBadge = isTutor && roleInActions !== 'Tutor'
+    const showArchivedBadge = status === 'archived' && roleInActions !== 'Archived'
+    const showStatusBadges = showOfficialBadge || showPublicBadge || showTutorBadge || showArchivedBadge
 
     return (
         <div className={cn(courseTitleShellClassName, '')}>
@@ -177,44 +181,34 @@ export function CourseDetailHeader({
                             <SignatureIcon className="size-3 shrink-0" aria-hidden />
                             <span className="min-w-0 truncate">{row.ownerName}</span>
                         </p>
-                        <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
-                            {row.isOfficial ? (
-                                <Badge variant="outline" className="gap-1">
-                                    <ShieldCheck aria-hidden />
-                                    Official
-                                </Badge>
-                            ) : null}
-                            {row.isPublic ? (
-                                <Badge variant="outline" className="gap-1">
-                                    <Globe aria-hidden />
-                                    Public
-                                </Badge>
-                            ) : null}
-                            {isOwner ? (
-                                <Badge variant="outline" className="gap-1">
-                                    <GraduationCapIcon aria-hidden />
-                                    Instructor
-                                </Badge>
-                            ) : null}
-                            {isTutor ? (
-                                <Badge variant="outline" className="gap-1">
-                                    <UsersIcon aria-hidden />
-                                    Tutor
-                                </Badge>
-                            ) : null}
-                            {status === 'enrolled' && !isOwner && !isTutor ? (
-                                <Badge variant="outline" className="gap-1">
-                                    <BookOpenCheckIcon aria-hidden />
-                                    Enrolled
-                                </Badge>
-                            ) : null}
-                            {status === 'archived' ? (
-                                <Badge variant="outline" className="gap-1">
-                                    <ArchiveIcon aria-hidden />
-                                    Archived
-                                </Badge>
-                            ) : null}
-                        </div>
+                        {showStatusBadges ? (
+                            <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
+                                {showOfficialBadge ? (
+                                    <Badge variant="outline" className="gap-1">
+                                        <ShieldCheck aria-hidden />
+                                        Official
+                                    </Badge>
+                                ) : null}
+                                {showPublicBadge ? (
+                                    <Badge variant="outline" className="gap-1">
+                                        <Globe aria-hidden />
+                                        Public
+                                    </Badge>
+                                ) : null}
+                                {showTutorBadge ? (
+                                    <Badge variant="outline" className="gap-1">
+                                        <UsersIcon aria-hidden />
+                                        Tutor
+                                    </Badge>
+                                ) : null}
+                                {showArchivedBadge ? (
+                                    <Badge variant="outline" className="gap-1">
+                                        <ArchiveIcon aria-hidden />
+                                        Archived
+                                    </Badge>
+                                ) : null}
+                            </div>
+                        ) : null}
                     </div>
                     {row.description ? (
                         <div className="-ml-1.5">
