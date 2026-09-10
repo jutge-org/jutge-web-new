@@ -147,7 +147,9 @@ function ProblemSubmissionDetailPageContent({ isAdministrator }: { isAdministrat
         <>
             <SubmissionPendingRefresh
                 isPending={core.verdict === 'Pending'}
-                onRefresh={() => applyDetail({ allowNotFound: false })}
+                onRefresh={() => {
+                    void applyDetail({ allowNotFound: false })
+                }}
             />
             <SubmissionDetailView
                 data={core}
