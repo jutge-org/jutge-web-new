@@ -1,17 +1,16 @@
 'use client'
 
-import Link from 'next/link'
 import {
     BookmarkIcon,
     BotIcon,
     GlobeIcon,
-    InfoIcon,
     LanguagesIcon,
     ScrollIcon,
     ScrollTextIcon,
     SignatureIcon,
     TagsIcon,
 } from 'lucide-react'
+import Link from 'next/link'
 import { useState, type ReactNode } from 'react'
 
 import { DevIcon } from '@/components/administrator/DevIcon'
@@ -20,9 +19,9 @@ import { ProblemTypeIcon } from '@/components/problems/ProblemTypeIcon'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import type { ProblemDetailData } from '@/lib/data/problemDetail'
 import { problemIconUrl } from '@/lib/problems'
 import { cn } from '@/lib/utils'
-import type { ProblemDetailData } from '@/lib/data/problemDetail'
 
 type ProblemInformationProps = {
     data: ProblemDetailData
