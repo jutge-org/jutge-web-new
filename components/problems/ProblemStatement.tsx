@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -43,6 +44,46 @@ function getTemplateIconClassName(template: string) {
     return template.startsWith('main')
         ? 'size-4 shrink-0 text-sky-600 dark:text-sky-400'
         : 'size-4 shrink-0 text-green-600 dark:text-green-400'
+}
+
+export function ProblemStatementSkeleton() {
+    return (
+        <Card className="ring-0 border border-border shadow-sm" aria-busy="true" aria-label="Loading statement">
+            <CardHeader className="border-b">
+                <CardTitle>Statement</CardTitle>
+                <CardAction>
+                    <div className="flex items-center gap-2">
+                        <Skeleton className="size-8 rounded-md" />
+                        <Skeleton className="h-8 w-16 rounded-lg" />
+                    </div>
+                </CardAction>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+                <div className="flex flex-wrap gap-2">
+                    <Skeleton className="h-7 w-28 rounded-md" />
+                    <Skeleton className="h-7 w-28 rounded-md" />
+                    <Skeleton className="h-7 w-28 rounded-md" />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <Skeleton className="h-7 w-1/2 rounded-md" />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="mt-4 h-8 w-24" />
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="mt-4 h-8 w-24" />
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-8 w-3/4" />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <Skeleton className="h-7 w-1/2 rounded-md" />
+                </div>
+            </CardContent>
+        </Card>
+    )
 }
 
 export function ProblemStatement({ problemId, shortHtmlStatement, templates }: ProblemStatementProps) {

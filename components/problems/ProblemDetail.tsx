@@ -2,9 +2,8 @@ import { GameProblemCompetitionsCard } from '@/components/problems/GameProblemCo
 import { ProblemHeaderCard } from '@/components/problems/ProblemHeaderCard'
 import { ProblemHealthCard } from '@/components/problems/ProblemHealthCard'
 import { ProblemNav } from '@/components/problems/ProblemNav'
-import { ProblemStatement } from '@/components/problems/ProblemStatement'
-import { ProblemWidgetCard } from '@/components/problems/ProblemWidgetCard'
-import { PublicTestcases } from '@/components/problems/PublicTestcases'
+import { ProblemStatement, ProblemStatementSkeleton } from '@/components/problems/ProblemStatement'
+import { PublicTestcases, PublicTestcasesSkeleton } from '@/components/problems/PublicTestcases'
 import { WidgetSpinner } from '@/components/general/WidgetSpinner'
 import { isGameProblem } from '@/lib/problems'
 import { showInstructorProblemTabs } from '@/lib/problemNav'
@@ -32,7 +31,7 @@ type ProblemDetailLoadingProps = ProblemDetailBaseProps & {
 type ProblemDetailLoadedProps = ProblemDetailBaseProps & {
     loading?: false
     data: ProblemDetailData
-    /** When true, statement and testcase widgets show spinners while assets load. */
+    /** When true, statement and testcase widgets show placeholders while assets load. */
     assetsLoading?: boolean
     status?: AbstractStatus | null
     defaultCompilerId?: string | null
@@ -73,8 +72,8 @@ export function ProblemDetail(props: ProblemDetailProps) {
                 <ProblemHeaderCardLoading overlapHeader={overlapHeader} />
                 {showNav ? <ProblemNav pageKey={pageKey} showInstructorTabs={false} /> : null}
                 {children}
-                {showStatement ? <ProblemWidgetCard title="Statement" /> : null}
-                {showTestcases ? <ProblemWidgetCard title="Public test cases" /> : null}
+                {showStatement ? <ProblemStatementSkeleton /> : null}
+                {showTestcases ? <PublicTestcasesSkeleton /> : null}
             </div>
         )
     }
@@ -125,7 +124,7 @@ export function ProblemDetail(props: ProblemDetailProps) {
 
             {showStatement ? (
                 assetsLoading ? (
-                    <ProblemWidgetCard title="Statement" />
+                    <ProblemStatementSkeleton />
                 ) : (
                     <ProblemStatement
                         pageKey={pageKey}
@@ -138,7 +137,7 @@ export function ProblemDetail(props: ProblemDetailProps) {
 
             {showTestcases ? (
                 assetsLoading ? (
-                    <ProblemWidgetCard title="Public test cases" />
+                    <PublicTestcasesSkeleton />
                 ) : data.publicTestcases.length > 0 ? (
                     <PublicTestcases testcases={data.publicTestcases} />
                 ) : null

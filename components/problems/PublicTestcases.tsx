@@ -5,6 +5,7 @@ import { AArrowDownIcon, AArrowUpIcon, Columns2Icon, EyeIcon, EyeOffIcon, Rows2I
 
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { TestcaseField } from '@/components/TestcaseField'
 import { useFontScalePreference } from '@/hooks/use-font-scale-preference'
@@ -14,6 +15,44 @@ import type { DecodedTestcase } from '@/lib/data/problemDetail'
 
 type PublicTestcasesProps = {
     testcases: DecodedTestcase[]
+}
+
+export function PublicTestcasesSkeleton() {
+    return (
+        <Card className="ring-0 border border-border shadow-sm" aria-busy="true" aria-label="Loading public test cases">
+            <CardHeader className="border-b">
+                <CardTitle>Public test cases</CardTitle>
+                <CardAction>
+                    <div className="inline-flex items-center gap-2">
+                        <Skeleton className="h-8 w-20 rounded-lg" />
+                        <Skeleton className="h-8 w-16 rounded-lg" />
+                    </div>
+                </CardAction>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex flex-col gap-2">
+                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-24 w-full rounded-md" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-24 w-full rounded-md" />
+                    </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                    <div className="flex flex-col gap-2">
+                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-24 w-full rounded-md" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-24 w-full rounded-md" />
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    )
 }
 
 export function PublicTestcases({ testcases }: PublicTestcasesProps) {
