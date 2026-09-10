@@ -1,6 +1,6 @@
-export const DEFAULT_FONT_SCALE = 1
-export const MIN_FONT_SCALE = 0.85
-export const MAX_FONT_SCALE = 1.5
+export const DEFAULT_FONT_SCALE = 1.3
+export const MIN_FONT_SCALE = 1
+export const MAX_FONT_SCALE = 1.8
 export const FONT_SCALE_STEP = 0.1
 
 export const STATEMENT_FONT_SCALE_KEY = 'jutge-statement-font-scale'

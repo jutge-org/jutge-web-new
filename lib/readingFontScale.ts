@@ -14,10 +14,10 @@ export const READING_FONT_SCALE_KEYS = [
 export type ReadingFontScaleKey = (typeof READING_FONT_SCALE_KEYS)[number]
 
 export const READING_FONT_SCALE_PRESETS = [
-    { value: '0.85', label: 'Small', scale: 0.85 },
-    { value: '1', label: 'Default', scale: 1 },
-    { value: '1.25', label: 'Large', scale: 1.25 },
-    { value: '1.5', label: 'Extra large', scale: 1.5 },
+    { value: '1', label: 'Small', scale: 1 },
+    { value: '1.15', label: 'Default', scale: 1.15 },
+    { value: '1.45', label: 'Large', scale: 1.45 },
+    { value: '1.8', label: 'Extra large', scale: 1.8 },
 ] as const
 
 export type ReadingFontScalePresetValue = (typeof READING_FONT_SCALE_PRESETS)[number]['value']

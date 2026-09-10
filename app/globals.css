@@ -266,7 +266,7 @@
 
 /* Jutge problem HTML statement styles (from jutge-web) */
 .statement-section {
-    font-size: calc(0.875rem * var(--statement-scale, 1));
+    font-size: calc(1rem * var(--statement-scale, 1));
     font-weight: 400;
     max-width: 36em;
 }
@@ -288,24 +288,24 @@
 }
 
 .statement-section h1 {
-    font-size: calc(16px * var(--statement-scale, 1));
+    font-size: calc(1.25rem * var(--statement-scale, 1));
     font-weight: 700;
     color: var(--foreground);
 }
 
 .statement-section h2 {
-    font-size: calc(14px * var(--statement-scale, 1));
+    font-size: calc(1.125rem * var(--statement-scale, 1));
     font-weight: 700;
     color: var(--foreground);
 }
 
 .statement-section h3 {
-    font-size: calc(14px * var(--statement-scale, 1));
+    font-size: calc(1.125rem * var(--statement-scale, 1));
     font-weight: 700;
 }
 
 .statement-section h4 {
-    font-size: calc(14px * var(--statement-scale, 1));
+    font-size: calc(1.125rem * var(--statement-scale, 1));
     font-weight: 700;
     display: inline;
     margin-right: 0.5em;
