@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { notFound, useParams } from 'next/navigation'
 
 import { AuthedGate } from '@/components/ClientGates'
@@ -42,24 +42,21 @@ function ProblemSubmissionDetailPageContent({ isAdministrator }: { isAdministrat
     const [codeMetrics, setCodeMetrics] = useState<SubmissionCodeMetricsData | null | undefined>(undefined)
     const [navigation, setNavigation] = useState<SubmissionNavLinks | null | undefined>(undefined)
 
-    useEffect(() => {
-        let cancelled = false
-        setCore(undefined)
-        setSections(undefined)
-        setSource(undefined)
-        setCodeMetrics(undefined)
+    const applyDetail = useCallback(
+        async (options?: { cancelled?: () => boolean; allowNotFound?: boolean }) => {
+            const cancelled = options?.cancelled ?? (() => false)
+            const examPromise = jutge.student.exam.get().then(
+                () => true,
+                () => false,
+            )
 
-        const examPromise = jutge.student.exam.get().then(
-            () => true,
-            () => false,
-        )
-
-        void (async () => {
             const resolved = await fetchSubmissionDetailCore(jutge, key, submission_id)
-            if (cancelled) return
+            if (cancelled()) return false
             if (!resolved) {
-                setCore(null)
-                return
+                if (options?.allowNotFound !== false) {
+                    setCore(null)
+                }
+                return false
             }
 
             setCore(resolved.core)
@@ -69,29 +66,41 @@ function ProblemSubmissionDetailPageContent({ isAdministrator }: { isAdministrat
                 setSections(EMPTY_SUBMISSION_SECTIONS)
                 setSource(null)
                 setCodeMetrics(null)
-                return
+                return true
             }
 
             void fetchSubmissionSections(jutge, submission, resolved.tables).then((result) => {
-                if (!cancelled) setSections(result)
+                if (!cancelled()) setSections(result)
             })
             void fetchSubmissionSource(jutge, submission, resolved.tables).then((result) => {
-                if (!cancelled) setSource(result)
+                if (!cancelled()) setSource(result)
             })
             void examPromise.then((isExamOrContest) =>
                 fetchSubmissionCodeMetricsForDetail(jutge, submission, resolved.core.verdict, {
                     isAdministrator,
                     isExamOrContest,
                 }).then((result) => {
-                    if (!cancelled) setCodeMetrics(result)
+                    if (!cancelled()) setCodeMetrics(result)
                 }),
             )
-        })()
+            return true
+        },
+        [isAdministrator, key, submission_id],
+    )
+
+    useEffect(() => {
+        let cancelled = false
+        setCore(undefined)
+        setSections(undefined)
+        setSource(undefined)
+        setCodeMetrics(undefined)
+
+        void applyDetail({ cancelled: () => cancelled })
 
         return () => {
             cancelled = true
         }
-    }, [isAdministrator, key, submission_id])
+    }, [applyDetail])
 
     useEffect(() => {
         if (!shell.problem_nm) return
@@ -136,7 +145,10 @@ function ProblemSubmissionDetailPageContent({ isAdministrator }: { isAdministrat
         <SubmissionDetailView loading submissionId={submission_id} />
     ) : (
         <>
-            <SubmissionPendingRefresh isPending={core.verdict === 'Pending'} />
+            <SubmissionPendingRefresh
+                isPending={core.verdict === 'Pending'}
+                onRefresh={() => applyDetail({ allowNotFound: false })}
+            />
             <SubmissionDetailView
                 data={core}
                 sections={sections}

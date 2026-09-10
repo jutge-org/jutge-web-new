@@ -1,3 +1,5 @@
+'use client'
+
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { ChevronLeftIcon, ChevronRightIcon, ChevronsRightIcon, ChevronUpIcon } from 'lucide-react'
@@ -21,6 +23,7 @@ import { WidgetSpinner } from '@/components/general/WidgetSpinner'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { useCelebratePendingToAc } from '@/hooks/useCelebratePendingToAc'
 import { compilerIdToSlug } from '@/lib/documentation'
 import { parseSubmissionTime, type SubmissionNavLinks } from '@/lib/submissions'
 import { cn } from '@/lib/utils'
@@ -115,8 +118,22 @@ export function SubmissionDetailView(props: SubmissionDetailViewProps) {
         return <SubmissionDetailViewLoading submissionId={props.submissionId} />
     }
 
-    const { data, sections, source, codeMetrics, codeHref, debugHref, problemKey, navigation, getTestcaseHref } = props
+    return <SubmissionDetailViewLoaded {...props} />
+}
+
+function SubmissionDetailViewLoaded({
+    data,
+    sections,
+    source,
+    codeMetrics,
+    codeHref,
+    debugHref,
+    problemKey,
+    navigation,
+    getTestcaseHref,
+}: Extract<SubmissionDetailViewProps, { loading?: false; data: SubmissionDetailCore }>) {
     const { submission } = data
+    useCelebratePendingToAc(data.verdict)
     const isPending = submission.state !== 'done'
     const submittedAt = dayjs(parseSubmissionTime(submission.time_in))
     const submittedAtLabel = `${submittedAt.isSame(dayjs(), 'day') ? submittedAt.format('HH:mm:ss') : submittedAt.format('YYYY-MM-DD HH:mm:ss')} (${submittedAt.fromNow()})`

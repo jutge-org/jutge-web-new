@@ -1,12 +1,12 @@
 'use client'
 
-import confetti from 'canvas-confetti'
 import Link from 'next/link'
 import { LanguagesIcon, ListTodoIcon, ScrollIcon, SignatureIcon } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useRef, type ReactNode } from 'react'
 
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
+import { launchAcceptedConfetti } from '@/components/problems/celebrateAccepted'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { ProblemInformation } from '@/components/problems/ProblemInformation'
 import { ProblemStatusIcon } from '@/components/problems/ProblemStatusIcon'
@@ -71,59 +71,18 @@ function ProblemHeaderNavButton({ href, label, children }: { href: string; label
     )
 }
 
-const SUCCESS_SOUNDS = [
-    '/sounds/success-1.mp3',
-    '/sounds/success-2.mp3',
-    '/sounds/success-3.mp3',
-    '/sounds/success-4.mp3',
-    '/sounds/success-5.mp3',
-] as const
-
-function playRandomSuccessSound() {
-    const src = SUCCESS_SOUNDS[Math.floor(Math.random() * SUCCESS_SOUNDS.length)]!
-    void new Audio(src).play()
-}
-
-function launchAcceptedConfetti(originEl: HTMLElement, playSound: boolean) {
-    const rect = originEl.getBoundingClientRect()
-    const origin = {
-        x: (rect.left + rect.width / 2) / window.innerWidth,
-        y: (rect.top + rect.height / 2) / window.innerHeight,
-    }
-
-    if (playSound) {
-        playRandomSuccessSound()
-    }
-
-    confetti({
-        particleCount: 60,
-        spread: 30,
-        startVelocity: 28,
-        scalar: 0.85,
-        origin,
-        colors: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#ffffff'],
-    })
-
-    confetti({
-        particleCount: 30,
-        spread: 70,
-        startVelocity: 18,
-        scalar: 0.7,
-        origin,
-        colors: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#ffffff'],
-    })
-}
-
 function ProblemHeaderIconImage({ iconUrl }: { iconUrl: string }) {
     const { reducedMotion } = useAppearancePreferences()
     const motionReduced = isMotionReduced(reducedMotion)
 
     return (
-        <ProblemIconImage
-            iconUrl={iconUrl}
-            size="lg"
-            className={cn('shrink-0', !motionReduced && 'hover:animate-[spin_3s_linear_infinite]')}
-        />
+        <span data-problem-header-icon className="shrink-0">
+            <ProblemIconImage
+                iconUrl={iconUrl}
+                size="lg"
+                className={cn(!motionReduced && 'hover:animate-[spin_3s_linear_infinite]')}
+            />
+        </span>
     )
 }
 

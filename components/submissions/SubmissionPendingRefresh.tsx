@@ -13,6 +13,8 @@ type SubmissionPendingRefreshProps = {
 export function SubmissionPendingRefresh({ isPending, onRefresh }: SubmissionPendingRefreshProps) {
     const router = useRouter()
     const refreshCountRef = useRef(0)
+    const onRefreshRef = useRef(onRefresh)
+    onRefreshRef.current = onRefresh
 
     useEffect(() => {
         if (!isPending) {
@@ -23,8 +25,9 @@ export function SubmissionPendingRefresh({ isPending, onRefresh }: SubmissionPen
         const intervalId = window.setInterval(() => {
             refreshCountRef.current += 1
 
-            if (onRefresh) {
-                void onRefresh()
+            const refresh = onRefreshRef.current
+            if (refresh) {
+                void refresh()
             } else {
                 router.refresh()
             }
@@ -35,7 +38,7 @@ export function SubmissionPendingRefresh({ isPending, onRefresh }: SubmissionPen
         }, PENDING_SUBMISSION_REFRESH_INTERVAL_MS)
 
         return () => window.clearInterval(intervalId)
-    }, [isPending, onRefresh, router])
+    }, [isPending, router])
 
     return null
 }
