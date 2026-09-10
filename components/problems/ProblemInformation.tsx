@@ -86,7 +86,7 @@ export function ProblemInformation({ data }: ProblemInformationProps) {
                     <DialogTrigger asChild>
                         <Badge variant="outline" className="cursor-pointer hover:bg-muted px-1.5" asChild>
                             <button type="button" aria-label="Problem information">
-                                <InfoIcon aria-hidden />
+                                <span className="size-4 font-serif italic font-semi-bold">i</span>
                             </button>
                         </Badge>
                     </DialogTrigger>

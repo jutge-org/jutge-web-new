@@ -6,6 +6,7 @@ import { fetchSupervisionProblemStatus } from '@/lib/data/supervisionSubmissions
 import {
     fetchInstructorOwnsProblem,
     fetchProblemDetail,
+    fetchProblemEnrichment,
     resolveProblemId,
     type ProblemDetailData,
 } from '@/lib/data/problemDetail'
@@ -53,7 +54,10 @@ export function useSupervisionProblemShell({
                 return
             }
 
-            const data = await fetchProblemDetail(problemId, { includeAssets })
+            const data = await fetchProblemDetail(problemId, {
+                includeAssets,
+                includeEnrichment: includeAssets,
+            })
             if (cancelled) return
             if (!data) {
                 setDetail(null)
@@ -64,6 +68,13 @@ export function useSupervisionProblemShell({
             const nm = parsed.kind === 'problem_id' ? parsed.problem_nm : data.problem.problem_nm
             setProblemNm(nm)
             setDetail(data)
+
+            if (!includeAssets) {
+                void fetchProblemEnrichment(problemId, data.problem.abstract_problem.compilers).then((enrichment) => {
+                    if (cancelled || !enrichment) return
+                    setDetail((current) => (current ? { ...current, ...enrichment } : current))
+                })
+            }
 
             const isGame = isGameProblem(data.problem.abstract_problem.driver_id)
             if (isGame) {

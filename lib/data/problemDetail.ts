@@ -8,6 +8,7 @@ import {
     type Compiler,
     type Language,
     type Problem,
+    type ProblemSuppl,
     type Testcase,
 } from '@/lib/jutge_api_client'
 
@@ -45,12 +46,21 @@ export type ProblemDetailAssets = Pick<
     'shortHtmlStatement' | 'templates' | 'publicTestcases' | 'languages'
 >
 
+export type ProblemDetailEnrichment = Pick<
+    ProblemDetailData,
+    'compilers' | 'officialSolutions' | 'brokenOfficialSolutions' | 'userSolutions'
+>
+
 export type FetchProblemDetailOptions = {
     /**
      * When false, skip statement HTML, templates, and testcases.
      * Use on pages that hide those widgets (submission routes).
      */
     includeAssets?: boolean
+    /**
+     * When false, skip compilers and problemSuppl. The header can render without them.
+     */
+    includeEnrichment?: boolean
 }
 
 export function decodeTestcase(testcase: Testcase, outputAsImage: boolean): DecodedTestcase {
@@ -121,9 +131,58 @@ export async function fetchInstructorOwnsProblem(problem_nm: string): Promise<bo
     }
 }
 
-/** Header and nav data only — skips statement, templates, and testcases. */
+/** Header and nav data only — skips statement, templates, testcases, compilers, and suppl. */
 export async function fetchProblemShell(problemId: string): Promise<ProblemDetailData | null> {
-    return fetchProblemDetail(problemId, { includeAssets: false })
+    return fetchProblemDetail(problemId, { includeAssets: false, includeEnrichment: false })
+}
+
+function emptyEnrichment(): ProblemDetailEnrichment {
+    return {
+        compilers: [],
+        officialSolutions: [],
+        brokenOfficialSolutions: [],
+        userSolutions: [],
+    }
+}
+
+function enrichmentFromSuppl(
+    problemSuppl: ProblemSuppl,
+    compilers: Compiler[],
+    allowedCompilerIds: string[],
+): ProblemDetailEnrichment {
+    const filteredCompilers =
+        allowedCompilerIds.length > 0
+            ? compilers.filter((compiler) => allowedCompilerIds.includes(compiler.compiler_id))
+            : compilers
+
+    return {
+        compilers: filteredCompilers,
+        officialSolutions: Object.entries(problemSuppl.official_solution_checks)
+            .filter(([, checked]) => checked)
+            .map(([proglang]) => proglang)
+            .sort(),
+        brokenOfficialSolutions: Object.entries(problemSuppl.official_solution_checks)
+            .filter(([, checked]) => !checked)
+            .map(([proglang]) => proglang)
+            .sort(),
+        userSolutions: [...problemSuppl.proglangs_with_ac].sort(),
+    }
+}
+
+export async function fetchProblemEnrichment(
+    problemId: string,
+    compilerIds: string | null,
+): Promise<ProblemDetailEnrichment | null> {
+    try {
+        const client = await getProblemsApiClient()
+        const [problemSuppl, allCompilers] = await Promise.all([
+            client.problems.getProblemSuppl(problemId),
+            fetchCompilers(),
+        ])
+        return enrichmentFromSuppl(problemSuppl, allCompilers, parseProblemCompilerIds(compilerIds))
+    } catch {
+        return null
+    }
 }
 
 /** Statement, templates, testcases, and language table — loaded after the shell on detail pages. */
@@ -159,6 +218,7 @@ export async function fetchProblemDetail(
     options?: FetchProblemDetailOptions,
 ): Promise<ProblemDetailData | null> {
     const includeAssets = options?.includeAssets ?? true
+    const includeEnrichment = options?.includeEnrichment ?? true
 
     try {
         const client = await getProblemsApiClient()
@@ -181,21 +241,15 @@ export async function fetchProblemDetail(
             includeAssets ? client.problems.getTemplates(problemId) : Promise.resolve([] as string[]),
             includeAssets ? client.problems.getSampleTestcases(problemId) : Promise.resolve([] as Testcase[]),
             includeAssets ? client.problems.getPublicTestcases(problemId) : Promise.resolve([] as Testcase[]),
-            client.problems.getProblemSuppl(problemId),
+            includeEnrichment ? client.problems.getProblemSuppl(problemId) : Promise.resolve(null),
             fetchAbstractProblem(problemNm),
             includeAssets ? fetchLanguages() : Promise.resolve({} as Record<string, Language>),
-            fetchCompilers(),
+            includeEnrichment ? fetchCompilers() : Promise.resolve([] as Compiler[]),
         ])
 
         if (!abstractProblem) {
             return null
         }
-
-        const allowedCompilerIds = parseProblemCompilerIds(problem.abstract_problem.compilers)
-        const compilers =
-            allowedCompilerIds.length > 0
-                ? allCompilers.filter((compiler) => allowedCompilerIds.includes(compiler.compiler_id))
-                : allCompilers
 
         const languageVariants = Object.values(abstractProblem.problems)
             .map((variant) => ({
@@ -205,17 +259,14 @@ export async function fetchProblemDetail(
             }))
             .sort((a, b) => a.language_id.localeCompare(b.language_id))
 
-        const officialSolutions = Object.entries(problemSuppl.official_solution_checks)
-            .filter(([, checked]) => checked)
-            .map(([proglang]) => proglang)
-            .sort()
-
-        const brokenOfficialSolutions = Object.entries(problemSuppl.official_solution_checks)
-            .filter(([, checked]) => !checked)
-            .map(([proglang]) => proglang)
-            .sort()
-
-        const userSolutions = [...problemSuppl.proglangs_with_ac].sort()
+        const enrichment =
+            includeEnrichment && problemSuppl
+                ? enrichmentFromSuppl(
+                      problemSuppl,
+                      allCompilers,
+                      parseProblemCompilerIds(problem.abstract_problem.compilers),
+                  )
+                : emptyEnrichment()
 
         return {
             problem,
@@ -225,11 +276,8 @@ export async function fetchProblemDetail(
                 decodeTestcase(testcase, isGraphicProblem(problem.abstract_problem.driver_id)),
             ),
             languageVariants,
-            officialSolutions,
-            brokenOfficialSolutions,
-            userSolutions,
             languages,
-            compilers,
+            ...enrichment,
         }
     } catch {
         return null

@@ -13,10 +13,10 @@ import { isQuizProblem } from '@/lib/problems'
 import { problemBaseBreadcrumbs, problemLoadedBreadcrumbs } from '@/lib/problemBreadcrumbs'
 
 export default function ProblemPage() {
-    const { user } = useAuth()
+    const { user, loading: authLoading } = useAuth()
     const params = useParams<{ key: string }>()
     const key = params.key
-    const authenticated = user !== null
+    const authenticated = !authLoading && user !== null
 
     const shell = useProblemShell({ key, isAuthenticated: authenticated, includeAssets: false })
     const { assets, assetsLoading } = useProblemAssets(
@@ -36,7 +36,9 @@ export default function ProblemPage() {
                 <MainBreadcrumbs
                     breadcrumbs={problemLoadedBreadcrumbs(key, problem.problem_nm, problem.title, [], authenticated)}
                 />
-                {!authenticated ? <PageTitle section="/problems" authenticated={false} hidden={false} /> : null}
+                {!authLoading && !authenticated ? (
+                    <PageTitle section="/problems" authenticated={false} hidden={false} />
+                ) : null}
                 <QuizProblemUnsupportedCard
                     title={problem.title}
                     problemNm={problem.problem_nm}
@@ -53,7 +55,9 @@ export default function ProblemPage() {
     return (
         <div className="flex flex-col gap-6">
             <MainBreadcrumbs breadcrumbs={breadcrumbs} />
-            {!authenticated ? <PageTitle section="/problems" authenticated={false} hidden={false} /> : null}
+            {!authLoading && !authenticated ? (
+                <PageTitle section="/problems" authenticated={false} hidden={false} />
+            ) : null}
             {detailData ? (
                 <ProblemDetail
                     pageKey={key}
