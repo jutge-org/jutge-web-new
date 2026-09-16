@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-15T15:00:22.927Z
+ * This file has been automatically generated at 2026-09-16T06:25:06.351Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -11,7 +11,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 // Type for dates
-type Iso8601Date = string // Example: "2026-12-31T11:00:00.000+02:00" is the 31st of December 2026 at 11:00:00 in Barcelona in Summer Time
+type Iso8601Date = string // Example: "2026-12-31T11:00:00.000+01:00" is the 31st of December 2026 at 11:00:00 in Barcelona in Winter Time
 
 // Models
 
@@ -1427,14 +1427,24 @@ type CacheEntry = {
 export class JutgeApiClient {
     //
 
-    /** Client TTL values (in seconds) */
-    clientTTLs: Map<string, number> = new Map()
-
     /** Whether to use cache or not */
     useCache: boolean = true
 
+    /** Whether to log API calls or not */
+    logApiCalls: boolean = false
+
     /** Whether to log cache or not */
     logCache: boolean = false
+
+    /**
+     * User agent to include in the API requests.
+     * This is a metadata included in the request that identifies the client making the call to the server)
+     * You should set this to a value that identifies your client, such as the name of the client and its version.
+     **/
+    userAgent: string = "typescript-client"
+
+    /** Client TTL values (in seconds) */
+    clientTTLs: Map<string, number> = new Map()
 
     /** The cache */
     private cache: Map<string, CacheEntry> = new Map()
@@ -1452,6 +1462,23 @@ export class JutgeApiClient {
 
     /** Function that sends a request to the API and returns the response. **/
     async execute(func: string, input: any, ifiles: File[] = []): Promise<[any, Download[]]> {
+        //
+
+        let startTime = new Date()
+        let endTime: Date
+        try {
+            return await this.execute2(func, input, ifiles)
+        } finally {
+            endTime = new Date()
+            if (this.logApiCalls) {
+                const duration = Math.round(endTime.getTime() - startTime.getTime())
+                console.log(`${func}: ${duration}ms`)
+            }
+        }
+    }
+
+    /** Function that sends a request to the API and returns the response. **/
+    async execute2(func: string, input: any, ifiles: File[] = []): Promise<[any, Download[]]> {
         //
 
         const caching = this.useCache && this.clientTTLs.has(func) && ifiles.length === 0
@@ -1476,7 +1503,7 @@ export class JutgeApiClient {
 
         // prepare form
         const iform = new FormData()
-        const idata = { func, input, meta: this.meta }
+        const idata = { func, input, meta: this.meta, userAgent: this.userAgent }
         iform.append("data", JSON.stringify(idata))
         for (const index in ifiles) iform.append(`file_${index}`, ifiles[index])
 

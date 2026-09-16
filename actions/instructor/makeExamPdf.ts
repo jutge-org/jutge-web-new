@@ -19,6 +19,7 @@ export async function makeExamPdf(data: { exam_nm: string; token: string; extra:
     zMakeExamPdfData.parse(data)
 
     const jutge = new JutgeApiClient()
+    jutge.userAgent = 'web-new'
     jutge.meta = { token: data.token, user_uid: 'NOT IMPORTANT' }
 
     const profile = await jutge.student.profile.get()

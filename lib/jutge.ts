@@ -3,7 +3,8 @@
 import { JutgeApiClient } from './jutge_api_client'
 
 const jutge = new JutgeApiClient()
-jutge.JUTGE_API_URL = process.env.NEXT_PUBLIC_JUTGE_API_URL || 'https://api.jutge.org/api'
+jutge.userAgent = 'web-new'
+jutge.logApiCalls = true
 
 jutge.clientTTLs.set('misc.getAvatarPacks', 3600)
 jutge.clientTTLs.set('misc.getExamIcons', 3600)
