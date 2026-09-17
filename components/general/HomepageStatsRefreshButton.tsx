@@ -10,11 +10,16 @@ import { cn } from '@/lib/utils'
 
 type HomepageStatsRefreshButtonProps = {
     onRefresh?: () => void
+    isRefreshing?: boolean
 }
 
-export function HomepageStatsRefreshButton({ onRefresh }: HomepageStatsRefreshButtonProps) {
+export function HomepageStatsRefreshButton({
+    onRefresh,
+    isRefreshing: isRefreshingProp,
+}: HomepageStatsRefreshButtonProps) {
     const router = useRouter()
-    const [isRefreshing, startTransition] = useTransition()
+    const [isPending, startTransition] = useTransition()
+    const isRefreshing = Boolean(isRefreshingProp) || isPending
 
     function handleRefresh() {
         onRefresh?.()

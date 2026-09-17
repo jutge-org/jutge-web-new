@@ -1,5 +1,6 @@
 'use client'
 
+import { HomepageStatsRefreshButton } from '@/components/general/HomepageStatsRefreshButton'
 import { RecentSubmissionsCard } from '@/components/general/RecentSubmissionsCard'
 import { Skeleton } from '@/components/ui/skeleton'
 import { fetchHomepageStats } from '@/lib/data/misc'
@@ -31,6 +32,8 @@ type PlatformStats = HomepageStats & {
 type StatsBlockProps = {
     stats: PlatformStats | null
     loading: boolean
+    refreshing: boolean
+    onRefresh: () => void
 }
 
 const statItems: Array<{
@@ -96,11 +99,16 @@ function RecentSubmissionsSkeleton() {
     )
 }
 
-function StatsBlockView({ stats, loading }: StatsBlockProps) {
+function StatsBlockView({ stats, loading, refreshing, onRefresh }: StatsBlockProps) {
     const shouldReduceMotion = useReducedMotion()
 
     return (
-        <section id="home-stats" aria-labelledby="home-stats-heading" aria-busy={loading} className="scroll-mt-14">
+        <section
+            id="home-stats"
+            aria-labelledby="home-stats-heading"
+            aria-busy={loading || refreshing}
+            className="scroll-mt-14"
+        >
             <div className="mx-auto max-w-7xl px-0 sm:px-6">
                 <motion.div
                     className="mb-16 text-center"
@@ -109,16 +117,20 @@ function StatsBlockView({ stats, loading }: StatsBlockProps) {
                     viewport={{ once: true }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 >
-                    <h2
-                        className="mb-4 font-bold text-3xl text-[var(--color-brand-title)] lg:text-4xl dark:text-foreground"
-                        id="home-stats-heading"
-                    >
-                        Platform at a glance
-                    </h2>
+                    <div className="mb-4 flex items-center justify-center gap-2">
+                        <h2
+                            className="font-bold text-3xl text-[var(--color-brand-title)] lg:text-4xl dark:text-foreground"
+                            id="home-stats-heading"
+                        >
+                            Platform at a glance
+                        </h2>
+                        <HomepageStatsRefreshButton isRefreshing={loading || refreshing} onRefresh={onRefresh} />
+                    </div>
                     <p className="mx-auto max-w-2xl text-foreground text-lg dark:text-foreground/70">
                         Key numbers from the Jutge.org community.
                     </p>
                     {loading ? <span className="sr-only">Loading platform statistics</span> : null}
+                    {refreshing ? <span className="sr-only">Refreshing platform statistics</span> : null}
                 </motion.div>
 
                 <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
@@ -243,11 +255,19 @@ function StatsBlockView({ stats, loading }: StatsBlockProps) {
 export function StatsBlock() {
     const [stats, setStats] = useState<PlatformStats | null>(null)
     const [loading, setLoading] = useState(true)
+    const [refreshing, setRefreshing] = useState(false)
+    const [reloadToken, setReloadToken] = useState(0)
 
     useEffect(() => {
         let cancelled = false
+        const isRefresh = reloadToken > 0
 
         async function loadStats() {
+            if (isRefresh) {
+                setRefreshing(true)
+            } else {
+                setLoading(true)
+            }
             try {
                 const [homepageStats, compilers] = await Promise.all([fetchHomepageStats(), fetchCompilers()])
                 if (cancelled) {
@@ -264,6 +284,7 @@ export function StatsBlock() {
             } finally {
                 if (!cancelled) {
                     setLoading(false)
+                    setRefreshing(false)
                 }
             }
         }
@@ -272,7 +293,14 @@ export function StatsBlock() {
         return () => {
             cancelled = true
         }
-    }, [])
+    }, [reloadToken])
 
-    return <StatsBlockView stats={stats} loading={loading} />
+    function handleRefresh() {
+        if (loading || refreshing) {
+            return
+        }
+        setReloadToken((token) => token + 1)
+    }
+
+    return <StatsBlockView stats={stats} loading={loading} refreshing={refreshing} onRefresh={handleRefresh} />
 }
