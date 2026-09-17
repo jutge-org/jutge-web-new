@@ -1,7 +1,6 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-
     // Only use standalone when building for Docker
     output: process.env.DOCKER_BUILD === 'true' ? 'standalone' : undefined,
 
@@ -21,13 +20,14 @@ const nextConfig: NextConfig = {
 
     async redirects() {
         return [
-            {   // not used, just kept as an example
+            {
+                // not used, just kept as an example
                 source: '/statistics',
                 destination: '/activity',
                 permanent: true,
             },
-        ];
+        ]
     },
-};
+}
 
-export default nextConfig;
+export default nextConfig
