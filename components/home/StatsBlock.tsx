@@ -1,5 +1,6 @@
 'use client'
 
+import { AnimatedStatValue } from '@/components/general/AnimatedStatValue'
 import { HomepageStatsRefreshButton } from '@/components/general/HomepageStatsRefreshButton'
 import { RecentSubmissionsCard } from '@/components/general/RecentSubmissionsCard'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -33,6 +34,7 @@ type StatsBlockProps = {
     stats: PlatformStats | null
     loading: boolean
     refreshing: boolean
+    replayKey: number
     onRefresh: () => void
 }
 
@@ -99,7 +101,7 @@ function RecentSubmissionsSkeleton() {
     )
 }
 
-function StatsBlockView({ stats, loading, refreshing, onRefresh }: StatsBlockProps) {
+function StatsBlockView({ stats, loading, refreshing, replayKey, onRefresh }: StatsBlockProps) {
     const shouldReduceMotion = useReducedMotion()
 
     return (
@@ -191,7 +193,7 @@ function StatsBlockView({ stats, loading, refreshing, onRefresh }: StatsBlockPro
                                     {loading ? (
                                         <Skeleton className="inline-block h-8 w-20 bg-foreground/10 lg:h-9" />
                                     ) : (
-                                        (value ?? 0).toLocaleString()
+                                        <AnimatedStatValue value={value ?? 0} replayKey={replayKey} />
                                     )}
                                 </motion.div>
 
@@ -233,6 +235,7 @@ function StatsBlockView({ stats, loading, refreshing, onRefresh }: StatsBlockPro
                                     className="h-full justify-center border-0 border-t-0 bg-transparent p-0 pt-0 shadow-none"
                                     gridClassName="grid-cols-2 gap-2"
                                     recentSubmissions={stats.recent_submissions}
+                                    replayKey={replayKey}
                                 />
                             ) : (
                                 <RecentSubmissionsSkeleton />
@@ -257,6 +260,7 @@ export function StatsBlock() {
     const [loading, setLoading] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
     const [reloadToken, setReloadToken] = useState(0)
+    const [replayKey, setReplayKey] = useState(0)
 
     useEffect(() => {
         let cancelled = false
@@ -280,6 +284,9 @@ export function StatsBlock() {
                         languages: countActiveProglangs(compilers),
                         compilers: activeCompilers.length,
                     })
+                    if (isRefresh) {
+                        setReplayKey((key) => key + 1)
+                    }
                 }
             } finally {
                 if (!cancelled) {
@@ -302,5 +309,13 @@ export function StatsBlock() {
         setReloadToken((token) => token + 1)
     }
 
-    return <StatsBlockView stats={stats} loading={loading} refreshing={refreshing} onRefresh={handleRefresh} />
+    return (
+        <StatsBlockView
+            stats={stats}
+            loading={loading}
+            refreshing={refreshing}
+            replayKey={replayKey}
+            onRefresh={handleRefresh}
+        />
+    )
 }
