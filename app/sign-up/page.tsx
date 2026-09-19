@@ -1,7 +1,7 @@
 'use client'
 
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
 
 import { useAuth } from '@/components/AuthProvider'
 import { PageSpinner } from '@/components/ClientGates'
@@ -12,6 +12,14 @@ import { fetchCountries } from '@/lib/data/tables'
 import type { Country } from '@/lib/jutge_api_client'
 
 export default function RegistrationPage() {
+    return (
+        <Suspense fallback={<PageSpinner />}>
+            <RegistrationPageContent />
+        </Suspense>
+    )
+}
+
+function RegistrationPageContent() {
     const { user, loading } = useAuth()
     const router = useRouter()
     const searchParams = useSearchParams()
