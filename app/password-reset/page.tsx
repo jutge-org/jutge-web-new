@@ -24,7 +24,7 @@ export default function PasswordResetPage() {
     }
 
     return (
-        <div className="flex flex-col gap-6 pb-8">
+        <div className="flex flex-1 flex-col gap-6">
             <MainBreadcrumbs breadcrumbs={[{ title: 'Password reset', url: '/password-reset' }]} />
             <PageTitle section="/password-reset" authenticated={false} hidden={false} />
             <PasswordResetForm />

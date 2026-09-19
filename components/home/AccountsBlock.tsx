@@ -25,7 +25,7 @@ const plans: AccountPlan[] = [
         description:
             'Practice programming with instant feedback. Solve problems, follow courses, and track your progress — completely free.',
         note: 'Accounts with no activity nor submissions after 12 months may be deleted.',
-        ctaLabel: 'Register',
+        ctaLabel: 'Sign up',
         ctaHref: '/registration',
         features: [
             'Thousands of programming problems',
@@ -97,10 +97,10 @@ export function AccountsBlock() {
                                 shouldReduceMotion
                                     ? { duration: 0 }
                                     : {
-                                          duration: 0.3,
-                                          ease: EASE_OUT,
-                                          delay: index * CARD_ANIMATION_DELAY,
-                                      }
+                                        duration: 0.3,
+                                        ease: EASE_OUT,
+                                        delay: index * CARD_ANIMATION_DELAY,
+                                    }
                             }
                         >
                             <div className="relative flex h-full flex-col">

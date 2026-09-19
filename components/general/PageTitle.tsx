@@ -28,8 +28,9 @@ export type PageTitleSection =
     | '/awards'
     | '/profile'
     | '/supervision'
-    | '/registration'
+    | '/sign-up'
     | '/password-reset'
+    | '/request-instructor-account'
     | '/instructor'
     | '/administrator'
     | '/documentation'
@@ -45,8 +46,9 @@ const cardAccent: Record<PageTitleSection, string> = {
     '/awards': 'border-l-4 border-l-yellow-500 text-yellow-600 dark:text-yellow-400',
     '/profile': 'border-l-4 border-l-amber-500 text-amber-600 dark:text-amber-400',
     '/supervision': 'border-l-4 border-l-emerald-500 text-emerald-600 dark:text-emerald-400',
-    '/registration': 'border-l-4 border-l-indigo-500 text-indigo-600 dark:text-indigo-400',
+    '/sign-up': 'border-l-4 border-l-indigo-500 text-indigo-600 dark:text-indigo-400',
     '/password-reset': 'border-l-4 border-l-violet-500 text-violet-600 dark:text-violet-400',
+    '/request-instructor-account': 'border-l-4 border-l-purple-500 text-purple-600 dark:text-purple-400',
     '/instructor': 'border-l-4 border-l-purple-500 text-purple-600 dark:text-purple-400',
     '/administrator': 'border-l-4 border-l-orange-500 text-orange-600 dark:text-orange-400',
     '/documentation': 'border-l-4 border-l-amber-600 text-amber-600 dark:text-amber-400',
@@ -63,8 +65,9 @@ const sectionLabel: Record<PageTitleSection, string> = {
     '/awards': 'Awards',
     '/profile': 'Profile',
     '/supervision': 'Supervision',
-    '/registration': 'Registration',
+    '/sign-up': 'Sign up',
     '/password-reset': 'Password reset',
+    '/request-instructor-account': 'Request instructor account',
     '/instructor': 'Instructor',
     '/administrator': 'Administrator',
     '/documentation': 'Documentation',
@@ -81,8 +84,9 @@ const guestDescription: Record<PageTitleSection, string> = {
     '/awards': 'Achievements earned',
     '/profile': 'Your account details',
     '/supervision': 'Supervise a student in the course you teach',
-    '/registration': 'Create a new Jutge.org account.',
+    '/sign-up': 'Sign up for Jutge.org',
     '/password-reset': 'Reset your Jutge.org account password.',
+    '/request-instructor-account': 'Upgrade your account to create and manage courses.',
     '/instructor': 'Manage courses, exams, and teaching tools',
     '/administrator': 'Site administration and configuration',
     '/documentation': 'Learn how to use this site',
@@ -99,8 +103,9 @@ const authenticatedDescription: Record<PageTitleSection, string> = {
     '/awards': 'Badges and achievements you have earned',
     '/profile': 'Your account details',
     '/supervision': 'Supervise a student in a course you teach',
-    '/registration': 'Create a new Jutge.org account.',
+    '/sign-up': 'Sign up for Jutge.or.',
     '/password-reset': 'Reset your Jutge.org account password.',
+    '/request-instructor-account': 'Upgrade your account to create and manage courses.',
     '/instructor': 'Manage courses, exams, and teaching tools',
     '/administrator': 'Site administration and configuration',
     '/documentation': 'Learn how to use this site',
@@ -135,10 +140,12 @@ function SectionIcon({ section }: { section: PageTitleSection }) {
             return <User className={iconClass} aria-hidden />
         case '/supervision':
             return <EyeIcon className={iconClass} aria-hidden />
-        case '/registration':
+        case '/sign-up':
             return <UserPlusIcon className={iconClass} aria-hidden />
         case '/password-reset':
             return <KeyRoundIcon className={iconClass} aria-hidden />
+        case '/request-instructor-account':
+            return <GraduationCap className={iconClass} aria-hidden />
         case '/instructor':
             return <GraduationCap className={iconClass} aria-hidden />
         case '/administrator':

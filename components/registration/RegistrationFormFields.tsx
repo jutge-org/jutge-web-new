@@ -1,28 +1,26 @@
 'use client'
 
+import { UserPlusIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { UserPlusIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { registerAction } from '@/lib/data/registrationActions'
-import { RecaptchaNotice } from '@/components/registration/RecaptchaNotice'
-import { CompleteNameHelpDialog } from '@/components/registration/CompleteNameHelpDialog'
-import { HonorCodeDialog } from '@/components/registration/HonorCodeDialog'
-import { TermsOfServiceDialog } from '@/components/registration/TermsOfServiceDialog'
 import { ProfileFormRow } from '@/components/profile/ProfileFormRow'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { HonorCodeDialog } from '@/components/registration/HonorCodeDialog'
+import { RecaptchaNotice } from '@/components/registration/RecaptchaNotice'
+import { TermsOfServiceDialog } from '@/components/registration/TermsOfServiceDialog'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { RECAPTCHA_REGISTRATION_ACTION } from '@/lib/recaptcha'
+import { registerAction } from '@/lib/data/registrationActions'
 import type { Country } from '@/lib/jutge_api_client'
-import Link from 'next/link'
+import { RECAPTCHA_REGISTRATION_ACTION } from '@/lib/recaptcha'
 
 type RegistrationFormFieldsProps = {
     countries: Country[]
+    initialEmail?: string
     recaptchaConfigured: boolean
     executeRecaptcha?: (action?: string) => Promise<string>
 }
@@ -41,12 +39,13 @@ function isStrongPassword(password: string): boolean {
 
 export function RegistrationFormFields({
     countries,
+    initialEmail = '',
     recaptchaConfigured,
     executeRecaptcha,
 }: RegistrationFormFieldsProps) {
     const router = useRouter()
     const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
+    const [email, setEmail] = useState(initialEmail)
     const [birthYear, setBirthYear] = useState('')
     const [parentEmail, setParentEmail] = useState('')
     const [countryId, setCountryId] = useState('')
@@ -55,6 +54,27 @@ export function RegistrationFormFields({
     const [confirmPassword, setConfirmPassword] = useState('')
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [pending, setPending] = useState(false)
+    const [nameHelperVisible, setNameHelperVisible] = useState(false)
+    const [parentEmailHelperVisible, setParentEmailHelperVisible] = useState(false)
+    const [passwordHelperVisible, setPasswordHelperVisible] = useState(false)
+
+    function updatePasswordHelperVisibility(visible: boolean) {
+        if (visible) {
+            setPasswordHelperVisible(true)
+            return
+        }
+        window.setTimeout(() => {
+            const active = document.activeElement
+            if (
+                active?.id !== 'registration-password' &&
+                active?.id !== 'registration-confirm-password'
+            ) {
+                setPasswordHelperVisible(false)
+            }
+        }, 0)
+    }
+
+    const recaptchaReady = !recaptchaConfigured || Boolean(executeRecaptcha)
 
     const canSubmit =
         name.trim().length > 0 &&
@@ -64,6 +84,7 @@ export function RegistrationFormFields({
         agreedToPolicies &&
         isStrongPassword(password) &&
         password === confirmPassword &&
+        recaptchaReady &&
         !pending
 
     async function handleSubmit() {
@@ -150,7 +171,7 @@ export function RegistrationFormFields({
             }
 
             setErrorMessage(null)
-            toast.success(`An email has been sent to ${result.email}. You are now signed in as ${result.userName}.`)
+            toast.success(`A confirmation email has been sent to ${result.email}. Please sign in to your account.`)
             router.push('/')
         } finally {
             setPending(false)
@@ -158,159 +179,189 @@ export function RegistrationFormFields({
     }
 
     return (
-        <div className="mx-auto w-full max-w-3xl">
-            <Alert className="p-4 mb-8">
-                <AlertDescription>
-                    If you have forgotten your password, {}
-                    <Link href="/password-reset" className="font-medium text-foreground">
-                        reset your password
-                    </Link>
-                    .
-                </AlertDescription>
-            </Alert>
-
-            <section className="rounded-xl border border-border bg-card shadow-xs">
-                <dl className="px-6">
-                    <ProfileFormRow
-                        label={
-                            <>
-                                <CompleteNameHelpDialog />
-                                Full name
-                            </>
-                        }
-                        htmlFor="registration-name"
-                    >
-                        <Input
-                            id="registration-name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Your complete and official name."
-                            autoComplete="name"
-                        />
-                    </ProfileFormRow>
-
-                    <ProfileFormRow label="Email" htmlFor="registration-email">
-                        <Input
-                            id="registration-email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Your email"
-                            autoComplete="email"
-                        />
-                    </ProfileFormRow>
-
-                    <ProfileFormRow label="Birth year" htmlFor="registration-birth-year">
-                        <Input
-                            id="registration-birth-year"
-                            type="number"
-                            inputMode="numeric"
-                            min={1900}
-                            max={new Date().getFullYear()}
-                            value={birthYear}
-                            onChange={(e) => setBirthYear(e.target.value)}
-                            placeholder="Year"
-                            className="max-w-xs"
-                        />
-                    </ProfileFormRow>
-
-                    <ProfileFormRow
-                        label="If you are a minor under your jurisdiction, email of a parent or guardian"
-                        htmlFor="registration-parent-email"
-                        alignStart
-                    >
-                        <Input
-                            id="registration-parent-email"
-                            type="email"
-                            value={parentEmail}
-                            onChange={(e) => setParentEmail(e.target.value)}
-                            placeholder="Email of your parent or guardian, if you are minor in your jurisdiction"
-                            autoComplete="email"
-                        />
-                    </ProfileFormRow>
-
-                    <ProfileFormRow label="Country" htmlFor="registration-country">
-                        <Select value={countryId} onValueChange={setCountryId}>
-                            <SelectTrigger id="registration-country" className="w-full">
-                                <SelectValue placeholder="Select a country" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {countries.map((country) => (
-                                    <SelectItem key={country.country_id} value={country.country_id}>
-                                        {country.eng_name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </ProfileFormRow>
-
-                    <ProfileFormRow label="Policies agreement" alignStart>
-                        <div className="flex items-start gap-3 mt-1">
-                            <Checkbox
-                                id="registration-policies"
-                                checked={agreedToPolicies}
-                                onCheckedChange={(checked) => setAgreedToPolicies(checked === true)}
-                                aria-describedby="registration-policies-description"
+        <div className="flex flex-1 flex-col">
+            <section className="rounded-xl border border-border bg-card shadow-xs flex justify-center">
+                <form
+                    className="mb-3 w-full max-w-3xl"
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        if (canSubmit) void handleSubmit()
+                    }}
+                >
+                    <dl className="px-6 py-4">
+                        <ProfileFormRow label="Email" htmlFor="registration-email">
+                            <Input
+                                id="registration-email"
+                                name="username"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Your email"
+                                autoComplete="username"
                             />
-                            <Label
-                                id="registration-policies-description"
-                                htmlFor="registration-policies"
-                                className="text-sm leading-snug font-normal"
-                            >
-                                I agree with Jutge.org&apos;s <TermsOfServiceDialog /> and with Jutge.org&apos;s{' '}
-                                <HonorCodeDialog />
-                            </Label>
-                        </div>
-                    </ProfileFormRow>
+                        </ProfileFormRow>
 
-                    <div className="grid gap-2 border-t border-border py-4 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                        <div className="hidden sm:block" />
-                        <p className="text-sm text-muted-foreground">{PASSWORD_REQUIREMENTS}</p>
-                    </div>
+                        {nameHelperVisible ? (
+                            <div className="grid gap-2 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                                <div className="hidden sm:block" />
+                                <p className="text-sm text-muted-foreground">
+                                    Please write your full name as you would write it in your own language for an official
+                                    document and capitalize it correctly.
+                                </p>
+                            </div>
+                        ) : null}
 
-                    <ProfileFormRow label="Password" htmlFor="registration-password">
-                        <Input
-                            id="registration-password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Your password"
-                            autoComplete="new-password"
-                        />
-                    </ProfileFormRow>
-
-                    <ProfileFormRow label="Repeat password" htmlFor="registration-confirm-password">
-                        <Input
-                            id="registration-confirm-password"
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Repeat your password"
-                            autoComplete="new-password"
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && canSubmit) void handleSubmit()
-                            }}
-                        />
-                    </ProfileFormRow>
-                </dl>
-
-                <div className="grid gap-4 border-t border-border px-6 py-4 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                    <div className="hidden sm:block" />
-                    <div className="flex flex-col gap-3">
-                        {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
-                        <Button
-                            type="button"
-                            onClick={() => void handleSubmit()}
-                            disabled={!canSubmit}
-                            className="w-full gap-2 sm:w-auto"
+                        <ProfileFormRow
+                            label="Full name"
+                            htmlFor="registration-name"
                         >
-                            <UserPlusIcon className="size-4" aria-hidden />
-                            {pending ? 'Registering…' : 'Register'}
-                        </Button>
-                        <RecaptchaNotice configured={recaptchaConfigured} />
+                            <Input
+                                id="registration-name"
+                                name="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                onFocus={() => setNameHelperVisible(true)}
+                                onBlur={() => setNameHelperVisible(false)}
+                                placeholder="Your complete and official name"
+                                autoComplete="name"
+                            />
+                        </ProfileFormRow>
+
+                        <ProfileFormRow label="Birth year" htmlFor="registration-birth-year">
+                            <Input
+                                id="registration-birth-year"
+                                name="bday-year"
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]{4}"
+                                maxLength={4}
+                                value={birthYear}
+                                onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                placeholder="Year"
+                                className="w-24"
+                                autoComplete="bday-year"
+                            />
+                        </ProfileFormRow>
+
+                        <ProfileFormRow label="Country" htmlFor="registration-country">
+                            <Select value={countryId} onValueChange={setCountryId}>
+                                <SelectTrigger id="registration-country" className="w-full">
+                                    <SelectValue placeholder="Select your country" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {countries.map((country) => (
+                                        <SelectItem key={country.country_id} value={country.country_id}>
+                                            {country.eng_name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </ProfileFormRow>
+
+                        <ProfileFormRow label="Policies agreement" alignStart>
+                            <div className="flex items-start gap-3 mt-1">
+                                <Checkbox
+                                    id="registration-policies"
+                                    checked={agreedToPolicies}
+                                    onCheckedChange={(checked) => setAgreedToPolicies(checked === true)}
+                                    aria-describedby="registration-policies-description"
+                                />
+                                <Label
+                                    id="registration-policies-description"
+                                    htmlFor="registration-policies"
+                                    className="text-sm leading-snug font-normal"
+                                >
+                                    I agree with Jutge.org&apos;s <TermsOfServiceDialog /> and
+                                    <HonorCodeDialog />
+                                </Label>
+                            </div>
+                        </ProfileFormRow>
+
+
+                        {parentEmailHelperVisible ? (
+                            <div className="grid gap-2 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                                <div className="hidden sm:block" />
+                                <p className="text-sm text-muted-foreground">
+                                    If you are a minor under your jurisdiction, you need to provide the email of a parent
+                                    or guardian.
+                                </p>
+                            </div>
+                        ) : null}
+
+                        <ProfileFormRow
+                            label="Guardian email"
+                            htmlFor="registration-parent-email"
+                        >
+                            <Input
+                                id="registration-parent-email"
+                                name="parent-email"
+                                type="email"
+                                value={parentEmail}
+                                onChange={(e) => setParentEmail(e.target.value)}
+                                onFocus={() => setParentEmailHelperVisible(true)}
+                                onBlur={() => setParentEmailHelperVisible(false)}
+                                placeholder="Email of your parent or guardian, if you are minor"
+                                autoComplete="off"
+                            />
+                        </ProfileFormRow>
+
+                        {passwordHelperVisible ? (
+                            <div className="grid gap-2 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                                <div className="hidden sm:block" />
+                                <p className="text-sm text-muted-foreground">{PASSWORD_REQUIREMENTS}</p>
+                            </div>
+                        ) : null}
+
+                        <ProfileFormRow label="Password" htmlFor="registration-password">
+                            <Input
+                                id="registration-password"
+                                name="new-password"
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                onFocus={() => updatePasswordHelperVisibility(true)}
+                                onBlur={() => updatePasswordHelperVisibility(false)}
+                                placeholder="Your password"
+                                autoComplete="new-password"
+                            />
+                        </ProfileFormRow>
+
+                        <ProfileFormRow label="Repeat password" htmlFor="registration-confirm-password">
+                            <Input
+                                id="registration-confirm-password"
+                                name="confirm-password"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                onFocus={() => updatePasswordHelperVisibility(true)}
+                                onBlur={() => updatePasswordHelperVisibility(false)}
+                                placeholder="Repeat your password"
+                                autoComplete="new-password"
+                            />
+                        </ProfileFormRow>
+                    </dl>
+
+                    <div className="grid gap-4 px-8 py-4 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                        <div className="hidden sm:block" />
+                        <div className="flex flex-col gap-3">
+                            {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
+                            <SmoothButton
+                                type="submit"
+                                color="accent"
+                                variant="candy"
+                                disabled={!canSubmit}
+                                className="w-full gap-2 sm:w-auto"
+                            >
+                                <UserPlusIcon className="size-4" aria-hidden />
+                                {pending ? 'Registering…' : 'Register'}
+                            </SmoothButton>
+                        </div>
                     </div>
-                </div>
+                </form>
             </section>
+            <div className="mt-auto flex justify-end pt-12">
+                <RecaptchaNotice configured={recaptchaConfigured} />
+            </div>
         </div>
     )
 }

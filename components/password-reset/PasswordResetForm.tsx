@@ -16,12 +16,18 @@ export function PasswordResetForm() {
     const siteKey = getRecaptchaSiteKey()
 
     if (!siteKey) {
-        return <PasswordResetFormFields recaptchaConfigured={false} />
+        return (
+            <div className="flex flex-1 flex-col">
+                <PasswordResetFormFields recaptchaConfigured={false} />
+            </div>
+        )
     }
 
     return (
-        <GoogleReCaptchaProvider reCaptchaKey={siteKey}>
-            <PasswordResetFormWithRecaptcha />
-        </GoogleReCaptchaProvider>
+        <div className="flex flex-1 flex-col">
+            <GoogleReCaptchaProvider reCaptchaKey={siteKey}>
+                <PasswordResetFormWithRecaptcha />
+            </GoogleReCaptchaProvider>
+        </div>
     )
 }

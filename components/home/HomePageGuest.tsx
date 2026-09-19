@@ -20,7 +20,7 @@ import { TestimonialBlock } from '@/components/home/TestimonialBlock'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { ArrowUpIcon, BookMarkedIcon, LogInIcon } from 'lucide-react'
+import { ArrowUpIcon, UserPlusIcon, LogInIcon } from 'lucide-react'
 import { useState } from 'react'
 
 const HEADER_OFFSET_PX = 56
@@ -67,20 +67,6 @@ function BottomActions({ onOpenAccountTab }: BottomActionsProps) {
                                 type="button"
                                 variant="outline"
                                 size="icon"
-                                aria-label="Sign up"
-                                onClick={() => onOpenAccountTab('signup')}
-                            >
-                                <BookMarkedIcon aria-hidden />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top">Sign up</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
                                 aria-label="Sign in"
                                 onClick={() => onOpenAccountTab('signin')}
                             >
@@ -88,6 +74,20 @@ function BottomActions({ onOpenAccountTab }: BottomActionsProps) {
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent side="top">Sign in</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                aria-label="Sign up"
+                                onClick={() => onOpenAccountTab('signup')}
+                            >
+                                <UserPlusIcon aria-hidden />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">Sign up</TooltipContent>
                     </Tooltip>
                     <Tooltip>
                         <TooltipTrigger asChild>

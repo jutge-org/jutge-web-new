@@ -144,6 +144,10 @@ const profileSectionMeta: Record<
         description: 'Change your account email address',
         keywords: ['Change email', 'Email address'],
     },
+    upgrade: {
+        description: 'Request instructor rights for your account',
+        keywords: ['Instructor', 'Upgrade account', 'Teacher'],
+    },
 }
 
 export function getCommandPaletteProfileSections(context: SiteNavLinksContext): CommandPaletteSection[] {
@@ -153,6 +157,7 @@ export function getCommandPaletteProfileSections(context: SiteNavLinksContext): 
 
     return profileNavItems
         .filter((item) => item.tab !== 'index')
+        .filter((item) => item.tab !== 'upgrade' || !context.instructor)
         .map((item) => {
             const meta = profileSectionMeta[item.tab as keyof typeof profileSectionMeta]
             return {
