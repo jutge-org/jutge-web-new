@@ -144,6 +144,10 @@ const profileSectionMeta: Record<
         description: 'Change your account email address',
         keywords: ['Change email', 'Email address'],
     },
+    unregistration: {
+        description: 'Unregister and permanently delete your account',
+        keywords: ['Unregister', 'Delete account', 'Close account'],
+    },
     upgrade: {
         description: 'Request instructor rights for your account',
         keywords: ['Instructor', 'Upgrade account', 'Teacher'],
