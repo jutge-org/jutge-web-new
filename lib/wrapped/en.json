@@ -1,0 +1,385 @@
+{
+    "common": {
+        "brand": "Jutge",
+        "brandFull": "Jutge.org",
+        "wrapped": "Wrapped",
+        "disclaimer": "Unofficial fan project — not affiliated with Jutge.org or the UPC.",
+        "snapshot": "Snapshot",
+        "dismiss": "Dismiss",
+        "prev": "Prev",
+        "next": "Next"
+    },
+    "language": {
+        "label": "Language",
+        "aria": "Language"
+    },
+    "theme": {
+        "label": "Theme",
+        "aria": "Theme",
+        "options": {
+            "jutge": "Classic Jutge",
+            "dark": "Dark Jutge",
+            "fib": "FIB",
+            "upc": "UPC"
+        }
+    },
+    "login": {
+        "signIn": "Sign in",
+        "intro": "Use your Jutge.org credentials. Your token stays in memory only — we never store your password.",
+        "email": "Email",
+        "password": "Password",
+        "signingIn": "Signing in…",
+        "continue": "Continue",
+        "sessionMemory": "In-memory session",
+        "noCredentialPersistence": "No credential persistence",
+        "or": "or",
+        "loadSnapshotHint": "Open a JSON file you saved earlier — works offline, no login required.",
+        "contribute": "Contribute to this project"
+    },
+    "dateRange": {
+        "headerSuffix": "Wrapped — choose dates",
+        "heading": "When should we look?",
+        "intro": "Pick the dates for your Wrapped stats:",
+        "customRange": "Custom range",
+        "from": "From",
+        "to": "To",
+        "invalidRange": "Start date must be on or before end date.",
+        "buildWrapped": "Show my Wrapped",
+        "loadSnapshotHint": "Use a JSON file you exported from Wrapped — no API calls needed."
+    },
+    "period": {
+        "allTime": "All time",
+        "last12Months": "Last 12 months",
+        "academicYear": "Academic year {{startYear}}–{{endYearShort}}",
+        "from": "From {{date}}",
+        "until": "Until {{date}}",
+        "through": "{{start}} through {{end}}"
+    },
+    "deck": {
+        "chooseDates": "Wrapped — choose dates",
+        "loadingLine": "Preparing your Jutge Wrapped",
+        "loadingDone": "Done.",
+        "changeDates": "Change dates",
+        "backToLogin": "Back to login",
+        "dates": "Dates",
+        "exit": "Exit",
+        "menu": "Menu",
+        "menuAria": "Open menu",
+        "downloadJson": "Download JSON snapshot",
+        "steps": {
+            "settings": "Settings",
+            "intro": "Welcome",
+            "heatmap_stats": "Stats",
+            "heatmap_calendar": "Calendar",
+            "rhythm": "Rhythm",
+            "course": "Languages",
+            "verdict": "Verdicts",
+            "awards": "Awards",
+            "ranking": "Ranking",
+            "performance": "Wins",
+            "recap": "Recap"
+        }
+    },
+    "slides": {
+        "intro": {
+            "eyebrow": "Welcome",
+            "subtitle": "{{period}} · your Jutge identity has been verified.",
+            "judgeLevel": "Jutge level",
+            "acceptedProblems": "Accepted problems",
+            "rejectedProblems": "Rejected problems",
+            "submissions": "Submissions",
+            "acRate": "AC rate",
+            "problemSuccessRate": "{{rate}}% of attempted problems reached acceptance in this period.",
+            "avatarAlt": "Jutge avatar",
+            "mascotAlt": "Jutge mascot",
+            "drilldown": {
+                "acceptedTitle": "Accepted problems",
+                "rejectedTitle": "Rejected problems",
+                "submissionsTitle": "Submissions",
+                "empty": "No items to show for this metric.",
+                "unknownVerdict": "Unknown",
+                "openAccepted": "View accepted problems",
+                "openRejected": "View rejected problems",
+                "openSubmissions": "View submissions",
+                "problemId": "{{id}}",
+                "rejectedMeta": "{{submissions}} · last {{verdict}}",
+                "acceptedFirstTry": "{{submissions}} · first-try AC",
+                "acceptedMeta": "{{submissions}} · {{attempts}} tries before AC",
+                "acceptedOn": "AC on {{date}}",
+                "awardForProblem": "{{title}}"
+            }
+        },
+        "heatmap": {
+            "eyebrow": "Activity map",
+            "title": "Your activity",
+            "peakDay": "{{period}} · Peak day: {{count}} on {{date}}.",
+            "summary": "{{period}} · {{submissions}} across {{days}} active days.",
+            "activeDays": "Active days",
+            "longestStreakLabel": "Longest streak",
+            "longestStreakValue": "🔥 {{count}} in a row",
+            "mostActiveDay": "Most active day",
+            "busiestWeek": "Busiest week",
+            "busiestMonth": "Busiest month",
+            "calendarHeading": "Submissions calendar"
+        },
+        "weekday": {
+            "eyebrow": "Campus rhythm",
+            "judgmentDay": "{{day}} is judgment day",
+            "weeklyRhythm": "Weekly rhythm",
+            "subtitle": "You submit most on {{peak}}s · quietest: {{quietest}}",
+            "chartHeading": "Submissions by day of week",
+            "busiestDay": "Busiest day",
+            "submissionsShare": "{{count}} submissions · {{percent}}% of your week",
+            "quietest": "Quietest: {{day}} ({{count}})"
+        },
+        "chrono": {
+            "eyebrow": "Chrono-analysis",
+            "chartHeading": "Submissions by hour",
+            "peakHour": "Peak hour",
+            "submissionsAtPeak": "{{count}} submissions"
+        },
+        "rhythm": {
+            "eyebrow": "Campus rhythm",
+            "subtitle": "Busiest on {{peakDay}} · peak hour {{peakHour}}:00",
+            "subtitleWithQuietest": "Busiest on {{peakDay}} (quietest: {{quietest}}) · peak hour {{peakHour}}:00",
+            "titles": {
+                "balancedGrinder": "Chaos Schedule Coder",
+                "nightOwl": "3 AM Gremlin",
+                "earlyRiser": "Compile Before Breakfast",
+                "eveningCoder": "After-Class Coder",
+                "afternoonOperator": "Lunch Break Legend",
+                "weekendWarrior": "Weekend Warrior",
+                "sundayScrambler": "Sunday Panic Coder",
+                "saturdaySpecial": "Saturday Submit Club",
+                "fridayFinisher": "Friday ‘One More AC’ Coder",
+                "mondayMenace": "Monday Morning Menace",
+                "midweekMachine": "Midweek Machine"
+            }
+        },
+        "courseArc": {
+            "eyebrow": "Languages & compilers",
+            "title": "Languages & compilers"
+        },
+        "verdict": {
+            "eyebrow": "Verdict distribution",
+            "title": "Verdict Distribution",
+            "subtitle": "The jutge has spoken"
+        },
+        "awards": {
+            "eyebrow": "Trophy case",
+            "iconAlt": "Award: {{title}}",
+            "moreAwards": "+{{count}} more awards",
+            "totalLabel": "awards in this period",
+            "watchYoutube": "Watch on YouTube",
+            "problemAwarded": "Problem {{problem}}",
+            "showingOf": "{{current}} of {{total}}",
+            "paginationLabel": "Browse awards",
+            "prevPage": "Previous page",
+            "nextPage": "Next page"
+        },
+        "ranking": {
+            "eyebrow": "Ranking",
+            "globalLeaderboard": "Global leaderboard",
+            "problems": "Problems",
+            "submissions": "Submissions",
+            "topLanguage": "Top language",
+            "busiestDay": "Busiest day",
+            "acRuns": "AC runs",
+            "platformSubs": "Platform subs",
+            "judgeAlt": "Jutge jutge"
+        },
+        "performance": {
+            "eyebrow": "Your achievements"
+        },
+        "recap": {
+            "title": "Your {{yearRange}} Jutge Wrapped",
+            "ranking": "Ranking",
+            "estimatedTime": "Estimated active time",
+            "timeUnavailable": "Not available",
+            "acceptedProblems": "Accepted problems",
+            "totalSubmissions": "Total submissions",
+            "acRate": "AC rate",
+            "archetype": "Coding archetype",
+            "topLanguage": "Top language",
+            "footer": "Make your wrapped at <0>{{url}}</0>"
+        },
+        "share": {
+            "eyebrow": "Share your Wrapped",
+            "title": "Show off your stats",
+            "subtitle": "Export images to post on social media or send to friends.",
+            "calendarHeading": "Submissions calendar",
+            "calendarHint": "A clean GitHub-style activity map — just your submission heatmap, no extra slide chrome.",
+            "slideHeading": "Individual slides",
+            "slideHint": "Use the share button in the top bar on any slide to export what you're viewing."
+        }
+    },
+    "chrono": {
+        "archetypes": {
+            "balancedGrinder": "Balanced Grinder",
+            "nightOwl": "Night Owl",
+            "earlyRiser": "Early Riser",
+            "eveningCoder": "Evening Coder",
+            "afternoonOperator": "Afternoon Coder"
+        },
+        "narrativePeak": "You peak around {{hour}}:00 — a {{archetype}} on campus time.",
+        "narrativeNight": "{{count}} submissions landed between midnight and 5 AM."
+    },
+    "courseArc": {
+        "mostlyCoursework": "Mostly campus coursework",
+        "compilerMix": "Your compiler mix",
+        "mainLanguageSub": "{{lang}} was your main language",
+        "fallbackLang": "your go-to language",
+        "fallbackCompiler": "your top compiler"
+    },
+    "verdicts": {
+        "narrativeClean": "You logged {{ac}} fully accepted submissions out of {{total}}.",
+        "narrativeFriction": "Across {{total}} submissions, you earned {{ac}} AC verdicts while battling {{count}} {{label}} along the way.",
+        "wrongAnswers": "wrong answers",
+        "compilationErrors": "compilation errors",
+        "executionErrors": "execution errors",
+        "scoredAttempts": "scored attempts",
+        "presentationErrors": "presentation errors"
+    },
+    "awards": {
+        "titleOne": "1 award earned",
+        "titleMany": "{{count}} awards earned"
+    },
+    "rank": {
+        "eliteLabel": "Top {{percent}}% of Jutge users",
+        "eliteLabelAnimated": "Top <0/>% of Jutge users",
+        "absoluteRankAnimated": "You are number #<0/> on Jutge"
+    },
+    "personalization": {
+        "intro": {
+            "subtitle": "{{period}} · {{rate}}% of attempted problems reached acceptance.",
+            "activity": "Your Wrapped from {{span}}."
+        },
+        "heatmap": {
+            "titleStreak": "{{count}} in a row",
+            "titlePeakMonth": "Peak month: {{month}}"
+        },
+        "chrono": {
+            "eyebrow": "{{period}} · {{archetype}}"
+        },
+        "ranking": {
+            "subtitle": "{{period}} · {{elite}}",
+            "usersAhead": "You rank above {{count}} of {{total}} Jutge users"
+        },
+        "hero": {
+            "label": "Your standout problem",
+            "grindHeadline": "Your grind problem: <0>{{problem}}</0>",
+            "grindDetail": "{{attempts}} tries before your first AC — {{submissions}} total.",
+            "mostAttemptedHeadline": "You kept coming back to <0>{{problem}}</0>",
+            "mostAttemptedDetail": "{{submissions}} in this period.",
+            "firstAcHeadline": "First AC in this period: <0>{{problem}}</0>",
+            "firstAcDetail": "{{submissions}} on that problem overall."
+        },
+        "slowSolve": {
+            "label": "Longest time to solve",
+            "headline": "You took <1>{{duration}}</1> to solve <0>{{problem}}</0>",
+            "detail": "from first submission to first AC."
+        },
+        "rankingHighlights": {
+            "firstAttempt": {
+                "label": "First attempt",
+                "headline": "You solved <0>{{percent}}%</0> of the problems on the first try",
+                "detail": "{{count}} of {{total}} solved problems"
+            },
+            "platformProblems": {
+                "label": "Platform coverage",
+                "headline": "You completed <0>{{percent}}%</0> of Jutge problems",
+                "detail": "{{accepted}} out of {{total}} problems"
+            },
+            "platformSubmissions": {
+                "label": "Submission footprint",
+                "headline": "You sent <0>{{percent}}%</0> of Jutge submissions",
+                "detail": "{{yours}} out of {{total}} submissions"
+            },
+            "compileGrief": {
+                "label": "Compile grief",
+                "headline": "<0>{{count}}</0> compilation errors",
+                "detail": "{{percent}}% of your submissions · Jutge is not your compiler"
+            }
+        }
+    },
+    "weekdays": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+    },
+    "weekdaysShort": {
+        "monday": "Mon",
+        "tuesday": "Tue",
+        "wednesday": "Wed",
+        "thursday": "Thu",
+        "friday": "Fri",
+        "saturday": "Sat",
+        "sunday": "Sun"
+    },
+    "heatmap": {
+        "noActivity": "No activity data yet.",
+        "noSubmissionsTooltip": "No submissions on {{date}}",
+        "submissionTooltip": "{{count}} · {{date}}"
+    },
+    "snapshot": {
+        "loading": "Loading snapshot…",
+        "loadButton": "Load snapshot",
+        "downloadButton": "JSON",
+        "downloading": "Preparing download…",
+        "invalidJson": "Invalid JSON file.",
+        "readError": "Could not read snapshot file."
+    },
+    "share": {
+        "shareSlide": "Share",
+        "downloadSlide": "Download",
+        "preparing": "Preparing...",
+        "httpsRequired": "Native sharing only works over HTTPS. For local testing on your phone, run npm run dev:host. End users on the deployed GitHub Pages site will not see this message.",
+        "copied": "Copied!",
+        "shared": "Shared!",
+        "makeYours": "Make yours at {{url}}",
+        "templates": {
+            "intro": "My Jutge.org Wrapped! Level {{level}} ({{name}}). Accepted: {{accepted}}, Submissions: {{submissions}}, AC Rate: {{acRate}}%!",
+            "heatmap_stats": "My Jutge.org Wrapped! Active Days: {{activeDays}}, Longest Streak: {{longestStreak}} days!",
+            "heatmap_calendar": "My Jutge.org Wrapped! {{submissions}} submissions across {{activeDays}} active days — check out my activity calendar!",
+            "rhythm": "My Jutge.org Wrapped! Busiest day: {{busiestDay}}, peak hour {{peakHour}}:00 — {{archetype}}!",
+            "course": "My Jutge.org Wrapped! Top language: {{topLanguage}}!",
+            "verdict": "My Jutge.org Wrapped! AC runs: {{ac}} ({{acRate}}% AC rate)!",
+            "awards": "My Jutge.org Wrapped! {{count}} awards — latest: {{title}}!",
+            "awardsPage": "On this page: {{titles}}",
+            "ranking": "My Jutge.org Wrapped! {{elite}}!",
+            "performance": "My Jutge.org Wrapped! Rank #{{rank}}!",
+            "recap": "My Jutge.org Wrapped! Estimated active time: {{minutes}} minutes, {{accepted}} accepted problems, {{submissions}} submissions."
+        }
+    },
+    "cors": {
+        "title": "Connection blocked?",
+        "hintCredentials": "Confirm your email and password are correct.",
+        "hintCors": "If login works on jutge.org but not here, your browser may be blocking cross-origin requests to <0>api.jutge.org</0>.",
+        "hintExtensions": "Try disabling strict privacy extensions for this site."
+    },
+    "errors": {
+        "unexpected": "An unexpected error occurred.",
+        "network": "Could not reach the Jutge API. This is often caused by browser CORS restrictions or network issues.",
+        "invalidRange": "Your date range is reversed ({{start}} is after {{end}}). Go back and pick a valid range.",
+        "emptyRangeSnapshot": "No submissions in {{label}}. Try a wider range, or re-export your snapshot (npm run export:snapshot) so it includes full submission history.",
+        "emptyRange": "You had no Jutge submissions between {{label}}. Choose a different range, or pick All time.",
+        "loadFailureEmpty": "We couldn't load your submission history from Jutge. Try again in a moment, or pick All time.",
+        "loadFailure": "Something went wrong while loading your submissions. Try again, or pick All time."
+    },
+    "submission_one": "{{count}} submission",
+    "submission_other": "{{count}} submissions",
+    "day_one": "{{count}} day",
+    "day_other": "{{count}} days",
+    "hour_one": "{{count}} hour",
+    "hour_other": "{{count}} hours",
+    "minute_one": "{{count}} minute",
+    "minute_other": "{{count}} minutes",
+    "donut": {
+        "compilerAria": "Compiler distribution. Click a segment for details.",
+        "verdictAria": "Verdict distribution. Click a segment for details."
+    }
+}

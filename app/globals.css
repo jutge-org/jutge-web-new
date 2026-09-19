@@ -48,6 +48,27 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    --color-brand-light: var(--brand-light, oklch(0.78 0.15 352.53));
+    --color-brand-lighter: var(--brand-lighter, oklch(0.85 0.1 352.53));
+    --color-amber: var(--amber);
+    --color-amber-fg: var(--amber-fg);
+    --color-amber-hover: var(--amber-hover);
+    --color-blue: var(--blue);
+    --color-blue-fg: var(--blue-fg);
+    --color-blue-hover: var(--blue-hover);
+    --color-green: var(--green);
+    --color-green-fg: var(--green-fg);
+    --color-green-hover: var(--green-hover);
+    --color-smooth-50: var(--smooth-50);
+    --color-smooth-100: var(--smooth-100);
+    --color-smooth-300: var(--smooth-300);
+    --color-smooth-400: var(--smooth-400);
+    --color-smooth-500: var(--smooth-500);
+    --color-smooth-600: var(--smooth-600);
+    --color-smooth-700: var(--smooth-700);
+    --color-smooth-800: var(--smooth-800);
+    --color-smooth-950: var(--smooth-950);
+    --color-smooth-1000: var(--smooth-1000);
 }
 
 :root {
@@ -91,6 +112,27 @@
     --toast-bg: oklch(0.205 0 0);
     --toast-fg: oklch(0.985 0 0);
     --toast-border: oklch(1 0 0 / 10%);
+    --amber: oklch(0.77 0.16 75);
+    --amber-fg: oklch(0.22 0 0);
+    --amber-hover: oklch(0.71 0.17 70);
+    --blue: oklch(0.62 0.19 256);
+    --blue-fg: #fff;
+    --blue-hover: oklch(0.56 0.2 256);
+    --green: oklch(0.7 0.17 152);
+    --green-fg: #fff;
+    --green-hover: oklch(0.64 0.18 152);
+    --smooth-50: oklch(0.99 0 0);
+    --smooth-100: oklch(0.972 0 0);
+    --smooth-200: oklch(0.945 0 0);
+    --smooth-300: oklch(0.91 0 0);
+    --smooth-400: oklch(0.865 0 0);
+    --smooth-500: oklch(0.81 0 0);
+    --smooth-600: oklch(0.74 0 0);
+    --smooth-700: oklch(0.66 0 0);
+    --smooth-800: oklch(0.56 0 0);
+    --smooth-900: oklch(0.47 0 0);
+    --smooth-950: oklch(0.36 0 0);
+    --smooth-1000: oklch(0.22 0 0);
 }
 
 .dark {
@@ -130,6 +172,27 @@
     --toast-bg: oklch(1 0 0);
     --toast-fg: oklch(0.145 0 0);
     --toast-border: oklch(0.922 0 0);
+    --amber: oklch(0.8 0.15 75);
+    --amber-fg: oklch(0.2 0 0);
+    --amber-hover: oklch(0.85 0.14 72);
+    --blue: oklch(0.66 0.18 256);
+    --blue-fg: #fff;
+    --blue-hover: oklch(0.72 0.16 256);
+    --green: oklch(0.73 0.16 152);
+    --green-fg: oklch(0.2 0 0);
+    --green-hover: oklch(0.79 0.15 152);
+    --smooth-50: oklch(0.2 0 0);
+    --smooth-100: oklch(0.235 0 0);
+    --smooth-200: oklch(0.275 0 0);
+    --smooth-300: oklch(0.315 0 0);
+    --smooth-400: oklch(0.36 0 0);
+    --smooth-500: oklch(0.41 0 0);
+    --smooth-600: oklch(0.47 0 0);
+    --smooth-700: oklch(0.55 0 0);
+    --smooth-800: oklch(0.66 0 0);
+    --smooth-900: oklch(0.74 0 0);
+    --smooth-950: oklch(0.85 0 0);
+    --smooth-1000: oklch(0.96 0 0);
 }
 
 @layer base {
