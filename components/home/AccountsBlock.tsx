@@ -26,7 +26,7 @@ const plans: AccountPlan[] = [
             'Practice programming with instant feedback. Solve problems, follow courses, and track your progress — completely free.',
         note: 'Accounts with no activity nor submissions after 12 months may be deleted.',
         ctaLabel: 'Sign up',
-        ctaHref: '/registration',
+        ctaHref: '/sign-up',
         features: [
             'Thousands of programming problems',
             'Submit in many languages and compilers',

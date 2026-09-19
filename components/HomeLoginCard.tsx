@@ -41,7 +41,7 @@ export function HomeLoginCard() {
                 </div>
 
                 <div className="w-full max-w-md">
-                    <Link href="/registration" className={authCardClassName}>
+                    <Link href="/sign-up" className={authCardClassName}>
                         <span
                             className={cn(
                                 'flex size-14 shrink-0 items-center justify-center rounded-xl bg-muted/80 transition-colors group-hover:bg-muted',
