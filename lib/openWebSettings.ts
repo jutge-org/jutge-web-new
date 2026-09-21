@@ -50,8 +50,11 @@ import { DEFAULT_STATEMENT_ET_BOOK, parseStatementEtBook, type StatementEtBookPr
 
 export const OPENWEB_SETTINGS_API_KEY = 'openweb'
 export const LOCAL_SETTINGS_STORAGE_KEY = 'settings'
-/** Bumped to 2 when the welcome dashboard module was introduced, so existing layouts get it once. */
-export const OPENWEB_SETTINGS_VERSION = 2 as const
+/**
+ * Bumped to 2 when the welcome dashboard module was introduced, and to 3 when the admin module
+ * was introduced, so existing layouts get each new module once.
+ */
+export const OPENWEB_SETTINGS_VERSION = 3 as const
 
 export type ThemePreference = 'light' | 'dark' | 'system'
 
@@ -240,6 +243,11 @@ export function parseOpenWebSettings(raw: unknown): OpenWebSettings {
     // until they dismiss it (which persists a v2 layout without the module).
     if (rawVersion < 2 && !modules.includes('welcome')) {
         modules = ['welcome', ...modules]
+    }
+    // Settings saved before v3 never listed `admin`; prepend it once so existing layouts show it
+    // at the top until the user removes it (which persists a v3 layout without the module).
+    if (rawVersion < 3 && !modules.includes('admin')) {
+        modules = ['admin', ...modules]
     }
 
     return {

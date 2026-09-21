@@ -15,10 +15,17 @@ import { toast } from 'sonner'
 import { Zombies } from '@/lib/jutge_api_client'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Spinner } from '@/components/ui/spinner'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 import Widget from '@/components/administrator/dashboard/Widget'
 
-export default function ZombiesWidget() {
+type ZombiesWidgetProps = {
+    /** Home dashboard uses large figures. The administrator dashboard keeps the table. */
+    variant?: 'table' | 'figures'
+}
+
+export default function ZombiesWidget({ variant = 'table' }: ZombiesWidgetProps) {
     //
 
     const router = useRouter()
@@ -76,7 +83,7 @@ export default function ZombiesWidget() {
                             <ChevronDownIcon />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent className="w-48">
                         {data.ies > 0 && (
                             <>
                                 <DropdownMenuItem onClick={viewIEs}>
@@ -116,22 +123,72 @@ export default function ZombiesWidget() {
         </>
     )
 
-    const content = (
-        <div className="h-full w-full flex flex-col items-end gap-0">
-            <Table>
-                <TableBody>
-                    <TableRow>
-                        <TableCell>Internal errors</TableCell>
-                        <TableCell className="text-end">{data ? data.ies : <SimpleSpinner />}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Pendings</TableCell>
-                        <TableCell className="text-end">{data ? data.pendings : <SimpleSpinner />}</TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-        </div>
-    )
+    const content =
+        variant === 'figures' ? (
+            <div className="grid w-full grid-cols-1 gap-2">
+                <ZombieFigure label="Internal errors" value={data?.ies} alert="rose" />
+                <ZombieFigure label="Pending submissions" value={data?.pendings} alert="amber" />
+            </div>
+        ) : (
+            <div className="flex h-full w-full flex-col items-end gap-0">
+                <Table>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>Internal errors</TableCell>
+                            <TableCell className="text-end">{data ? data.ies : <SimpleSpinner />}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Pendings</TableCell>
+                            <TableCell className="text-end">{data ? data.pendings : <SimpleSpinner />}</TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
+        )
 
     return <Widget icon=<GhostIcon size={18} /> title="Zombi submissions" content={content} actions={actions} />
+}
+
+/** Large count for the home Admin module. A non-zero value is tinted so it stands out. */
+function ZombieFigure({
+    label,
+    value,
+    alert,
+}: {
+    label: string
+    value: number | undefined
+    alert: 'rose' | 'amber'
+}) {
+    const active = value !== undefined && value > 0
+
+    return (
+        <div
+            className={cn(
+                'flex flex-col items-center justify-center gap-0.5 rounded-lg px-3 py-2',
+                active
+                    ? alert === 'rose'
+                        ? 'bg-rose-500/10'
+                        : 'bg-amber-500/15'
+                    : 'bg-muted/40',
+            )}
+        >
+            <p
+                className={cn(
+                    'text-3xl font-semibold leading-none tracking-tight tabular-nums',
+                    active
+                        ? alert === 'rose'
+                            ? 'text-rose-700 dark:text-rose-300'
+                            : 'text-amber-700 dark:text-amber-300'
+                        : 'text-foreground',
+                )}
+            >
+                {value === undefined ? (
+                    <Spinner className="size-6 text-muted-foreground" aria-label={`Loading ${label}`} />
+                ) : (
+                    value.toLocaleString()
+                )}
+            </p>
+            <p className="text-center text-sm font-medium text-muted-foreground">{label}</p>
+        </div>
+    )
 }

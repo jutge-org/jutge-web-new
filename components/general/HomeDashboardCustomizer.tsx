@@ -30,6 +30,7 @@ import {
     DASHBOARD_MODULE_IDS,
     DASHBOARD_MODULES,
     DEFAULT_DASHBOARD_MODULES,
+    visibleDashboardModules,
     type DashboardModuleId,
 } from '@/lib/dashboardModules'
 import { cn } from '@/lib/utils'
@@ -49,11 +50,13 @@ const reflowInPlaceStrategy: SortingStrategy = () => null
  * module will land and how it will look. Changes live in a local draft until saved into the
  * synced settings.
  */
-export function HomeDashboardCustomizer() {
+export function HomeDashboardCustomizer({ administrator }: { administrator: boolean }) {
     const savedModules = useOpenWebDashboardModules()
     const setDashboardModules = useOpenWebSettingsStore((state) => state.setDashboardModules)
     const stopEditing = useDashboardCustomizationStore((state) => state.stopEditing)
-    const [draft, setDraft] = useState<DashboardModuleId[]>(() => [...savedModules])
+    const [draft, setDraft] = useState<DashboardModuleId[]>(() =>
+        visibleDashboardModules(savedModules, administrator),
+    )
     const [activeId, setActiveId] = useState<DashboardModuleId | null>(null)
     // Order as it was when the drag started, restored if the drag is cancelled (Escape).
     const dragStartOrderRef = useRef<DashboardModuleId[] | null>(null)
@@ -63,7 +66,8 @@ export function HomeDashboardCustomizer() {
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
     )
 
-    const hiddenModules = DASHBOARD_MODULE_IDS.filter((id) => !draft.includes(id))
+    const catalog = visibleDashboardModules(DASHBOARD_MODULE_IDS, administrator)
+    const hiddenModules = catalog.filter((id) => !draft.includes(id))
 
     function handleDragStart(event: DragStartEvent) {
         dragStartOrderRef.current = draft
@@ -103,7 +107,10 @@ export function HomeDashboardCustomizer() {
     }
 
     function handleSave() {
-        setDashboardModules(draft)
+        // Non-admins never see the admin module, so keep it in their saved layout if it was there.
+        const modules =
+            !administrator && savedModules.includes('admin') ? (['admin', ...draft] as DashboardModuleId[]) : draft
+        setDashboardModules(modules)
         stopEditing()
         toast.success('Dashboard layout saved')
     }
@@ -122,7 +129,7 @@ export function HomeDashboardCustomizer() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => setDraft([...DEFAULT_DASHBOARD_MODULES])}
+                        onClick={() => setDraft(visibleDashboardModules(DEFAULT_DASHBOARD_MODULES, administrator))}
                     >
                         <RotateCcwIcon className="size-3.5" aria-hidden />
                         Reset layout

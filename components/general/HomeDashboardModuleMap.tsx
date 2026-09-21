@@ -3,6 +3,7 @@
 import type { ComponentType } from 'react'
 
 import { HomeActivityStats } from '@/components/general/HomeActivityStats'
+import { HomeAdmin } from '@/components/general/HomeAdmin'
 import { HomeRecentCollectibleCards } from '@/components/general/HomeRecentCollectibleCards'
 import { HomeRecentCourses } from '@/components/general/HomeRecentCourses'
 import { HomeRecentProblems } from '@/components/general/HomeRecentProblems'
@@ -13,6 +14,7 @@ import type { DashboardModuleId } from '@/lib/dashboardModules'
 
 /** The live widget behind each dashboard module id. */
 export const HOME_DASHBOARD_MODULE_COMPONENTS: Record<DashboardModuleId, ComponentType> = {
+    admin: HomeAdmin,
     welcome: HomeWelcome,
     recentCourses: HomeRecentCourses,
     recentProblems: HomeRecentProblems,

@@ -2,6 +2,7 @@ import {
     ActivityIcon,
     BookOpenIcon,
     ConstructionIcon,
+    CrownIcon,
     FileCodeIcon,
     LayersIcon,
     SendIcon,
@@ -17,6 +18,7 @@ import {
  */
 
 export const DASHBOARD_MODULE_IDS = [
+    'admin',
     'welcome',
     'recentCourses',
     'recentProblems',
@@ -39,6 +41,12 @@ export type DashboardModuleDef = {
 }
 
 export const DASHBOARD_MODULES: Record<DashboardModuleId, DashboardModuleDef> = {
+    admin: {
+        title: 'Admin',
+        description: 'Latest submission histograms and zombie submissions.',
+        size: 'full',
+        icon: CrownIcon,
+    },
     welcome: {
         title: 'Welcome!',
         description: 'A note about this site being under construction.',
@@ -96,6 +104,18 @@ export const DEFAULT_DASHBOARD_MODULES: readonly DashboardModuleId[] = DASHBOARD
 
 export function isDashboardModuleId(value: unknown): value is DashboardModuleId {
     return typeof value === 'string' && (DASHBOARD_MODULE_IDS as readonly string[]).includes(value)
+}
+
+/** Drop modules the current account cannot see. The admin module is administrators only. */
+export function visibleDashboardModules(
+    modules: readonly DashboardModuleId[],
+    administrator: boolean,
+): DashboardModuleId[] {
+    if (administrator) {
+        return [...modules]
+    }
+
+    return modules.filter((id) => id !== 'admin')
 }
 
 export type DashboardModuleGroup = {

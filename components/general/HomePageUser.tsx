@@ -11,7 +11,7 @@ import { HomeYearsGithubCorner } from '@/components/general/HomeYearsGithubCorne
 import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { groupDashboardModules } from '@/lib/dashboardModules'
+import { groupDashboardModules, visibleDashboardModules } from '@/lib/dashboardModules'
 import { canAccessSupervision, type SessionUser } from '@/lib/session'
 import { useDashboardCustomizationStore } from '@/store/dashboardCustomization'
 import { useOpenWebDashboardModules, useOpenWebSettingsReady } from '@/store/openWebSettings'
@@ -67,14 +67,22 @@ export function HomePageUser({ user }: HomePageUserProps) {
                 </div>
             </div>
 
-            {editing ? settingsReady ? <HomeDashboardCustomizer /> : <PageSpinner /> : <DashboardModulesView />}
+            {editing ? (
+                settingsReady ? (
+                    <HomeDashboardCustomizer administrator={Boolean(user?.administrator)} />
+                ) : (
+                    <PageSpinner />
+                )
+            ) : (
+                <DashboardModulesView administrator={Boolean(user?.administrator)} />
+            )}
         </div>
     )
 }
 
 /** The dashboard modules in the user's saved order. Consecutive half modules share a row. */
-function DashboardModulesView() {
-    const modules = useOpenWebDashboardModules()
+function DashboardModulesView({ administrator }: { administrator: boolean }) {
+    const modules = visibleDashboardModules(useOpenWebDashboardModules(), administrator)
     const startEditing = useDashboardCustomizationStore((state) => state.startEditing)
 
     return (
