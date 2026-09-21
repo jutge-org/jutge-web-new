@@ -74,17 +74,6 @@ export function UserProfileEditForm({ profile, countries }: UserProfileEditFormP
                         if (!pending) handleSave()
                     }}
                 >
-                    <div className="grid gap-3 px-6 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                        <div className="hidden sm:block" />
-                        <div className="min-w-0 space-y-3 text-sm text-muted-foreground">
-                            <p>Update the details shown on your Jutge.org profile.</p>
-                            <p>
-                                <span className="font-bold text-foreground">Important:</span> Name, country, and
-                                timezone are required.
-                            </p>
-                        </div>
-                    </div>
-
                     <dl className="px-6 py-4">
                         <ProfileFormRow label="Name" htmlFor="profile-name">
                             <Input

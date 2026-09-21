@@ -1,6 +1,6 @@
 import { getCurrentClient } from '@/lib/data/auth'
 import type { NewPassword, NewProfile } from '@/lib/jutge_api_client'
-import { updateProfile, updateProfileAvatar, updateProfilePassword } from '@/lib/data/usersMutations'
+import { deleteProfileAvatar, updateProfile, updateProfileAvatar, updateProfilePassword } from '@/lib/data/usersMutations'
 
 type ProfileActionResult = { ok: true } | { ok: false; error: string }
 
@@ -62,6 +62,17 @@ export async function updateProfileAvatarAction(file: File): Promise<ProfileActi
         return { ok: true }
     } catch (e) {
         const message = e instanceof Error ? e.message : 'Failed to update avatar.'
+        return { ok: false, error: message }
+    }
+}
+
+export async function deleteProfileAvatarAction(): Promise<ProfileActionResult> {
+    try {
+        const client = await getCurrentClient()
+        await deleteProfileAvatar(client)
+        return { ok: true }
+    } catch (e) {
+        const message = e instanceof Error ? e.message : 'Failed to remove avatar.'
         return { ok: false, error: message }
     }
 }

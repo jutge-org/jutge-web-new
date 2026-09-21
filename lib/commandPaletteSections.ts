@@ -63,6 +63,7 @@ export function getCommandPaletteAppSections(context: SiteNavLinksContext): Comm
             description: getSiteNavLinkDescription(link.href, context),
             href: link.href,
             area: 'app' as const,
+            ...(link.href === '/profile' ? { keywords: ['Edit profile', 'Update profile'] } : {}),
         })),
     ]
 }
@@ -128,10 +129,6 @@ const profileSectionMeta: Record<
     Exclude<(typeof profileNavItems)[number]['tab'], 'index'>,
     { description: string; keywords: string[] }
 > = {
-    update: {
-        description: 'Edit your name, email, and other profile details',
-        keywords: ['Edit profile', 'Update profile'],
-    },
     avatar: {
         description: 'Change your profile picture',
         keywords: ['Profile picture', 'Photo'],

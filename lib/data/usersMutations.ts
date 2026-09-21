@@ -9,6 +9,10 @@ export async function updateProfileAvatar(client: JutgeApiClient, file: File): P
     await client.student.profile.updateAvatar(file)
 }
 
+export async function deleteProfileAvatar(client: JutgeApiClient): Promise<void> {
+    await client.student.profile.updateAvatar(new File([], 'avatar.png', { type: 'image/png' }))
+}
+
 export async function updateProfilePassword(client: JutgeApiClient, data: NewPassword): Promise<void> {
     await client.student.profile.updatePassword(data)
 }

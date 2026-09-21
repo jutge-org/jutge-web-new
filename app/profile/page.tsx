@@ -2,16 +2,14 @@
 
 import { AuthedGate } from '@/components/ClientGates'
 import { ProfilePageShell } from '@/components/profile/ProfilePageShell'
-import { UserProfileView } from '@/components/profile/UserProfileView'
+import { UserProfileEdit } from '@/components/profile/UserProfileEdit'
 
 export default function ProfilePage() {
     return (
         <AuthedGate>
-            {(user) => (
-                <ProfilePageShell activeTab="index">
-                    <UserProfileView user={user} />
-                </ProfilePageShell>
-            )}
+            <ProfilePageShell activeTab="index" titleHidden={false}>
+                <UserProfileEdit />
+            </ProfilePageShell>
         </AuthedGate>
     )
 }

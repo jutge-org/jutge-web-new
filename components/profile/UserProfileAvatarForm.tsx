@@ -2,7 +2,6 @@
 
 import { filesize } from 'filesize'
 import { CloudUploadIcon, ImageIcon, TrashIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState, useTransition } from 'react'
 import Dropzone from 'shadcn-dropzone'
 import { toast } from 'sonner'
@@ -12,29 +11,29 @@ import SmoothButton from '@/components/smoothui/smooth-button'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { updateProfileAvatarAction } from '@/lib/data/profileActions'
+import { deleteProfileAvatarAction, updateProfileAvatarAction } from '@/lib/data/profileActions'
 
 type UserProfileAvatarFormProps = {
     avatarDataUrl: string | null
 }
 
 export function UserProfileAvatarForm({ avatarDataUrl }: UserProfileAvatarFormProps) {
-    const router = useRouter()
     const [avatarFile, setAvatarFile] = useState<File | null>(null)
-    const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(avatarDataUrl)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const [pendingAction, setPendingAction] = useState<'update' | 'remove' | null>(null)
     const [pending, startTransition] = useTransition()
 
     useEffect(() => {
         if (!avatarFile) {
-            setAvatarPreviewUrl(avatarDataUrl)
+            setPreviewUrl(null)
             return
         }
 
-        const objectUrl = URL.createObjectURL(avatarFile)
-        setAvatarPreviewUrl(objectUrl)
-        return () => URL.revokeObjectURL(objectUrl)
-    }, [avatarFile, avatarDataUrl])
+        const url = URL.createObjectURL(avatarFile)
+        setPreviewUrl(url)
+        return () => URL.revokeObjectURL(url)
+    }, [avatarFile])
 
     function handleAvatarDrop(addedFiles: File[]) {
         if (addedFiles.length < 1) return
@@ -62,16 +61,33 @@ export function UserProfileAvatarForm({ avatarDataUrl }: UserProfileAvatarFormPr
             return
         }
 
+        setPendingAction('update')
         startTransition(async () => {
             const result = await updateProfileAvatarAction(avatarFile)
             if (!result.ok) {
                 setErrorMessage(result.error)
+                setPendingAction(null)
                 return
             }
 
             toast.success('Avatar saved.')
-            setAvatarFile(null)
-            router.refresh()
+            window.location.reload()
+        })
+    }
+
+    function handleRemove() {
+        setErrorMessage(null)
+        setPendingAction('remove')
+        startTransition(async () => {
+            const result = await deleteProfileAvatarAction()
+            if (!result.ok) {
+                setErrorMessage(result.error)
+                setPendingAction(null)
+                return
+            }
+
+            toast.success('Avatar removed.')
+            window.location.reload()
         })
     }
 
@@ -87,28 +103,19 @@ export function UserProfileAvatarForm({ avatarDataUrl }: UserProfileAvatarFormPr
                         if (canSave) handleSave()
                     }}
                 >
-                    <div className="grid gap-3 px-6 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                        <div className="hidden sm:block" />
-                        <div className="min-w-0 space-y-3 text-sm text-muted-foreground">
-                            <p>Upload a PNG image to use as your avatar on Jutge.org.</p>
-                            <p>
-                                <span className="font-bold text-foreground">Important:</span> The image must be a PNG
-                                file.
-                            </p>
-                        </div>
-                    </div>
-
                     <dl className="px-6 py-4">
                         <ProfileFormRow label="Current avatar" alignStart>
-                            {avatarPreviewUrl ? (
+                            {avatarDataUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                    src={avatarPreviewUrl}
-                                    alt="Avatar preview"
-                                    className="size-32 rounded-xl object-cover"
-                                />
+                                <div className="w-full border flex flex-col items-center justify-center p-2">
+                                    <img
+                                        src={avatarDataUrl}
+                                        alt="Current avatar"
+                                        className="size-32 rounded-xl object-cover"
+                                    />
+                                </div>
                             ) : (
-                                <p className="text-sm text-muted-foreground">No avatar uploaded yet.</p>
+                                <p className="text-sm mt-0.5 text-muted-foreground">No avatar defined.</p>
                             )}
                         </ProfileFormRow>
 
@@ -124,6 +131,16 @@ export function UserProfileAvatarForm({ avatarDataUrl }: UserProfileAvatarFormPr
                                         </div>
                                     )}
                                 </Dropzone>
+                                {previewUrl ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <div className="w-full border flex flex-col items-center justify-center p-2">
+                                        <img
+                                            src={previewUrl}
+                                            alt="New avatar preview"
+                                            className="size-32 rounded-xl object-cover"
+                                        />
+                                    </div>
+                                ) : null}
                                 {avatarFile ? (
                                     <div className="flex flex-row items-center gap-2 rounded border p-1 text-sm">
                                         <Badge variant="secondary" className="min-w-0 truncate">
@@ -162,22 +179,38 @@ export function UserProfileAvatarForm({ avatarDataUrl }: UserProfileAvatarFormPr
                                         {errorMessage}
                                     </p>
                                 ) : null}
-                                <SmoothButton
-                                    type="submit"
-                                    color="accent"
-                                    variant="candy"
-                                    disabled={!canSave}
-                                    loading={pending}
-                                    className="w-full gap-2"
-                                    prefix={<ImageIcon className="size-4" aria-hidden />}
-                                >
-                                    {pending ? 'Updating avatar…' : 'Update avatar'}
-                                </SmoothButton>
+                                <div className="flex flex-col gap-3 sm:flex-row">
+                                    <SmoothButton
+                                        type="submit"
+                                        color="accent"
+                                        variant="candy"
+                                        disabled={!canSave}
+                                        loading={pendingAction === 'update'}
+                                        className="w-full gap-2"
+                                        prefix={<ImageIcon className="size-4" aria-hidden />}
+                                    >
+                                        {pendingAction === 'update' ? 'Updating avatar…' : 'Update avatar'}
+                                    </SmoothButton>
+                                    {avatarDataUrl ? (
+                                        <SmoothButton
+                                            type="button"
+                                            color="destructive"
+                                            variant="candy"
+                                            disabled={pending}
+                                            loading={pendingAction === 'remove'}
+                                            className="w-full gap-2"
+                                            prefix={<TrashIcon className="size-4" aria-hidden />}
+                                            onClick={handleRemove}
+                                        >
+                                            {pendingAction === 'remove' ? 'Removing avatar…' : 'Remove avatar'}
+                                        </SmoothButton>
+                                    ) : null}
+                                </div>
                             </div>
                         </div>
                     </dl>
                 </form>
             </section>
-        </div>
+        </div >
     )
 }
