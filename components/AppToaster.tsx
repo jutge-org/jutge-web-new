@@ -1,12 +1,23 @@
 'use client'
 
 import { useTheme } from 'next-themes'
-import { Toaster as Sonner, type ToasterProps } from 'sonner'
+import { useEffect } from 'react'
+import { toast, Toaster as Sonner, type ToasterProps } from 'sonner'
 import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon } from 'lucide-react'
+
+import { consumeFlashToast } from '@/lib/flashToast'
 
 export function AppToaster({ ...props }: ToasterProps) {
     const { resolvedTheme } = useTheme()
     const invertedTheme = resolvedTheme === 'dark' ? 'light' : 'dark'
+
+    useEffect(() => {
+        const flash = consumeFlashToast()
+        if (!flash) return
+        if (flash.type === 'success') toast.success(flash.message)
+        else if (flash.type === 'info') toast.info(flash.message)
+        else toast.error(flash.message)
+    }, [])
 
     return (
         <Sonner

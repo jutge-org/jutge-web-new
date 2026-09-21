@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-19T08:34:53.086Z
+ * This file has been automatically generated at 2026-09-21T19:01:49.642Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -76,13 +76,19 @@ export type ConfirmUnregistrationIn = {
 }
 
 export type RequestChangeEmailIn = {
+    old_email: string
     new_email: string
     password: string
     hostname: string
     recaptcha_token: string
 }
 
-export type ConfirmChangeEmailIn = ConfirmUnregistrationIn
+export type ConfirmChangeEmailIn = {
+    old_email: string
+    new_email: string
+    code: string
+    recaptcha_token: string
+}
 
 export type Time = {
     full_time: string
@@ -1898,7 +1904,7 @@ class Module_auth {
      *
      * 🔐 Authentication: user
      * No warnings
-     * Verifies the current password and sends a confirmation link to the new email address. Requires authentication and a valid reCAPTCHA v3 token.
+     * Verifies the current password and sends a confirmation link to the old email address to confirm the change to the new email address. Requires authentication and a valid reCAPTCHA v3 token.
      */
     async requestChangeEmail(data: RequestChangeEmailIn): Promise<void> {
         const [output, ofiles] = await this.root.execute("auth.requestChangeEmail", data)
@@ -1912,7 +1918,7 @@ class Module_auth {
      * No warnings
      * Validates the email change code, updates the account email, migrates course enrollments, and invalidates all sessions. Requires authentication and a valid reCAPTCHA v3 token.
      */
-    async confirmChangeEmail(data: ConfirmUnregistrationIn): Promise<void> {
+    async confirmChangeEmail(data: ConfirmChangeEmailIn): Promise<void> {
         const [output, ofiles] = await this.root.execute("auth.confirmChangeEmail", data)
         return output
     }

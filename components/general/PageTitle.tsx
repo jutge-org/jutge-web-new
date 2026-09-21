@@ -10,11 +10,14 @@ import {
     EyeIcon,
     GraduationCap,
     Info,
+    ImageIcon,
     FileBracesCornerIcon,
     KeyRoundIcon,
     LayersIcon,
+    MailIcon,
     SchoolIcon,
     User,
+    UserPenIcon,
     UserPlusIcon,
     UserXIcon,
 } from 'lucide-react'
@@ -31,6 +34,10 @@ export type PageTitleSection =
     | '/supervision'
     | '/sign-up'
     | '/password-reset'
+    | '/change-password'
+    | '/avatar'
+    | '/update'
+    | '/change-email'
     | '/unregistration'
     | '/request-instructor-account'
     | '/instructor'
@@ -50,6 +57,10 @@ const cardAccent: Record<PageTitleSection, string> = {
     '/supervision': 'border-l-4 border-l-emerald-500 text-emerald-600 dark:text-emerald-400',
     '/sign-up': 'border-l-4 border-l-indigo-500 text-indigo-600 dark:text-indigo-400',
     '/password-reset': 'border-l-4 border-l-violet-500 text-violet-600 dark:text-violet-400',
+    '/change-password': 'border-l-4 border-l-violet-500 text-violet-600 dark:text-violet-400',
+    '/avatar': 'border-l-4 border-l-pink-500 text-pink-600 dark:text-pink-400',
+    '/update': 'border-l-4 border-l-teal-500 text-teal-600 dark:text-teal-400',
+    '/change-email': 'border-l-4 border-l-sky-500 text-sky-600 dark:text-sky-400',
     '/unregistration': 'border-l-4 border-l-red-500 text-red-600 dark:text-red-400',
     '/request-instructor-account': 'border-l-4 border-l-purple-500 text-purple-600 dark:text-purple-400',
     '/instructor': 'border-l-4 border-l-purple-500 text-purple-600 dark:text-purple-400',
@@ -70,6 +81,10 @@ const sectionLabel: Record<PageTitleSection, string> = {
     '/supervision': 'Supervision',
     '/sign-up': 'Sign up',
     '/password-reset': 'Password reset',
+    '/change-password': 'Change password',
+    '/avatar': 'Avatar',
+    '/update': 'Update',
+    '/change-email': 'Change email',
     '/unregistration': 'Unregistration',
     '/request-instructor-account': 'Request instructor account',
     '/instructor': 'Instructor',
@@ -90,6 +105,10 @@ const guestDescription: Record<PageTitleSection, string> = {
     '/supervision': 'Supervise a student in the course you teach',
     '/sign-up': 'Sign up for Jutge.org',
     '/password-reset': 'Reset your Jutge.org account password.',
+    '/change-password': 'Change the password for your Jutge.org account.',
+    '/avatar': 'Change the avatar for your Jutge.org account.',
+    '/update': 'Update the details of your Jutge.org account.',
+    '/change-email': 'Change the email address for your Jutge.org account.',
     '/unregistration': 'Permanently unregister your Jutge.org account.',
     '/request-instructor-account': 'Upgrade your account to create and manage courses.',
     '/instructor': 'Manage courses, exams, and teaching tools',
@@ -110,6 +129,10 @@ const authenticatedDescription: Record<PageTitleSection, string> = {
     '/supervision': 'Supervise a student in a course you teach',
     '/sign-up': 'Sign up for Jutge.or.',
     '/password-reset': 'Reset your Jutge.org account password.',
+    '/change-password': 'Change the password for your Jutge.org account.',
+    '/avatar': 'Change the avatar for your Jutge.org account.',
+    '/update': 'Update the details of your Jutge.org account.',
+    '/change-email': 'Change the email address for your Jutge.org account.',
     '/unregistration': 'Permanently unregister your Jutge.org account.',
     '/request-instructor-account': 'Upgrade your account to create and manage courses.',
     '/instructor': 'Manage courses, exams, and teaching tools',
@@ -150,6 +173,14 @@ function SectionIcon({ section }: { section: PageTitleSection }) {
             return <UserPlusIcon className={iconClass} aria-hidden />
         case '/password-reset':
             return <KeyRoundIcon className={iconClass} aria-hidden />
+        case '/change-password':
+            return <KeyRoundIcon className={iconClass} aria-hidden />
+        case '/avatar':
+            return <ImageIcon className={iconClass} aria-hidden />
+        case '/update':
+            return <UserPenIcon className={iconClass} aria-hidden />
+        case '/change-email':
+            return <MailIcon className={iconClass} aria-hidden />
         case '/unregistration':
             return <UserXIcon className={iconClass} aria-hidden />
         case '/request-instructor-account':

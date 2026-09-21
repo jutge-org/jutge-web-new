@@ -7,7 +7,12 @@ import { UserProfileAvatar } from '@/components/profile/UserProfileAvatar'
 export default function ProfileAvatarPage() {
     return (
         <AuthedGate>
-            <ProfilePageShell activeTab="avatar" subpage={{ title: 'Avatar', url: '/profile/avatar' }}>
+            <ProfilePageShell
+                activeTab="avatar"
+                subpage={{ title: 'Avatar', url: '/profile/avatar' }}
+                titleSection="/avatar"
+                titleHidden={false}
+            >
                 <UserProfileAvatar />
             </ProfilePageShell>
         </AuthedGate>

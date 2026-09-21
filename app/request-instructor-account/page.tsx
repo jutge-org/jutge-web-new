@@ -4,8 +4,7 @@ import { LightbulbIcon, MailIcon, SquareExclamationPointIcon } from 'lucide-reac
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 
-import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
-import { PageTitle } from '@/components/general/PageTitle'
+import { ProfilePageShell } from '@/components/profile/ProfilePageShell'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent } from '@/components/ui/card'
 import SmoothButton from '@/components/ui/smoothui/smooth-button'
@@ -18,14 +17,12 @@ function InlineCode({ children }: { children: ReactNode }) {
 
 export default function RequestInstructorAccountPage() {
     return (
-        <div className="flex flex-1 flex-col gap-6 pb-8">
-            <MainBreadcrumbs
-                breadcrumbs={[
-                    { title: 'Request instructor account', url: '/request-instructor-account' },
-                ]}
-            />
-            <PageTitle section="/request-instructor-account" authenticated={false} hidden={false} />
-
+        <ProfilePageShell
+            activeTab="upgrade"
+            subpage={{ title: 'Upgrade', url: '/request-instructor-account' }}
+            titleSection="/request-instructor-account"
+            titleHidden={false}
+        >
             <Card className="w-full">
                 <CardContent className="mx-auto w-full max-w-2xl space-y-5 leading-relaxed text-foreground flex flex-col gap-0">
                     <p className="text-justify">
@@ -110,6 +107,6 @@ export default function RequestInstructorAccountPage() {
 
                 </CardContent>
             </Card>
-        </div>
+        </ProfilePageShell>
     )
 }

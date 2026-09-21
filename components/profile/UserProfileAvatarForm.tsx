@@ -1,16 +1,18 @@
 'use client'
 
+import { filesize } from 'filesize'
+import { CloudUploadIcon, ImageIcon, TrashIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useTransition } from 'react'
 import Dropzone from 'shadcn-dropzone'
-import { filesize } from 'filesize'
-import { CloudUploadIcon, SaveIcon, TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { updateProfileAvatarAction } from '@/lib/data/profileActions'
+import { ProfileFormRow } from '@/components/profile/ProfileFormRow'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { updateProfileAvatarAction } from '@/lib/data/profileActions'
 
 type UserProfileAvatarFormProps = {
     avatarDataUrl: string | null
@@ -73,70 +75,108 @@ export function UserProfileAvatarForm({ avatarDataUrl }: UserProfileAvatarFormPr
         })
     }
 
+    const canSave = Boolean(avatarFile) && !pending
+
     return (
-        <div className="w-full">
-            <section className="w-full rounded-xl border border-border bg-card p-6 shadow-xs">
-                <div className="flex flex-col gap-5">
-                    <div className="flex flex-col gap-3">
-                        <Label>Current avatar</Label>
-                        {avatarPreviewUrl ? (
-                            <div className="flex justify-center sm:justify-start">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div className="flex flex-1 flex-col">
+            <section className="flex justify-center rounded-xl border border-border bg-card shadow-xs">
+                <form
+                    className="mb-3 w-full max-w-3xl"
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        if (canSave) handleSave()
+                    }}
+                >
+                    <div className="grid gap-3 px-6 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                        <div className="hidden sm:block" />
+                        <div className="min-w-0 space-y-3 text-sm text-muted-foreground">
+                            <p>Upload a PNG image to use as your avatar on Jutge.org.</p>
+                            <p>
+                                <span className="font-bold text-foreground">Important:</span> The image must be a PNG
+                                file.
+                            </p>
+                        </div>
+                    </div>
+
+                    <dl className="px-6 py-4">
+                        <ProfileFormRow label="Current avatar" alignStart>
+                            {avatarPreviewUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     src={avatarPreviewUrl}
                                     alt="Avatar preview"
                                     className="size-32 rounded-xl object-cover"
                                 />
-                            </div>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">No avatar uploaded yet.</p>
-                        )}
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <Label>New avatar</Label>
-                        <Dropzone accept={{ 'image/png': ['.png'] }} maxFiles={1} onDrop={handleAvatarDrop}>
-                            {() => (
-                                <div className="flex h-28 w-full flex-col items-center justify-center rounded-lg px-4 text-xs text-muted-foreground">
-                                    <CloudUploadIcon className="size-8 stroke-[1.5]" aria-hidden />
-                                    <div className="pt-2 text-center">
-                                        Drag and drop a PNG image here <b>or</b> click to select.
-                                    </div>
-                                </div>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">No avatar uploaded yet.</p>
                             )}
-                        </Dropzone>
-                        {avatarFile ? (
-                            <div className="flex flex-row items-center gap-2 rounded border p-1 text-sm">
-                                <Badge variant="secondary" className="min-w-0 truncate">
-                                    {avatarFile.name}
-                                </Badge>
-                                <Badge variant="secondary">{filesize(avatarFile.size, { standard: 'jedec' })}</Badge>
-                                <div className="grow" />
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    onClick={clearAvatarSelection}
-                                    aria-label="Remove avatar selection"
-                                >
-                                    <TrashIcon />
-                                </Button>
+                        </ProfileFormRow>
+
+                        <ProfileFormRow label="New avatar" alignStart>
+                            <div className="flex flex-col gap-2">
+                                <Dropzone accept={{ 'image/png': ['.png'] }} maxFiles={1} onDrop={handleAvatarDrop}>
+                                    {() => (
+                                        <div className="flex h-28 w-full flex-col items-center justify-center rounded-lg px-4 text-xs text-muted-foreground">
+                                            <CloudUploadIcon className="size-8 stroke-[1.5]" aria-hidden />
+                                            <div className="pt-2 text-center">
+                                                Drag and drop a PNG image here <b>or</b> click to select.
+                                            </div>
+                                        </div>
+                                    )}
+                                </Dropzone>
+                                {avatarFile ? (
+                                    <div className="flex flex-row items-center gap-2 rounded border p-1 text-sm">
+                                        <Badge variant="secondary" className="min-w-0 truncate">
+                                            {avatarFile.name}
+                                        </Badge>
+                                        <Badge variant="secondary">
+                                            {filesize(avatarFile.size, { standard: 'jedec' })}
+                                        </Badge>
+                                        <div className="grow" />
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon-sm"
+                                                        onClick={clearAvatarSelection}
+                                                        aria-label="Remove avatar selection"
+                                                    >
+                                                        <TrashIcon />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>Remove avatar selection</TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </div>
+                                ) : null}
                             </div>
-                        ) : null}
-                    </div>
+                        </ProfileFormRow>
 
-                    {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
-
-                    <Button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={pending || !avatarFile}
-                        className="w-full gap-2 sm:w-auto"
-                    >
-                        <SaveIcon className="size-4" />
-                        {pending ? 'Saving…' : 'Save'}
-                    </Button>
-                </div>
+                        <div className="grid gap-3 pt-1 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                            <div className="hidden sm:block" />
+                            <div className="mt-4 flex min-w-0 flex-col gap-3">
+                                {errorMessage ? (
+                                    <p role="alert" className="text-sm text-destructive">
+                                        {errorMessage}
+                                    </p>
+                                ) : null}
+                                <SmoothButton
+                                    type="submit"
+                                    color="accent"
+                                    variant="candy"
+                                    disabled={!canSave}
+                                    loading={pending}
+                                    className="w-full gap-2"
+                                    prefix={<ImageIcon className="size-4" aria-hidden />}
+                                >
+                                    {pending ? 'Updating avatar…' : 'Update avatar'}
+                                </SmoothButton>
+                            </div>
+                        </div>
+                    </dl>
+                </form>
             </section>
         </div>
     )
