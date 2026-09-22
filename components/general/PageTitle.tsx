@@ -144,6 +144,7 @@ const authenticatedDescription: Record<PageTitleSection, string> = {
 type PageTitleProps = {
     section: PageTitleSection
     authenticated: boolean
+    title?: string
     description?: string
     hidden?: boolean
 }
@@ -201,10 +202,11 @@ const doDotShowTitle = true
 export function PageTitle({
     section,
     authenticated,
+    title: titleOverride,
     description: descriptionOverride,
     hidden = doDotShowTitle,
 }: PageTitleProps) {
-    const title = sectionLabel[section]
+    const title = titleOverride ?? sectionLabel[section]
     const description =
         descriptionOverride ?? (authenticated ? authenticatedDescription[section] : guestDescription[section])
 

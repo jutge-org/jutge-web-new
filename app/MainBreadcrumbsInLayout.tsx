@@ -44,12 +44,10 @@ import {
     BookText,
     ActivityIcon,
     BotIcon,
-    BoxesIcon,
     CalendarIcon,
     CameraIcon,
     ChartPieIcon,
     Code2Icon,
-    FileCode2Icon,
     FileIcon,
     FilePenIcon,
     FileTextIcon,
@@ -72,8 +70,6 @@ import {
     SearchIcon,
     ShieldIcon,
     ShoppingBagIcon,
-    StampIcon,
-    StethoscopeIcon,
     TableIcon,
     TrophyIcon,
     UserRoundPenIcon,
@@ -203,14 +199,6 @@ function MainNavDocumentationSubItemIcon({ href }: { href: string }) {
             return <Code2Icon aria-hidden />
         case '/documentation/verdicts':
             return <GavelIcon aria-hidden />
-        case '/documentation/code-metrics':
-            return <StethoscopeIcon aria-hidden />
-        case '/documentation/pylibs':
-            return <BoxesIcon aria-hidden />
-        case '/documentation/certificates':
-            return <StampIcon aria-hidden />
-        case '/documentation/markdown':
-            return <FileCode2Icon aria-hidden />
         case '/documentation/references':
             return <BookMarkedIcon aria-hidden />
         default:

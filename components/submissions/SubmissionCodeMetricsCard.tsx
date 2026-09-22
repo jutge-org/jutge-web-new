@@ -250,7 +250,7 @@ export function SubmissionCodeMetricsCard({ data }: SubmissionCodeMetricsCardPro
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button variant="outline" size="icon-sm" asChild>
-                                    <Link href="/documentation/code-metrics" aria-label="Code metrics documentation">
+                                    <Link href="/documentation/faq#what-are-code-metrics" aria-label="Code metrics documentation">
                                         <InfoIcon />
                                     </Link>
                                 </Button>

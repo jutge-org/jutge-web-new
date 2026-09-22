@@ -11,15 +11,31 @@ type DocumentationPageShellProps = {
     activeTab: DocumentationTab
     breadcrumbs: { title: string; url: string }[]
     children: ReactNode
+    titleHidden?: boolean
+    title?: string
+    titleDescription?: string
 }
 
-export function DocumentationPageShell({ activeTab, breadcrumbs, children }: DocumentationPageShellProps) {
+export function DocumentationPageShell({
+    activeTab,
+    breadcrumbs,
+    children,
+    titleHidden,
+    title,
+    titleDescription,
+}: DocumentationPageShellProps) {
     const { user } = useAuth()
 
     return (
         <div className="flex flex-col gap-6">
             <MainBreadcrumbs breadcrumbs={breadcrumbs} />
-            <PageTitle section="/documentation" authenticated={user !== null} />
+            <PageTitle
+                section="/documentation"
+                authenticated={user !== null}
+                title={title}
+                description={titleDescription}
+                hidden={titleHidden}
+            />
             <DocumentationNav activeTab={activeTab} />
             {children}
         </div>

@@ -1,7 +1,6 @@
 import type { Compiler } from '@/lib/jutge_api_client'
 
-export type DocumentationTab =
-    'index' | 'faq' | 'compilers' | 'verdicts' | 'code-metrics' | 'pylibs' | 'certificates' | 'markdown' | 'references'
+export type DocumentationTab = 'index' | 'faq' | 'compilers' | 'verdicts' | 'references' | 'certificates' | 'markdown'
 
 export type DocumentationNavItem = {
     tab: DocumentationTab
@@ -15,10 +14,6 @@ export const documentationNavItems: DocumentationNavItem[] = [
     { tab: 'faq', label: 'FAQ', href: '/documentation/faq' },
     { tab: 'compilers', label: 'Compilers', href: '/documentation/compilers' },
     { tab: 'verdicts', label: 'Verdicts', href: '/documentation/verdicts' },
-    { tab: 'code-metrics', label: 'Code metrics', href: '/documentation/code-metrics' },
-    { tab: 'pylibs', label: 'Python libs', href: '/documentation/pylibs' },
-    { tab: 'certificates', label: 'Certificates', href: '/documentation/certificates' },
-    { tab: 'markdown', label: 'Markdown', href: '/documentation/markdown' },
     { tab: 'references', label: 'References', href: '/documentation/references' },
 ]
 
@@ -26,7 +21,7 @@ export const documentationIndexItems = [
     {
         href: '/documentation/faq',
         label: 'FAQ',
-        description: 'Common questions about problems, solutions, and verdicts',
+        description: 'Common questions about problems, solutions, verdicts, code metrics, and Python libraries',
     },
     {
         href: '/documentation/compilers',
@@ -39,11 +34,6 @@ export const documentationIndexItems = [
         description: 'What each submission verdict means',
     },
     {
-        href: '/documentation/code-metrics',
-        label: 'Code metrics',
-        description: 'Static code quality measures for submissions',
-    },
-    {
         href: 'https://github.com/jutge-org/jutge-toolkit',
         label: 'Toolkit',
         description: 'Official Jutge toolkit on GitHub',
@@ -54,21 +44,6 @@ export const documentationIndexItems = [
         label: 'API',
         description: 'Jutge.org API documentation',
         external: true,
-    },
-    {
-        href: '/documentation/pylibs',
-        label: 'Python libs',
-        description: 'Non-standard Python libraries available on Jutge.org',
-    },
-    {
-        href: '/documentation/certificates',
-        label: 'Certificates',
-        description: 'Signed certificates for corrected submissions',
-    },
-    {
-        href: '/documentation/markdown',
-        label: 'Markdown',
-        description: 'Markdown syntax guide for Jutge.org',
     },
     {
         href: '/documentation/references',

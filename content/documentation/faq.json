@@ -1,0 +1,132 @@
+{
+    "title": "Frequently asked questions",
+    "description": "Search through common questions about problem statements, solutions, verdicts, code metrics, and Python libraries.",
+    "sections": [
+        {
+            "title": "Problem statements",
+            "items": [
+                {
+                    "question": "What general rules do inputs and outputs follow?",
+                    "answer": "In general, and when the statement does not explicitly state it otherwise, all inputs and outputs follow these rules:\n\n- They only contain common characters: digits, uppercase and lowercase letters, punctuation ... (specifically those with ASCII codes between 32 and 126, plus the newline). So, no accents, characters such as `ç`, `Δ`, `市`, tabs, and so on.\n- The line break is Unix. Note that the newlines of Windows or Mac do not work.\n- The format of the input can be loose in terms of white spaces and line breaks. For instance, if the statement indicates that the entry is made up of several cases, each with two integer numbers, do not assume that every case is on a line, or that the integer numbers are separated with exactly one space.\n- A word is considered a non-empty sequence of characters without any space or line break.\n- All lines end with a line break, including the last. Therefore, do not print any line break if the output should be empty. But do print one line break if the output should be an empty line.\n- There are no spaces before a line break. In particular, there are no lines with only one or more spaces before the line break."
+                }
+            ]
+        },
+        {
+            "title": "Solutions",
+            "items": [
+                {
+                    "question": "How can I solve the Hello World problem in C++?",
+                    "answer": "Here is a complete solution:\n\n```C++\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"Hello world!\" << endl;\n}\n```\n\nTake care to include the trailing endline."
+                },
+                {
+                    "question": "How can I solve the Hello World problem in Python3?",
+                    "answer": "Here is a complete solution:\n\n```Python3\nprint(\"Hello world!\")\n```"
+                },
+                {
+                    "question": "How can I solve the Hello World problem in Java?",
+                    "answer": "Here is a complete solution:\n\n```Java\nclass Main {\n    public static void main(String args[]) throws Exception {\n        System.out.println(\"Hello world!\");\n    }\n}\n```\n\nPlease note that your Java program must be contained in the `Main` class. You cannot change this name."
+                },
+                {
+                    "question": "Could I get a solution for the Hello World problem in my favorite language?",
+                    "answer": "Sure, please see the [documentation on your specific compiler](/documentation/compilers)."
+                },
+                {
+                    "question": "Should preconditions in the statements be checked by my solutions?",
+                    "answer": "No. All test cases meet the preconditions of the statements.\n\nFor example, if the statement asks for a function `int factorial(int n);` that computes the factorial of a natural number `n`, the code can safely assume that the given `n` is non-negative.\n\nAlso, if the statement asks to compute the sum of the elements of a sequence ending with zero, you can be sure that there is a zero element to end the sequence."
+                },
+                {
+                    "question": "Is zero a natural?",
+                    "answer": "All problem statements in Jutge.org consider that zero is a natural number."
+                },
+                {
+                    "question": "How should I write the C++ `main()` function?",
+                    "answer": "Just write\n\n```C++\nint main() {\n    // ...\n}\n```\n\nDo not write\n\n```C++\nint main(int argc, char *argv[]) {\n    // ...\n}\n```\n\nnor\n\n```C++\nint main(int argc, char **argv) {\n    // ...\n}\n```\n\nAdditionally, you can ommit the final `return 0;`."
+                },
+                {
+                    "question": "When I program in C++, do I need to do something tricky for fast input?",
+                    "answer": "No. Jutge.org always adds automatically these two lines at the beginning of your code:\n\n```C++\nios_base::sync_with_stdio(false);\ncin.tie(0);\n```\n\nRoughly speaking, these two lines make reading with `cin` as fast as with `scanf`."
+                },
+                {
+                    "question": "I program in C++, and I mix `cin/cout` together with `scanf/printf`. Is this a problem in Jutge.org?",
+                    "answer": "Yes. Because of the two lines mentioned above that are automatically added to your code, you should never use `cin/cout` together with `scanf/printf`. Choose either `<iostream>` or `<cstdio>`."
+                },
+                {
+                    "question": "When I program in C++, do I need to do something tricky for fast output?",
+                    "answer": "No. In general, the judge's solutions never do that. Since your solution can be twice as slow as the judge's solution, and get an AC verdict anyway, you can just use `cout` to print the output, and `endl` as endline. It is true that printing `'\\n'` instead of `endl` can make your program much faster when the output has many lines, but if you really need to do this to avoid a TLE verdict, then the algorithm of your solution is probably not good enough."
+                },
+                {
+                    "question": "I program in C++, and I need to compute integer numbers much larger than 10^9 in absolute value. What can I do?",
+                    "answer": "Use the `long long` type. You will be able to compute numbers up to more than 10^18 in absolute value."
+                },
+                {
+                    "question": "I program in C++, and I need to compute real numbers with a lot of precision. What can I do?",
+                    "answer": "By default, use the `double` type. If you really need more precision, use the `long double` type. Avoid the `float` type as much as possible."
+                },
+                {
+                    "question": "I have two real numbers that should be equal, I compare them, but the program tells me that they are different. Why is this so?",
+                    "answer": "You should be aware that all numbers inside a computer have a finite number of decimal digits, so numerical errors are frequent. In particular, if you have two real numbers `x` and `y` that are the result of several operations, and you want to check if they are equal (mathematically speaking), then the plain comparision `x == y` is usually a bad idea, because it is unlikely that both numbers are identical to the very last digit. In practice, something like `abs(x - y) < 1e-8` should work fine."
+                },
+                {
+                    "question": "I have written a solution that seems to work on my computer. However, when I submit it to the judge, I get a WA verdict. Why?",
+                    "answer": "As a general rule, the problems in Jutge.org have many private test cases that cover most mistakes that you can possibly make. There must be some instances where your program fails, although you have not found any yet."
+                },
+                {
+                    "question": "I am unable to find why my program gets a WA verdict when I send it to the judge. What can I do?",
+                    "answer": "- Re-read the problem statement. Perhaps you have missed something.\n- Try your program with all particular cases that you can imagine. For instance, if you have to sort a sequence of numbers, try an empty sequence, a sequence with just one element, a sequence already sorted, a sequence sorted in reverse order, a sequence where all alement are equal, a sequence with many elements, etc.\n- Try also what happens with large numbers. Use `long long` if you need large integer numbers, and `long double` if you need real numbers with a lot of precision. Watch out for overflows.\n- Make sure that the outputs of your program for the sample inputs are indeed as expected. It is surprising how many programs sent to Jutge.org do not even pass the sample tests.\n- Many problemes would be easy to solve by brute-force methods, except that those solutions would be too slow for the judge. In those cases, you can locally implement a slow solution, generate many random tests (preferably small), execute both solutions (the fast but wrong and the slow but safe) and compare the outputs. Hopefully, you will be able to locate some tests where they differ, which could give you insight into the mistake(s) of your wrong code."
+                },
+                {
+                    "question": "The judge tells me that my program produces a wrong result with the public samples. However, when I test my program locally with the sample input, it prints the sample output. How is this possible?",
+                    "answer": "There are two typical reasons:\n\n- The output produced by your solution looks like the expected output, but in fact they are different. To avoid this simple mistake, you can store the output of your program for the sample and for the corresponding expected output into two different files, say `sample.out` and `sample.cor`, and compare them with a command like `diff sample.out sample.cor` (under Linux).\n- If the output of your program is really different when executed in Jutge.org than when executed in your own computer, this usually happens when your program has some variable not properly initialized, which makes the code work or not depending on the (more or less random) initial value stored in the variable. Also, for similar reasons, check that all your functions return something in all their branches. Otherwise, your program can have an undefined behavior. If you program in C++, compiling your code with `g++ -Wall` may detect and warn you about these issues."
+                },
+                {
+                    "question": "I have written a solution that seems to work fast in my computer. However, when I submit it to the judge, I get a TLE verdict. Why?",
+                    "answer": "For most problems, the input is not one case but many cases. Therefore, even if the running time of your program is \"almost zero\" for one case, for thousands of cases, some of them really big, the total running time can be too large. By \"too large\", we roughly mean more than twice the total time of the official solution for the problem. Try to find an algorithm with better complexity, or perhaps it will be enough if you implement your algorithm more accurately, to avoid unnecessary overheads."
+                },
+                {
+                    "question": "I have written a solution that gets a WA verdict by the judge. Does this mean that my solution is fast enough? That is, if there is just one bug and I manage to find it and correct it, will I get an AC verdict, or may I get a TLE?",
+                    "answer": "Most probably, you will get an AC. Jutge.org tests the programs against all the private tests cases for the problem under consideration, computes the verdict for every test, and reports the worst of the verdicts. Therefore, if you get a WA, then there was no private test case for which your program was too slow."
+                },
+                {
+                    "question": "For some reason, I have sent the same solution for the same problem more than once, and I have got two different verdicts. How is this possible?",
+                    "answer": "This situation is unlikely, but possible. For instance, suppose that your program is correct but about twice as slow as the official solution. Note that the time to execute the same program on the same test case can vary slightly depending on several reasons. So, an execution can spend a bit more than the allowed time (TLE), and another execution can spend a bit less (AC).\n\nAs another example, some programs may use randomness to solve a problem probabilistically. Therefore, depending on \"the luck\" (for instance, the initial seed), the same program can compute the right answers (AC) or not (WA)."
+                }
+            ]
+        },
+        {
+            "title": "Verdicts",
+            "items": [
+                {
+                    "question": "Could I get information about a verdict?",
+                    "answer": "Sure, please see the [documentation on verdicts](/documentation/verdicts)."
+                }
+            ]
+        },
+        {
+            "title": "Logos",
+            "items": [
+                {
+                    "question": "Can I get high resolution version of the Jutge.org logos?",
+                    "answer": "Yes, these are provided in vectorial format using the SVG format:\n\n- [Judge](https://jutge.org/svg/jutge.svg)\n- [Green light](https://jutge.org/svg/semafor.svg)"
+                }
+            ]
+        },
+        {
+            "title": "Code metrics",
+            "items": [
+                {
+                    "question": "What are code metrics?",
+                    "answer": "Code metrics provide measures extracted from a static inspection of the submitted code. Currently, Jutge.org provides the following metrics (for the whole submission and for each of its functions if possible):\n\n- **Cyclomatic complexity (ccn):** McCabe's Cyclomatic complexity indicates the complexity of a program measuring the number of linearly independent paths through a program's source code. It is considered that cyclomatic complexities up to 9 are all right, up to 14 are difficult, and above 14 are too much complicated.\n- **Halstead's difficulty (dif):** Halstead complexity measures vocabulary, program length, volume, difficulty, and effort by a static inspection of the code. In particular, difficulty relates to the difficulty of understanding the program when reading or writing it.\n- **Maintainability index (mnt):** The maintainability index is a composite metric calculated from cyclomatic complexity, Halstead volume, and lines of code. It estimates how easy a codebase is to maintain, with higher values indicating better maintainability.\n- **Lines of code (loc):** The number of lines of code measures the size of a program by counting the number of lines in the text of the program's source code. Quite crude!\n- **Documentation index (com):** The ratio of comment lines to total lines of code, giving an indication of how well the code is documented. Quite crude!\n\nTreat these values as heuristics and as rough estimates.\n\nJutge.org also provides a comparison between your code metrics and those of the official solution. The ratio between both can be quite revealing: if your metrics are consistently much higher than the solution's, it is worth stopping to reflect on what is happening — your code may be more complex, longer, harder to read, or harder to maintain than it can be.\n\nRead more information and criticism on [software metrics](https://en.wikipedia.org/wiki/Software_metric).\n\nJutge.org uses the [multimetric](https://github.com/jutge-org/multimetric) tool to compute the metrics."
+                }
+            ]
+        },
+        {
+            "title": "Python libraries",
+            "items": [
+                {
+                    "question": "What are the Python libraries?",
+                    "answer": "All standard libraries are available for Python.\n\nMoreover, certain problems in Python may allow the usage of some well known non standard libaries, such as `numpy` or `networkx`. These libaries are not available unless specified in the problem description (see Information frame under the problem statement).\n\nThe following libraries are currently available:\n\n- `beautifulsoup4`\n- `biopython`\n- `matplotlib`\n- `more-itertools`\n- `networkx`\n- `numpy`\n- `optilog`\n- `pandas`\n- `scipy`\n- `simpy`\n\nTBD: Add their info, including versions."
+                }
+            ]
+        }
+    ]
+}
