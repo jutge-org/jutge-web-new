@@ -1,3 +1,7 @@
+# Instructions
+
+Do not open browsers unless explicitely instructed.
+
 # Project rules
 
 - Prefer `fs/promises` over `fs` for all I/O operations.

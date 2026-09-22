@@ -327,8 +327,9 @@ export default function AnimatedStepper({
                                 <div
                                     className={cn(
                                         isHorizontal
-                                            ? 'absolute top-full left-1/2 mt-1.5 w-16 -translate-x-1/2 text-center sm:block'
+                                            ? 'absolute top-full left-1/2 mt-1.5 -translate-x-1/2 text-center sm:block'
                                             : undefined,
+                                        isHorizontal && (compact ? 'w-16' : 'w-28'),
                                         isHorizontal && 'hidden',
                                     )}
                                 >
@@ -337,7 +338,7 @@ export default function AnimatedStepper({
                                             'font-medium transition-colors duration-200',
                                             isHorizontal && compact
                                                 ? 'truncate text-[10px] leading-tight'
-                                                : 'text-sm',
+                                                : 'whitespace-nowrap text-sm',
                                             isActive
                                                 ? 'text-foreground'
                                                 : 'text-muted-foreground',

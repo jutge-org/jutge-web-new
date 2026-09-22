@@ -10,41 +10,34 @@ export type RequestChangeEmailActionInput = {
 export type ConfirmChangeEmailActionInput = {
     old_email: string
     new_email: string
-    code: string
+    old_email_code: string
+    new_email_code: string
+    password: string
     recaptcha_token: string
 }
 
 export type ChangeEmailResult = { ok: true } | { ok: false; error: string }
 
-function getHostname(): string {
-    if (typeof window === 'undefined') {
-        return ''
-    }
-    return window.location.hostname
-}
-
 function looksLikeEmail(value: string): boolean {
     return value.includes('@') && value.includes('.')
 }
 
-function decodeBase64Url(value: string): string {
-    const padded = value.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (value.length % 4)) % 4)
-    const binary = atob(padded)
-    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0))
-    return new TextDecoder().decode(bytes)
+function sameEmail(left: string, right: string): boolean {
+    return left.trim().toLowerCase() === right.trim().toLowerCase()
 }
 
-export async function requestChangeEmailAction(
-    data: RequestChangeEmailActionInput,
-): Promise<ChangeEmailResult> {
+export async function requestChangeEmailAction(data: RequestChangeEmailActionInput): Promise<ChangeEmailResult> {
     const oldEmail = data.old_email?.trim() ?? ''
     const newEmail = data.new_email?.trim() ?? ''
     const password = data.password ?? ''
     const recaptchaToken = data.recaptcha_token?.trim() ?? ''
-    const hostname = getHostname()
 
     if (!oldEmail) {
         return { ok: false, error: 'Current email is required.' }
+    }
+
+    if (!looksLikeEmail(oldEmail)) {
+        return { ok: false, error: 'Current email is not valid.' }
     }
 
     if (!newEmail) {
@@ -55,6 +48,10 @@ export async function requestChangeEmailAction(
         return { ok: false, error: 'Please enter a valid email address.' }
     }
 
+    if (sameEmail(oldEmail, newEmail)) {
+        return { ok: false, error: 'New email must differ from your current email.' }
+    }
+
     if (!password) {
         return { ok: false, error: 'Password is required.' }
     }
@@ -63,17 +60,17 @@ export async function requestChangeEmailAction(
         return { ok: false, error: 'Security check failed. Please try again.' }
     }
 
-    if (!hostname) {
-        return { ok: false, error: 'Could not determine the current site hostname.' }
-    }
-
     try {
         const client = await getCurrentClient()
+        const profile = await client.student.profile.get()
+        if (!sameEmail(profile.email, oldEmail)) {
+            return { ok: false, error: 'Current email does not match the signed-in account.' }
+        }
+
         await client.auth.requestChangeEmail({
             old_email: oldEmail,
             new_email: newEmail,
             password,
-            hostname,
             recaptcha_token: recaptchaToken,
         })
         return { ok: true }
@@ -83,12 +80,12 @@ export async function requestChangeEmailAction(
     }
 }
 
-export async function confirmChangeEmailAction(
-    data: ConfirmChangeEmailActionInput,
-): Promise<ChangeEmailResult> {
+export async function confirmChangeEmailAction(data: ConfirmChangeEmailActionInput): Promise<ChangeEmailResult> {
     const oldEmail = data.old_email?.trim() ?? ''
     const newEmail = data.new_email?.trim() ?? ''
-    const code = data.code?.trim() ?? ''
+    const oldEmailCode = data.old_email_code?.trim() ?? ''
+    const newEmailCode = data.new_email_code?.trim() ?? ''
+    const password = data.password ?? ''
     const recaptchaToken = data.recaptcha_token?.trim() ?? ''
 
     if (!oldEmail) {
@@ -99,8 +96,20 @@ export async function confirmChangeEmailAction(
         return { ok: false, error: 'New email is required.' }
     }
 
-    if (!code) {
-        return { ok: false, error: 'Invalid or expired email change link.' }
+    if (sameEmail(oldEmail, newEmail)) {
+        return { ok: false, error: 'New email must differ from your current email.' }
+    }
+
+    if (!oldEmailCode) {
+        return { ok: false, error: 'Enter the confirmation code sent to your current email.' }
+    }
+
+    if (!newEmailCode) {
+        return { ok: false, error: 'Enter the confirmation code sent to your new email.' }
+    }
+
+    if (!password) {
+        return { ok: false, error: 'Password is required.' }
     }
 
     if (!recaptchaToken) {
@@ -109,58 +118,25 @@ export async function confirmChangeEmailAction(
 
     try {
         const client = await getCurrentClient()
+        const profile = await client.student.profile.get()
+        if (!sameEmail(profile.email, oldEmail)) {
+            return {
+                ok: false,
+                error: 'You must stay signed in with your current email to confirm this change.',
+            }
+        }
+
         await client.auth.confirmChangeEmail({
             old_email: oldEmail,
             new_email: newEmail,
-            code,
+            old_email_code: oldEmailCode,
+            new_email_code: newEmailCode,
+            password,
             recaptcha_token: recaptchaToken,
         })
         return { ok: true }
     } catch (e) {
         const message = e instanceof Error ? e.message : 'Email change failed.'
         return { ok: false, error: message }
-    }
-}
-
-function decodeToken(token: string): string {
-    let value = token.trim()
-    for (let i = 0; i < 2 && value.includes('%'); i += 1) {
-        try {
-            const decoded = decodeURIComponent(value)
-            if (decoded === value) break
-            value = decoded
-        } catch {
-            break
-        }
-    }
-    return value
-}
-
-/**
- * Decode `base64url(oldEmail):base64url(newEmail):code` from the email change link path segment.
- * Colons may arrive percent-encoded as `%3A`.
- */
-export function parseChangeEmailToken(
-    token: string,
-): { old_email: string; new_email: string; code: string } | null {
-    const parts = decodeToken(token).split(':')
-    if (parts.length !== 3) {
-        return null
-    }
-
-    const [encodedOldEmail, encodedNewEmail, code] = parts
-    if (!encodedOldEmail || !encodedNewEmail || !code) {
-        return null
-    }
-
-    try {
-        const old_email = decodeBase64Url(encodedOldEmail).trim()
-        const new_email = decodeBase64Url(encodedNewEmail).trim()
-        if (!looksLikeEmail(old_email) || !looksLikeEmail(new_email)) {
-            return null
-        }
-        return { old_email, new_email, code }
-    } catch {
-        return null
     }
 }

@@ -1,17 +1,24 @@
 'use client'
 
-import { CheckIcon, HomeIcon, MailIcon, XIcon } from 'lucide-react'
-import Link from 'next/link'
+import { CheckIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 
 import { useAuth } from '@/components/AuthProvider'
+import { ChangeEmailConfirmFormFields } from '@/components/profile/ChangeEmailConfirmFormFields'
 import { ProfileFormRow } from '@/components/profile/ProfileFormRow'
 import { RecaptchaNotice } from '@/components/registration/RecaptchaNotice'
+import AnimatedStepper, { type StepItem } from '@/components/smoothui/animated-stepper'
 import AnimatedToggle from '@/components/smoothui/animated-toggle'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { Input } from '@/components/ui/input'
 import { requestChangeEmailAction } from '@/lib/data/changeEmailActions'
 import { RECAPTCHA_CHANGE_EMAIL_ACTION } from '@/lib/recaptcha'
+
+const EMAIL_CHANGE_STEPS: StepItem[] = [
+    { label: 'Instructions' },
+    { label: 'Request' },
+    { label: 'Confirmation' },
+]
 
 type ChangeEmailFormFieldsProps = {
     recaptchaConfigured: boolean
@@ -25,19 +32,14 @@ export function ChangeEmailFormFields({ recaptchaConfigured, executeRecaptcha }:
     const [confirmed, setConfirmed] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [pending, setPending] = useState(false)
-    const [sentEmail, setSentEmail] = useState<string | null>(null)
+    const [step, setStep] = useState(0)
+    const [requestedChange, setRequestedChange] = useState<{ oldEmail: string; newEmail: string } | null>(null)
 
     const currentEmail = profile?.email ?? ''
     const isUpcEmail = currentEmail.toLowerCase().endsWith('upc.edu')
     const recaptchaReady = !recaptchaConfigured || Boolean(executeRecaptcha)
 
-    const canSubmit =
-        newEmail.trim().length > 0 &&
-        password.length > 0 &&
-        confirmed &&
-        recaptchaReady &&
-        !pending &&
-        !sentEmail
+    const canSubmit = newEmail.trim().length > 0 && password.length > 0 && confirmed && recaptchaReady && !pending
 
     async function handleSubmit() {
         setErrorMessage(null)
@@ -97,112 +99,64 @@ export function ChangeEmailFormFields({ recaptchaConfigured, executeRecaptcha }:
                 return
             }
 
-            setSentEmail(currentEmail)
+            setRequestedChange({ oldEmail: currentEmail, newEmail: trimmedNewEmail })
             setPassword('')
+            setStep(2)
         } finally {
             setPending(false)
         }
     }
 
+    function handleStepChange(next: number) {
+        if (next === step) return
+        if (next > 0 && !confirmed) return
+        if (next > 1 && !requestedChange) return
+        setErrorMessage(null)
+        setStep(next)
+    }
+
     return (
         <div className="flex flex-1 flex-col">
             <section className="flex justify-center rounded-xl border border-border bg-card shadow-xs">
-                {sentEmail ? (
-                    <div className="mb-3 flex w-full max-w-3xl flex-col gap-2 px-6 py-8">
-                        <p className="text-sm text-muted-foreground">
-                            A confirmation email has been sent to your current address{' '}
-                            <span className="font-medium text-foreground">{sentEmail}</span>.
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            Follow the link in that email to complete the email change. You must remain signed in with
-                            your current account until you confirm.
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            If you don&apos;t receive the email, please wait a few minutes, check your spam folder, or
-                            contact support.
-                        </p>
-                        <SmoothButton asChild color="accent" variant="candy" className="mt-4 w-full gap-2">
-                            <Link href="mailto:">
-                                <MailIcon className="size-4" aria-hidden />
-                                Open email app
-                            </Link>
-                        </SmoothButton>
-                        <SmoothButton asChild color="accent" variant="candy" className="mt-2 w-full gap-2">
-                            <Link href="/">
-                                <HomeIcon className="size-4" aria-hidden />
-                                Go to home page
-                            </Link>
-                        </SmoothButton>
-                    </div>
-                ) : (
-                    <form
-                        className="mb-3 w-full max-w-3xl"
-                        onSubmit={(e) => {
-                            e.preventDefault()
-                            if (canSubmit) void handleSubmit()
-                        }}
-                    >
-                        <div className="grid gap-3 px-6 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                <div className="mb-3 w-full max-w-3xl px-6 pt-8 pb-4">
+                    <AnimatedStepper
+                        allowClickNavigation
+                        className="mb-6 px-6 sm:px-10"
+                        currentStep={step}
+                        onStepChange={handleStepChange}
+                        steps={EMAIL_CHANGE_STEPS}
+                        variant="horizontal"
+                    />
+
+                    {step === 0 ? (
+                        <div className="grid gap-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
                             <div className="hidden sm:block" />
-                            <div className="min-w-0 space-y-3 text-sm text-muted-foreground">
-                                <p>
-                                    In order to change your email for Jutge.org, you need to request a confirmation email to be sent to your current address.
-                                </p>
-                                <p>
-                                    <span className="font-bold text-foreground">Important:</span> You need access to your current email to complete the email change.
-                                </p>
-                                <p>
-                                    <span className="font-bold text-foreground">Warning:</span> Please take into account that when changing your email, instructors and
-                                    tutors of the courses you were enrolled will not be able to track you.
-                                </p>
-                                {isUpcEmail ? (
+                            <div className="min-w-0 space-y-6">
+                                <div className="space-y-3 text-sm text-muted-foreground">
                                     <p>
-                                        <span className="font-bold text-foreground">Warning:</span> If you change your email and you
-                                        are enrolled in UPC courses, you will likely have problems with lab exams or
-                                        assignment submissions because your instructors will no longer be able to track
-                                        you.
+                                        To change your email for Jutge.org, request confirmation codes. One code is sent
+                                        to your current address and another to the new address.
                                     </p>
-                                ) : null}
-                            </div>
-                        </div>
+                                    <p>
+                                        <span className="font-bold text-foreground">Important:</span> You need access to
+                                        both addresses, and you must stay signed in with your current email until you
+                                        confirm.
+                                    </p>
+                                    <p>
+                                        <span className="font-bold text-foreground">Warning:</span> Please take into
+                                        account that when changing your email, instructors and tutors of the courses you
+                                        were enrolled will not be able to track you.
+                                    </p>
+                                    {isUpcEmail ? (
+                                        <p>
+                                            <span className="font-bold text-foreground">Warning:</span> If you change
+                                            your email and you are enrolled in UPC courses, you will likely have problems
+                                            with lab exams or assignment submissions because your instructors will no
+                                            longer be able to track you.
+                                        </p>
+                                    ) : null}
+                                </div>
 
-                        <dl className="px-6 py-4">
-                            <ProfileFormRow label="Current email" htmlFor="change-email-current">
-                                <Input
-                                    id="change-email-current"
-                                    type="email"
-                                    value={currentEmail}
-                                    readOnly
-                                    autoComplete="username"
-                                    className="w-full"
-                                />
-                            </ProfileFormRow>
-
-                            <ProfileFormRow label="New email" htmlFor="change-email-new">
-                                <Input
-                                    id="change-email-new"
-                                    type="email"
-                                    value={newEmail}
-                                    onChange={(e) => setNewEmail(e.target.value)}
-                                    placeholder="Your new email address"
-                                    autoComplete="email"
-                                    className="w-full"
-                                />
-                            </ProfileFormRow>
-
-                            <ProfileFormRow label="Password" htmlFor="change-email-password">
-                                <Input
-                                    id="change-email-password"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Your current password"
-                                    autoComplete="current-password"
-                                    className="w-full"
-                                />
-                            </ProfileFormRow>
-
-                            <ProfileFormRow label="Confirmation" alignStart>
                                 <div className="flex items-center gap-3">
                                     <AnimatedToggle
                                         checked={confirmed}
@@ -221,30 +175,96 @@ export function ChangeEmailFormFields({ recaptchaConfigured, executeRecaptcha }:
                                             : 'Check to confirm you understand implications of changing your email.'}
                                     </p>
                                 </div>
-                            </ProfileFormRow>
 
-                            <div className="grid gap-3 pt-1 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                                <div className="hidden sm:block" />
-                                <div className="mt-4 flex min-w-0 flex-col gap-3">
-                                    {errorMessage ? (
-                                        <p role="alert" className="text-sm text-destructive">
-                                            {errorMessage}
-                                        </p>
-                                    ) : null}
-                                    <SmoothButton
-                                        type="submit"
-                                        color="accent"
-                                        variant="candy"
-                                        disabled={!canSubmit}
-                                        className="w-full gap-2"
-                                    >
-                                        {pending ? 'Sending…' : 'Request email change'}
-                                    </SmoothButton>
-                                </div>
+                                <SmoothButton
+                                    type="button"
+                                    color="accent"
+                                    variant="candy"
+                                    disabled={!confirmed}
+                                    className="w-full gap-2"
+                                    onClick={() => handleStepChange(1)}
+                                >
+                                    Continue
+                                </SmoothButton>
                             </div>
-                        </dl>
-                    </form>
-                )}
+                        </div>
+                    ) : null}
+
+                    {step === 1 ? (
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault()
+                                if (canSubmit) void handleSubmit()
+                            }}
+                        >
+                            <dl>
+                                <ProfileFormRow label="Current email" htmlFor="change-email-current">
+                                    <Input
+                                        id="change-email-current"
+                                        type="email"
+                                        value={currentEmail}
+                                        readOnly
+                                        autoComplete="username"
+                                        className="w-full"
+                                    />
+                                </ProfileFormRow>
+
+                                <ProfileFormRow label="New email" htmlFor="change-email-new">
+                                    <Input
+                                        id="change-email-new"
+                                        type="email"
+                                        value={newEmail}
+                                        onChange={(e) => setNewEmail(e.target.value)}
+                                        placeholder="Your new email address"
+                                        autoComplete="email"
+                                        className="w-full"
+                                    />
+                                </ProfileFormRow>
+
+                                <ProfileFormRow label="Password" htmlFor="change-email-password">
+                                    <Input
+                                        id="change-email-password"
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Your current password"
+                                        autoComplete="current-password"
+                                        className="w-full"
+                                    />
+                                </ProfileFormRow>
+
+                                <div className="grid gap-3 pt-1 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                                    <div className="hidden sm:block" />
+                                    <div className="mt-4 flex min-w-0 flex-col gap-3">
+                                        {errorMessage ? (
+                                            <p role="alert" className="text-sm text-destructive">
+                                                {errorMessage}
+                                            </p>
+                                        ) : null}
+                                        <SmoothButton
+                                            type="submit"
+                                            color="accent"
+                                            variant="candy"
+                                            disabled={!canSubmit}
+                                            className="w-full gap-2"
+                                        >
+                                            {pending ? 'Sending…' : 'Request email change'}
+                                        </SmoothButton>
+                                    </div>
+                                </div>
+                            </dl>
+                        </form>
+                    ) : null}
+
+                    {step === 2 && requestedChange ? (
+                        <ChangeEmailConfirmFormFields
+                            oldEmail={requestedChange.oldEmail}
+                            newEmail={requestedChange.newEmail}
+                            recaptchaConfigured={recaptchaConfigured}
+                            executeRecaptcha={executeRecaptcha}
+                        />
+                    ) : null}
+                </div>
             </section>
             <div className="mt-auto flex justify-end pt-12">
                 <RecaptchaNotice configured={recaptchaConfigured} />
