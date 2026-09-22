@@ -237,7 +237,7 @@ export function UnregistrationView({ recaptchaConfigured, executeRecaptcha }: Un
                             <div className="grid gap-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
                                 <div className="hidden sm:block" />
                                 <p className="min-w-0 text-sm text-muted-foreground">
-                                    Enter your password. We will email a confirmation code to your address.
+                                    Enter your password. We will email a confirmation code to your email address.
                                 </p>
                             </div>
 
