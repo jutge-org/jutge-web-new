@@ -67,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (!jutge.meta?.token) {
                 return { ok: false as const, error: 'Sign in failed.' }
             }
+            // Cache keys omit the user, so a previous session's responses must not be reused.
+            jutge.clearCache()
             warmAbstractProblemsCache()
             const fetchedProfile = await jutge.student.profile.get()
             setProfile(fetchedProfile)
@@ -91,6 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await jutge.logout()
         } catch {
             jutge.meta = null
+        } finally {
+            jutge.clearCache()
         }
     }
 
