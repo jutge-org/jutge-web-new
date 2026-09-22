@@ -1,6 +1,5 @@
 import { AboutInfoCard, AboutTimeline, AboutTimelineGroup, aboutCountLabel } from '@/components/about/AboutTimeline'
 import { developerCredits, maintenanceCredits, problemSetters, problemTranslators } from '@/lib/about'
-import { LanguagesIcon, ListChecksIcon } from 'lucide-react'
 
 export function AboutCredits() {
     return (
@@ -54,7 +53,7 @@ export function AboutCredits() {
             </AboutTimelineGroup>
 
             <AboutTimelineGroup id="credits-setters" label="Setters" caption="Problem authors">
-                <AboutInfoCard icon={ListChecksIcon} title="Problem setters" badge="Content">
+                <AboutInfoCard title="Problem setters" badge="Content">
                     <ul className="mt-1.5 space-y-1 text-sm leading-relaxed text-muted-foreground">
                         {problemSetters.map((name) => (
                             <li key={name}>{name}</li>
@@ -64,7 +63,7 @@ export function AboutCredits() {
             </AboutTimelineGroup>
 
             <AboutTimelineGroup id="credits-translators" label="Translators" caption="Problem translators">
-                <AboutInfoCard icon={LanguagesIcon} title="Problem translators" badge="Language">
+                <AboutInfoCard title="Problem translators" badge="Language">
                     <ul className="mt-1.5 space-y-1 text-sm leading-relaxed text-muted-foreground">
                         {problemTranslators.map((name) => (
                             <li key={name}>{name}</li>

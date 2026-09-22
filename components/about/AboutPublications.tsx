@@ -1,6 +1,5 @@
 import { AboutInfoCard, AboutTimeline, AboutTimelineGroup, aboutCountLabel } from '@/components/about/AboutTimeline'
 import { publications } from '@/lib/about'
-import { BookMarkedIcon, BookOpenIcon, FileTextIcon, ScrollTextIcon, type LucideIcon } from 'lucide-react'
 
 type PublicationKind = 'journal' | 'conference' | 'chapter' | 'guide'
 
@@ -13,11 +12,11 @@ type ParsedPublication = {
     kind: PublicationKind
 }
 
-const KIND_META: Record<PublicationKind, { label: string; Icon: LucideIcon }> = {
-    journal: { label: 'Journal', Icon: BookOpenIcon },
-    conference: { label: 'Conference', Icon: ScrollTextIcon },
-    chapter: { label: 'Book chapter', Icon: BookMarkedIcon },
-    guide: { label: 'Guide', Icon: FileTextIcon },
+const KIND_META: Record<PublicationKind, { label: string }> = {
+    journal: { label: 'Journal' },
+    conference: { label: 'Conference' },
+    chapter: { label: 'Book chapter' },
+    guide: { label: 'Guide' },
 }
 
 function decodeHtml(html: string): string {
@@ -135,11 +134,10 @@ export function AboutPublications() {
                     prominent
                 >
                     {group.items.map((publication) => {
-                        const { label, Icon } = KIND_META[publication.kind]
+                        const { label } = KIND_META[publication.kind]
                         return (
                             <AboutInfoCard
                                 key={publication.title}
-                                icon={Icon}
                                 title={publication.title}
                                 href={publication.href ?? undefined}
                                 badge={label}
