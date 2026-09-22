@@ -26,6 +26,11 @@ const nextConfig: NextConfig = {
                 destination: '/activity',
                 permanent: true,
             },
+            {
+                source: '/reset-password/:token',
+                destination: '/password-reset',
+                permanent: false,
+            },
         ]
     },
 }

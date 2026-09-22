@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckIcon, XIcon } from 'lucide-react'
+import { ArrowRightIcon, CheckIcon, MailIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 
 import { useAuth } from '@/components/AuthProvider'
@@ -182,6 +182,7 @@ export function ChangeEmailFormFields({ recaptchaConfigured, executeRecaptcha }:
                                     variant="candy"
                                     disabled={!confirmed}
                                     className="w-full gap-2"
+                                    prefix={<ArrowRightIcon className="size-4" aria-hidden />}
                                     onClick={() => handleStepChange(1)}
                                 >
                                     Continue
@@ -247,8 +248,9 @@ export function ChangeEmailFormFields({ recaptchaConfigured, executeRecaptcha }:
                                             variant="candy"
                                             disabled={!canSubmit}
                                             className="w-full gap-2"
+                                            prefix={<MailIcon className="size-4" aria-hidden />}
                                         >
-                                            {pending ? 'Sending…' : 'Request email change'}
+                                            {pending ? 'Sending…' : 'Send confirmation codes'}
                                         </SmoothButton>
                                     </div>
                                 </div>

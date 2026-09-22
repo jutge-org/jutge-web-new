@@ -26,5 +26,7 @@ export function ProfileNav({ activeTab }: ProfileNavProps) {
             }))
     }, [isInstructor])
 
+    if (!user) return null
+
     return <SubNav ariaLabel="Profile sections" activeKey={activeTab} items={items} />
 }

@@ -1,41 +1,46 @@
 'use client'
 
-import { CheckIcon, HeartIcon, HomeIcon, MailIcon, UserXIcon, XIcon } from 'lucide-react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { ArrowRightIcon, CheckIcon, MailIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
-import { toast } from 'sonner'
 
 import { useAuth } from '@/components/AuthProvider'
 import { ProfileFormRow } from '@/components/profile/ProfileFormRow'
+import { UnregistrationConfirmFormFields } from '@/components/profile/UnregistrationConfirmFormFields'
 import { RecaptchaNotice } from '@/components/registration/RecaptchaNotice'
+import AnimatedStepper, { type StepItem } from '@/components/smoothui/animated-stepper'
 import AnimatedToggle from '@/components/smoothui/animated-toggle'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { Input } from '@/components/ui/input'
 import { requestUnregistrationAction } from '@/lib/data/unregistrationActions'
 import { RECAPTCHA_UNREGISTRATION_ACTION } from '@/lib/recaptcha'
 
+const UNREGISTRATION_STEPS: StepItem[] = [{ label: 'Instructions' }, { label: 'Request' }, { label: 'Confirmation' }]
+
 type UnregistrationViewProps = {
     recaptchaConfigured: boolean
     executeRecaptcha?: (action?: string) => Promise<string>
 }
 
-type Step = 'warning' | 'confirm' | 'sent'
-
 export function UnregistrationView({ recaptchaConfigured, executeRecaptcha }: UnregistrationViewProps) {
-    const router = useRouter()
     const { profile } = useAuth()
-    const [step, setStep] = useState<Step>('warning')
-    const [confirmed, setConfirmed] = useState(false)
     const [password, setPassword] = useState('')
+    const [confirmed, setConfirmed] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [pending, setPending] = useState(false)
+    const [step, setStep] = useState(0)
+    const [requestedEmail, setRequestedEmail] = useState<string | null>(null)
 
+    const currentEmail = profile?.email ?? ''
     const recaptchaReady = !recaptchaConfigured || Boolean(executeRecaptcha)
-    const canProceed = confirmed && password.length > 0 && recaptchaReady && !pending
+    const canSubmit = password.length > 0 && confirmed && recaptchaReady && !pending
 
-    async function handleProceed() {
+    async function handleSubmit() {
         setErrorMessage(null)
+
+        if (!currentEmail) {
+            setErrorMessage('Could not determine your current email.')
+            return
+        }
 
         if (!confirmed) {
             setErrorMessage('Please confirm that you understand this action is irreversible.')
@@ -74,91 +79,130 @@ export function UnregistrationView({ recaptchaConfigured, executeRecaptcha }: Un
                 return
             }
 
-            setStep('sent')
+            setRequestedEmail(currentEmail)
+            setPassword('')
+            setStep(2)
         } finally {
             setPending(false)
         }
     }
 
-    function handleCancel() {
-        toast.info('Unregistration cancelled.')
-        router.push('/')
+    function handleStepChange(next: number) {
+        if (next === step) return
+        if (next > 0 && !confirmed) return
+        if (next > 1 && !requestedEmail) return
+        setErrorMessage(null)
+        setStep(next)
     }
 
     return (
         <div className="flex flex-1 flex-col">
-            <section className="flex w-full justify-center rounded-xl border border-border bg-card shadow-xs">
-                <div className="w-full max-w-2xl px-6 py-8">
-                    {step === 'warning' ? (
-                        <div className="flex flex-col items-center gap-6 text-center">
-                            <div className="space-y-4 text-sm leading-relaxed text-foreground">
-                                <p className="text-base font-medium">Don&apos;t you love Jutge.org?</p>
-                                <p>Well... you can unregister your account at any time!</p>
-                                <p>Take into account that once you unregister...</p>
-                                <ul className="space-y-2 text-left">
-                                    <li>⚡ You will not be able to access your account anymore.</li>
-                                    <li>⚡ You will not be able to access your submitted solutions anymore.</li>
-                                    <li>⚡ You will not be able to view the verdicts of your submissions.</li>
-                                    <li>⚡ You will be unenrolled from all the courses you were invited.</li>
-                                    <li>
-                                        ⚡ Instructors and tutors of the courses you were enrolled will not be able to
-                                        see your status.
-                                    </li>
-                                    <li>⚡ You will lose all awards.</li>
-                                    <li>
-                                        💀 In brief: All the information in your Jutge.org account will be lost and
-                                        cannot be recovered.
-                                    </li>
-                                    <li>
-                                        💀 💀 Repeat: All the information in your Jutge.org account will be lost and
-                                        cannot be recovered.
-                                    </li>
-                                    <li>
-                                        💬 Suggestion: Before unregistering, we suggest that you download all your
-                                        programs and save them in a safe place.
-                                    </li>
-                                </ul>
-                            </div>
+            <section className="flex justify-center rounded-xl border border-border bg-card shadow-xs">
+                <div className="mb-3 w-full max-w-3xl px-6 pt-8 pb-4">
+                    <AnimatedStepper
+                        allowClickNavigation
+                        className="mb-6 px-6 sm:px-10"
+                        currentStep={step}
+                        onStepChange={handleStepChange}
+                        steps={UNREGISTRATION_STEPS}
+                        variant="horizontal"
+                    />
 
-                            <div className="flex w-full flex-row gap-6">
+                    {step === 0 ? (
+                        <div className="grid gap-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                            <div className="hidden sm:block" />
+                            <div className="min-w-0 space-y-6">
+                                <div className="space-y-3 text-sm text-muted-foreground">
+                                    <p>Follow the instructions below to unregister your account and clear all your data from Jutge.org.</p>
+                                    <p>Take into account that once you unregister...</p>
+                                    <ul className="space-y-2 text-foreground">
+                                        <li>⚡ You will not be able to access your account anymore.</li>
+                                        <li>⚡ You will not be able to access your submitted solutions anymore.</li>
+                                        <li>⚡ You will not be able to view the verdicts of your submissions.</li>
+                                        <li>⚡ You will be unenrolled from all the courses you were invited.</li>
+                                        <li>
+                                            ⚡ Instructors and tutors of the courses you were enrolled will not be able
+                                            to see your status.
+                                        </li>
+                                        <li>⚡ You will lose all awards.</li>
+                                        <li>
+                                            💀 In brief: All the information in your Jutge.org account will be lost and
+                                            cannot be recovered.
+                                        </li>
+                                        <li>
+                                            💀 💀 Repeat: All the information in your Jutge.org account will be lost and
+                                            cannot be recovered.
+                                        </li>
+                                        <li>
+                                            💬 Suggestion: Before unregistering, we suggest that you download all your
+                                            programs and save them in a safe place.
+                                        </li>
+                                    </ul>
+                                    <p>
+                                        To continue, confirm that you understand this action is irreversible. A
+                                        confirmation code will be sent to your email address.
+                                    </p>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <AnimatedToggle
+                                        checked={confirmed}
+                                        onChange={setConfirmed}
+                                        size="lg"
+                                        variant="icon"
+                                        label="Confirm that unregistration is permanent"
+                                        icons={{
+                                            on: <CheckIcon aria-hidden />,
+                                            off: <XIcon aria-hidden />,
+                                        }}
+                                    />
+                                    <p className="text-sm leading-snug text-foreground">
+                                        {confirmed
+                                            ? 'I confirm unregistration cannot be undone.'
+                                            : 'Check to confirm unregistration is permanent.'}
+                                    </p>
+                                </div>
+
                                 <SmoothButton
                                     type="button"
-                                    color="green"
+                                    color="accent"
                                     variant="candy"
+                                    disabled={!confirmed}
                                     className="w-full gap-2"
-                                    prefix={<HeartIcon className="size-4" aria-hidden />}
-                                    onClick={handleCancel}
+                                    prefix={<ArrowRightIcon className="size-4" aria-hidden />}
+                                    onClick={() => handleStepChange(1)}
                                 >
-                                    Keep my account
-                                </SmoothButton>
-                                <SmoothButton
-                                    type="button"
-                                    color="destructive"
-                                    variant="candy"
-                                    className="w-full gap-2"
-                                    prefix={<UserXIcon className="size-4" aria-hidden />}
-                                    onClick={() => {
-                                        setErrorMessage(null)
-                                        setStep('confirm')
-                                    }}
-                                >
-                                    Unregister my account
+                                    Continue
                                 </SmoothButton>
                             </div>
                         </div>
                     ) : null}
 
-                    {step === 'confirm' ? (
-                        <div className="flex flex-col gap-6">
-                            <div className="space-y-2 text-center text-sm text-muted-foreground">
-                                <p className="text-base font-medium text-foreground">Confirm unregistration</p>
-                                <p>
-                                    Enter your password and confirm that you understand this action is irreversible.
-                                    We will send an unregistration email to your email address with a link to complete the process.
+                    {step === 1 ? (
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault()
+                                if (canSubmit) void handleSubmit()
+                            }}
+                        >
+                            <div className="grid gap-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                                <div className="hidden sm:block" />
+                                <p className="min-w-0 text-sm text-muted-foreground">
+                                    Enter your password. We will email a confirmation code to your address.
                                 </p>
                             </div>
 
                             <dl>
+                                <ProfileFormRow label="Email" htmlFor="unregistration-email">
+                                    <Input
+                                        id="unregistration-email"
+                                        type="email"
+                                        value={currentEmail}
+                                        readOnly
+                                        autoComplete="username"
+                                        className="w-full"
+                                    />
+                                </ProfileFormRow>
 
                                 <ProfileFormRow label="Password" htmlFor="unregistration-password">
                                     <Input
@@ -166,108 +210,49 @@ export function UnregistrationView({ recaptchaConfigured, executeRecaptcha }: Un
                                         type="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        autoComplete="current-password"
                                         placeholder="Your current password"
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && canProceed) void handleProceed()
-                                        }}
+                                        autoComplete="current-password"
+                                        className="w-full"
                                     />
                                 </ProfileFormRow>
-                                <ProfileFormRow label="Confirmation" alignStart>
-                                    <div className="flex items-center gap-3">
-                                        <AnimatedToggle
-                                            checked={confirmed}
-                                            onChange={setConfirmed}
-                                            size="lg"
-                                            variant="icon"
-                                            label="Confirm that unregistration is permanent"
-                                            icons={{
-                                                on: <CheckIcon aria-hidden />,
-                                                off: <XIcon aria-hidden />,
-                                            }}
-                                        />
-                                        <p className="text-sm leading-snug text-foreground">
-                                            {confirmed
-                                                ? 'I confirm unregistration cannot be undone.'
-                                                : 'Check to confirm unregistration is permanent.'}
-                                        </p>
+
+                                <div className="grid gap-3 pt-1 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                                    <div className="hidden sm:block" />
+                                    <div className="mt-4 flex min-w-0 flex-col gap-3">
+                                        {errorMessage ? (
+                                            <p role="alert" className="text-sm text-destructive">
+                                                {errorMessage}
+                                            </p>
+                                        ) : null}
+                                        <SmoothButton
+                                            type="submit"
+                                            color="accent"
+                                            variant="candy"
+                                            disabled={!canSubmit}
+                                            loading={pending}
+                                            className="w-full gap-2"
+                                            prefix={<MailIcon className="size-4" aria-hidden />}
+                                        >
+                                            {pending ? 'Sending…' : 'Send confirmation code'}
+                                        </SmoothButton>
                                     </div>
-                                </ProfileFormRow>
+                                </div>
                             </dl>
-
-                            {errorMessage ? (
-                                <p role="alert" className="text-sm text-destructive text-center">
-                                    {errorMessage}
-                                </p>
-                            ) : null}
-
-                            <div className="flex w-full flex-row gap-6">
-                                <SmoothButton
-                                    type="button"
-                                    color="green"
-                                    variant="candy"
-                                    className="w-full gap-2"
-                                    prefix={<HeartIcon className="size-4" aria-hidden />}
-                                    disabled={pending}
-                                    onClick={handleCancel}
-                                >
-                                    Keep my account
-                                </SmoothButton>
-                                <SmoothButton
-                                    type="button"
-                                    color="destructive"
-                                    variant="candy"
-                                    className="w-full gap-2"
-                                    prefix={<MailIcon className="size-4" aria-hidden />}
-                                    disabled={!canProceed}
-                                    loading={pending}
-                                    onClick={() => void handleProceed()}
-                                >
-                                    {pending ? 'Sending email…' : 'Send unregistration email'}
-                                </SmoothButton>
-                            </div>
-                        </div>
+                        </form>
                     ) : null}
 
-                    {step === 'sent' ? (
-                        <div className="flex flex-col gap-4 text-sm text-muted-foreground">
-                            <p>
-                                An unregistration request email has been sent
-                                {profile?.email ? (
-                                    <>
-                                        {' '}
-                                        to <span className="font-medium text-foreground">{profile.email}</span>
-                                    </>
-                                ) : null}
-                                .
-                            </p>
-                            <p>Follow the link in that email to permanently unregister your account.</p>
-                            <p>
-                                If you don&apos;t receive the email, please wait a few minutes, check your spam folder,
-                                or contact support.
-                            </p>
-                            <SmoothButton asChild color="accent" variant="candy" className="mt-2 w-full gap-2">
-                                <Link href="mailto:">
-                                    <MailIcon className="size-4" aria-hidden />
-                                    Open email app
-                                </Link>
-                            </SmoothButton>
-                            <SmoothButton asChild color="accent" variant="candy" className="w-full gap-2">
-                                <Link href="/">
-                                    <HomeIcon className="size-4" aria-hidden />
-                                    Go to home page
-                                </Link>
-                            </SmoothButton>
-                        </div>
+                    {step === 2 && requestedEmail ? (
+                        <UnregistrationConfirmFormFields
+                            email={requestedEmail}
+                            recaptchaConfigured={recaptchaConfigured}
+                            executeRecaptcha={executeRecaptcha}
+                        />
                     ) : null}
                 </div>
             </section>
-
-            {step === 'confirm' ? (
-                <div className="mt-auto flex justify-end pt-12">
-                    <RecaptchaNotice configured={recaptchaConfigured} />
-                </div>
-            ) : null}
+            <div className="mt-auto flex justify-end pt-12">
+                <RecaptchaNotice configured={recaptchaConfigured} />
+            </div>
         </div>
     )
 }

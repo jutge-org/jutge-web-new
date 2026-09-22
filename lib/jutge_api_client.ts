@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-22T06:18:04.944Z
+ * This file has been automatically generated at 2026-09-22T06:45:43.771Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -52,7 +52,6 @@ export type RegisterIn = {
 
 export type RequestPasswordResetIn = {
     email: string
-    hostname: string
     recaptcha_token: string
 }
 
@@ -65,15 +64,10 @@ export type ConfirmPasswordRequestIn = {
 
 export type RequestUnregistrationIn = {
     password: string
-    hostname: string
     recaptcha_token: string
 }
 
-export type ConfirmUnregistrationIn = {
-    email: string
-    code: string
-    recaptcha_token: string
-}
+export type ConfirmUnregistrationIn = ConfirmPasswordRequestIn
 
 export type RequestChangeEmailIn = {
     old_email: string
@@ -1857,7 +1851,7 @@ class Module_auth {
      *
      * 🔐 Authentication: any
      * No warnings
-     * Sends a reset link to the user if the email is registered. Always succeeds silently for unknown emails. Requires a valid reCAPTCHA v3 token.
+     * Emails a reset code if the address is registered. Always succeeds silently for unknown emails. Requires a valid reCAPTCHA v3 token.
      */
     async requestPasswordReset(data: RequestPasswordResetIn): Promise<void> {
         const [output, ofiles] = await this.root.execute("auth.requestPasswordReset", data)
@@ -1881,7 +1875,7 @@ class Module_auth {
      *
      * 🔐 Authentication: user
      * No warnings
-     * Verifies the current password and sends an unregistration confirmation link. Requires authentication and a valid reCAPTCHA v3 token.
+     * Verifies the current password and emails an unregistration confirmation code. Requires authentication and a valid reCAPTCHA v3 token.
      */
     async requestUnregistration(data: RequestUnregistrationIn): Promise<void> {
         const [output, ofiles] = await this.root.execute("auth.requestUnregistration", data)
@@ -1893,9 +1887,9 @@ class Module_auth {
      *
      * 🔐 Authentication: user
      * No warnings
-     * Validates the unregistration code, removes the account, unlinks course enrollments, and invalidates all sessions. Requires authentication and a valid reCAPTCHA v3 token. Warning: This action is irreversible!!!
+     * Validates the current password and the unregistration code, removes the account, unlinks course enrollments, and invalidates all sessions. Requires authentication and a valid reCAPTCHA v3 token. Warning: This action is irreversible!!!
      */
-    async confirmUnregistration(data: ConfirmUnregistrationIn): Promise<void> {
+    async confirmUnregistration(data: ConfirmPasswordRequestIn): Promise<void> {
         const [output, ofiles] = await this.root.execute("auth.confirmUnregistration", data)
         return output
     }
