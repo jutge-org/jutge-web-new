@@ -141,6 +141,10 @@ const profileSectionMeta: Record<
         description: 'Change your account email address',
         keywords: ['Change email', 'Email address'],
     },
+    downloads: {
+        description: 'Download zip archives of your submissions and collectible cards',
+        keywords: ['Download submissions', 'Collectible cards', 'Archive', 'Export'],
+    },
     unregistration: {
         description: 'Unregister and permanently delete your account',
         keywords: ['Unregister', 'Delete account', 'Close account'],

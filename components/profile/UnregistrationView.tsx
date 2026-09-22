@@ -13,6 +13,7 @@ import SmoothButton from '@/components/smoothui/smooth-button'
 import { Input } from '@/components/ui/input'
 import { requestUnregistrationAction } from '@/lib/data/unregistrationActions'
 import { RECAPTCHA_UNREGISTRATION_ACTION } from '@/lib/recaptcha'
+import Link from 'next/link'
 
 const UNREGISTRATION_STEPS: StepItem[] = [{ label: 'Instructions' }, { label: 'Request' }, { label: 'Confirmation' }]
 
@@ -116,26 +117,74 @@ export function UnregistrationView({ recaptchaConfigured, executeRecaptcha }: Un
                                     <p>Follow the instructions below to unregister your account and clear all your data from Jutge.org.</p>
                                     <p>Take into account that once you unregister...</p>
                                     <ul className="space-y-2 text-foreground">
-                                        <li>⚡ You will not be able to access your account anymore.</li>
-                                        <li>⚡ You will not be able to access your submitted solutions anymore.</li>
-                                        <li>⚡ You will not be able to view the verdicts of your submissions.</li>
-                                        <li>⚡ You will be unenrolled from all the courses you were invited.</li>
-                                        <li>
-                                            ⚡ Instructors and tutors of the courses you were enrolled will not be able
-                                            to see your status.
+                                        <li className="flex gap-2">
+                                            <span className="shrink-0" aria-hidden>
+                                                ⚡
+                                            </span>
+                                            <span>You will not be able to access your account anymore.</span>
                                         </li>
-                                        <li>⚡ You will lose all awards.</li>
-                                        <li>
-                                            💀 In brief: All the information in your Jutge.org account will be lost and
-                                            cannot be recovered.
+                                        <li className="flex gap-2">
+                                            <span className="shrink-0" aria-hidden>
+                                                ⚡
+                                            </span>
+                                            <span>You will not be able to access your submitted solutions anymore.</span>
                                         </li>
-                                        <li>
-                                            💀 💀 Repeat: All the information in your Jutge.org account will be lost and
-                                            cannot be recovered.
+                                        <li className="flex gap-2">
+                                            <span className="shrink-0" aria-hidden>
+                                                ⚡
+                                            </span>
+                                            <span>You will not be able to view the verdicts of your submissions.</span>
                                         </li>
-                                        <li>
-                                            💬 Suggestion: Before unregistering, we suggest that you download all your
-                                            programs and save them in a safe place.
+                                        <li className="flex gap-2">
+                                            <span className="shrink-0" aria-hidden>
+                                                ⚡
+                                            </span>
+                                            <span>You will be unenrolled from all the courses you were invited.</span>
+                                        </li>
+                                        <li className="flex gap-2">
+                                            <span className="shrink-0" aria-hidden>
+                                                ⚡
+                                            </span>
+                                            <span>
+                                                Instructors and tutors of the courses you were enrolled will not be able
+                                                to see your status.
+                                            </span>
+                                        </li>
+                                        <li className="flex gap-2">
+                                            <span className="shrink-0" aria-hidden>
+                                                ⚡
+                                            </span>
+                                            <span>You will lose all awards.</span>
+                                        </li>
+                                        <li className="flex gap-2">
+                                            <span className="shrink-0" aria-hidden>
+                                                💀
+                                            </span>
+                                            <span>
+                                                In brief: All the information in your Jutge.org account will be lost and
+                                                cannot be recovered.
+                                            </span>
+                                        </li>
+                                        <li className="flex gap-2">
+                                            <span className="shrink-0" aria-hidden>
+                                                💀
+                                            </span>
+                                            <span>
+                                                Repeat: All the information in your Jutge.org account will be lost and
+                                                cannot be recovered.
+                                            </span>
+                                        </li>
+                                        <li className="flex gap-2">
+                                            <span className="shrink-0" aria-hidden>
+                                                💬
+                                            </span>
+                                            <span>
+                                                Suggestion: Before unregistering, we suggest that you{' '}
+                                                <Link href="/profile/downloads" className="text-primary underline">
+                                                    download all your programs
+                                                </Link>{' '}
+                                                and save them in a safe place.
+                                            </span>
                                         </li>
                                     </ul>
                                     <p>

@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-22T06:45:43.771Z
+ * This file has been automatically generated at 2026-09-22T08:34:39.108Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -2656,6 +2656,30 @@ class Module_student_profile {
      */
     async getAvatar(): Promise<Download> {
         const [output, ofiles] = await this.root.execute("student.profile.getAvatar", null)
+        return ofiles[0]
+    }
+
+    /**
+     * Download a zip archive with all submissions.
+     *
+     * 🔐 Authentication: user
+     * No warnings
+     * Entries sit under a folder named with the user email. Each problem directory contains a YAML summary and, when the source is stored, the program.
+     */
+    async downloadSubmissions(): Promise<Download> {
+        const [output, ofiles] = await this.root.execute("student.profile.downloadSubmissions", null)
+        return ofiles[0]
+    }
+
+    /**
+     * Download a zip archive with all trading cards.
+     *
+     * 🔐 Authentication: user
+     * No warnings
+     * Entries sit under a folder named with the user email. Images of owned cards are placed in a cards folder.
+     */
+    async downloadCards(): Promise<Download> {
+        const [output, ofiles] = await this.root.execute("student.profile.downloadCards", null)
         return ofiles[0]
     }
 

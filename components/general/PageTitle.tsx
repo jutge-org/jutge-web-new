@@ -19,6 +19,7 @@ import {
     User,
     UserPlusIcon,
     UserXIcon,
+    DownloadIcon,
 } from 'lucide-react'
 
 export type PageTitleSection =
@@ -36,6 +37,7 @@ export type PageTitleSection =
     | '/change-password'
     | '/avatar'
     | '/change-email'
+    | '/downloads'
     | '/unregistration'
     | '/request-instructor-account'
     | '/instructor'
@@ -58,6 +60,7 @@ const cardAccent: Record<PageTitleSection, string> = {
     '/change-password': 'border-l-4 border-l-violet-500 text-violet-600 dark:text-violet-400',
     '/avatar': 'border-l-4 border-l-pink-500 text-pink-600 dark:text-pink-400',
     '/change-email': 'border-l-4 border-l-sky-500 text-sky-600 dark:text-sky-400',
+    '/downloads': 'border-l-4 border-l-teal-500 text-teal-600 dark:text-teal-400',
     '/unregistration': 'border-l-4 border-l-red-500 text-red-600 dark:text-red-400',
     '/request-instructor-account': 'border-l-4 border-l-purple-500 text-purple-600 dark:text-purple-400',
     '/instructor': 'border-l-4 border-l-purple-500 text-purple-600 dark:text-purple-400',
@@ -81,6 +84,7 @@ const sectionLabel: Record<PageTitleSection, string> = {
     '/change-password': 'Change password',
     '/avatar': 'Avatar',
     '/change-email': 'Change email',
+    '/downloads': 'Downloads',
     '/unregistration': 'Unregistration',
     '/request-instructor-account': 'Request instructor account',
     '/instructor': 'Instructor',
@@ -104,6 +108,7 @@ const guestDescription: Record<PageTitleSection, string> = {
     '/change-password': 'Change the password for your Jutge.org account.',
     '/avatar': 'Change the avatar for your Jutge.org account.',
     '/change-email': 'Change the email address for your Jutge.org account.',
+    '/downloads': 'Download a zip archive of all your submissions.',
     '/unregistration': 'Permanently unregister your Jutge.org account.',
     '/request-instructor-account': 'Upgrade your account to create and manage courses.',
     '/instructor': 'Manage courses, exams, and teaching tools',
@@ -127,6 +132,7 @@ const authenticatedDescription: Record<PageTitleSection, string> = {
     '/change-password': 'Change the password for your Jutge.org account.',
     '/avatar': 'Change the avatar for your Jutge.org account.',
     '/change-email': 'Change the email address for your Jutge.org account.',
+    '/downloads': 'Download a zip archive of all your submissions.',
     '/unregistration': 'Permanently unregister your Jutge.org account.',
     '/request-instructor-account': 'Upgrade your account to create and manage courses.',
     '/instructor': 'Manage courses, exams, and teaching tools',
@@ -173,6 +179,8 @@ function SectionIcon({ section }: { section: PageTitleSection }) {
             return <ImageIcon className={iconClass} aria-hidden />
         case '/change-email':
             return <MailIcon className={iconClass} aria-hidden />
+        case '/downloads':
+            return <DownloadIcon className={iconClass} aria-hidden />
         case '/unregistration':
             return <UserXIcon className={iconClass} aria-hidden />
         case '/request-instructor-account':
