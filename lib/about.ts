@@ -78,7 +78,7 @@ export function jutgeAsset(path: string): string {
 
 export type CreditPerson = {
     name: string
-    image: string
+    image?: string
     role?: string
     affiliation?: string
 }
@@ -86,50 +86,41 @@ export type CreditPerson = {
 export const maintenanceCredits: CreditPerson[] = [
     {
         name: 'Jordi Petit',
-        image: jutgeAsset('/img/credits/jpetit.png'),
+        image: '/credits/jpetit.webp',
         affiliation: 'Departament de Ciències de la Computació\nUniversitat Politècnica de Catalunya',
     },
     {
         name: 'Salvador Roura',
-        image: jutgeAsset('/img/credits/roura.png'),
+        image: '/credits/roura.webp',
         affiliation: 'Departament de Ciències de la Computació\nUniversitat Politècnica de Catalunya',
     },
     {
         name: 'Pau Fernández',
-        image: jutgeAsset('/img/credits/pauek.png'),
+        image: '/credits/pauek.webp',
         affiliation: 'Departament de Ciències de la Computació\nUniversitat Politècnica de Catalunya',
     },
 ]
 
 export const developerCredits: CreditPerson[] = [
-    { name: 'Jordi Petit', image: jutgeAsset('/img/credits/jpetit.png') },
-    { name: 'Salvador Roura', image: jutgeAsset('/img/credits/roura.png') },
-    { name: 'Omer Giménez', image: jutgeAsset('/img/credits/omer.png') },
-    { name: 'Alex Catarineu', image: jutgeAsset('/img/credits/user.png') },
-    { name: 'Victor Guerrero', image: jutgeAsset('/img/credits/user.png') },
-    { name: 'Albert Vaca', image: jutgeAsset('/img/credits/vaka.png') },
-    { name: 'Javier de San Pedro', image: jutgeAsset('/img/credits/jspedro.png') },
-    { name: 'Enric Cusell', image: jutgeAsset('/img/credits/ecusell.png') },
-    { name: 'Jan Mas Rovira', image: jutgeAsset('/img/credits/janmas.png') },
-    { name: 'Albert Lobo', image: jutgeAsset('/img/credits/lobo.png') },
-    { name: 'Cristina Raluca Vijulie', image: jutgeAsset('/img/credits/cristina.png') },
-    { name: 'Jordi Reig Callis', image: jutgeAsset('/img/credits/jreig.png') },
-    { name: 'Alejandro Adán Navarro', image: jutgeAsset('/img/credits/adan.png') },
-    { name: 'Pau Fernández', image: jutgeAsset('/img/credits/pauek.png') },
-    { name: 'Carlos Martín Tresànchez', image: jutgeAsset('/img/credits/user.png') },
-    { name: 'Miquel Torner Viñals', image: jutgeAsset('/img/credits/mtorner.png') },
-    { name: 'Yeray Zalaya Domingo', image: jutgeAsset('/img/credits/yeray.png') },
-]
-
-export const problemSetters = ['Salvador Roura', 'Jordi Petit', 'Omer Giménez', '... and many others']
-
-export const problemTranslators = [
-    'Carlos Molina',
-    'Salvador Roura',
-    'Jordi Petit',
-    'Gabriel Vaiente',
-    'Albert Lobo',
-    '... and many others',
+    { name: 'Jordi Petit', image: '/credits/jpetit.webp' },
+    { name: 'Salvador Roura', image: '/credits/roura.webp' },
+    { name: 'Omer Giménez', image: '/credits/omer.webp' },
+    { name: 'Alex Catarineu' },
+    { name: 'Victor Guerrero' },
+    { name: 'Albert Vaca', image: '/credits/vaka.webp' },
+    { name: 'Javier de San Pedro', image: '/credits/jspedro.webp' },
+    { name: 'Enric Cusell', image: '/credits/ecusell.webp' },
+    { name: 'Jan Mas Rovira', image: '/credits/janmas.webp' },
+    { name: 'Albert Lobo', image: '/credits/lobo.webp' },
+    { name: 'Anaga Mani' },
+    { name: 'Dyvia Venkataramani' },
+    { name: 'Cristina Raluca Vijulie', image: '/credits/cristina.webp' },
+    { name: 'Jordi Reig Callis', image: '/credits/jreig.webp' },
+    { name: 'Alejandro Adán Navarro', image: '/credits/adan.webp' },
+    { name: 'Pau Fernández', image: '/credits/pauek.webp' },
+    { name: 'Carlos Martín Tresànchez' },
+    { name: 'Miquel Torner Viñals', image: '/credits/mtorner.webp' },
+    { name: 'Yeray Zalaya Domingo', image: '/credits/yeray.webp' },
 ]
 
 export type PictureItem = {
@@ -183,6 +174,9 @@ export type PublicationItem = {
 }
 
 export const publications: PublicationItem[] = [
+    {
+        html: `Francesc Madrid, Xavier Casas, Miquel Torner, Jordi Petit, and Jordi Cortadella. An Online Learning Platform for Digital Circuits. In <cite>41st Conference on Design of Circuits and Integrated Systems (DCIS 2026)</cite>, 2026.`,
+    },
     {
         html: `J. Petit, S. Roura, J. Carmona, J. Cortadella, A. Duch, O. Gimenez, A. Mani, J. Mas, E. Rodriguez-Carbonella, A. Rubio, J. de San Pedro, and D. Venkataramani. <a href="http://ieeexplore.ieee.org/document/7968379">Jutge.org: Characteristics and experiences</a>. IEEE Transactions on Learning Technologies, PP(99), 2017.`,
     },

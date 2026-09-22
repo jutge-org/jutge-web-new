@@ -1,9 +1,10 @@
 import { AboutInfoCard, AboutTimeline, AboutTimelineGroup, aboutCountLabel } from '@/components/about/AboutTimeline'
-import { developerCredits, maintenanceCredits, problemSetters, problemTranslators } from '@/lib/about'
+import { developerCredits, maintenanceCredits } from '@/lib/about'
+import { UserIcon } from 'lucide-react'
 
 export function AboutCredits() {
     return (
-        <AboutTimeline labelWidth="11rem" className="mt-6">
+        <AboutTimeline labelWidth="11rem" className="my-6">
             <AboutTimelineGroup
                 id="credits-core"
                 label="Lead"
@@ -13,8 +14,14 @@ export function AboutCredits() {
                     <AboutInfoCard
                         key={person.name}
                         media={
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={person.image} alt="" className="size-20 shrink-0 rounded-xl object-cover" />
+                            person.image ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={person.image}
+                                    alt=""
+                                    className="size-20 shrink-0 rounded-xl object-cover hover:animate-pulse"
+                                />
+                            ) : undefined
                         }
                         title={person.name}
                         badge="Lead"
@@ -37,12 +44,21 @@ export function AboutCredits() {
                         <li key={`${person.name}-${person.role ?? 'dev'}`}>
                             <AboutInfoCard
                                 media={
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
-                                        src={person.image}
-                                        alt=""
-                                        className="size-11 shrink-0 rounded-full object-cover"
-                                    />
+                                    person.image ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={person.image}
+                                            alt=""
+                                            className="size-11 shrink-0 rounded-md object-cover hover:animate-pulse"
+                                        />
+                                    ) : (
+                                        <span
+                                            className="flex size-11 shrink-0 items-center justify-center rounded-md border text-muted-foreground"
+                                            aria-hidden
+                                        >
+                                            <UserIcon className="size-5" />
+                                        </span>
+                                    )
                                 }
                                 title={person.name}
                                 badge={person.role}
@@ -50,26 +66,6 @@ export function AboutCredits() {
                         </li>
                     ))}
                 </ul>
-            </AboutTimelineGroup>
-
-            <AboutTimelineGroup id="credits-setters" label="Setters" caption="Problem authors">
-                <AboutInfoCard title="Problem setters" badge="Content">
-                    <ul className="mt-1.5 space-y-1 text-sm leading-relaxed text-muted-foreground">
-                        {problemSetters.map((name) => (
-                            <li key={name}>{name}</li>
-                        ))}
-                    </ul>
-                </AboutInfoCard>
-            </AboutTimelineGroup>
-
-            <AboutTimelineGroup id="credits-translators" label="Translators" caption="Problem translators">
-                <AboutInfoCard title="Problem translators" badge="Language">
-                    <ul className="mt-1.5 space-y-1 text-sm leading-relaxed text-muted-foreground">
-                        {problemTranslators.map((name) => (
-                            <li key={name}>{name}</li>
-                        ))}
-                    </ul>
-                </AboutInfoCard>
             </AboutTimelineGroup>
         </AboutTimeline>
     )
