@@ -124,7 +124,7 @@ const publicationGroups = groupPublications(publications.map((publication) => pa
 
 export function AboutPublications() {
     return (
-        <AboutTimeline>
+        <AboutTimeline className="mt-6">
             {publicationGroups.map((group) => (
                 <AboutTimelineGroup
                     key={group.label}

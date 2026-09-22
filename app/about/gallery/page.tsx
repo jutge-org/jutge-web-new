@@ -1,16 +1,16 @@
 import { AboutPageShell } from '@/components/about/AboutPageShell'
-import { AboutPictures } from '@/components/about/AboutPictures'
+import { AboutGallery } from '@/components/about/AboutGallery'
 
-export default function AboutPicturesPage() {
+export default function AboutGalleryPage() {
     return (
         <AboutPageShell
-            activeTab="pictures"
+            activeTab="gallery"
             breadcrumbs={[
                 { title: 'About', url: '/about' },
-                { title: 'Pictures', url: '/about/pictures' },
+                { title: 'Gallery', url: '/about/gallery' },
             ]}
         >
-            <AboutPictures />
+            <AboutGallery />
         </AboutPageShell>
     )
 }

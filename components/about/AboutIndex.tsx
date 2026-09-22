@@ -19,7 +19,7 @@ const indexIcons: Record<string, typeof Info> = {
     'Terms of Service': Megaphone,
     'Honor Code': Shield,
     Accessibility: AccessibilityIcon,
-    Pictures: Camera,
+    Gallery: Camera,
     Publications: FileText,
     Merchandising: ShoppingBagIcon,
     Credits: Info,
@@ -27,7 +27,7 @@ const indexIcons: Record<string, typeof Info> = {
 
 export function AboutIndex() {
     return (
-        <nav aria-label="About topics" className="grid gap-4 sm:grid-cols-2">
+        <nav aria-label="About topics" className="mt-6 grid gap-4 sm:grid-cols-2">
             {aboutIndexItems.map((item) => {
                 const Icon = indexIcons[item.label] ?? Info
                 const external = 'external' in item && item.external

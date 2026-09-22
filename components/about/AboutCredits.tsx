@@ -3,7 +3,7 @@ import { developerCredits, maintenanceCredits, problemSetters, problemTranslator
 
 export function AboutCredits() {
     return (
-        <AboutTimeline labelWidth="11rem">
+        <AboutTimeline labelWidth="11rem" className="mt-6">
             <AboutTimelineGroup
                 id="credits-core"
                 label="Lead"

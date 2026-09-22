@@ -4,7 +4,7 @@ export type AboutTab =
     | 'terms-of-service'
     | 'honor-code'
     | 'accessibility'
-    | 'pictures'
+    | 'gallery'
     | 'publications'
     | 'merchandising'
     | 'credits'
@@ -22,7 +22,7 @@ export const aboutNavItems: AboutNavItem[] = [
     { tab: 'terms-of-service', label: 'Terms of Service', href: '/about/terms-of-service' },
     { tab: 'honor-code', label: 'Honor Code', href: '/about/honor-code' },
     { tab: 'accessibility', label: 'Accessibility', href: '/about/accessibility' },
-    { tab: 'pictures', label: 'Pictures', href: '/about/pictures' },
+    { tab: 'gallery', label: 'Gallery', href: '/about/gallery' },
     { tab: 'publications', label: 'Publications', href: '/about/publications' },
     { tab: 'merchandising', label: 'Merchandising', href: '/about/merchandising' },
     { tab: 'credits', label: 'Credits', href: '/about/credits' },
@@ -51,8 +51,8 @@ export const aboutIndexItems = [
         description: 'Accessibility statement and how to report barriers',
     },
     {
-        href: '/about/pictures',
-        label: 'Pictures',
+        href: '/about/gallery',
+        label: 'Gallery',
         description: 'Servers, icons, and other Jutge.org imagery',
     },
     {
@@ -141,28 +141,40 @@ export type PictureItem = {
 
 export const pictureItems: PictureItem[] = [
     {
-        src: jutgeAsset('/pix/servers-fib.jpg'),
+        src: '/gallery/servers-fib.webp',
         title: 'The current Jutge servers',
         description: 'These are the current servers for Jutge.org at FIB.',
         alt: 'Server',
     },
     {
-        src: jutgeAsset('/pix/servers-cs.jpg'),
+        src: '/gallery/servers-cs.webp',
         title: 'The old Jutge servers',
         description: 'These old CS servers for Jutge.org were located in their rack in the CPD of the Omega building.',
         alt: 'Server',
     },
     {
-        src: jutgeAsset('/svg/semafor.svg'),
+        src: '/verdicts/svg/AC.svg',
         title: 'The Green Light icon',
-        description: 'The green light is the iconic icon of Jutge.org.',
+        description: 'Iconic green light of Jutge.org.',
         alt: 'Green light',
     },
     {
-        src: jutgeAsset('/svg/jutge.svg'),
-        title: 'The Judge icon',
-        description: 'The judge is another iconic icon of Jutge.org.',
-        alt: 'Judge',
+        src: '/verdicts/svg/WA.svg',
+        title: 'The Wrong Answer icon',
+        description: 'Iconic red light of Jutge.org.',
+        alt: 'Red light',
+    },
+    {
+        src: '/svg/jutge.svg',
+        title: 'Classic Jutge.org icon',
+        description: 'The classic Jutge.org icon.',
+        alt: 'Classic',
+    },
+    {
+        src: '/jutge/modern.webp',
+        title: 'Modern Jutge.org icon',
+        description: 'The modern Jutge.org icon.',
+        alt: 'Modern',
     },
 ]
 

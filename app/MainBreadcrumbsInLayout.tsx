@@ -216,7 +216,7 @@ function MainNavAboutSubItemIcon({ href }: { href: string }) {
             return <ShieldIcon aria-hidden />
         case '/about/accessibility':
             return <AccessibilityIcon aria-hidden />
-        case '/about/pictures':
+        case '/about/gallery':
             return <CameraIcon aria-hidden />
         case '/about/publications':
             return <FileTextIcon aria-hidden />

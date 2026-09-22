@@ -46,7 +46,6 @@ export function AboutTimelineGroup({ id, label, caption, prominent = false, chil
                 >
                     {label}
                 </h2>
-                {caption ? <p className="text-xs text-muted-foreground md:mt-1">{caption}</p> : null}
             </div>
             <div className="flex min-w-0 flex-col gap-3">{children}</div>
         </section>

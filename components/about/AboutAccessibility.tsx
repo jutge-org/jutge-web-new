@@ -6,7 +6,7 @@ const linkClassName =
 
 export function AboutAccessibility() {
     return (
-        <AboutTimeline labelWidth="9.5rem">
+        <AboutTimeline labelWidth="9.5rem" className="mt-6">
             <AboutTimelineGroup id="a11y-aim" label="Aim" caption="Where we want to be">
                 <AboutInfoCard title="WCAG 2.1 Level AA" badge="Goal">
                     <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">

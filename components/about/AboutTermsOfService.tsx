@@ -2,7 +2,7 @@ import { AboutBulletList, AboutInfoCard, AboutTimeline, AboutTimelineGroup } fro
 
 export function AboutTermsOfService() {
     return (
-        <AboutTimeline labelWidth="9.5rem">
+        <AboutTimeline labelWidth="9.5rem" className="mt-6">
             <AboutTimelineGroup id="terms-purpose" label="Purpose" caption="Why Jutge.org exists">
                 <AboutInfoCard title="A research and education project" badge="Mission">
                     <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">

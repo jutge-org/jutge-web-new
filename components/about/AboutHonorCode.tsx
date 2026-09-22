@@ -2,7 +2,7 @@ import { AboutBulletList, AboutInfoCard, AboutTimeline, AboutTimelineGroup } fro
 
 export function AboutHonorCode() {
     return (
-        <AboutTimeline labelWidth="9.5rem">
+        <AboutTimeline labelWidth="9.5rem" className="mt-6">
             <AboutTimelineGroup id="honor-work" label="Your work" caption="Assessments and assignments">
                 <AboutInfoCard title="Submit work that is your own" badge="Integrity">
                     <AboutBulletList
