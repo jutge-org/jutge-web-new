@@ -1,6 +1,6 @@
 'use client'
 
-import { BinocularsIcon, Columns3Icon, FolderPenIcon, PlusIcon } from 'lucide-react'
+import { BinocularsIcon, Columns3Icon, FolderLockIcon, FolderPenIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { useAuth } from '@/components/AuthProvider'
@@ -136,6 +136,18 @@ export function ProblemsListToolbar({
                             <TooltipContent side="top">Manage problems</TooltipContent>
                         </Tooltip>
                     </ButtonGroup>
+                ) : null}
+                {user ? (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button asChild variant="outline" size="icon">
+                                <Link href="/problems/passcodes" aria-label="Manage problem passcodes">
+                                    <FolderLockIcon aria-hidden />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">Manage problem passcodes</TooltipContent>
+                    </Tooltip>
                 ) : null}
                 {showHelp ? <ProblemsHelpDialog /> : null}
             </div>

@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-22T08:34:39.108Z
+ * This file has been automatically generated at 2026-09-23T17:09:44.823Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -123,6 +123,17 @@ export type RequestInformation = {
     url: string
     ip: string
     domain: string
+}
+
+export type TranslationIn = {
+    text: string
+    from: string
+    to: string
+}
+
+export type TranslationOut = {
+    text: string
+    from: string
 }
 
 export type Language = {
@@ -584,6 +595,11 @@ export type List = {
     official: number
     items: ListItem[]
     owner: PublicProfile
+}
+
+export type Passcode = {
+    problem_nm: string
+    passcode: string
 }
 
 export type ReadyExam = {
@@ -2062,6 +2078,18 @@ class Module_misc {
         const [output, ofiles] = await this.root.execute("misc.getDemosForCompiler", compiler_id)
         return output
     }
+
+    /**
+     * Translate text from one language to another.
+     *
+     * 🔐 Authentication: user
+     * No warnings
+     * Source and target languages are ISO 639-1 codes. Use "auto" as the source language to detect it.
+     */
+    async translate(data: TranslationIn): Promise<TranslationOut> {
+        const [output, ofiles] = await this.root.execute("misc.translate", data)
+        return output
+    }
 }
 
 /**
@@ -2526,6 +2554,7 @@ class Module_student {
     readonly submissions: Module_student_submissions
     readonly courses: Module_student_courses
     readonly lists: Module_student_lists
+    readonly passcodes: Module_student_passcodes
     readonly exam: Module_student_exam
     readonly exams: Module_student_exams
     readonly statuses: Module_student_statuses
@@ -2541,6 +2570,7 @@ class Module_student {
         this.submissions = new Module_student_submissions(root)
         this.courses = new Module_student_courses(root)
         this.lists = new Module_student_lists(root)
+        this.passcodes = new Module_student_passcodes(root)
         this.exam = new Module_student_exam(root)
         this.exams = new Module_student_exams(root)
         this.statuses = new Module_student_statuses(root)
@@ -3306,6 +3336,55 @@ class Module_student_lists {
 
 /**
  *
+ * Manage problem passcodes stored for the current user.
+ *
+ */
+class Module_student_passcodes {
+    private readonly root: JutgeApiClient
+
+    constructor(root: JutgeApiClient) {
+        this.root = root
+    }
+
+    /**
+     * Store the passcode of a problem.
+     *
+     * 🔐 Authentication: user
+     * No warnings
+     * Fails if the problem does not exist, has no passcode, or the given passcode does not match.
+     */
+    async add(data: Passcode): Promise<void> {
+        const [output, ofiles] = await this.root.execute("student.passcodes.add", data)
+        return output
+    }
+
+    /**
+     * Remove the stored problem passcode of a problem.
+     *
+     * 🔐 Authentication: user
+     * No warnings
+     *
+     */
+    async remove(problem_nm: string): Promise<void> {
+        const [output, ofiles] = await this.root.execute("student.passcodes.remove", problem_nm)
+        return output
+    }
+
+    /**
+     * Get all problem passcodes stored, sorted by problem name.
+     *
+     * 🔐 Authentication: user
+     * No warnings
+     *
+     */
+    async getAll(): Promise<Passcode[]> {
+        const [output, ofiles] = await this.root.execute("student.passcodes.getAll", null)
+        return output
+    }
+}
+
+/**
+ *
  * ‼️ The state of this module is UNDER CONSTRUCTION. It is not ready for production use. The output of some function is capped if the exam has not started yet.
  *
  */
@@ -3373,6 +3452,18 @@ class Module_student_exam {
      */
     async getRanking(): Promise<Ranking> {
         const [output, ofiles] = await this.root.execute("student.exam.getRanking", null)
+        return output
+    }
+
+    /**
+     * Mark the current exam as finished.
+     *
+     * 🔐 Authentication: exam
+     * No warnings
+     *
+     */
+    async finishExam(): Promise<void> {
+        const [output, ofiles] = await this.root.execute("student.exam.finishExam", null)
         return output
     }
 }
