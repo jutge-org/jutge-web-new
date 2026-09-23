@@ -17,7 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { CalendarIcon, CheckIcon, RotateCcwIcon, SettingsIcon, XIcon } from 'lucide-react'
+import { CalendarIcon, CheckIcon, FunnelIcon, RotateCcwIcon, XIcon } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 
 dayjs.extend(customParseFormat)
@@ -173,7 +173,7 @@ export function CourseStatisticsPeriodDialog({
                         className="h-14 w-14 rounded-full"
                         aria-label="Open statistics period settings"
                     >
-                        <SettingsIcon className="h-6 w-6" />
+                        <FunnelIcon className="h-6 w-6" />
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">

@@ -56,7 +56,7 @@ export function AcceptedProblemsStudentsCard({
     return (
         <ResizableCard className="w-full" defaultHeight={340}>
             <CardHeader className="p-4">
-                <CardTitle>Accepted problems/students</CardTitle>
+                <CardTitle>AC problems/students</CardTitle>
                 <CardAction>
                     <div className="flex items-center gap-2">
                         <span className="shrink-0 text-xs text-muted-foreground">Bucket size</span>
