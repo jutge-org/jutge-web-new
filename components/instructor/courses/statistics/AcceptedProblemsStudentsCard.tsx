@@ -87,7 +87,7 @@ export function AcceptedProblemsStudentsCard({
                         }))}
                         hasData={chartData.some((row) => row.students > 0)}
                         table={
-                            <ScrollArea className="h-[260px] w-full">
+                            <ScrollArea className="h-[200px] w-full">
                                 <Table>
                                     <TableBody>
                                         {chartData.map((row) => (
@@ -101,7 +101,7 @@ export function AcceptedProblemsStudentsCard({
                             </ScrollArea>
                         }
                     >
-                        <ChartContainer config={chartConfig} className="h-[260px] w-full">
+                        <ChartContainer config={chartConfig} className="h-[200px] w-full">
                             <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
                                 <CartesianGrid vertical={false} />
                                 <XAxis
@@ -109,7 +109,6 @@ export function AcceptedProblemsStudentsCard({
                                     tickLine={false}
                                     axisLine={false}
                                     label={{
-                                        value: 'Accepted problems',
                                         position: 'insideBottom',
                                         offset: -4,
                                     }}

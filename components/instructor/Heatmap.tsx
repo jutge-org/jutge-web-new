@@ -112,7 +112,6 @@ export function Heatmap(props: HeatmapProps) {
         if (dow === 6) week++
     }
 
-    // final element
     return (
         <div className="w-full overflow-x-auto" ref={scrollRef}>
             <svg width={(week + 2) * (width + 4)} height={8 * (height + 4) + top}>

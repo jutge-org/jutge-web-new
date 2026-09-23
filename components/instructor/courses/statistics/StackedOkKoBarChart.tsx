@@ -35,7 +35,7 @@ export function StackedOkKoBarChart({ data, colors, exportFileName }: StackedOkK
     )
 
     const table = (
-        <ScrollArea className="h-[260px] w-full">
+        <ScrollArea className="h-[200px] w-full">
             <Table>
                 <TableBody>
                     {data.map((row) => (
@@ -58,7 +58,7 @@ export function StackedOkKoBarChart({ data, colors, exportFileName }: StackedOkK
             hasData={hasData}
             table={table}
         >
-            <ChartContainer config={chartConfig} className="h-[260px] w-full">
+            <ChartContainer config={chartConfig} className="h-[200px] w-full">
                 <BarChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
                     <CartesianGrid vertical={false} />
                     <XAxis dataKey="label" tickLine={false} axisLine={false} />

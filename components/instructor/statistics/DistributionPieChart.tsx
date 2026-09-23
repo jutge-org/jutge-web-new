@@ -101,11 +101,11 @@ export function DistributionPieChart({ data, category, colors, exportFileName }:
         <div ref={chartContainerRef}>
             <ChartContainer
                 config={chartConfig}
-                className="mx-auto aspect-square max-h-[300px] [&_.recharts-text]:fill-background"
+                className="mx-auto aspect-square max-h-[240px] [&_.recharts-text]:fill-background"
             >
                 <PieChart>
                     <ChartTooltip content={<ChartTooltipContent nameKey="label" hideLabel />} />
-                    <Pie data={chartData} dataKey="value" innerRadius={60}>
+                    <Pie data={chartData} dataKey="value" innerRadius={48}>
                         <LabelList
                             dataKey="label"
                             className="fill-background"
@@ -119,7 +119,7 @@ export function DistributionPieChart({ data, category, colors, exportFileName }:
         </div>
     )
     const table = (
-        <ScrollArea className="h-[300px] w-full">
+        <ScrollArea className="h-[240px] w-full">
             <Table>
                 <TableBody>
                     {Object.entries(data)
@@ -143,7 +143,7 @@ export function DistributionPieChart({ data, category, colors, exportFileName }:
             <div
                 className={cn(
                     !chartVisible &&
-                        'pointer-events-none fixed top-0 left-[-9999px] size-[300px] overflow-hidden opacity-0',
+                        'pointer-events-none fixed top-0 left-[-9999px] size-[240px] overflow-hidden opacity-0',
                 )}
                 aria-hidden={!chartVisible}
             >

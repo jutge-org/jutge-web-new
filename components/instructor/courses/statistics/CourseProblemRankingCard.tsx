@@ -40,12 +40,27 @@ export function CourseProblemRankingCard({
             {
                 field: 'iconUrl',
                 headerName: '',
-                width: 36,
+                width: 48,
+                minWidth: 48,
+                maxWidth: 48,
                 sortable: false,
                 filter: false,
+                resizable: false,
+                suppressHeaderMenuButton: true,
+                cellStyle: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingLeft: 0,
+                    paddingRight: 0,
+                },
                 cellRenderer: (params: ICellRendererParams<{ problem_nm: string }>) => {
                     const iconUrl = problemIconUrl(abstractProblems[params.data!.problem_nm]?.icon)
-                    return iconUrl ? <ProblemIconImage iconUrl={iconUrl} size="xs" className="translate-y-1" /> : null
+                    return iconUrl ? (
+                        <span className="flex size-full items-center justify-center">
+                            <ProblemIconImage iconUrl={iconUrl} size="xs" />
+                        </span>
+                    ) : null
                 },
             },
             {

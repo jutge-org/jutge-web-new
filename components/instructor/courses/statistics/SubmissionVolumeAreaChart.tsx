@@ -44,7 +44,7 @@ export function SubmissionVolumeAreaChart({ data, colors, exportFileName }: Subm
     )
 
     const table = (
-        <ScrollArea className="h-[260px] w-full">
+        <ScrollArea className="h-[200px] w-full">
             <Table>
                 <TableBody>
                     {data.map((row) => (
@@ -62,11 +62,11 @@ export function SubmissionVolumeAreaChart({ data, colors, exportFileName }: Subm
 
     const chart =
         data.length === 0 ? (
-            <div className="flex h-[260px] w-full items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+            <div className="flex h-[200px] w-full items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
                 No submission data
             </div>
         ) : (
-            <ChartContainer config={chartConfig} className="h-[260px] w-full">
+            <ChartContainer config={chartConfig} className="h-[200px] w-full">
                 <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="label" tickLine={false} axisLine={false} interval="preserveStartEnd" />
