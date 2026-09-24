@@ -1,4 +1,3 @@
-import jutge from '@/lib/jutge'
 import type { JutgeApiClient, NewPassword, NewProfile } from '@/lib/jutge_api_client'
 
 export async function updateProfile(client: JutgeApiClient, data: NewProfile): Promise<void> {
@@ -15,11 +14,4 @@ export async function deleteProfileAvatar(client: JutgeApiClient): Promise<void>
 
 export async function updateProfilePassword(client: JutgeApiClient, data: NewPassword): Promise<void> {
     await client.student.profile.updatePassword(data)
-}
-
-export async function loginWithCredentials(email: string, password: string) {
-    const trimmed = email.trim()
-    const credentials = await jutge.login({ email: trimmed, password })
-    const profile = await jutge.student.profile.get()
-    return { credentials, profile }
 }

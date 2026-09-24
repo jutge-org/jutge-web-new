@@ -19,6 +19,11 @@ function warmAbstractProblemsCache() {
     void jutge.problems.getAllAbstractProblems().catch(() => {})
 }
 
+function restoreStorageItem(key: string, value: string | null) {
+    if (value === null) localStorage.removeItem(key)
+    else localStorage.setItem(key, value)
+}
+
 const AuthContext = createContext<AuthContextValue>({
     user: null,
     profile: null,
@@ -62,22 +67,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [restoreSession])
 
     async function login(credentialsIn: CredentialsIn) {
+        const previousMeta = jutge.meta
+        const previousToken = localStorage.getItem('token')
+        const previousExpiration = localStorage.getItem('expiration')
+        const previousUserUid = localStorage.getItem('user_uid')
+
+        function restorePreviousSession() {
+            jutge.meta = previousMeta
+            restoreStorageItem('token', previousToken)
+            restoreStorageItem('expiration', previousExpiration)
+            restoreStorageItem('user_uid', previousUserUid)
+        }
+
         try {
             const credentialsOut = await jutge.login(credentialsIn)
-            if (!jutge.meta?.token) {
+            if (!credentialsOut.token) {
+                restorePreviousSession()
                 return { ok: false as const, error: 'Sign in failed.' }
             }
             // Cache keys omit the user, so a previous session's responses must not be reused.
             jutge.clearCache()
             warmAbstractProblemsCache()
             const fetchedProfile = await jutge.student.profile.get()
-            setProfile(fetchedProfile)
-            setUser(profileToSessionUser(fetchedProfile))
             localStorage.setItem('token', credentialsOut.token)
             localStorage.setItem('expiration', credentialsOut.expiration.toString())
             localStorage.setItem('user_uid', fetchedProfile.user_uid)
+            setProfile(fetchedProfile)
+            setUser(profileToSessionUser(fetchedProfile))
             return { ok: true as const, userName: fetchedProfile.name }
         } catch (e) {
+            restorePreviousSession()
             const message = e instanceof Error ? e.message : 'Sign in failed.'
             return { ok: false as const, error: message }
         }

@@ -1,5 +1,4 @@
 import jutge from '@/lib/jutge'
-import { loginWithCredentials } from '@/lib/data/usersMutations'
 
 export type RegisterActionInput = {
     name: string
@@ -12,7 +11,7 @@ export type RegisterActionInput = {
     confirmPassword: string
 }
 
-type RegisterActionResult = { ok: true; userName: string; email: string } | { ok: false; error: string }
+type RegisterActionResult = { ok: true; email: string } | { ok: false; error: string }
 
 function isStrongPassword(password: string): boolean {
     if (password.length < 12) return false
@@ -74,16 +73,5 @@ export async function registerAction(data: RegisterActionInput): Promise<Registe
         return { ok: false, error: message }
     }
 
-    try {
-        const { profile } = await loginWithCredentials(email, data.password)
-        localStorage.setItem('token', jutge.meta?.token ?? '')
-        localStorage.setItem('user_uid', profile.user_uid)
-        return { ok: true, userName: profile.name, email }
-    } catch (e) {
-        const message = e instanceof Error ? e.message : 'Sign in failed.'
-        return {
-            ok: false,
-            error: `Your account was created, but automatic sign-in failed: ${message} Please sign in manually.`,
-        }
-    }
+    return { ok: true, email }
 }

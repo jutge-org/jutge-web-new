@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { useAuth } from '@/components/AuthProvider'
 import { ProfileFormRow } from '@/components/profile/ProfileFormRow'
 import { HonorCodeDialog } from '@/components/registration/HonorCodeDialog'
 import { RecaptchaNotice } from '@/components/registration/RecaptchaNotice'
@@ -44,6 +45,7 @@ export function RegistrationFormFields({
     executeRecaptcha,
 }: RegistrationFormFieldsProps) {
     const router = useRouter()
+    const { login } = useAuth()
     const [name, setName] = useState('')
     const [email, setEmail] = useState(initialEmail)
     const [birthYear, setBirthYear] = useState('')
@@ -167,6 +169,14 @@ export function RegistrationFormFields({
 
             if (!result.ok) {
                 setErrorMessage(result.error)
+                return
+            }
+
+            const loginResult = await login({ email: trimmedEmail, password })
+            if (!loginResult.ok) {
+                setErrorMessage(
+                    `Your account was created, but automatic sign-in failed: ${loginResult.error} Please sign in manually.`,
+                )
                 return
             }
 
