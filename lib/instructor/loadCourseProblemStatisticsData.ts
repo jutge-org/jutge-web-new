@@ -1,30 +1,34 @@
+import { fetchCourse } from '@/lib/data/courses'
+import { fetchTutorCourseSubmissions, resolveTutorCourseKey } from '@/lib/data/supervisionActions'
 import {
     fetchAbstractProblem,
     fetchInstructorCourse,
-    fetchInstructorCourseTutorProfiles,
     fetchMiscHexColors,
     fetchTablesLanguages,
 } from '@/lib/instructor/client'
-import type { Dict } from '@/lib/instructor/utils'
-import { fetchTutorCourseSubmissions, resolveTutorCourseKey } from '@/lib/data/supervisionActions'
-import { parseProblemKey } from '@/lib/problems'
+import jutge from '@/lib/jutge'
 import type {
     AbstractProblem,
     ColorMapping,
     CourseSubmission,
     InstructorCourse,
     Language,
-    StudentProfile,
+    PublicProfile,
 } from '@/lib/jutge_api_client'
+import { parseProblemKey } from '@/lib/problems'
 
 export type CourseProblemStatisticsPageData = {
     course: InstructorCourse
-    tutorProfiles: Dict<StudentProfile>
+    ownerName: string | null
     problem_nm: string
     submissions: CourseSubmission[]
     abstractProblem: AbstractProblem
     colors: ColorMapping
     languagesTable: Record<string, Language>
+}
+
+function ownerNameFromProfile(owner: PublicProfile): string {
+    return owner.name.trim() || owner.username?.trim() || owner.email
 }
 
 function filterCourseSubmissionsByProblem(submissions: CourseSubmission[], problem_nm: string): CourseSubmission[] {
@@ -44,9 +48,9 @@ export async function loadCourseProblemStatisticsData(
         throw new Error(`Course key not found for ${course_nm}`)
     }
 
-    const [course, tutorProfiles, allSubmissions, abstractProblem, colors, languagesTable] = await Promise.all([
+    const [course, enrolledCourse, allSubmissions, abstractProblem, colors, languagesTable] = await Promise.all([
         fetchInstructorCourse(course_nm),
-        fetchInstructorCourseTutorProfiles(course_nm),
+        fetchCourse(jutge, resolvedCourseKey),
         // TODO: replace with getCourseSubmissionsForProblem when available
         fetchTutorCourseSubmissions(resolvedCourseKey),
         fetchAbstractProblem(problem_nm),
@@ -58,7 +62,7 @@ export async function loadCourseProblemStatisticsData(
 
     return {
         course,
-        tutorProfiles,
+        ownerName: enrolledCourse ? ownerNameFromProfile(enrolledCourse.course.owner) : null,
         problem_nm,
         submissions,
         abstractProblem,

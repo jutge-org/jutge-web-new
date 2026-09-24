@@ -1,16 +1,18 @@
 'use client'
 
+import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ExternalLink } from '@/components/ExternalLink'
+import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { Badge } from '@/components/ui/badge'
+import { courseIconUrl } from '@/lib/courses'
 import { getAbstractProblemTitle } from '@/lib/instructor/courseProblemRanking'
 import type { CourseProblemStatisticsPageData } from '@/lib/instructor/loadCourseProblemStatisticsData'
-import { cn } from '@/lib/utils'
+import { problemIconUrl } from '@/lib/problems'
 import {
     ArrowLeftIcon,
     BarChart3Icon,
-    BookOpenIcon,
     GlobeIcon,
-    FileBracesCornerIcon,
+    GraduationCapIcon,
     ShieldCheckIcon,
     SignatureIcon,
     UsersIcon,
@@ -20,25 +22,10 @@ import Link from 'next/link'
 type CourseProblemStatisticsContextCardProps = {
     data: Pick<
         CourseProblemStatisticsPageData,
-        'course' | 'tutorProfiles' | 'problem_nm' | 'abstractProblem' | 'submissions'
+        'course' | 'ownerName' | 'problem_nm' | 'abstractProblem' | 'submissions'
     >
     courseStatsHref?: string
     courseHref?: string
-}
-
-function formatTutorNames(data: CourseProblemStatisticsContextCardProps['data']): string {
-    const names = data.course.tutors.enrolled
-        .map((email) => data.tutorProfiles[email]?.name?.trim())
-        .filter((name): name is string => Boolean(name))
-
-    if (names.length > 0) {
-        return names.join(', ')
-    }
-
-    const emails = data.course.tutors.enrolled
-    if (emails.length === 1) return emails[0]!
-    if (emails.length > 1) return emails.join(', ')
-    return 'No tutors listed'
 }
 
 export function CourseProblemStatisticsContextCard({
@@ -46,11 +33,12 @@ export function CourseProblemStatisticsContextCard({
     courseStatsHref,
     courseHref,
 }: CourseProblemStatisticsContextCardProps) {
-    const { course, problem_nm, abstractProblem, submissions } = data
+    const { course, ownerName, problem_nm, abstractProblem, submissions } = data
     const problemTitle = getAbstractProblemTitle(problem_nm, { [problem_nm]: abstractProblem })
+    const problemIcon = problemIconUrl(abstractProblem.icon)
     const author = abstractProblem.author?.trim()
-    const tutorLabel = formatTutorNames(data)
     const studentCount = course.students.enrolled.length + course.students.invited.length
+    const tutorCount = course.tutors.enrolled.length + course.tutors.invited.length
     const statsHref = courseStatsHref ?? `/instructor/courses/${course.course_nm}/statistics`
     const coursePageHref = courseHref ?? `/instructor/courses/${course.course_nm}/properties`
 
@@ -76,15 +64,7 @@ export function CourseProblemStatisticsContextCard({
             <div className="grid gap-0 lg:grid-cols-2">
                 <div className="flex flex-col gap-3 border-b border-border/70 p-5 lg:border-b-0 lg:border-r">
                     <div className="flex items-start gap-3">
-                        <div
-                            className={cn(
-                                'flex size-10 shrink-0 items-center justify-center rounded-lg',
-                                'bg-violet-500/10 text-violet-700 dark:text-violet-300',
-                            )}
-                            aria-hidden
-                        >
-                            <FileBracesCornerIcon className="size-5" />
-                        </div>
+                        {problemIcon ? <ProblemIconImage iconUrl={problemIcon} size="md" /> : null}
                         <div className="min-w-0 flex-1">
                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Problem</p>
                             <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -110,15 +90,7 @@ export function CourseProblemStatisticsContextCard({
 
                 <div className="flex flex-col gap-3 p-5">
                     <div className="flex items-start gap-3">
-                        <div
-                            className={cn(
-                                'flex size-10 shrink-0 items-center justify-center rounded-lg',
-                                'bg-sky-500/10 text-sky-700 dark:text-sky-300',
-                            )}
-                            aria-hidden
-                        >
-                            <BookOpenIcon className="size-5" />
-                        </div>
+                        <CourseIconImage iconUrl={courseIconUrl(course.icon)} size="sm" className="rounded-md" />
                         <div className="min-w-0 flex-1">
                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Course</p>
                             <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -132,13 +104,12 @@ export function CourseProblemStatisticsContextCard({
                             <p className="mt-1 text-base font-medium leading-snug text-foreground">
                                 {course.title.trim() || course.course_nm}
                             </p>
-                            <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
-                                <UsersIcon className="size-3.5 shrink-0" aria-hidden />
-                                <span>
-                                    <span className="font-medium text-foreground">{tutorLabel}</span>
-                                    <span className="text-muted-foreground"> · course owner</span>
-                                </span>
-                            </p>
+                            {ownerName ? (
+                                <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+                                    <SignatureIcon className="size-3.5 shrink-0" aria-hidden />
+                                    <span>{ownerName}</span>
+                                </p>
+                            ) : null}
                             <div className="mt-3 flex flex-wrap gap-1.5">
                                 {course.official !== 0 ? (
                                     <Badge variant="outline" className="gap-1">
@@ -155,6 +126,10 @@ export function CourseProblemStatisticsContextCard({
                                 <Badge variant="secondary" className="gap-1 tabular-nums">
                                     <UsersIcon className="size-3" aria-hidden />
                                     {studentCount} students
+                                </Badge>
+                                <Badge variant="secondary" className="gap-1 tabular-nums">
+                                    <GraduationCapIcon className="size-3" aria-hidden />
+                                    {tutorCount} tutors
                                 </Badge>
                             </div>
                         </div>
