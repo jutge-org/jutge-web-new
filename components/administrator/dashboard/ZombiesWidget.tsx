@@ -10,7 +10,7 @@ import {
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { AudioLinesIcon, ChevronDownIcon, GhostIcon, RotateCwIcon, SkullIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Zombies } from '@/lib/jutge_api_client'
 import { Button } from '@/components/ui/button'
@@ -31,39 +31,58 @@ export default function ZombiesWidget({ variant = 'table' }: ZombiesWidgetProps)
     const router = useRouter()
 
     const [data, setData] = useState<Zombies | null>(null)
+    const fastRefresh = useRef<ReturnType<typeof setInterval> | null>(null)
+
+    function clearFastRefresh() {
+        if (fastRefresh.current !== null) {
+            clearInterval(fastRefresh.current)
+            fastRefresh.current = null
+        }
+    }
 
     async function fetchData() {
-        setData(await fetchAdminDashboardZombies())
+        const zombies = await fetchAdminDashboardZombies()
+        setData(zombies)
+        if (zombies.ies + zombies.pendings === 0) clearFastRefresh()
+    }
+
+    /** Poll once a second while a resubmit or fatalize is draining the queue. */
+    function watchAction() {
+        clearFastRefresh()
+        fastRefresh.current = setInterval(fetchData, 1000)
     }
 
     useEffect(() => {
         fetchData()
         const interval = setInterval(fetchData, 10 * 1000)
-        return () => clearInterval(interval)
+        return () => {
+            clearInterval(interval)
+            clearFastRefresh()
+        }
     }, [])
 
     function resubmitIEs() {
         void adminResubmitIEs()
         toast.success(`Resubmitting IEs...`)
-        setInterval(fetchData, 1000)
+        watchAction()
     }
 
     function resubmitPendings() {
         void adminResubmitPendings()
         toast.success(`Resubmitting Pendings...`)
-        setInterval(fetchData, 1000)
+        watchAction()
     }
 
     function fatalizeIEs() {
         void adminFatalizeIEs()
         toast.success(`Fatalizing IEs...`)
-        setInterval(fetchData, 1000)
+        watchAction()
     }
 
     function fatalizePendings() {
         void adminFatalizePendings()
         toast.success(`Fatalizing Pendings...`)
-        setInterval(fetchData, 1000)
+        watchAction()
     }
 
     const viewIEs = () => {
