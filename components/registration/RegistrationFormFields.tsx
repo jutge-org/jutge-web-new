@@ -181,7 +181,9 @@ export function RegistrationFormFields({
             }
 
             setErrorMessage(null)
-            toast.success(`A confirmation email has been sent to ${result.email}. Please sign in to your account.`)
+            toast.success(
+                `A confirmation email has been sent to ${result.email}. Welcome, ${loginResult.userName}.`,
+            )
             router.push('/')
         } finally {
             setPending(false)
