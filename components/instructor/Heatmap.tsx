@@ -17,11 +17,14 @@ export function Heatmap(props: HeatmapProps) {
     //
     const scrollRef = useRef<HTMLDivElement>(null)
 
+    const startMs = props.start.valueOf()
+    const endMs = props.end.valueOf()
+
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollLeft = scrollRef.current.scrollWidth
         }
-    }, [])
+    }, [startMs, endMs, props.data])
 
     const sizeFactor = props.sizeFactor || 1
     const width = 10 * sizeFactor
@@ -35,7 +38,7 @@ export function Heatmap(props: HeatmapProps) {
 
     for (const item of props.data) {
         const d = dayjs.unix(item.date)
-        if (d.isAfter(props.start) && d.isBefore(props.end)) {
+        if (!d.isBefore(props.start) && d.isBefore(props.end)) {
             cal[d.format('YYYY-MM-DD')] = item.value
         }
     }

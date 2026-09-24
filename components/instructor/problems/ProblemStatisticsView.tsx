@@ -6,6 +6,9 @@
  */
 
 import { Heatmap } from '@/components/instructor/Heatmap'
+import { StackedOkKoBarChart } from '@/components/instructor/courses/statistics/StackedOkKoBarChart'
+import { DistributionPieChart } from '@/components/instructor/statistics/DistributionPieChart'
+import { StatisticsChartTableView } from '@/components/instructor/statistics/StatisticsChartTableView'
 
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { CardContent, CardHeader, CardTitle, ResizableCard } from '@/components/ResizableCard'
@@ -33,7 +36,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
     fetchAbstractProblem,
@@ -47,7 +49,6 @@ import {
     deriveSubmissionsByLanguageOverTime,
     toStatisticsSubmissionFromAnonymous,
     type AttemptsToSolvePoint,
-    type OkKoPoint,
     type StatisticsSubmission,
     type SubmissionsByLanguageOverTimePoint,
     type TimeToFirstPassPoint,
@@ -56,7 +57,6 @@ import {
 import {
     AbstractProblem,
     ColorMapping,
-    Distribution,
     Language,
     ProblemAnonymousSubmission,
     ProblemPopularityBucketEntry,
@@ -68,33 +68,19 @@ import {
     BarChart3Icon,
     BugIcon,
     CalendarIcon,
-    ChartPieIcon,
+    ChartAreaIcon,
+    ChartLineIcon,
     CheckIcon,
+    FunnelIcon,
     RotateCcwIcon,
     SendIcon,
-    SettingsIcon,
-    TableIcon,
     ThumbsDownIcon,
     UsersIcon,
     XIcon,
 } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useId, useMemo, useState } from 'react'
-import {
-    Area,
-    AreaChart,
-    Bar,
-    BarChart,
-    CartesianGrid,
-    LabelList,
-    Line,
-    LineChart,
-    Pie,
-    PieChart,
-    ReferenceLine,
-    XAxis,
-    YAxis,
-} from 'recharts'
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart, ReferenceLine, XAxis, YAxis } from 'recharts'
 
 dayjs.extend(customParseFormat)
 
@@ -105,9 +91,6 @@ const CALENDAR_END_MONTH = new Date(new Date().getFullYear() + 1, 11)
 function formatDateValue(date: Date | undefined): string {
     return date && dayjs(date).isValid() ? dayjs(date).format(DATE_FORMAT) : ''
 }
-
-/** Pie chart: slices below this percentage are grouped into "Others". */
-const MIN_PERCENT_FOR_PIE_LABEL = 5
 
 function getCategoryColor(key: string, category: string, colors: ColorMapping): string {
     if (!(category in colors) || !(key in colors[category])) {
@@ -244,121 +227,6 @@ function StatisticsDashboardCard({ stats }: { stats: DashboardStats }) {
 // -----------------------------------------------------------------------------
 // Chart components
 // -----------------------------------------------------------------------------
-
-type MyPieChartProps = {
-    data: Distribution
-    category: string
-    colors: ColorMapping
-}
-
-/** Pie/table toggle; small slices (< MIN_PERCENT_FOR_PIE_LABEL) are grouped as "Others". */
-function MyPieChart({ data, category, colors }: MyPieChartProps) {
-    const [chartVisible, setChartVisible] = useState(true)
-    const dataClone = structuredClone(data)
-    const total = Math.max(
-        1,
-        Object.values(dataClone).reduce((a, b) => a + b, 0),
-    )
-    for (const key of Object.keys(dataClone)) {
-        dataClone[key] = Math.round((dataClone[key] / total) * 1000) / 10
-    }
-
-    const chartConfig: Record<string, { label: string; color: string }> = {
-        value: { label: 'Percentage', color: 'transparent' },
-    }
-    let othersSum = 0
-    let othersCount = 0
-    let singleKey = ''
-    for (const key of Object.keys(dataClone)) {
-        if (dataClone[key] < MIN_PERCENT_FOR_PIE_LABEL) {
-            othersSum += dataClone[key]
-            othersCount += 1
-            singleKey = key
-        } else {
-            chartConfig[key] = {
-                label: key,
-                color: getCategoryColor(key, category, colors),
-            }
-        }
-    }
-
-    const chartData = Object.entries(dataClone)
-        .filter(([, value]) => value >= MIN_PERCENT_FOR_PIE_LABEL)
-        .map(([key, value]) => ({
-            label: key,
-            value,
-            fill: chartConfig[key]?.color ?? 'hsl(var(--chart-5))',
-        }))
-    if (othersSum > 0) {
-        const label = othersCount === 1 ? singleKey : 'Others'
-        chartData.push({
-            label,
-            value: othersSum,
-            fill: 'hsl(var(--chart-5))',
-        })
-        chartConfig[label] = { label, color: 'hsl(var(--chart-5))' }
-    }
-
-    const chart = (
-        <ChartContainer
-            config={chartConfig}
-            className="mx-auto aspect-square max-h-[300px] [&_.recharts-text]:fill-background"
-        >
-            <PieChart>
-                <ChartTooltip content={<ChartTooltipContent nameKey="label" hideLabel />} />
-                <Pie data={chartData} dataKey="value" innerRadius={60}>
-                    <LabelList
-                        dataKey="label"
-                        className="fill-background"
-                        stroke="none"
-                        fontSize={11}
-                        formatter={(value) => chartConfig[String(value)]?.label}
-                    />
-                </Pie>
-            </PieChart>
-        </ChartContainer>
-    )
-
-    const tableTotal = Object.values(data).reduce((s, n) => s + n, 0)
-    const table = (
-        <ScrollArea className="h-[300px] w-full">
-            <Table>
-                <TableBody>
-                    {Object.entries(data)
-                        .sort((a, b) => b[1] - a[1])
-                        .map(([key, value]) => (
-                            <TableRow key={key}>
-                                <TableCell>{key}</TableCell>
-                                <TableCell className="text-end">{value}</TableCell>
-                                <TableCell className="text-end">
-                                    {tableTotal > 0 ? ((value / tableTotal) * 100).toFixed(1) : 0}%
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                </TableBody>
-            </Table>
-        </ScrollArea>
-    )
-
-    return (
-        <>
-            {chartVisible ? chart : table}
-            <ToggleGroup
-                type="single"
-                onValueChange={(value) => setChartVisible(value === 'pie')}
-                className="mb-2"
-                defaultValue="pie"
-            >
-                <ToggleGroupItem value="pie" aria-label="Pie chart">
-                    <ChartPieIcon className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="table" aria-label="Table">
-                    <TableIcon className="h-4 w-4" />
-                </ToggleGroupItem>
-            </ToggleGroup>
-        </>
-    )
-}
 
 function DatePickerField({
     label,
@@ -518,9 +386,9 @@ function StatisticsSettingsDialog({
                         size="icon"
                         variant="default"
                         className="h-14 w-14 rounded-full"
-                        aria-label="Open statistics settings"
+                        aria-label="Open statistics period settings"
                     >
-                        <SettingsIcon className="h-6 w-6" />
+                        <FunnelIcon className="h-6 w-6" />
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
@@ -609,74 +477,96 @@ function StatCard({
     )
 }
 
-type StackedOkKoBarChartProps = {
-    data: OkKoPoint[]
-    colors: ColorMapping
-}
-
-function StackedOkKoBarChart({ data, colors }: StackedOkKoBarChartProps) {
-    const chartConfig = {
-        ok: { label: 'OK', color: getCategoryColor('OK', 'statuses', colors) },
-        ko: { label: 'KO', color: getCategoryColor('KO', 'statuses', colors) },
-    }
-    return (
-        <ChartContainer config={chartConfig} className="h-[260px] w-full">
-            <BarChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey="label" tickLine={false} axisLine={false} />
-                <YAxis tickLine={false} axisLine={false} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="ko" fill="var(--color-ko)" radius={[0, 0, 4, 4]} stackId="a" />
-                <Bar dataKey="ok" fill="var(--color-ok)" radius={[4, 4, 0, 0]} stackId="a" />
-            </BarChart>
-        </ChartContainer>
-    )
-}
-
 type TimeToFirstPassFunnelProps = {
     curve: TimeToFirstPassPoint[]
     totalSolvers: number
     neverSolved: number
     medianHours: number | null
+    exportFileName: string
 }
 
-function TimeToFirstPassFunnelChart({ curve, totalSolvers, neverSolved, medianHours }: TimeToFirstPassFunnelProps) {
+function formatTimeToSolveLabel(hours: number): string {
+    if (hours < 1) return `${Math.round(hours * 60)} min`
+    if (hours < 24) return `${hours} h`
+    return `${(hours / 24).toFixed(1)} days`
+}
+
+function TimeToFirstPassFunnelChart({
+    curve,
+    totalSolvers,
+    neverSolved,
+    medianHours,
+    exportFileName,
+}: TimeToFirstPassFunnelProps) {
     const chartConfig = {
         hours: { label: 'Time since first submission', color: 'hsl(var(--muted-foreground))' },
         cumulativePct: { label: 'Cumulative % solved', color: 'hsl(var(--chart-1))' },
     }
     const formatPct = (value: unknown) => [`${Number(value).toFixed(1)}%`, 'Solved by this time'] as [string, string]
-    const formatTimeLabel = (label: unknown) => {
-        const h = Number(label)
-        return h < 1 ? `${Math.round(h * 60)} min` : h < 24 ? `${h} h` : `${(h / 24).toFixed(1)} days`
-    }
+    const formatTimeLabel = (label: unknown) => formatTimeToSolveLabel(Number(label))
+    const csvRecords = useMemo(
+        () =>
+            curve.map((point) => ({
+                'Time since first submission': formatTimeToSolveLabel(point.hours),
+                'Cumulative % solved': point.cumulativePct,
+            })),
+        [curve],
+    )
+    const table = (
+        <ScrollArea className="h-[200px] w-full">
+            <Table>
+                <TableBody>
+                    {curve.map((point) => (
+                        <TableRow key={point.hours}>
+                            <TableCell>{formatTimeToSolveLabel(point.hours)}</TableCell>
+                            <TableCell className="text-end">{point.cumulativePct.toFixed(1)}%</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </ScrollArea>
+    )
     return (
         <>
-            <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                <LineChart data={curve} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="hours"
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(h: number) =>
-                            h < 1 ? `${Math.round(h * 60)}m` : h < 24 ? `${h}h` : `${h / 24}d`
-                        }
-                    />
-                    <YAxis domain={[0, 100]} tickLine={false} axisLine={false} tickFormatter={(v: number) => `${v}%`} />
-                    <ChartTooltip
-                        content={<ChartTooltipContent formatter={formatPct} labelFormatter={formatTimeLabel} />}
-                    />
-                    <Line
-                        type="monotone"
-                        dataKey="cumulativePct"
-                        stroke="hsl(var(--chart-2))"
-                        strokeWidth={4}
-                        dot={false}
-                        connectNulls
-                    />
-                </LineChart>
-            </ChartContainer>
+            <StatisticsChartTableView
+                exportFileName={exportFileName}
+                csvRecords={csvRecords}
+                hasData={curve.length > 0}
+                table={table}
+                chartToggleIcon={ChartLineIcon}
+                showChartLabel="line chart"
+            >
+                <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                    <LineChart data={curve} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                        <XAxis
+                            dataKey="hours"
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(h: number) =>
+                                h < 1 ? `${Math.round(h * 60)}m` : h < 24 ? `${h}h` : `${h / 24}d`
+                            }
+                        />
+                        <YAxis
+                            domain={[0, 100]}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(v: number) => `${v}%`}
+                        />
+                        <ChartTooltip
+                            content={<ChartTooltipContent formatter={formatPct} labelFormatter={formatTimeLabel} />}
+                        />
+                        <Line
+                            type="monotone"
+                            dataKey="cumulativePct"
+                            stroke="hsl(var(--chart-2))"
+                            strokeWidth={4}
+                            dot={false}
+                            connectNulls
+                        />
+                    </LineChart>
+                </ChartContainer>
+            </StatisticsChartTableView>
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                 {totalSolvers > 0 && (
                     <>
@@ -706,6 +596,7 @@ type AttemptsToSolveChartProps = {
     totalPassed: number
     neverPassedCount: number
     colors: ColorMapping
+    exportFileName: string
 }
 
 function AttemptsToSolveChart({
@@ -714,6 +605,7 @@ function AttemptsToSolveChart({
     totalPassed,
     neverPassedCount,
     colors,
+    exportFileName,
 }: AttemptsToSolveChartProps) {
     const chartConfig = {
         label: { label: 'Attempts', color: 'hsl(var(--muted-foreground))' },
@@ -727,67 +619,102 @@ function AttemptsToSolveChart({
         },
     }
     const formatCount = (value: unknown) => [String(value), 'Students'] as [string, string]
+    const csvRecords = useMemo(
+        () =>
+            histogram.map((row) => ({
+                Attempts: row.label,
+                Passed: row.passed,
+                'Did not pass': row.neverPassed ?? 0,
+            })),
+        [histogram],
+    )
+    const table = (
+        <ScrollArea className="h-[200px] w-full">
+            <Table>
+                <TableBody>
+                    {histogram.map((row) => (
+                        <TableRow key={row.label}>
+                            <TableCell>{row.label}</TableCell>
+                            <TableCell className="text-end">{row.passed}</TableCell>
+                            <TableCell className="text-end">{row.neverPassed ?? 0}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </ScrollArea>
+    )
     return (
         <>
-            <div className="flex w-full items-stretch gap-1">
-                <div className="flex w-[1.125rem] shrink-0 items-center justify-center self-stretch sm:w-5">
-                    <span className="whitespace-nowrap text-xs text-muted-foreground [writing-mode:vertical-rl] rotate-180">
-                        Number of students
-                    </span>
-                </div>
-                <ChartContainer config={chartConfig} className="h-[300px] min-w-0 flex-1">
-                    <BarChart data={histogram} margin={{ top: 32, right: 8, bottom: 8, left: 4 }} barCategoryGap="10%">
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="label"
-                            tickLine={false}
-                            axisLine={false}
-                            label={{
-                                value: 'Attempts to first AC',
-                                position: 'insideBottom',
-                                offset: -4,
-                            }}
-                        />
-                        <YAxis tickLine={false} axisLine={false} width={48} tickMargin={8} />
-                        <ChartTooltip
-                            content={
-                                <ChartTooltipContent
-                                    formatter={formatCount}
-                                    labelFormatter={(label) => `Attempts: ${label}`}
-                                />
-                            }
-                        />
-                        {medianAttempts != null && (
-                            <ReferenceLine
-                                x={String(medianAttempts)}
-                                stroke="hsl(var(--chart-3))"
-                                strokeWidth={2}
-                                strokeDasharray="4 4"
+            <StatisticsChartTableView
+                exportFileName={exportFileName}
+                csvRecords={csvRecords}
+                hasData={histogram.some((row) => row.passed + (row.neverPassed ?? 0) > 0)}
+                table={table}
+            >
+                <div className="flex w-full items-stretch gap-1">
+                    <div className="flex w-[1.125rem] shrink-0 items-center justify-center self-stretch sm:w-5">
+                        <span className="whitespace-nowrap text-xs text-muted-foreground [writing-mode:vertical-rl] rotate-180">
+                            Number of students
+                        </span>
+                    </div>
+                    <ChartContainer config={chartConfig} className="h-[200px] min-w-0 flex-1">
+                        <BarChart
+                            data={histogram}
+                            margin={{ top: 32, right: 8, bottom: 8, left: 4 }}
+                            barCategoryGap="10%"
+                        >
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                                dataKey="label"
+                                tickLine={false}
+                                axisLine={false}
                                 label={{
-                                    value: 'Median',
-                                    position: 'top',
-                                    fill: 'hsl(var(--chart-3))',
-                                    offset: 4,
+                                    value: 'Attempts to first AC',
+                                    position: 'insideBottom',
+                                    offset: -4,
                                 }}
                             />
-                        )}
-                        <Bar
-                            dataKey="passed"
-                            fill="var(--color-passed)"
-                            stackId="a"
-                            radius={[0, 0, 4, 4]}
-                            name="Passed (AC)"
-                        />
-                        <Bar
-                            dataKey="neverPassed"
-                            fill="var(--color-neverPassed)"
-                            stackId="a"
-                            radius={[4, 4, 0, 0]}
-                            name="Did not pass"
-                        />
-                    </BarChart>
-                </ChartContainer>
-            </div>
+                            <YAxis tickLine={false} axisLine={false} width={48} tickMargin={8} />
+                            <ChartTooltip
+                                content={
+                                    <ChartTooltipContent
+                                        formatter={formatCount}
+                                        labelFormatter={(label) => `Attempts: ${label}`}
+                                    />
+                                }
+                            />
+                            {medianAttempts != null && (
+                                <ReferenceLine
+                                    x={String(medianAttempts)}
+                                    stroke="hsl(var(--chart-3))"
+                                    strokeWidth={2}
+                                    strokeDasharray="4 4"
+                                    label={{
+                                        value: 'Median',
+                                        position: 'top',
+                                        fill: 'hsl(var(--chart-3))',
+                                        offset: 4,
+                                    }}
+                                />
+                            )}
+                            <Bar
+                                dataKey="passed"
+                                fill="var(--color-passed)"
+                                stackId="a"
+                                radius={[0, 0, 4, 4]}
+                                name="Passed (AC)"
+                            />
+                            <Bar
+                                dataKey="neverPassed"
+                                fill="var(--color-neverPassed)"
+                                stackId="a"
+                                radius={[4, 4, 0, 0]}
+                                name="Did not pass"
+                            />
+                        </BarChart>
+                    </ChartContainer>
+                </div>
+            </StatisticsChartTableView>
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                 {totalPassed > 0 && (
                     <>
@@ -808,9 +735,10 @@ function AttemptsToSolveChart({
 type SubmissionVolumeAreaChartProps = {
     data: VolumeOverTimePoint[]
     colors: ColorMapping
+    exportFileName: string
 }
 
-function SubmissionVolumeAreaChart({ data, colors }: SubmissionVolumeAreaChartProps) {
+function SubmissionVolumeAreaChart({ data, colors, exportFileName }: SubmissionVolumeAreaChartProps) {
     const chartConfig = {
         year: { label: 'Year', color: 'hsl(var(--muted-foreground))' },
         ok: {
@@ -823,50 +751,86 @@ function SubmissionVolumeAreaChart({ data, colors }: SubmissionVolumeAreaChartPr
         },
     }
     const formatCount = (value: unknown) => [String(value), 'Submissions'] as [string, string]
-    if (data.length === 0) {
-        return (
-            <div className="flex h-[160px] w-full items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+    const csvRecords = useMemo(
+        () =>
+            data.map((row) => ({
+                Year: row.year,
+                OK: row.ok,
+                KO: row.ko,
+                Total: row.ok + row.ko,
+            })),
+        [data],
+    )
+    const table = (
+        <ScrollArea className="h-[200px] w-full">
+            <Table>
+                <TableBody>
+                    {data.map((row) => (
+                        <TableRow key={row.year}>
+                            <TableCell>{row.year}</TableCell>
+                            <TableCell className="text-end">{row.ok}</TableCell>
+                            <TableCell className="text-end">{row.ko}</TableCell>
+                            <TableCell className="text-end">{row.ok + row.ko}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </ScrollArea>
+    )
+    const chart =
+        data.length === 0 ? (
+            <div className="flex h-[200px] w-full items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
                 No submission data
             </div>
+        ) : (
+            <ChartContainer config={chartConfig} className="h-[200px] w-full aspect-auto">
+                <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="year" tickLine={false} axisLine={false} tickFormatter={(y: number) => String(y)} />
+                    <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
+                    <ChartTooltip
+                        content={
+                            <ChartTooltipContent
+                                formatter={formatCount}
+                                labelFormatter={(_, payload) => {
+                                    const p = payload?.[0]?.payload as VolumeOverTimePoint | undefined
+                                    return p ? String(p.year) : ''
+                                }}
+                            />
+                        }
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="ok"
+                        stackId="a"
+                        stroke="var(--color-ok)"
+                        fill="var(--color-ok)"
+                        fillOpacity={0.6}
+                        name="OK (AC)"
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="ko"
+                        stackId="a"
+                        stroke="var(--color-ko)"
+                        fill="var(--color-ko)"
+                        fillOpacity={0.6}
+                        name="KO"
+                    />
+                </AreaChart>
+            </ChartContainer>
         )
-    }
     return (
-        <ChartContainer config={chartConfig} className="h-[160px] w-full aspect-auto">
-            <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="year" tickLine={false} axisLine={false} tickFormatter={(y: number) => String(y)} />
-                <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
-                <ChartTooltip
-                    content={
-                        <ChartTooltipContent
-                            formatter={formatCount}
-                            labelFormatter={(_, payload) => {
-                                const p = payload?.[0]?.payload as VolumeOverTimePoint | undefined
-                                return p ? String(p.year) : ''
-                            }}
-                        />
-                    }
-                />
-                <Area
-                    type="monotone"
-                    dataKey="ok"
-                    stackId="a"
-                    stroke="var(--color-ok)"
-                    fill="var(--color-ok)"
-                    fillOpacity={0.6}
-                    name="OK (AC)"
-                />
-                <Area
-                    type="monotone"
-                    dataKey="ko"
-                    stackId="a"
-                    stroke="var(--color-ko)"
-                    fill="var(--color-ko)"
-                    fillOpacity={0.6}
-                    name="KO"
-                />
-            </AreaChart>
-        </ChartContainer>
+        <StatisticsChartTableView
+            exportFileName={exportFileName}
+            csvRecords={csvRecords}
+            hasData={data.some((row) => row.ok + row.ko > 0)}
+            table={table}
+            chartToggleIcon={ChartAreaIcon}
+            showChartLabel="area chart"
+        >
+            {chart}
+        </StatisticsChartTableView>
     )
 }
 
@@ -882,9 +846,15 @@ type SubmissionsByLanguageChartProps = {
     data: SubmissionsByLanguageOverTimePoint[]
     languageIds: string[]
     languageNames: Record<string, string>
+    exportFileName: string
 }
 
-function SubmissionsByLanguageChart({ data, languageIds, languageNames }: SubmissionsByLanguageChartProps) {
+function SubmissionsByLanguageChart({
+    data,
+    languageIds,
+    languageNames,
+    exportFileName,
+}: SubmissionsByLanguageChartProps) {
     const chartConfig = useMemo(() => {
         const config: Record<string, { label: string; color: string }> = {
             year: { label: 'Year', color: 'hsl(var(--muted-foreground))' },
@@ -897,43 +867,82 @@ function SubmissionsByLanguageChart({ data, languageIds, languageNames }: Submis
         })
         return config
     }, [languageIds, languageNames])
-    if (data.length === 0) {
-        return (
-            <div className="flex h-[160px] w-full items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+    const csvRecords = useMemo(
+        () =>
+            data.map((row) => {
+                const record: Record<string, unknown> = { Year: row.year }
+                for (const languageId of languageIds) {
+                    record[languageNames[languageId] ?? languageId] = row[languageId] ?? 0
+                }
+                return record
+            }),
+        [data, languageIds, languageNames],
+    )
+    const table = (
+        <ScrollArea className="h-[200px] w-full">
+            <Table>
+                <TableBody>
+                    {data.map((row) => (
+                        <TableRow key={row.year}>
+                            <TableCell>{row.year}</TableCell>
+                            {languageIds.map((languageId) => (
+                                <TableCell key={languageId} className="text-end">
+                                    {row[languageId] ?? 0}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </ScrollArea>
+    )
+    const chart =
+        data.length === 0 ? (
+            <div className="flex h-[200px] w-full items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
                 No submission data by language
             </div>
-        )
-    }
-    return (
-        <ChartContainer config={chartConfig} className="h-[160px] w-full aspect-auto">
-            <LineChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="year" tickLine={false} axisLine={false} tickFormatter={(y: number) => String(y)} />
-                <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
-                <ChartTooltip
-                    content={
-                        <ChartTooltipContent
-                            labelFormatter={(_, payload) => {
-                                const p = payload?.[0]?.payload as SubmissionsByLanguageOverTimePoint | undefined
-                                return p ? `Year ${p.year}` : ''
-                            }}
-                        />
-                    }
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-                {languageIds.map((lid, i) => (
-                    <Line
-                        key={lid}
-                        type="monotone"
-                        dataKey={lid}
-                        stroke={CHART_COLORS[i % CHART_COLORS.length]}
-                        strokeWidth={2}
-                        dot={{ r: 4 }}
-                        name={languageNames[lid] ?? lid}
+        ) : (
+            <ChartContainer config={chartConfig} className="h-[200px] w-full aspect-auto">
+                <LineChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="year" tickLine={false} axisLine={false} tickFormatter={(y: number) => String(y)} />
+                    <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
+                    <ChartTooltip
+                        content={
+                            <ChartTooltipContent
+                                labelFormatter={(_, payload) => {
+                                    const p = payload?.[0]?.payload as SubmissionsByLanguageOverTimePoint | undefined
+                                    return p ? `Year ${p.year}` : ''
+                                }}
+                            />
+                        }
                     />
-                ))}
-            </LineChart>
-        </ChartContainer>
+                    <ChartLegend content={<ChartLegendContent />} />
+                    {languageIds.map((lid, i) => (
+                        <Line
+                            key={lid}
+                            type="monotone"
+                            dataKey={lid}
+                            stroke={CHART_COLORS[i % CHART_COLORS.length]}
+                            strokeWidth={2}
+                            dot={{ r: 4 }}
+                            name={languageNames[lid] ?? lid}
+                        />
+                    ))}
+                </LineChart>
+            </ChartContainer>
+        )
+    return (
+        <StatisticsChartTableView
+            exportFileName={exportFileName}
+            csvRecords={csvRecords}
+            hasData={data.length > 0}
+            table={table}
+            chartToggleIcon={ChartLineIcon}
+            showChartLabel="line chart"
+        >
+            {chart}
+        </StatisticsChartTableView>
     )
 }
 
@@ -982,9 +991,10 @@ function findPopularityBucketLabel(buckets: ProblemPopularityBucketEntry[], tota
 type ProblemPopularityChartProps = {
     buckets: ProblemPopularityBucketEntry[]
     problemTotalSubmissions: number
+    exportFileName: string
 }
 
-function ProblemPopularityChart({ buckets, problemTotalSubmissions }: ProblemPopularityChartProps) {
+function ProblemPopularityChart({ buckets, problemTotalSubmissions, exportFileName }: ProblemPopularityChartProps) {
     const chartData = useMemo(() => buildPopularityChartData(buckets), [buckets])
     const markerLabel = useMemo(
         () => findPopularityBucketLabel(buckets, problemTotalSubmissions),
@@ -998,18 +1008,35 @@ function ProblemPopularityChart({ buckets, problemTotalSubmissions }: ProblemPop
         },
     }
     const formatCount = (value: unknown) => [String(value), 'Problems'] as [string, string]
-
-    if (chartData.length === 0) {
-        return (
-            <div className="flex h-[220px] w-full items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+    const csvRecords = useMemo(
+        () =>
+            chartData.map((row) => ({
+                Bucket: row.label,
+                Problems: row.problem_count,
+            })),
+        [chartData],
+    )
+    const table = (
+        <ScrollArea className="h-[240px] w-full">
+            <Table>
+                <TableBody>
+                    {chartData.map((row) => (
+                        <TableRow key={row.label}>
+                            <TableCell>{row.label}</TableCell>
+                            <TableCell className="text-end">{row.problem_count}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </ScrollArea>
+    )
+    const chart =
+        chartData.length === 0 ? (
+            <div className="flex h-[240px] w-full items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
                 No popularity data
             </div>
-        )
-    }
-
-    return (
-        <>
-            <ChartContainer config={chartConfig} className="h-[350px] w-full aspect-auto">
+        ) : (
+            <ChartContainer config={chartConfig} className="h-[240px] w-full aspect-auto">
                 <BarChart data={chartData} margin={{ top: 28, right: 12, bottom: 56, left: 48 }} barCategoryGap="12%">
                     <CartesianGrid vertical={false} strokeDasharray="3 3" />
                     <XAxis
@@ -1069,7 +1096,16 @@ function ProblemPopularityChart({ buckets, problemTotalSubmissions }: ProblemPop
                     />
                 </BarChart>
             </ChartContainer>
-        </>
+        )
+    return (
+        <StatisticsChartTableView
+            exportFileName={exportFileName}
+            csvRecords={csvRecords}
+            hasData={chartData.some((row) => row.problem_count > 0)}
+            table={table}
+        >
+            {chart}
+        </StatisticsChartTableView>
     )
 }
 
@@ -1105,6 +1141,7 @@ export function ProblemStatisticsPanel({
         return dayjs(sorted[0].time).startOf('day').toDate()
     }, [submissions])
     const defaultEndDate = useMemo(() => dayjs().startOf('day').toDate(), [])
+    // Session-only: remembered across dialog opens, reset when this view unmounts.
     const [startDate, setStartDate] = useState(defaultStartDate)
     const [endDate, setEndDate] = useState(defaultEndDate)
     const [settingsOpen, setSettingsOpen] = useState(false)
@@ -1157,21 +1194,46 @@ export function ProblemStatisticsPanel({
             <StatisticsDashboardCard stats={dashboardStats} />
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                 <StatCard title="User statuses">
-                    <MyPieChart data={derived.usersOkKo} category="statuses" colors={colors} />
+                    <DistributionPieChart
+                        data={derived.usersOkKo}
+                        category="statuses"
+                        colors={colors}
+                        exportFileName={`${problem_nm}-user-statuses`}
+                    />
                 </StatCard>
                 <StatCard title="Submission statuses">
-                    <MyPieChart data={derived.submissionsOkKo} category="statuses" colors={colors} />
+                    <DistributionPieChart
+                        data={derived.submissionsOkKo}
+                        category="statuses"
+                        colors={colors}
+                        exportFileName={`${problem_nm}-submission-statuses`}
+                    />
                 </StatCard>
                 <StatCard title="Submissions by verdict">
-                    <MyPieChart data={derived.verdicts} category="verdicts" colors={colors} />
+                    <DistributionPieChart
+                        data={derived.verdicts}
+                        category="verdicts"
+                        colors={colors}
+                        exportFileName={`${problem_nm}-verdicts`}
+                    />
                 </StatCard>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                 <StatCard title="Compilers">
-                    <MyPieChart data={derived.compilers} category="compilers" colors={colors} />
+                    <DistributionPieChart
+                        data={derived.compilers}
+                        category="compilers"
+                        colors={colors}
+                        exportFileName={`${problem_nm}-compilers`}
+                    />
                 </StatCard>
                 <StatCard title="Programming languages">
-                    <MyPieChart data={derived.proglangs} category="proglangs" colors={colors} />
+                    <DistributionPieChart
+                        data={derived.proglangs}
+                        category="proglangs"
+                        colors={colors}
+                        exportFileName={`${problem_nm}-programming-languages`}
+                    />
                 </StatCard>
             </div>
             <div
@@ -1193,6 +1255,7 @@ export function ProblemStatisticsPanel({
                             <ProblemPopularityChart
                                 buckets={popularityBuckets}
                                 problemTotalSubmissions={problemTotalSubmissionsAllTime}
+                                exportFileName={`${problem_nm}-popularity`}
                             />
                         </CardContent>
                     </ResizableCard>
@@ -1212,6 +1275,7 @@ export function ProblemStatisticsPanel({
                             totalPassed={derived.attemptsToSolve.totalPassed}
                             neverPassedCount={derived.attemptsToSolve.neverPassedCount}
                             colors={colors}
+                            exportFileName={`${problem_nm}-attempts-to-solve`}
                         />
                     </CardContent>
                 </ResizableCard>
@@ -1229,6 +1293,7 @@ export function ProblemStatisticsPanel({
                             totalSolvers={derived.timeToFirstPass.totalSolvers}
                             neverSolved={derived.timeToFirstPass.neverSolved}
                             medianHours={derived.timeToFirstPass.medianHours}
+                            exportFileName={`${problem_nm}-time-to-solve`}
                         />
                     </CardContent>
                 </ResizableCard>
@@ -1240,22 +1305,26 @@ export function ProblemStatisticsPanel({
                 <CardContent className="px-4 pb-4">
                     <Heatmap
                         data={derived.heatmapData}
-                        start={derived.heatmapStart}
-                        end={derived.heatmapEnd}
+                        start={dayjs(startDate).startOf('day')}
+                        end={dayjs(endDate).startOf('day').add(1, 'day')}
                         maxValue={derived.maxValue}
                     />
                 </CardContent>
             </ResizableCard>
-            <ResizableCard className="w-full" defaultHeight={260}>
+            <ResizableCard className="w-full" defaultHeight={340}>
                 <CardHeader className="p-4">
                     <CardTitle>Submission over time</CardTitle>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
-                    <SubmissionVolumeAreaChart data={derived.submissionVolumeOverTime} colors={colors} />
+                    <SubmissionVolumeAreaChart
+                        data={derived.submissionVolumeOverTime}
+                        colors={colors}
+                        exportFileName={`${problem_nm}-submissions-over-time`}
+                    />
                 </CardContent>
             </ResizableCard>
             {Object.values(abstractProblem.problems).length > 1 && (
-                <ResizableCard className="w-full" defaultHeight={260}>
+                <ResizableCard className="w-full" defaultHeight={340}>
                     <CardHeader className="p-4">
                         <CardTitle>Submissions by language</CardTitle>
                     </CardHeader>
@@ -1264,22 +1333,39 @@ export function ProblemStatisticsPanel({
                             data={submissionsByLanguageOverTime.data}
                             languageIds={submissionsByLanguageOverTime.languageIds}
                             languageNames={submissionsByLanguageOverTime.languageNames}
+                            exportFileName={`${problem_nm}-submissions-by-language`}
                         />
                     </CardContent>
                 </ResizableCard>
             )}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 <StatCard title="Submissions by year">
-                    <StackedOkKoBarChart data={derived.submissionsByYear} colors={colors} />
+                    <StackedOkKoBarChart
+                        data={derived.submissionsByYear}
+                        colors={colors}
+                        exportFileName={`${problem_nm}-submissions-by-year`}
+                    />
                 </StatCard>
                 <StatCard title="Submissions by month of year">
-                    <StackedOkKoBarChart data={derived.submissionsByMonth} colors={colors} />
+                    <StackedOkKoBarChart
+                        data={derived.submissionsByMonth}
+                        colors={colors}
+                        exportFileName={`${problem_nm}-submissions-by-month`}
+                    />
                 </StatCard>
                 <StatCard title="Submissions by day of week">
-                    <StackedOkKoBarChart data={derived.submissionsByWeekday} colors={colors} />
+                    <StackedOkKoBarChart
+                        data={derived.submissionsByWeekday}
+                        colors={colors}
+                        exportFileName={`${problem_nm}-submissions-by-day-of-week`}
+                    />
                 </StatCard>
                 <StatCard title="Submissions by hour of day">
-                    <StackedOkKoBarChart data={derived.submissionsByHour} colors={colors} />
+                    <StackedOkKoBarChart
+                        data={derived.submissionsByHour}
+                        colors={colors}
+                        exportFileName={`${problem_nm}-submissions-by-hour-of-day`}
+                    />
                 </StatCard>
             </div>
             <StatisticsSettingsDialog
@@ -1342,6 +1428,7 @@ export function ProblemStatisticsView() {
 
     return (
         <ProblemStatisticsPanel
+            key={problem_nm}
             problem_nm={problem_nm}
             submissions={normalizedSubmissions}
             colors={colors}

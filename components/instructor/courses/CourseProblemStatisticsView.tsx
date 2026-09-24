@@ -19,6 +19,7 @@ export function CourseProblemStatisticsView({ data, courseStatsHref, courseHref 
         <div className="flex w-full flex-col gap-4">
             <CourseProblemStatisticsContextCard data={data} courseStatsHref={courseStatsHref} courseHref={courseHref} />
             <ProblemStatisticsPanel
+                key={data.problem_nm}
                 problem_nm={data.problem_nm}
                 submissions={submissions}
                 colors={data.colors}

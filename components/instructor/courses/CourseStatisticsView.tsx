@@ -11,10 +11,10 @@ import { CourseProblemRankingCard } from '@/components/instructor/courses/statis
 import { CourseStudentRankingCard } from '@/components/instructor/courses/statistics/CourseStudentRankingCard'
 import { CourseSubmissionDistributionCards } from '@/components/instructor/courses/statistics/CourseSubmissionDistributionCards'
 import { SubmissionsOverTimeCard } from '@/components/instructor/courses/statistics/SubmissionsOverTimeCard'
+import { buildHeatmapSourceData } from '@/lib/instructor/courseHeatmapSourceData'
 import { deriveCourseSubmissionChartData } from '@/lib/instructor/courseSubmissionStatistics'
 import type { CourseStatisticsPageData } from '@/lib/instructor/loadCourseStatisticsData'
 import { deriveSubmissionChartData, toStatisticsSubmissionFromCourse } from '@/lib/instructor/submissionStatistics'
-import { useCourseStatisticsPeriodPreference } from '@/hooks/use-course-statistics-period-preference'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 
@@ -31,17 +31,15 @@ function initialStartDate(submissions: CourseStatisticsPageData['submissions']):
 }
 
 export function CourseStatisticsView({ data, statisticsBaseHref }: CourseStatisticsViewProps) {
-    const { submissions, colors, course, profiles, lists, abstractProblems, heatmap } = data
+    const { submissions, colors, course, profiles, lists, abstractProblems } = data
     const problemStatsBaseHref = statisticsBaseHref ?? `/instructor/courses/${course.course_nm}/statistics`
     const [settingsOpen, setSettingsOpen] = useState(false)
 
     const defaultStartDate = useMemo(() => initialStartDate(submissions), [submissions])
     const defaultEndDate = useMemo(() => dayjs().startOf('day').toDate(), [])
-    const [{ startDate, endDate }, setPeriod] = useCourseStatisticsPeriodPreference(
-        course.course_nm,
-        defaultStartDate,
-        defaultEndDate,
-    )
+    // Session-only: remembered across dialog opens, reset when this view unmounts.
+    const [startDate, setStartDate] = useState(defaultStartDate)
+    const [endDate, setEndDate] = useState(defaultEndDate)
 
     const filteredSubmissions = useMemo(() => {
         const start = dayjs(startDate).startOf('day')
@@ -64,8 +62,14 @@ export function CourseStatisticsView({ data, statisticsBaseHref }: CourseStatist
 
     const distributionData = useMemo(() => deriveSubmissionChartData(statisticsSubmissions), [statisticsSubmissions])
 
+    const heatmap = useMemo(
+        () => buildHeatmapSourceData(course, profiles, filteredSubmissions, lists, abstractProblems),
+        [course, profiles, filteredSubmissions, lists, abstractProblems],
+    )
+
     const handleAcceptPeriod = (start: Date, end: Date) => {
-        setPeriod(start, end)
+        setStartDate(start)
+        setEndDate(end)
     }
 
     return (
@@ -75,7 +79,7 @@ export function CourseStatisticsView({ data, statisticsBaseHref }: CourseStatist
                     course={course}
                     profiles={profiles}
                     lists={lists}
-                    submissions={submissions}
+                    submissions={filteredSubmissions}
                 />
                 <SubmissionsOverTimeCard
                     courseNm={course.course_nm}
@@ -93,11 +97,16 @@ export function CourseStatisticsView({ data, statisticsBaseHref }: CourseStatist
             </div>
             <CourseSubmissionDistributionCards courseNm={course.course_nm} derived={distributionData} colors={colors} />
             <ClassProgressHeatmapCards course_nm={course.course_nm} heatmap={heatmap} />
-            <CourseStudentRankingCard course={course} profiles={profiles} lists={lists} submissions={submissions} />
+            <CourseStudentRankingCard
+                course={course}
+                profiles={profiles}
+                lists={lists}
+                submissions={filteredSubmissions}
+            />
             <CourseProblemRankingCard
                 course={course}
                 lists={lists}
-                submissions={submissions}
+                submissions={filteredSubmissions}
                 abstractProblems={abstractProblems}
                 statisticsBaseHref={problemStatsBaseHref}
             />

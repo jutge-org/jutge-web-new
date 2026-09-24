@@ -5,7 +5,6 @@ import {
     fetchTutorCourseSubmissions,
     resolveTutorCourseKey,
 } from '@/lib/data/supervisionActions'
-import { buildHeatmapSourceData, type HeatmapSourceData } from '@/lib/instructor/courseHeatmapSourceData'
 import type { Dict } from '@/lib/instructor/utils'
 import jutge from '@/lib/jutge'
 import type {
@@ -25,7 +24,6 @@ export type CourseStatisticsPageData = {
     profiles: Dict<StudentProfile>
     lists: InstructorList[]
     abstractProblems: Dict<AbstractProblem>
-    heatmap: HeatmapSourceData
 }
 
 function emptyCourseMembers() {
@@ -85,9 +83,7 @@ export async function loadCourseStatisticsData(data: {
         .filter((list): list is NonNullable<typeof list> => !!list)
         .map(studentListToInstructorList)
 
-    const heatmap = buildHeatmapSourceData(course, profiles, submissions, lists, abstractProblems)
-
-    return { course, profiles, submissions, colors, lists, abstractProblems, heatmap }
+    return { course, profiles, submissions, colors, lists, abstractProblems }
 }
 
 /** Instructor routes that only have `course_nm` resolve the tutor course key first. */

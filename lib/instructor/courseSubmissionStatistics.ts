@@ -16,6 +16,15 @@ function nDayBucketStart(t: Dayjs, periodStart: Dayjs, bucketSizeDays: number): 
     return start.add(bucketIndex * bucketSizeDays, 'day')
 }
 
+function earliestSubmissionDay(submissions: CourseSubmission[]): Dayjs {
+    let earliest = dayjs(submissions[0].time)
+    for (const submission of submissions) {
+        const time = dayjs(submission.time)
+        if (time.isBefore(earliest)) earliest = time
+    }
+    return earliest.startOf('day')
+}
+
 function formatNDayBucketLabel(bucket: Dayjs, bucketSizeDays: number): string {
     if (bucketSizeDays >= 365) return bucket.format('YYYY')
     if (bucketSizeDays >= 28) return bucket.format('MMM YYYY')
@@ -34,7 +43,9 @@ export function deriveSubmissionVolumeOverTime(
 
     const counts = new Map<number, { ok: number; ko: number }>()
     for (const s of submissions) {
-        const bucket = nDayBucketStart(dayjs(s.time), start, bucketSize)
+        const time = dayjs(s.time)
+        if (time.isBefore(start) || time.isAfter(end)) continue
+        const bucket = nDayBucketStart(time, start, bucketSize)
         if (bucket.isBefore(start) || bucket.isAfter(end)) continue
         const key = bucket.valueOf()
         const existing = counts.get(key) ?? { ok: 0, ko: 0 }
@@ -81,8 +92,18 @@ export function deriveCourseSubmissionChartData(
 ): CourseSubmissionChartData {
     const isOk = (verdict: string) => verdict === 'AC'
 
+    const periodStart = period ? dayjs(period.start).startOf('day') : null
+    const periodEnd = period ? dayjs(period.end).endOf('day') : null
+    const inPeriod =
+        periodStart && periodEnd
+            ? submissions.filter((s) => {
+                  const t = dayjs(s.time)
+                  return !t.isBefore(periodStart) && !t.isAfter(periodEnd)
+              })
+            : submissions
+
     const byDay: Record<string, number> = {}
-    for (const s of submissions) {
+    for (const s of inPeriod) {
         const key = dayjs(s.time).format('YYYY-MM-DD')
         byDay[key] = (byDay[key] ?? 0) + 1
     }
@@ -91,8 +112,9 @@ export function deriveCourseSubmissionChartData(
         value,
     }))
     const maxValue = heatmapData.length ? Math.max(...heatmapData.map((d) => d.value)) : 0
-    const heatmapEnd = dayjs().add(1, 'day').startOf('day')
-    const heatmapStart = submissions.length > 0 ? dayjs(submissions[0].time).startOf('day') : dayjs().startOf('day')
+    const heatmapStart = periodStart ?? (inPeriod.length > 0 ? earliestSubmissionDay(inPeriod) : dayjs().startOf('day'))
+    // Exclusive end: the calendar draws each day while `day` is before `heatmapEnd`.
+    const heatmapEnd = periodEnd ? periodEnd.startOf('day').add(1, 'day') : dayjs().add(1, 'day').startOf('day')
 
     const byMonth: Record<number, { ok: number; ko: number }> = {}
     for (let m = 0; m < 12; m++) byMonth[m] = { ok: 0, ko: 0 }
@@ -100,7 +122,7 @@ export function deriveCourseSubmissionChartData(
     for (let i = 0; i < 7; i++) byDow[i] = { ok: 0, ko: 0 }
     const byHour: Record<number, { ok: number; ko: number }> = {}
     for (let h = 0; h < 24; h++) byHour[h] = { ok: 0, ko: 0 }
-    for (const s of submissions) {
+    for (const s of inPeriod) {
         const t = dayjs(s.time)
         const ok = isOk(s.verdict)
 
@@ -136,12 +158,12 @@ export function deriveCourseSubmissionChartData(
         ko: byHour[h].ko,
     }))
 
-    const periodStart = period ? dayjs(period.start).startOf('day') : heatmapStart
-    const periodEnd = period ? dayjs(period.end).endOf('day') : heatmapEnd.subtract(1, 'day').endOf('day')
+    const volumeStart = periodStart ?? heatmapStart
+    const volumeEnd = periodEnd ?? heatmapEnd.subtract(1, 'day').endOf('day')
     const submissionVolumeOverTime = deriveSubmissionVolumeOverTime(
-        submissions,
-        periodStart,
-        periodEnd,
+        inPeriod,
+        volumeStart,
+        volumeEnd,
         SUBMISSION_VOLUME_BUCKET_SIZE_DEFAULT,
     )
 
