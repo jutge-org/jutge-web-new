@@ -134,3 +134,12 @@ export function parseProblemKey(key: string): ParsedProblemKey {
 
     return { kind: 'invalid' }
 }
+
+/** Abstract problem name (`P68688`), so language variants count as one problem. */
+export function abstractProblemKey(problemId: string): string {
+    const parsed = parseProblemKey(problemId)
+    if (parsed.kind === 'problem_id' || parsed.kind === 'problem_nm') {
+        return parsed.problem_nm
+    }
+    return problemId
+}

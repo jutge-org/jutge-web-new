@@ -1,4 +1,5 @@
 import type { Submission } from '@/lib/jutge_api_client'
+import { abstractProblemKey } from '@/lib/problems'
 import { parseSubmissionTime } from "./period"
 
 /** Maximum gap between submissions before starting a new working session. */
@@ -24,7 +25,7 @@ function parseTimestampedSubmission(
     if (!Number.isFinite(timeMs)) return null
     return {
       timeMs,
-      problemId: submission.problem_id,
+      problemId: abstractProblemKey(submission.problem_id),
       veredict: submission.veredict ?? null,
     }
   } catch {

@@ -5,6 +5,7 @@ import type {
   HeatmapCalendar,
   Submission,
 } from "@/lib/jutge_api_client"
+import { abstractProblemKey } from "@/lib/problems"
 import { t } from "./strings"
 
 export type WrappedPeriod = {
@@ -230,8 +231,9 @@ export function aggregateDashboardFromSubmissions(
     submissionsByWeekday[weekdayKey] =
       (submissionsByWeekday[weekdayKey] ?? 0) + 1
 
-    problemsAttempted.add(sub.problem_id)
-    if (sub.veredict === "AC") problemsWithAc.add(sub.problem_id)
+    const problemKey = abstractProblemKey(sub.problem_id)
+    problemsAttempted.add(problemKey)
+    if (sub.veredict === "AC") problemsWithAc.add(problemKey)
   }
 
   const heatmap: HeatmapCalendar = [...heatmapMap.entries()]

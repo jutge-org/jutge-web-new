@@ -7,6 +7,7 @@ import type {
   HomepageStats,
   Submission,
 } from '@/lib/jutge_api_client'
+import { abstractProblemKey } from '@/lib/problems'
 import { compilerColor } from './colors'
 import { jutgeAwardIconUrl, resolveAwardYoutube } from './jutgeLinks'
 import {
@@ -386,14 +387,29 @@ function verdictLabel(
   return tables?.verdicts?.[veredict]?.name ?? veredict
 }
 
-function toIntroProblemItem(
-  problemId: string,
+function resolveGroupedProblemTitle(
+  problemKey: string,
+  subs: Submission[],
   problemTitles: Record<string, string> | undefined,
+): string | null {
+  const direct = resolveProblemTitle(problemKey, problemTitles)
+  if (direct) return direct
+  for (const sub of subs) {
+    const title = resolveProblemTitle(sub.problem_id, problemTitles)
+    if (title) return title
+  }
+  return null
+}
+
+function toIntroProblemItem(
+  problemKey: string,
+  problemTitles: Record<string, string> | undefined,
+  subs: Submission[] = [],
 ): IntroProblemItem {
   return {
-    problemId,
-    problemLabel: problemId,
-    problemTitle: resolveProblemTitle(problemId, problemTitles),
+    problemId: problemKey,
+    problemLabel: problemKey,
+    problemTitle: resolveGroupedProblemTitle(problemKey, subs, problemTitles),
   }
 }
 
@@ -408,15 +424,17 @@ function buildAwardsByProblem(
   for (const award of Object.values(awards)) {
     if (!awardInPeriod(award, period)) continue
     const problemId = award.submission?.problem_id
-    if (!problemId || !acceptedProblemIds.has(problemId)) continue
+    if (!problemId) continue
+    const problemKey = abstractProblemKey(problemId)
+    if (!acceptedProblemIds.has(problemKey)) continue
 
-    const list = byProblem.get(problemId) ?? []
+    const list = byProblem.get(problemKey) ?? []
     list.push({
       awardId: award.award_id,
       title: award.title,
       iconUrl: jutgeAwardIconUrl(award.icon, award.type),
     })
-    byProblem.set(problemId, list)
+    byProblem.set(problemKey, list)
   }
 
   for (const [problemId, list] of byProblem) {
@@ -435,7 +453,7 @@ function latestSubmissionForProblem(
 ): Submission | null {
   let latest: Submission | null = null
   for (const sub of submissions) {
-    if (sub.problem_id !== problemId) continue
+    if (abstractProblemKey(sub.problem_id) !== abstractProblemKey(problemId)) continue
     if (!latest || submissionTimeMs(sub) > submissionTimeMs(latest)) {
       latest = sub
     }
@@ -476,13 +494,14 @@ export function buildIntroMetricDrilldowns(
   const submissionsByProblem = new Map<string, Submission[]>()
 
   for (const sub of submissions) {
-    problemsAttempted.add(sub.problem_id)
+    const problemKey = abstractProblemKey(sub.problem_id)
+    problemsAttempted.add(problemKey)
     if (isAcceptedVerdict(sub.veredict)) {
-      problemsWithAc.add(sub.problem_id)
+      problemsWithAc.add(problemKey)
     }
-    const list = submissionsByProblem.get(sub.problem_id) ?? []
+    const list = submissionsByProblem.get(problemKey) ?? []
     list.push(sub)
-    submissionsByProblem.set(sub.problem_id, list)
+    submissionsByProblem.set(problemKey, list)
   }
 
   const awardsByProblem = buildAwardsByProblem(awards, period, problemsWithAc)
@@ -490,8 +509,8 @@ export function buildIntroMetricDrilldowns(
   const acceptedProblems = [...problemsWithAc]
     .sort((a, b) => a.localeCompare(b))
     .map((problemId) => {
-      const item = toIntroProblemItem(problemId, problemTitles)
       const problemSubs = submissionsByProblem.get(problemId) ?? []
+      const item = toIntroProblemItem(problemId, problemTitles, problemSubs)
       const firstAc = firstAcceptedSubmission(problemSubs)
       const problemAwards = awardsByProblem.get(problemId)
       return {
@@ -509,8 +528,8 @@ export function buildIntroMetricDrilldowns(
     .filter((problemId) => !problemsWithAc.has(problemId))
     .sort((a, b) => a.localeCompare(b))
     .map((problemId) => {
-      const item = toIntroProblemItem(problemId, problemTitles)
       const problemSubs = submissionsByProblem.get(problemId) ?? []
+      const item = toIntroProblemItem(problemId, problemTitles, problemSubs)
       const latest = latestSubmissionForProblem(problemSubs, problemId)
       return {
         ...item,
@@ -525,8 +544,8 @@ export function buildIntroMetricDrilldowns(
     .sort((a, b) => submissionTimeMs(b) - submissionTimeMs(a))
     .map((sub) => ({
       submissionId: sub.submission_id,
-      problemId: sub.problem_id,
-      problemLabel: sub.problem_id,
+      problemId: abstractProblemKey(sub.problem_id),
+      problemLabel: abstractProblemKey(sub.problem_id),
       problemTitle: resolveProblemTitle(sub.problem_id, problemTitles),
       verdict: sub.veredict,
       verdictLabel: verdictLabel(sub.veredict, tables),
@@ -822,9 +841,10 @@ function buildHeroMoment(
 
   const byProblem = new Map<string, Submission[]>()
   for (const sub of filtered) {
-    const list = byProblem.get(sub.problem_id) ?? []
+    const problemKey = abstractProblemKey(sub.problem_id)
+    const list = byProblem.get(problemKey) ?? []
     list.push(sub)
-    byProblem.set(sub.problem_id, list)
+    byProblem.set(problemKey, list)
   }
 
   let mostAttempted: { problemId: string; total: number } | null = null
@@ -965,9 +985,10 @@ function buildSlowSolveInsight(
 
   const byProblem = new Map<string, Submission[]>()
   for (const sub of filtered) {
-    const list = byProblem.get(sub.problem_id) ?? []
+    const problemKey = abstractProblemKey(sub.problem_id)
+    const list = byProblem.get(problemKey) ?? []
     list.push(sub)
-    byProblem.set(sub.problem_id, list)
+    byProblem.set(problemKey, list)
   }
 
   let slowest: {
@@ -1008,8 +1029,11 @@ function buildSlowSolveInsight(
   return {
     problemId: slowest.problemId,
     problemLabel:
-      resolveProblemTitle(slowest.problemId, problemTitles) ??
-      slowest.problemId,
+      resolveGroupedProblemTitle(
+        slowest.problemId,
+        byProblem.get(slowest.problemId) ?? [],
+        problemTitles,
+      ) ?? slowest.problemId,
     durationMs: slowest.durationMs,
     durationLabel,
     submissionsBeforeAc: slowest.submissionsBeforeAc,
@@ -1042,9 +1066,10 @@ function computeFirstAttemptRate(
 
   const byProblem = new Map<string, Submission[]>()
   for (const sub of filtered) {
-    const list = byProblem.get(sub.problem_id) ?? []
+    const problemKey = abstractProblemKey(sub.problem_id)
+    const list = byProblem.get(problemKey) ?? []
     list.push(sub)
-    byProblem.set(sub.problem_id, list)
+    byProblem.set(problemKey, list)
   }
 
   let solvedFirstAttempt = 0
@@ -1354,8 +1379,8 @@ export function buildAwardInsights(
       type: award.type,
       timeLabel: formatAwardTime(award.time),
       youtube: resolveAwardYoutube(award.youtube),
-      problemId,
-      problemLabel: problemId,
+      problemId: problemId ? abstractProblemKey(problemId) : null,
+      problemLabel: problemId ? abstractProblemKey(problemId) : null,
     }
   })
 
