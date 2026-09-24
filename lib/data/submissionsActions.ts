@@ -1,4 +1,5 @@
 import { getCurrentClient, getPreferredLanguageId } from '@/lib/data/auth'
+import { invalidateCachedCall } from '@/lib/jutge'
 import type { ProblemSubmissionRow, SubmissionRow } from '@/lib/submissions'
 import { fetchProblemSubmissionsData, fetchSubmissionsData } from '@/lib/data/submissions'
 import { abstractProblemsToTitleMap } from '@/lib/data/problems'
@@ -35,6 +36,7 @@ export async function submitSolutionAction(data: {
             },
             [data.file],
         )
+        invalidateCachedCall('problems.getProblemSuppl', data.problem_id)
         return { ok: true, submission_id }
     } catch (e) {
         const message = e instanceof Error ? e.message : 'Submission failed.'

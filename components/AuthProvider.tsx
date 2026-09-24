@@ -3,7 +3,7 @@
 import dayjs from 'dayjs'
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
-import jutge from '@/lib/jutge'
+import jutge, { invalidateCachedCall } from '@/lib/jutge'
 import type { CredentialsIn, Profile } from '@/lib/jutge_api_client'
 import { profileToSessionUser, type SessionUser } from '@/lib/session'
 
@@ -13,6 +13,8 @@ export type AuthContextValue = {
     loading: boolean
     login(credentials: CredentialsIn): Promise<{ ok: true; userName: string } | { ok: false; error: string }>
     logout(): Promise<void>
+    /** Re-read student.profile.get after a write. router.refresh() does not rerun this client fetch. */
+    refreshProfile(): Promise<void>
 }
 
 function warmAbstractProblemsCache() {
@@ -30,6 +32,7 @@ const AuthContext = createContext<AuthContextValue>({
     loading: true,
     login: async () => ({ ok: false, error: 'Auth not initialized' }),
     logout: async () => {},
+    refreshProfile: async () => {},
 })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -102,6 +105,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }
 
+    const refreshProfile = useCallback(async () => {
+        invalidateCachedCall('student.profile.get')
+        const fetchedProfile = await jutge.student.profile.get()
+        setProfile(fetchedProfile)
+        setUser(profileToSessionUser(fetchedProfile))
+    }, [])
+
     async function logout() {
         try {
             localStorage.removeItem('token')
@@ -117,7 +127,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    return <AuthContext.Provider value={{ user, profile, loading, login, logout }}>{children}</AuthContext.Provider>
+    return (
+        <AuthContext.Provider value={{ user, profile, loading, login, logout, refreshProfile }}>
+            {children}
+        </AuthContext.Provider>
+    )
 }
 
 export function useAuth() {

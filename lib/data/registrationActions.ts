@@ -68,6 +68,8 @@ export async function registerAction(data: RegisterActionInput): Promise<Registe
             recaptcha_token: recaptchaToken,
             password: data.password,
         })
+        // Cache keys omit the user. A guest or previous session must not keep solved languages.
+        jutge.clearCache()
     } catch (e) {
         const message = e instanceof Error ? e.message : 'Registration failed.'
         return { ok: false, error: message }

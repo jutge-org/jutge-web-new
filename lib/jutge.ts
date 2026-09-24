@@ -36,4 +36,23 @@ jutge.clientTTLs.set('problems.getShortTextStatement', 3600)
 jutge.clientTTLs.set('problems.getTemplates', 3600)
 jutge.clientTTLs.set('student.profile.get', 600)
 
+type ClientCache = Map<string, { output: unknown; ofiles: unknown; epoch: number }>
+
+/** Drop cached responses for one API call. `cache` is private on the generated client. */
+export function invalidateCachedCall(func: string, input?: unknown): void {
+    const cache = (jutge as unknown as { cache: ClientCache }).cache
+    const matchInput = arguments.length > 1
+    for (const key of cache.keys()) {
+        let parsed: { func?: string; input?: unknown }
+        try {
+            parsed = JSON.parse(key) as { func?: string; input?: unknown }
+        } catch {
+            continue
+        }
+        if (parsed.func !== func) continue
+        if (matchInput && JSON.stringify(parsed.input) !== JSON.stringify(input)) continue
+        cache.delete(key)
+    }
+}
+
 export default jutge

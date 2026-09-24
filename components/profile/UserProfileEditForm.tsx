@@ -2,10 +2,10 @@
 
 import MDEditor from '@uiw/react-md-editor'
 import { UserPenIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 
+import { useAuth } from '@/components/AuthProvider'
 import { ProfileFormRow } from '@/components/profile/ProfileFormRow'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { Input } from '@/components/ui/input'
@@ -19,7 +19,7 @@ type UserProfileEditFormProps = {
 }
 
 export function UserProfileEditForm({ profile, countries }: UserProfileEditFormProps) {
-    const router = useRouter()
+    const { refreshProfile } = useAuth()
     const [name, setName] = useState(profile.name)
     const [nickname, setNickname] = useState(profile.nickname ?? '')
     const [affiliation, setAffiliation] = useState(profile.affiliation ?? '')
@@ -60,7 +60,7 @@ export function UserProfileEditForm({ profile, countries }: UserProfileEditFormP
             }
 
             toast.success('Profile saved.')
-            router.refresh()
+            await refreshProfile()
         })
     }
 
