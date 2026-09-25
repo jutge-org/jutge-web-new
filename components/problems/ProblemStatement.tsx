@@ -23,7 +23,10 @@ import { downloadProblemPdf, downloadProblemTemplate, downloadProblemZip } from 
 import {
     STATEMENT_FONT_DEFAULT,
     STATEMENT_FONT_ET_BOOK,
+    STATEMENT_FONT_LABELS,
     STATEMENT_FONT_SOURCE_SERIF_4,
+    STATEMENT_FONT_PALATINO,
+    STATEMENT_FONT_TIMES_NEW_ROMAN,
     type StatementEtBookPreference,
 } from '@/lib/statementEtBook'
 import { cn } from '@/lib/utils'
@@ -89,12 +92,7 @@ export function ProblemStatementSkeleton() {
 export function ProblemStatement({ problemId, shortHtmlStatement, templates }: ProblemStatementProps) {
     const [fontScale, setFontScale] = useFontScalePreference(STATEMENT_FONT_SCALE_KEY)
     const { statementEtBook, setStatementEtBook } = useAppearancePreferences()
-    const statementFontAriaLabel =
-        statementEtBook === STATEMENT_FONT_DEFAULT
-            ? 'Statement font: Default'
-            : statementEtBook === STATEMENT_FONT_SOURCE_SERIF_4
-              ? 'Statement font: Source Serif 4'
-              : 'Statement font: ET Book'
+    const statementFontAriaLabel = `Statement font: ${STATEMENT_FONT_LABELS[statementEtBook]}`
 
     async function handleDownload(fn: () => Promise<void>) {
         try {
@@ -147,6 +145,12 @@ export function ProblemStatement({ problemId, shortHtmlStatement, templates }: P
                                         </DropdownMenuRadioItem>
                                         <DropdownMenuRadioItem value={STATEMENT_FONT_ET_BOOK}>
                                             ET Book
+                                        </DropdownMenuRadioItem>
+                                        <DropdownMenuRadioItem value={STATEMENT_FONT_TIMES_NEW_ROMAN}>
+                                            Times New Roman
+                                        </DropdownMenuRadioItem>
+                                        <DropdownMenuRadioItem value={STATEMENT_FONT_PALATINO}>
+                                            Palatino
                                         </DropdownMenuRadioItem>
                                     </DropdownMenuRadioGroup>
                                 </DropdownMenuContent>
@@ -237,6 +241,8 @@ export function ProblemStatement({ problemId, shortHtmlStatement, templates }: P
                             'statement-section text-foreground',
                             statementEtBook === STATEMENT_FONT_ET_BOOK && 'statement-section--et-book',
                             statementEtBook === STATEMENT_FONT_SOURCE_SERIF_4 && 'statement-section--source-serif-4',
+                            statementEtBook === STATEMENT_FONT_TIMES_NEW_ROMAN && 'statement-section--times-new-roman',
+                            statementEtBook === STATEMENT_FONT_PALATINO && 'statement-section--palatino',
                         )}
                         style={{ '--statement-scale': fontScale } as CSSProperties}
                         dangerouslySetInnerHTML={{ __html: shortHtmlStatement }}

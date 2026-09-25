@@ -342,6 +342,16 @@
     font-family: 'Source Serif 4', Palatino, 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
 }
 
+/* Times New Roman is a system font (installed on macOS and Windows). */
+.statement-section--times-new-roman {
+    font-family: 'Times New Roman', Times, 'Liberation Serif', serif;
+}
+
+/* Palatino is a system font (Palatino on macOS, Palatino Linotype on Windows). */
+.statement-section--palatino {
+    font-family: Palatino, 'Palatino Linotype', 'Book Antiqua', 'URW Palladio L', serif;
+}
+
 .statement-section code,
 .statement-section pre,
 .statement-section tt,

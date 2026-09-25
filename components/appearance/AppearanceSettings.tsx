@@ -21,6 +21,8 @@ import {
     STATEMENT_FONT_DEFAULT,
     STATEMENT_FONT_ET_BOOK,
     STATEMENT_FONT_SOURCE_SERIF_4,
+    STATEMENT_FONT_PALATINO,
+    STATEMENT_FONT_TIMES_NEW_ROMAN,
     type StatementEtBookPreference,
 } from '@/lib/statementEtBook'
 import type { DashboardCardSize } from '@/lib/dashboardModules'
@@ -339,6 +341,8 @@ export function AppearanceSettings({ className, onNavigateAway }: AppearanceSett
                             <SelectItem value={STATEMENT_FONT_DEFAULT}>Default</SelectItem>
                             <SelectItem value={STATEMENT_FONT_SOURCE_SERIF_4}>Source Serif 4</SelectItem>
                             <SelectItem value={STATEMENT_FONT_ET_BOOK}>ET Book</SelectItem>
+                            <SelectItem value={STATEMENT_FONT_TIMES_NEW_ROMAN}>Times New Roman</SelectItem>
+                            <SelectItem value={STATEMENT_FONT_PALATINO}>Palatino</SelectItem>
                         </SelectContent>
                     </Select>
                 </SettingSection>
