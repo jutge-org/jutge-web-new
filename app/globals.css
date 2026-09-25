@@ -350,28 +350,43 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
+.statement-section :is(h1, h2, h3, h4, h5, h6) {
+    color: #0f0f0f;
+}
+
+.dark .statement-section :is(h1, h2, h3, h4, h5, h6) {
+    color: #f0f0f0;
+}
+
 .statement-section h1 {
     font-size: calc(1.25rem * var(--statement-scale, 1));
     font-weight: 700;
     color: var(--foreground);
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
 }
 
 .statement-section h2 {
-    font-size: calc(1.125rem * var(--statement-scale, 1));
+    font-size: calc(1rem * var(--statement-scale, 1));
     font-weight: 700;
-    color: var(--foreground);
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
 }
 
 .statement-section h3 {
-    font-size: calc(1.125rem * var(--statement-scale, 1));
+    font-size: calc(1rem * var(--statement-scale, 1));
     font-weight: 700;
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
 }
 
 .statement-section h4 {
-    font-size: calc(1.125rem * var(--statement-scale, 1));
+    font-size: calc(1rem * var(--statement-scale, 1));
     font-weight: 700;
     display: inline;
     margin-right: 0.5em;
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
 }
 
 .statement-section h4 + p {
@@ -381,7 +396,7 @@
 .statement-section h4 + p::after {
     content: '';
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 0.75em;
 }
 
 .statement-section math {
@@ -393,7 +408,23 @@
 }
 
 .statement-section p {
-    margin: 1em 0;
+    margin: 0.75em 0;
+}
+
+.statement-section table {
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+    font-size: 90%;
+    border-spacing: 1em 0em;
+    border-collapse: separate;
+}
+
+.statement-section .sourceCode {
+    font-size: 90%;
+}
+
+.statement-section code {
+    font-size: 75%;
 }
 
 @media (prefers-reduced-motion: reduce) {
