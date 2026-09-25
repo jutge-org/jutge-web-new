@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-23T17:09:44.823Z
+ * This file has been automatically generated at 2026-09-25T08:08:22.753Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -655,7 +655,7 @@ export type BriefExam = {
     visible_submissions: boolean
     status: string
     exp_time_start: Iso8601Date
-    running_time: Iso8601Date
+    running_time: number
     time_start: Iso8601Date | null
     time_end: Iso8601Date | null
 }
@@ -673,7 +673,7 @@ export type Exam = {
     visible_submissions: boolean
     status: string
     exp_time_start: Iso8601Date
-    running_time: Iso8601Date
+    running_time: number
     time_start: Iso8601Date | null
     time_end: Iso8601Date | null
     problems: string[]
@@ -1359,27 +1359,6 @@ export type DateRange = {
     end: string
 }
 
-export type TwoFloats = {
-    a: number
-    b: number
-}
-
-export type TwoInts = {
-    a: number
-    b: number
-}
-
-export type Name = {
-    name: string
-}
-
-export type SomeType = {
-    a: string
-    b: number
-    c: boolean
-    d: boolean
-}
-
 // Client types
 
 export interface Meta {
@@ -1659,7 +1638,6 @@ export class JutgeApiClient {
     readonly instructor: Module_instructor
     readonly games: Module_games
     readonly admin: Module_admin
-    readonly testing: Module_testing
 
     constructor() {
         this.clients = new Module_clients(this)
@@ -1673,7 +1651,6 @@ export class JutgeApiClient {
         this.instructor = new Module_instructor(this)
         this.games = new Module_games(this)
         this.admin = new Module_admin(this)
-        this.testing = new Module_testing(this)
 
         this.clientTTLs.set("misc.getAvatarPacks", 3600)
         this.clientTTLs.set("misc.getExamIcons", 3600)
@@ -6016,242 +5993,6 @@ class Module_admin_problems {
      */
     async getAbstractProblemsWithoutSolutionTags(): Promise<string[]> {
         const [output, ofiles] = await this.root.execute("admin.problems.getAbstractProblemsWithoutSolutionTags", null)
-        return output
-    }
-}
-
-/**
- *
- * Module with testing endpoints. Not meant for regular users.
- *
- */
-class Module_testing {
-    private readonly root: JutgeApiClient
-
-    readonly check: Module_testing_check
-    readonly playground: Module_testing_playground
-
-    constructor(root: JutgeApiClient) {
-        this.root = root
-        this.check = new Module_testing_check(root)
-        this.playground = new Module_testing_playground(root)
-    }
-}
-
-/**
- *
- * This module is intended for internal use and contains functions to check the actor of the query. General public should not rely on it.
- *
- */
-class Module_testing_check {
-    private readonly root: JutgeApiClient
-
-    constructor(root: JutgeApiClient) {
-        this.root = root
-    }
-
-    /**
-     * Checks that query actor is a user.
-     *
-     * 🔐 Authentication: user
-     * No warnings
-     *
-     */
-    async checkUser(): Promise<void> {
-        const [output, ofiles] = await this.root.execute("testing.check.checkUser", null)
-        return output
-    }
-
-    /**
-     * Checks that query actor is an instructor.
-     *
-     * 🔐 Authentication: instructor
-     * No warnings
-     *
-     */
-    async checkInstructor(): Promise<void> {
-        const [output, ofiles] = await this.root.execute("testing.check.checkInstructor", null)
-        return output
-    }
-
-    /**
-     * Checks that query actor is an admin.
-     *
-     * 🔐 Authentication: admin
-     * No warnings
-     *
-     */
-    async checkAdmin(): Promise<void> {
-        const [output, ofiles] = await this.root.execute("testing.check.checkAdmin", null)
-        return output
-    }
-
-    /**
-     * Throw an exception of the given type.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async throwError(exception: string): Promise<void> {
-        const [output, ofiles] = await this.root.execute("testing.check.throwError", exception)
-        return output
-    }
-}
-
-/**
- *
- * This module is intended for internal use. General users should not rely on it.
- *
- */
-class Module_testing_playground {
-    private readonly root: JutgeApiClient
-
-    constructor(root: JutgeApiClient) {
-        this.root = root
-    }
-
-    /**
-     * Upload a file.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async upload(data: Name, ifile: File): Promise<string> {
-        const [output, ofiles] = await this.root.execute("testing.playground.upload", data, [ifile])
-        return output
-    }
-
-    /**
-     * Get negative of an image.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async negate(ifile: File): Promise<Download> {
-        const [output, ofiles] = await this.root.execute("testing.playground.negate", null, [ifile])
-        return ofiles[0]
-    }
-
-    /**
-     * Download a file.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async download(data: Name): Promise<Download> {
-        const [output, ofiles] = await this.root.execute("testing.playground.download", data)
-        return ofiles[0]
-    }
-
-    /**
-     * Download a file with a string.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async download2(data: Name): Promise<[string, Download]> {
-        const [output, ofiles] = await this.root.execute("testing.playground.download2", data)
-        return [output, ofiles[0]]
-    }
-
-    /**
-     * Ping the server to get a pong string.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async ping(): Promise<string> {
-        const [output, ofiles] = await this.root.execute("testing.playground.ping", null)
-        return output
-    }
-
-    /**
-     * Returns the given string in uppercase.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async toUpperCase(s: string): Promise<string> {
-        const [output, ofiles] = await this.root.execute("testing.playground.toUpperCase", s)
-        return output
-    }
-
-    /**
-     * Returns the sum of two integers.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async add2i(data: TwoInts): Promise<number> {
-        const [output, ofiles] = await this.root.execute("testing.playground.add2i", data)
-        return output
-    }
-
-    /**
-     * Returns the sum of two floats.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async add2f(data: TwoFloats): Promise<number> {
-        const [output, ofiles] = await this.root.execute("testing.playground.add2f", data)
-        return output
-    }
-
-    /**
-     * increment two numbers.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async inc(data: TwoInts): Promise<TwoInts> {
-        const [output, ofiles] = await this.root.execute("testing.playground.inc", data)
-        return output
-    }
-
-    /**
-     * Returns the sum of three integers.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async add3i(data: { a: number; b: number; c: number }): Promise<number> {
-        const [output, ofiles] = await this.root.execute("testing.playground.add3i", data)
-        return output
-    }
-
-    /**
-     * Returns a type with defaults.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async something(data: SomeType): Promise<SomeType> {
-        const [output, ofiles] = await this.root.execute("testing.playground.something", data)
-        return output
-    }
-
-    /**
-     * Get a webstream with clok data.
-     *
-     * 🔐 Authentication: any
-     * No warnings
-     *
-     */
-    async clock(): Promise<WebStream> {
-        const [output, ofiles] = await this.root.execute("testing.playground.clock", null)
         return output
     }
 }
