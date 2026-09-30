@@ -16,6 +16,7 @@ import { RelatedSitesBlock } from '@/components/home/RelatedSitesBlock'
 import { SignInBlock, type AccountTabId } from '@/components/home/SignInBlock'
 import { StatsBlock } from '@/components/home/StatsBlock'
 import { TelegramBlock } from '@/components/home/TelegramBlock'
+import { TerminalBlock } from '@/components/home/TerminalBlock'
 import { TestimonialBlock } from '@/components/home/TestimonialBlock'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
@@ -35,6 +36,7 @@ const GUEST_SECTIONS: HomeSectionNavItem[] = [
     { id: 'home-related-sites', label: 'Related sites' },
     { id: 'home-telegram', label: 'Stay informed' },
     { id: 'home-documentation', label: 'Documentation' },
+    { id: 'home-terminal', label: 'Command line' },
     { id: 'home-github', label: 'Open source' },
     { id: 'home-collectible-cards', label: 'Collectible cards' },
     { id: 'home-testimonials', label: 'What people say' },
@@ -142,6 +144,7 @@ export function HomePageGuest() {
                 <TelegramBlock />
                 <CardsBlock />
                 <DocumentationBlock />
+                <TerminalBlock />
                 <GithubBlock />
                 <TestimonialBlock />
                 <MerchandisingBlock />
