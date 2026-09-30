@@ -1,5 +1,6 @@
 'use client'
 
+import { TiltFrame } from '@/components/home/TiltFrame'
 import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { CodeIcon } from 'lucide-react'
@@ -7,6 +8,19 @@ import { motion, useReducedMotion } from 'motion/react'
 import Image from 'next/image'
 
 const EXTENSION_URL = 'vscode:extension/jutge-org.jutge-vscode'
+
+function Screenshot() {
+    return (
+        <Image
+            src="/screenshots/vscode.webp"
+            alt="Visual Studio Code with the Jutge.org extension: a course problem list, a C++ editor, and the statement for Minimum spanning trees"
+            width={2400}
+            height={1600}
+            sizes="(min-width: 896px) 56rem, 100vw"
+            className="h-auto w-full"
+        />
+    )
+}
 
 export function VsCodeBlock() {
     const shouldReduceMotion = useReducedMotion()
@@ -37,16 +51,14 @@ export function VsCodeBlock() {
                         Browse your courses, read statements, and write solutions within your favorite editor with the
                         Jutge.org extension for Visual Studio Code.
                     </MaskRevealUp>
-                    <div className="mx-auto max-w-4xl overflow-hidden rounded-xl shadow-lg">
-                        <Image
-                            src="/screenshots/vscode.webp"
-                            alt="Visual Studio Code with the Jutge.org extension: a course problem list, a C++ editor, and the statement for Minimum spanning trees"
-                            width={2624}
-                            height={1824}
-                            sizes="(min-width: 896px) 56rem, 100vw"
-                            className="h-auto w-full"
-                        />
-                    </div>
+                    <TiltFrame
+                        className="mx-auto max-w-4xl py-4"
+                        frameClassName="relative overflow-hidden rounded-xl"
+                        reducedMotion={Boolean(shouldReduceMotion)}
+                        staticClassName="mx-auto max-w-4xl overflow-hidden rounded-xl shadow-lg"
+                    >
+                        <Screenshot />
+                    </TiltFrame>
                     <SmoothButton asChild className="" color="accent" variant="candy">
                         <a href={EXTENSION_URL}>
                             <CodeIcon className="size-4 shrink-0" aria-hidden />

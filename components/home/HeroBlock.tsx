@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRef } from 'react'
 
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
+import { TiltFrame } from '@/components/home/TiltFrame'
 import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { isMotionReduced } from '@/lib/reducedMotion'
 import { isSoundEffectsEnabled } from '@/lib/soundEffects'
@@ -162,7 +163,9 @@ function HeroLogo() {
                     }
                 }}
             >
-                <Image src="/jutge/modern.webp" alt="" width={192} height={192} loading="eager" />
+                <TiltFrame className="w-fit p-2" frameClassName="relative" glare={false} shadow={false}>
+                    <Image src="/jutge/modern.webp" alt="" width={192} height={192} loading="eager" />
+                </TiltFrame>
             </button>
         </div>
     )
