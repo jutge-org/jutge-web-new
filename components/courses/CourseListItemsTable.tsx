@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import Link from 'next/link'
 
 import { AgTableAutoHeight } from '@/components/administrator/AgTable'
+import { referenceLinkClassName } from '@/components/documentation/ReferenceLink'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { ProblemStatusIcon } from '@/components/problems/ProblemStatusIcon'
 import { ProblemTitleSummaryTooltip } from '@/components/problems/ProblemTitleSummaryTooltip'
@@ -15,6 +16,7 @@ import type { AbstractStatus, Language } from '@/lib/jutge_api_client'
 import type { SupervisionContext } from '@/lib/supervision'
 import { supervisionProblemHref } from '@/lib/supervision'
 import type { CourseListItemRow } from '@/lib/data/lists'
+import { cn } from '@/lib/utils'
 
 type CourseListItemsTableProps = {
     items: CourseListItemRow[]
@@ -88,7 +90,7 @@ export function CourseListItemsTable({
                                         ? supervisionProblemHref(supervisionContext, params.data.problem_nm)
                                         : `/problems/${params.data.problem_nm}`
                                 }
-                                className="tabular-nums text-sm"
+                                className={cn(referenceLinkClassName, 'tabular-nums')}
                             >
                                 <span className="flex flex-row items-center gap-3">
                                     {params.data.iconUrl ? (
@@ -132,7 +134,7 @@ export function CourseListItemsTable({
                               return (
                                   <Link
                                       href={submission.submissionHref}
-                                      className="text-sm hover:text-primary hover:underline"
+                                      className={referenceLinkClassName}
                                   >
                                       {submission.submission_id}
                                   </Link>

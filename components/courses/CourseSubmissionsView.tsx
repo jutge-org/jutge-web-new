@@ -8,7 +8,7 @@ import { AgTableFull } from '@/components/administrator/AgTable'
 import { DevIcon } from '@/components/administrator/DevIcon'
 import { useAuth } from '@/components/AuthProvider'
 import { PageSpinner } from '@/components/ClientGates'
-import { CompilerLink, VerdictLink } from '@/components/documentation/ReferenceLink'
+import { CompilerLink, VerdictLink, referenceLinkClassName } from '@/components/documentation/ReferenceLink'
 import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
 import { ProblemTitleSummaryTooltip } from '@/components/problems/ProblemTitleSummaryTooltip'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -111,7 +111,7 @@ function buildColumnDefs(
             flex: 1,
             filter: true,
             cellRenderer: (params: { data: CourseSubmissionRow }) => (
-                <Link href={params.data.studentHref} className="text-sm hover:text-primary hover:underline">
+                <Link href={params.data.studentHref} className={referenceLinkClassName}>
                     {params.data.name}
                 </Link>
             ),
@@ -127,7 +127,7 @@ function buildColumnDefs(
                     title={params.data.problem_id}
                     preferredLanguageId={preferredLanguageId}
                 >
-                    <Link href={params.data.problemHref} className="text-sm hover:text-primary hover:underline">
+                    <Link href={params.data.problemHref} className={referenceLinkClassName}>
                         <ProblemIdLabel problemId={params.data.problem_id} />
                     </Link>
                 </ProblemTitleSummaryTooltip>
@@ -139,7 +139,7 @@ function buildColumnDefs(
             width: 130,
             filter: true,
             cellRenderer: (params: { data: CourseSubmissionRow }) => (
-                <Link href={params.data.submissionHref} className="text-sm hover:text-primary hover:underline">
+                <Link href={params.data.submissionHref} className={referenceLinkClassName}>
                     {params.data.submission_id}
                 </Link>
             ),

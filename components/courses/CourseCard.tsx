@@ -5,6 +5,7 @@ import { GlobeIcon, GraduationCapIcon, ShieldCheckIcon, SignatureIcon, UsersIcon
 
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ProblemCountBadge } from '@/components/courses/ProblemCountBadge'
+import { referenceLinkClassName } from '@/components/documentation/ReferenceLink'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { type ProblemStatusCounts } from '@/lib/courses'
@@ -63,7 +64,8 @@ export function CourseCardIdentity({
                 <Link
                     href={href}
                     className={cn(
-                        'block truncate font-medium text-primary hover:underline',
+                        referenceLinkClassName,
+                        'block truncate text-base font-medium',
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                         stretched && 'after:absolute after:inset-0 after:rounded-xl after:content-[""]',
                     )}

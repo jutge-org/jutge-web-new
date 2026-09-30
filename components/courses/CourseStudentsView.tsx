@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { AgTableFull } from '@/components/administrator/AgTable'
 import { PageSpinner } from '@/components/ClientGates'
+import { referenceLinkClassName } from '@/components/documentation/ReferenceLink'
 import { Button } from '@/components/ui/button'
 import { emailRenderer } from '@/lib/administrator/grid-renderers'
 import { fetchCourseManageStudents, type CourseStudentRow } from '@/lib/data/courseStudents'
@@ -109,7 +110,7 @@ function buildColumnDefs(courseKey: string) {
                 return (
                     <Link
                         href={supervisionHref(courseKey, params.data.email)}
-                        className="text-sm hover:text-primary hover:underline"
+                        className={referenceLinkClassName}
                     >
                         {name}
                     </Link>

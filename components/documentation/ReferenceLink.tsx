@@ -19,8 +19,8 @@ import { compilerIdToSlug, findCompilerBySlug, getCompilerStatus } from '@/lib/d
 import type { Compiler, Verdict } from '@/lib/jutge_api_client'
 import { cn } from '@/lib/utils'
 
-const referenceLinkClassName =
-    'text-sm text-foreground underline underline-offset-4 decoration-muted-foreground/50 hover:text-primary'
+export const referenceLinkClassName =
+    'text-sm text-foreground hover:underline hover:underline-offset-4 hover:decoration-muted-foreground/50 hover:text-primary'
 
 const dialogClassName = 'flex max-h-[min(85vh,48rem)] flex-col overflow-hidden sm:max-w-3xl [&_code]:break-all'
 
