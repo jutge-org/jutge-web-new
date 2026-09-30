@@ -42,6 +42,7 @@ import {
     XAxis,
     YAxis,
 } from 'recharts'
+import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import StatementDialog from '@/components/instructor/StatementDialog'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { SearchInput } from '@/components/SearchInput'
@@ -78,14 +79,23 @@ export type ProblemSearchActions = {
 }
 import { offerDownloadFile } from '@/lib/instructor/utils'
 import { problemIconUrl } from '@/lib/problems'
+import { isMotionReduced } from '@/lib/reducedMotion'
+import { cn } from '@/lib/utils'
 
 type ProblemSearchViewProps = {
     actions: ProblemSearchActions
     showInstructorStats?: boolean
+    /** Large problem icon on the left inside each result card, as on problem titles. */
+    largeResultIcon?: boolean
     initialQuery?: string
 }
 
-export function ProblemSearchView({ actions, showInstructorStats = false, initialQuery = '' }: ProblemSearchViewProps) {
+export function ProblemSearchView({
+    actions,
+    showInstructorStats = false,
+    largeResultIcon = false,
+    initialQuery = '',
+}: ProblemSearchViewProps) {
     const [allAbstractProblems, setAllAbstractProblems] = useState<Record<string, AbstractProblem> | null>(null)
 
     useEffect(() => {
@@ -101,6 +111,7 @@ export function ProblemSearchView({ actions, showInstructorStats = false, initia
             actions={actions}
             allAbstractProblems={allAbstractProblems}
             showInstructorStats={showInstructorStats}
+            largeResultIcon={largeResultIcon}
             initialQuery={initialQuery}
         />
     )
@@ -110,6 +121,7 @@ type SearchViewProps = {
     actions: ProblemSearchActions
     allAbstractProblems: Record<string, AbstractProblem> | null
     showInstructorStats: boolean
+    largeResultIcon: boolean
     initialQuery?: string
 }
 
@@ -192,6 +204,7 @@ function SearchViewInner(props: SearchViewProps) {
                                 abspbmSuppl={suppls?.[result.problem_nm] ?? null}
                                 actions={props.actions}
                                 showInstructorStats={props.showInstructorStats}
+                                largeResultIcon={props.largeResultIcon}
                             />
                         ))}
                 </div>
@@ -209,6 +222,7 @@ type ResultProps = {
     abspbmSuppl: AbstractProblemSuppl | null
     actions: ProblemSearchActions
     showInstructorStats: boolean
+    largeResultIcon: boolean
 }
 
 type SearchDashboardStats = {
@@ -894,6 +908,8 @@ function CompactProblemStats({ problem_nm }: { problem_nm: string }) {
 }
 
 function Result(props: ResultProps) {
+    const { reducedMotion } = useAppearancePreferences()
+    const motionReduced = isMotionReduced(reducedMotion)
     const [statement, setStatement] = useState<JSX.Element | null>(null)
     const [isStatementDialogOpen, setIsStatementDialogOpen] = useState(false)
 
@@ -941,180 +957,200 @@ function Result(props: ResultProps) {
     }
 
     return (
-        <div className="border rounded-lg px-4 py-3 flex flex-col">
-            <div className="mb-1 flex flex-row gap-2">
-                {iconUrl ? <ProblemIconImage iconUrl={iconUrl} size="sm" className="mt-0.5" /> : null}
-                <a href={`/problems/${props.result.problem_nm}`} className="font-bold text-primary hover:underline">
-                    {props.result.problem_nm}
-                </a>
-                <div />
-                {Object.values(abspbm.problems)
-                    .sort((a, b) => a.language_id.localeCompare(b.language_id))
-                    .map((p) => (
-                        <Badge
-                            key={p.language_id}
-                            onClick={() => click(p.language_id)}
-                            variant={pbm.language_id == p.language_id ? 'default' : 'outline'}
-                            className="w-8 flex items-center justify-center cursor-pointer"
-                        >
-                            {p.language_id}
-                        </Badge>
-                    ))}
-                <div />
-                <div className="flex-grow" />
-            </div>
-            <div className="space-y-1" />
-            <div className="flex flex-row">
-                {detailsOpen ? (
-                    <CircleMinusIcon
-                        className="inline-block mr-2 mt-1 text-primary"
-                        size={16}
-                        onClick={() => setDetailsOpen(false)}
+        <div
+            className={cn(
+                'border rounded-lg px-4 py-3',
+                props.largeResultIcon ? 'flex items-start gap-4' : 'flex flex-col',
+            )}
+        >
+            {props.largeResultIcon ? (
+                iconUrl ? (
+                    <ProblemIconImage
+                        iconUrl={iconUrl}
+                        size="lg"
+                        className={cn(!motionReduced && 'hover:animate-[spin_3s_linear_infinite]')}
                     />
                 ) : (
-                    <CirclePlusIcon
-                        className="inline-block mr-2 mt-1 text-primary"
-                        size={16}
-                        onClick={() => setDetailsOpen(true)}
-                    />
-                )}
-                <div className="font-bold">{pbm.title || 'Untitled problem'}</div>
-            </div>
-
-            <div className="mt-1 ml-6 text-sm flex flex-col gap-1">
-                {abspbm.author && (
-                    <div className="w-full flex flex-row">
-                        <div className="w-8">
-                            <SignatureIcon className="inline-block mr-1 mb-1" size={16} />
-                        </div>
-                        <div className="w-full">
-                            {abspbm.author}
-                            {pbm.translator && pbm.translator != abspbm.author && (
-                                <span> (translated by {pbm.translator})</span>
-                            )}
-                        </div>
-                    </div>
-                )}
-                {pbm.summary && (
-                    <div className="w-full flex flex-row">
-                        <div className="w-8">
-                            <TagsIcon className="inline-block mr-1 mb-1" size={16} />
-                        </div>
-                        <div className="w-full">{pbm.summary.keywords.replaceAll(',', ', ')}</div>
-                    </div>
-                )}
-                {pbm.summary && (
-                    <div className="w-full flex flex-row ">
-                        <div className="w-8">
-                            <ScrollIcon className="inline-block mr-1 mb-1" size={16} />
-                        </div>
-                        <div className="w-full">{pbm.summary.summary_1s}</div>
-                    </div>
-                )}
-                {detailsOpen && pbm.summary && (
-                    <div className="w-full flex flex-row ">
-                        <div className="w-8">
-                            <ScrollTextIcon className="inline-block mr-1 mb-1" size={16} />
-                        </div>
-                        <div className="w-full">{pbm.summary.summary_1p}</div>
-                    </div>
-                )}
-                {detailsOpen && abspbm.solution_tags && (
-                    <div className="w-full flex flex-row">
-                        <div className="w-8">
-                            <BookmarkIcon className="inline-block mr-1 mb-1" size={16} />
-                        </div>
-                        <div className="w-full">{abspbm.solution_tags.tags.replaceAll(',', ', ')}</div>
-                    </div>
-                )}
-                {detailsOpen && (
-                    <div className="w-full flex flex-row">
-                        <div className="w-8">
-                            <CogIcon className="inline-block mr-1 mb-1" size={16} />
-                        </div>
-                        <div className="w-full flex flex-row gap-2">
-                            <Badge className="px-2 rounded-full" variant="secondary">
-                                {abspbm.driver_id}
+                    <span className="size-28 shrink-0" aria-hidden />
+                )
+            ) : null}
+            <div className={cn('min-w-0 flex flex-col', props.largeResultIcon && 'flex-1')}>
+                <div className="mb-1 flex flex-row gap-2">
+                    {!props.largeResultIcon && iconUrl ? (
+                        <ProblemIconImage iconUrl={iconUrl} size="sm" className="mt-0.5" />
+                    ) : null}
+                    <a href={`/problems/${props.result.problem_nm}`} className="font-bold text-primary hover:underline">
+                        {props.result.problem_nm}
+                    </a>
+                    <div />
+                    {Object.values(abspbm.problems)
+                        .sort((a, b) => a.language_id.localeCompare(b.language_id))
+                        .map((p) => (
+                            <Badge
+                                key={p.language_id}
+                                onClick={() => click(p.language_id)}
+                                variant={pbm.language_id == p.language_id ? 'default' : 'outline'}
+                                className="w-8 flex items-center justify-center cursor-pointer"
+                            >
+                                {p.language_id}
                             </Badge>
-                            {abspbm.compilers && (
-                                <Badge className="px-2 rounded-full" variant="secondary">
-                                    {abspbm.compilers}
-                                </Badge>
-                            )}
-                        </div>
-                    </div>
-                )}
-                {detailsOpen && props.abspbmSuppl && (
-                    <div className="w-full flex flex-row">
-                        <div className="w-8">
-                            <MedalIcon className="inline-block mr-1 mb-1" size={16} />
-                        </div>
-                        <div className="whitespace-nowrap overflow-auto text-ellipsis w-full flex flex-row gap-2">
-                            {props.abspbmSuppl.proglangs_with_ac.map((lang) => (
-                                <Badge key={lang} className="px1.52 rounded-full" variant="secondary">
-                                    {lang}
-                                </Badge>
-                            ))}
-                        </div>
-                    </div>
-                )}
-                {abspbm.deprecation && (
-                    <div className="w-full flex flex-row">
-                        <div className="w-8">
-                            <SkullIcon className="inline-block mr-1 mb-1 text-red-500" size={16} />
-                        </div>
-                        <div className="w-full">Deprecated! {abspbm.deprecation}</div>
-                    </div>
-                )}
-                {detailsOpen && (
-                    <div className="mt-1 w-full flex flex-row">
-                        <div className="w-8"></div>
-                        <div className="w-full flex flex-row gap-2">
-                            <FileTextIcon
-                                className="inline-block cursor-pointer"
-                                size={48}
-                                strokeWidth={0.6}
-                                onClick={pdfFile}
-                            />
-                            <FileCodeIcon
-                                className="inline-block cursor-pointer"
-                                size={48}
-                                strokeWidth={0.6}
-                                onClick={htmlFile}
-                            />
-                            <FileTerminalIcon
-                                className="inline-block cursor-pointer"
-                                size={48}
-                                strokeWidth={0.6}
-                                onClick={markdownFile}
-                            />
-                            <FileTypeIcon
-                                className="inline-block cursor-pointer"
-                                size={48}
-                                strokeWidth={0.6}
-                                onClick={textFile}
-                            />
-                        </div>
-                    </div>
-                )}
+                        ))}
+                    <div />
+                    <div className="flex-grow" />
+                </div>
+                <div className="space-y-1" />
+                <div className="flex flex-row">
+                    {detailsOpen ? (
+                        <CircleMinusIcon
+                            className="inline-block mr-2 mt-1 text-primary"
+                            size={16}
+                            onClick={() => setDetailsOpen(false)}
+                        />
+                    ) : (
+                        <CirclePlusIcon
+                            className="inline-block mr-2 mt-1 text-primary"
+                            size={16}
+                            onClick={() => setDetailsOpen(true)}
+                        />
+                    )}
+                    <div className="font-bold">{pbm.title || 'Untitled problem'}</div>
+                </div>
 
-                {detailsOpen && props.showInstructorStats && (
-                    <div className="w-full flex flex-row mt-2">
-                        <div className="w-8 shrink-0">
-                            <ChartAreaIcon className="inline-block mr-1 mt-2" size={16} />
+                <div className="mt-1 ml-6 text-sm flex flex-col gap-1">
+                    {abspbm.author && (
+                        <div className="w-full flex flex-row">
+                            <div className="w-8">
+                                <SignatureIcon className="inline-block mr-1 mb-1" size={16} />
+                            </div>
+                            <div className="w-full">
+                                {abspbm.author}
+                                {pbm.translator && pbm.translator != abspbm.author && (
+                                    <span> (translated by {pbm.translator})</span>
+                                )}
+                            </div>
                         </div>
-                        <div className="w-full min-w-0">
-                            <CompactProblemStats problem_nm={props.result.problem_nm} />
+                    )}
+                    {pbm.summary && (
+                        <div className="w-full flex flex-row">
+                            <div className="w-8">
+                                <TagsIcon className="inline-block mr-1 mb-1" size={16} />
+                            </div>
+                            <div className="w-full">{pbm.summary.keywords.replaceAll(',', ', ')}</div>
                         </div>
-                    </div>
-                )}
+                    )}
+                    {pbm.summary && (
+                        <div className="w-full flex flex-row ">
+                            <div className="w-8">
+                                <ScrollIcon className="inline-block mr-1 mb-1" size={16} />
+                            </div>
+                            <div className="w-full">{pbm.summary.summary_1s}</div>
+                        </div>
+                    )}
+                    {detailsOpen && pbm.summary && (
+                        <div className="w-full flex flex-row ">
+                            <div className="w-8">
+                                <ScrollTextIcon className="inline-block mr-1 mb-1" size={16} />
+                            </div>
+                            <div className="w-full">{pbm.summary.summary_1p}</div>
+                        </div>
+                    )}
+                    {detailsOpen && abspbm.solution_tags && (
+                        <div className="w-full flex flex-row">
+                            <div className="w-8">
+                                <BookmarkIcon className="inline-block mr-1 mb-1" size={16} />
+                            </div>
+                            <div className="w-full">{abspbm.solution_tags.tags.replaceAll(',', ', ')}</div>
+                        </div>
+                    )}
+                    {detailsOpen && (
+                        <div className="w-full flex flex-row">
+                            <div className="w-8">
+                                <CogIcon className="inline-block mr-1 mb-1" size={16} />
+                            </div>
+                            <div className="w-full flex flex-row gap-2">
+                                <Badge className="px-2 rounded-full" variant="secondary">
+                                    {abspbm.driver_id}
+                                </Badge>
+                                {abspbm.compilers && (
+                                    <Badge className="px-2 rounded-full" variant="secondary">
+                                        {abspbm.compilers}
+                                    </Badge>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                    {detailsOpen && props.abspbmSuppl && (
+                        <div className="w-full flex flex-row">
+                            <div className="w-8">
+                                <MedalIcon className="inline-block mr-1 mb-1" size={16} />
+                            </div>
+                            <div className="whitespace-nowrap overflow-auto text-ellipsis w-full flex flex-row gap-2">
+                                {props.abspbmSuppl.proglangs_with_ac.map((lang) => (
+                                    <Badge key={lang} className="px1.52 rounded-full" variant="secondary">
+                                        {lang}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {abspbm.deprecation && (
+                        <div className="w-full flex flex-row">
+                            <div className="w-8">
+                                <SkullIcon className="inline-block mr-1 mb-1 text-red-500" size={16} />
+                            </div>
+                            <div className="w-full">Deprecated! {abspbm.deprecation}</div>
+                        </div>
+                    )}
+                    {detailsOpen && (
+                        <div className="mt-1 w-full flex flex-row">
+                            <div className="w-8"></div>
+                            <div className="w-full flex flex-row gap-2">
+                                <FileTextIcon
+                                    className="inline-block cursor-pointer"
+                                    size={48}
+                                    strokeWidth={0.6}
+                                    onClick={pdfFile}
+                                />
+                                <FileCodeIcon
+                                    className="inline-block cursor-pointer"
+                                    size={48}
+                                    strokeWidth={0.6}
+                                    onClick={htmlFile}
+                                />
+                                <FileTerminalIcon
+                                    className="inline-block cursor-pointer"
+                                    size={48}
+                                    strokeWidth={0.6}
+                                    onClick={markdownFile}
+                                />
+                                <FileTypeIcon
+                                    className="inline-block cursor-pointer"
+                                    size={48}
+                                    strokeWidth={0.6}
+                                    onClick={textFile}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {detailsOpen && props.showInstructorStats && (
+                        <div className="w-full flex flex-row mt-2">
+                            <div className="w-8 shrink-0">
+                                <ChartAreaIcon className="inline-block mr-1 mt-2" size={16} />
+                            </div>
+                            <div className="w-full min-w-0">
+                                <CompactProblemStats problem_nm={props.result.problem_nm} />
+                            </div>
+                        </div>
+                    )}
+                </div>
+                <StatementDialog
+                    problem_id={pbm.problem_id}
+                    content={statement}
+                    isOpen={isStatementDialogOpen}
+                    setIsOpen={setIsStatementDialogOpen}
+                />
             </div>
-            <StatementDialog
-                problem_id={pbm.problem_id}
-                content={statement}
-                isOpen={isStatementDialogOpen}
-                setIsOpen={setIsStatementDialogOpen}
-            />
         </div>
     )
 }
@@ -1174,7 +1210,7 @@ function SearchTabsComponent(props: SearchTabsComponentProps) {
     return (
         <>
             <SubNav ariaLabel="Search modes" activeKey={mode} items={subNavItems} />
-            <div className="w-full border rounded-lg p-6 mb-4">
+            <div className="w-full border border-border bg-muted rounded-lg p-6 mb-4">
                 <div className="w-full space-y-4 sm:w-3/4 sm:mx-auto">
                     <TooltipProvider>
                         {mode === 'semantic' ? (

@@ -24,5 +24,5 @@ const instructorSearchActions: ProblemSearchActions = {
 }
 
 export function SearchView() {
-    return <ProblemSearchView actions={instructorSearchActions} showInstructorStats />
+    return <ProblemSearchView actions={instructorSearchActions} showInstructorStats largeResultIcon />
 }
