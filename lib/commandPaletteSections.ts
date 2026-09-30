@@ -164,6 +164,8 @@ function utilityKeywords(label: (typeof utilitiesIndexItems)[number]['label']): 
             return ['Sketch', 'Diagram']
         case 'Pyodide':
             return ['Python', 'REPL', 'Console']
+        case 'SandPack':
+            return ['JavaScript', 'JS', 'Editor']
     }
 }
 

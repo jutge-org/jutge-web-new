@@ -7,6 +7,7 @@ const indexIcons: Record<string, typeof PocketKnifeIcon> = {
     Translator: LanguagesIcon,
     Whiteboard: LineSquiggleIcon,
     Pyodide: TerminalIcon,
+    SandPack: TerminalIcon,
 }
 
 export function UtilitiesIndex() {
