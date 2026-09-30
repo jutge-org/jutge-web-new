@@ -3,22 +3,14 @@
 import FloatingToolbar from '@/components/instructor/FloatingToolbar'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { CalendarIcon, CheckIcon, FunnelIcon, RotateCcwIcon, XIcon } from 'lucide-react'
-import { useEffect, useId, useState } from 'react'
+import { CalendarIcon, CheckIcon, FunnelIcon, RotateCcwIcon } from 'lucide-react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 dayjs.extend(customParseFormat)
 
@@ -34,9 +26,10 @@ type DatePickerFieldProps = {
     label: string
     value: Date
     onChange: (d: Date | undefined) => void
+    onUserEdit?: () => void
 }
 
-function DatePickerField({ label, value, onChange }: DatePickerFieldProps) {
+function DatePickerField({ label, value, onChange, onUserEdit }: DatePickerFieldProps) {
     const inputId = useId()
     const [open, setOpen] = useState(false)
     const [month, setMonth] = useState<Date | undefined>(value)
@@ -48,6 +41,7 @@ function DatePickerField({ label, value, onChange }: DatePickerFieldProps) {
     }, [value])
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        onUserEdit?.()
         const text = event.target.value
         setInputValue(text)
         const parsed = dayjs(text, DATE_FORMAT, true)
@@ -59,6 +53,7 @@ function DatePickerField({ label, value, onChange }: DatePickerFieldProps) {
     }
 
     const handleCalendarSelect = (date: Date | undefined) => {
+        onUserEdit?.()
         onChange(date)
         if (date) {
             setInputValue(formatDateValue(date))
@@ -145,22 +140,31 @@ export function CourseStatisticsPeriodDialog({
 }: CourseStatisticsPeriodDialogProps) {
     const [draftStartDate, setDraftStartDate] = useState<Date>(() => startDate)
     const [draftEndDate, setDraftEndDate] = useState<Date>(() => endDate)
+    const startEdited = useRef(false)
+    const endEdited = useRef(false)
 
     useEffect(() => {
-        if (open) {
-            setDraftStartDate(startDate)
-            setDraftEndDate(endDate)
-        }
+        if (open) return
+        startEdited.current = false
+        endEdited.current = false
+    }, [open])
+
+    useEffect(() => {
+        if (!open) return
+        if (!startEdited.current) setDraftStartDate(startDate)
+        if (!endEdited.current) setDraftEndDate(endDate)
     }, [open, startDate, endDate])
 
     const handleResetDraft = () => {
+        startEdited.current = false
+        endEdited.current = false
         setDraftStartDate(defaultStartDate)
         setDraftEndDate(defaultEndDate)
     }
 
     const handleAccept = () => {
-        onAccept(draftStartDate, draftEndDate)
         onOpenChange(false)
+        onAccept(draftStartDate, draftEndDate)
     }
 
     return (
@@ -178,31 +182,27 @@ export function CourseStatisticsPeriodDialog({
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
                     <DialogHeader>
-                        <DialogTitle>Statistics period</DialogTitle>
+                        <DialogTitle className="flex items-center gap-2"><FunnelIcon className="h-4 w-4" /> Statistics period</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-wrap items-end gap-2 py-2">
                         <DatePickerField
                             label="Start date"
                             value={draftStartDate}
+                            onUserEdit={() => {
+                                startEdited.current = true
+                            }}
                             onChange={(d) => d != null && setDraftStartDate(d)}
                         />
                         <DatePickerField
                             label="End date"
                             value={draftEndDate}
+                            onUserEdit={() => {
+                                endEdited.current = true
+                            }}
                             onChange={(d) => d != null && setDraftEndDate(d)}
                         />
                     </div>
                     <DialogFooter className="flex flex-col gap-0">
-                        <Button variant="outline" onClick={handleResetDraft} className="w-full">
-                            <RotateCcwIcon className="h-4 w-4" />
-                            Reset
-                        </Button>
-                        <DialogClose asChild>
-                            <Button variant="outline" className="w-full">
-                                <XIcon className="h-4 w-4" />
-                                Cancel
-                            </Button>
-                        </DialogClose>
                         <Button onClick={handleAccept} className="w-full">
                             <CheckIcon className="h-4 w-4" />
                             Accept

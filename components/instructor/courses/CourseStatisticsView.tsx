@@ -11,15 +11,20 @@ import { CourseProblemRankingCard } from '@/components/instructor/courses/statis
 import { CourseStudentRankingCard } from '@/components/instructor/courses/statistics/CourseStudentRankingCard'
 import { CourseSubmissionDistributionCards } from '@/components/instructor/courses/statistics/CourseSubmissionDistributionCards'
 import { SubmissionsOverTimeCard } from '@/components/instructor/courses/statistics/SubmissionsOverTimeCard'
+import SwitchboardCard from '@/components/smoothui/switchboard-card'
 import { buildHeatmapSourceData } from '@/lib/instructor/courseHeatmapSourceData'
 import { deriveCourseSubmissionChartData } from '@/lib/instructor/courseSubmissionStatistics'
 import type { CourseStatisticsPageData } from '@/lib/instructor/loadCourseStatisticsData'
 import { deriveSubmissionChartData, toStatisticsSubmissionFromCourse } from '@/lib/instructor/submissionStatistics'
 import dayjs from 'dayjs'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 type CourseStatisticsViewProps = {
-    data: CourseStatisticsPageData
+    data: CourseStatisticsPageData | null
+    /** True while the statistics fetch is still in flight. */
+    loading?: boolean
+    /** True when the statistics fetch failed. */
+    error?: boolean
     /** Base path for problem drill-down links. Defaults to instructor course statistics. */
     statisticsBaseHref?: string
 }
@@ -30,16 +35,30 @@ function initialStartDate(submissions: CourseStatisticsPageData['submissions']):
     return dayjs(sorted[0].time).startOf('day').toDate()
 }
 
-export function CourseStatisticsView({ data, statisticsBaseHref }: CourseStatisticsViewProps) {
-    const { submissions, colors, course, profiles, lists, abstractProblems } = data
-    const problemStatsBaseHref = statisticsBaseHref ?? `/instructor/courses/${course.course_nm}/statistics`
-    const [settingsOpen, setSettingsOpen] = useState(false)
+export function CourseStatisticsView({
+    data,
+    loading = false,
+    error = false,
+    statisticsBaseHref,
+}: CourseStatisticsViewProps) {
+    const submissions = data?.submissions ?? []
+    const course = data?.course
+    const problemStatsBaseHref =
+        statisticsBaseHref ?? (course ? `/instructor/courses/${course.course_nm}/statistics` : '')
+    const [settingsOpen, setSettingsOpen] = useState(true)
+    const [periodAccepted, setPeriodAccepted] = useState(false)
 
-    const defaultStartDate = useMemo(() => initialStartDate(submissions), [submissions])
-    const defaultEndDate = useMemo(() => dayjs().startOf('day').toDate(), [])
+    const today = useMemo(() => dayjs().startOf('day').toDate(), [])
+    const defaultStartDate = useMemo(() => (data ? initialStartDate(data.submissions) : today), [data, today])
+    const defaultEndDate = today
     // Session-only: remembered across dialog opens, reset when this view unmounts.
-    const [startDate, setStartDate] = useState(defaultStartDate)
-    const [endDate, setEndDate] = useState(defaultEndDate)
+    const [startDate, setStartDate] = useState(today)
+    const [endDate, setEndDate] = useState(today)
+
+    useEffect(() => {
+        if (data == null || periodAccepted) return
+        setStartDate(initialStartDate(data.submissions))
+    }, [data, periodAccepted])
 
     const filteredSubmissions = useMemo(() => {
         const start = dayjs(startDate).startOf('day')
@@ -62,54 +81,94 @@ export function CourseStatisticsView({ data, statisticsBaseHref }: CourseStatist
 
     const distributionData = useMemo(() => deriveSubmissionChartData(statisticsSubmissions), [statisticsSubmissions])
 
-    const heatmap = useMemo(
-        () => buildHeatmapSourceData(course, profiles, filteredSubmissions, lists, abstractProblems),
-        [course, profiles, filteredSubmissions, lists, abstractProblems],
-    )
+    const heatmap = useMemo(() => {
+        if (!data) return null
+        return buildHeatmapSourceData(
+            data.course,
+            data.profiles,
+            filteredSubmissions,
+            data.lists,
+            data.abstractProblems,
+        )
+    }, [data, filteredSubmissions])
 
     const handleAcceptPeriod = (start: Date, end: Date) => {
         setStartDate(start)
         setEndDate(end)
+        setPeriodAccepted(true)
     }
+
+    const showCharts = data != null && periodAccepted
 
     return (
         <div className="flex w-full flex-col gap-4">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <AcceptedProblemsStudentsCard
-                    course={course}
-                    profiles={profiles}
-                    lists={lists}
-                    submissions={filteredSubmissions}
-                />
-                <SubmissionsOverTimeCard
-                    courseNm={course.course_nm}
-                    submissions={filteredSubmissions}
-                    startDate={startDate}
-                    endDate={endDate}
-                    colors={colors}
-                />
-                <SubmissionsByDayCard chartData={chartData} />
-            </div>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <SubmissionsByMonthOfYearCard courseNm={course.course_nm} chartData={chartData} colors={colors} />
-                <SubmissionsByDayOfWeekCard courseNm={course.course_nm} chartData={chartData} colors={colors} />
-                <SubmissionsByHourOfDayCard courseNm={course.course_nm} chartData={chartData} colors={colors} />
-            </div>
-            <CourseSubmissionDistributionCards courseNm={course.course_nm} derived={distributionData} colors={colors} />
-            <ClassProgressHeatmapCards course_nm={course.course_nm} heatmap={heatmap} />
-            <CourseStudentRankingCard
-                course={course}
-                profiles={profiles}
-                lists={lists}
-                submissions={filteredSubmissions}
-            />
-            <CourseProblemRankingCard
-                course={course}
-                lists={lists}
-                submissions={filteredSubmissions}
-                abstractProblems={abstractProblems}
-                statisticsBaseHref={problemStatsBaseHref}
-            />
+            {showCharts && data && heatmap ? (
+                <>
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                        <AcceptedProblemsStudentsCard
+                            course={data.course}
+                            profiles={data.profiles}
+                            lists={data.lists}
+                            submissions={filteredSubmissions}
+                        />
+                        <SubmissionsOverTimeCard
+                            courseNm={data.course.course_nm}
+                            submissions={filteredSubmissions}
+                            startDate={startDate}
+                            endDate={endDate}
+                            colors={data.colors}
+                        />
+                        <SubmissionsByDayCard chartData={chartData} />
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                        <SubmissionsByMonthOfYearCard
+                            courseNm={data.course.course_nm}
+                            chartData={chartData}
+                            colors={data.colors}
+                        />
+                        <SubmissionsByDayOfWeekCard
+                            courseNm={data.course.course_nm}
+                            chartData={chartData}
+                            colors={data.colors}
+                        />
+                        <SubmissionsByHourOfDayCard
+                            courseNm={data.course.course_nm}
+                            chartData={chartData}
+                            colors={data.colors}
+                        />
+                    </div>
+                    <CourseSubmissionDistributionCards
+                        courseNm={data.course.course_nm}
+                        derived={distributionData}
+                        colors={data.colors}
+                    />
+                    <ClassProgressHeatmapCards course_nm={data.course.course_nm} heatmap={heatmap} />
+                    <CourseStudentRankingCard
+                        course={data.course}
+                        profiles={data.profiles}
+                        lists={data.lists}
+                        submissions={filteredSubmissions}
+                    />
+                    <CourseProblemRankingCard
+                        course={data.course}
+                        lists={data.lists}
+                        submissions={filteredSubmissions}
+                        abstractProblems={data.abstractProblems}
+                        statisticsBaseHref={problemStatsBaseHref}
+                    />
+                </>
+            ) : error ? (
+                <p className="text-sm text-muted-foreground">Could not load statistics.</p>
+            ) : loading ? (
+                <div className="mx-auto w-full max-w-lg py-4" aria-busy="true" aria-label="Loading statistics">
+                    <SwitchboardCard
+                        title="Loading statistics..."
+                        subtitle="Gathering submissions and preparing charts for this course."
+                        randomLights
+                        className="h-[220px]"
+                    />
+                </div>
+            ) : null}
             <CourseStatisticsPeriodDialog
                 open={settingsOpen}
                 onOpenChange={setSettingsOpen}

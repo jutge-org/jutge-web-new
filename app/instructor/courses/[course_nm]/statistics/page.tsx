@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { toast } from 'sonner'
 
-import { PageSpinner } from '@/components/ClientGates'
 import { CourseStatisticsView } from '@/components/instructor/courses/CourseStatisticsView'
 import { InstructorPageShell } from '@/components/instructor/InstructorPageShell'
 import { InstructorSubNav } from '@/components/instructor/InstructorSubNav'
@@ -14,15 +14,28 @@ import { loadCourseStatisticsDataByNm, type CourseStatisticsPageData } from '@/l
 export default function InstructorCourseStatisticsPage() {
     const { course_nm } = useParams<{ course_nm: string }>()
     const baseHref = `/instructor/courses/${course_nm}`
-    const [data, setData] = useState<CourseStatisticsPageData | null>(null)
+    const [data, setData] = useState<CourseStatisticsPageData | null | undefined>(undefined)
 
     useEffect(() => {
-        void loadCourseStatisticsDataByNm(course_nm).then(setData)
-    }, [course_nm])
+        let cancelled = false
+        setData(undefined)
 
-    if (!data) {
-        return <PageSpinner />
-    }
+        void (async () => {
+            try {
+                const pageData = await loadCourseStatisticsDataByNm(course_nm)
+                if (!cancelled) setData(pageData)
+            } catch {
+                if (!cancelled) {
+                    toast.error('Could not load statistics.')
+                    setData(null)
+                }
+            }
+        })()
+
+        return () => {
+            cancelled = true
+        }
+    }, [course_nm])
 
     return (
         <InstructorPageShell
@@ -38,7 +51,12 @@ export default function InstructorCourseStatisticsPage() {
                 activeSegment="statistics"
             />
             <FullWidthBreakout className="px-2">
-                <CourseStatisticsView data={data} />
+                <CourseStatisticsView
+                    key={course_nm}
+                    data={data ?? null}
+                    loading={data === undefined}
+                    error={data === null}
+                />
             </FullWidthBreakout>
         </InstructorPageShell>
     )
