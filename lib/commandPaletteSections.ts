@@ -156,6 +156,17 @@ const profileSectionMeta: Record<
     },
 }
 
+function utilityKeywords(label: (typeof utilitiesIndexItems)[number]['label']): string[] {
+    switch (label) {
+        case 'Translator':
+            return ['Translate', 'Translation', 'Language']
+        case 'Whiteboard':
+            return ['Sketch', 'Diagram']
+        case 'Pyodide':
+            return ['Python', 'REPL', 'Console']
+    }
+}
+
 export function getCommandPaletteUtilitiesSections(context: SiteNavLinksContext): CommandPaletteSection[] {
     if (!context.authenticated) return []
 
@@ -164,7 +175,7 @@ export function getCommandPaletteUtilitiesSections(context: SiteNavLinksContext)
         description: item.description,
         href: item.href,
         area: 'utilities' as const,
-        keywords: item.label === 'Translator' ? ['Translate', 'Translation', 'Language'] : ['Sketch', 'Diagram'],
+        keywords: utilityKeywords(item.label),
     }))
 }
 

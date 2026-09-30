@@ -87,6 +87,13 @@ function SearchShortcutHint() {
     )
 }
 
+function UtilitySectionIcon({ href }: { href: string }) {
+    const className = 'size-3.5 shrink-0'
+    if (href === '/utilities/whiteboard') return <LineSquiggleIcon className={className} aria-hidden />
+    if (href === '/utilities/pyodide') return <TerminalIcon className={className} aria-hidden />
+    return <LanguagesIcon className={className} aria-hidden />
+}
+
 export function CommandPalette() {
     const { user, logout } = useAuth()
     const authenticated = user !== null
@@ -652,11 +659,7 @@ export function CommandPalette() {
                                     >
                                         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                                             <div className="flex min-w-0 items-center gap-2">
-                                                {section.href === '/utilities/whiteboard' ? (
-                                                    <LineSquiggleIcon className="size-3.5 shrink-0" aria-hidden />
-                                                ) : (
-                                                    <LanguagesIcon className="size-3.5 shrink-0" aria-hidden />
-                                                )}
+                                                <UtilitySectionIcon href={section.href} />
                                                 <span className="truncate font-medium">{section.label}</span>
                                             </div>
                                             <span className="truncate pl-5.5 text-xs text-muted-foreground">

@@ -1,16 +1,17 @@
 import { utilitiesIndexItems } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
-import { LanguagesIcon, LineSquiggleIcon, PocketKnifeIcon } from 'lucide-react'
+import { LanguagesIcon, LineSquiggleIcon, PocketKnifeIcon, TerminalIcon } from 'lucide-react'
 import Link from 'next/link'
 
 const indexIcons: Record<string, typeof PocketKnifeIcon> = {
     Translator: LanguagesIcon,
     Whiteboard: LineSquiggleIcon,
+    Pyodide: TerminalIcon,
 }
 
 export function UtilitiesIndex() {
     return (
-        <nav aria-label="Utilities" className="grid gap-4 sm:grid-cols-2">
+        <nav aria-label="Utilities" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {utilitiesIndexItems.map((item) => {
                 const Icon = indexIcons[item.label] ?? PocketKnifeIcon
 

@@ -82,6 +82,7 @@ import {
     WrenchIcon,
     LanguagesIcon,
     LineSquiggleIcon,
+    TerminalIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -209,6 +210,8 @@ function MainNavUtilitiesSubItemIcon({ href }: { href: string }) {
             return <LanguagesIcon aria-hidden />
         case '/utilities/whiteboard':
             return <LineSquiggleIcon aria-hidden />
+        case '/utilities/pyodide':
+            return <TerminalIcon aria-hidden />
         default:
             return null
     }
