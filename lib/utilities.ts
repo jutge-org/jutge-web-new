@@ -1,4 +1,4 @@
-export type UtilitiesTab = 'index' | 'translator' | 'draw'
+export type UtilitiesTab = 'index' | 'translator' | 'whiteboard'
 
 export type UtilitiesNavItem = {
     tab: UtilitiesTab
@@ -9,7 +9,7 @@ export type UtilitiesNavItem = {
 export const utilitiesNavItems: UtilitiesNavItem[] = [
     { tab: 'index', label: 'Index', href: '/utilities' },
     { tab: 'translator', label: 'Translator', href: '/utilities/translator' },
-    { tab: 'draw', label: 'Draw', href: '/utilities/draw' },
+    { tab: 'whiteboard', label: 'Whiteboard', href: '/utilities/whiteboard' },
 ]
 
 export const utilitiesIndexItems = [
@@ -19,8 +19,8 @@ export const utilitiesIndexItems = [
         description: 'Translate text between languages',
     },
     {
-        href: '/utilities/draw',
-        label: 'Draw',
-        description: 'Drawing tools',
+        href: '/utilities/whiteboard',
+        label: 'Whiteboard',
+        description: 'Sketch and annotate',
     },
 ] as const

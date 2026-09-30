@@ -78,9 +78,10 @@ import {
     UserRoundPenIcon,
     UsersIcon,
     User,
+    PocketKnifeIcon,
     WrenchIcon,
     LanguagesIcon,
-    PenLineIcon,
+    LineSquiggleIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -132,7 +133,7 @@ function MainNavMenuItemIcon({ href }: { href: string }) {
         case '/administrator':
             return <CrownIcon aria-hidden />
         case '/utilities':
-            return <WrenchIcon aria-hidden />
+            return <PocketKnifeIcon aria-hidden />
         case '/documentation':
             return <BookText aria-hidden />
         case '/about':
@@ -206,8 +207,8 @@ function MainNavUtilitiesSubItemIcon({ href }: { href: string }) {
     switch (href) {
         case '/utilities/translator':
             return <LanguagesIcon aria-hidden />
-        case '/utilities/draw':
-            return <PenLineIcon aria-hidden />
+        case '/utilities/whiteboard':
+            return <LineSquiggleIcon aria-hidden />
         default:
             return null
     }

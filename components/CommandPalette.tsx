@@ -49,7 +49,7 @@ import {
     LanguagesIcon,
     LayoutGridIcon,
     LogInIcon,
-    PenLineIcon,
+    LineSquiggleIcon,
     LogOutIcon,
     EyeIcon,
     RectangleHorizontalIcon,
@@ -652,8 +652,8 @@ export function CommandPalette() {
                                     >
                                         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                                             <div className="flex min-w-0 items-center gap-2">
-                                                {section.href === '/utilities/draw' ? (
-                                                    <PenLineIcon className="size-3.5 shrink-0" aria-hidden />
+                                                {section.href === '/utilities/whiteboard' ? (
+                                                    <LineSquiggleIcon className="size-3.5 shrink-0" aria-hidden />
                                                 ) : (
                                                     <LanguagesIcon className="size-3.5 shrink-0" aria-hidden />
                                                 )}

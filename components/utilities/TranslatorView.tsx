@@ -176,6 +176,7 @@ export function TranslatorView() {
                             prefix={<ClipboardCopyIcon className="size-4" aria-hidden />}
                             className="w-48"
                         >
+                            Copy
                         </SmoothButton>
                     </div>
                     <p className="sr-only" aria-live="polite">

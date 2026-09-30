@@ -14,7 +14,7 @@ import {
     LayersIcon,
     SchoolIcon,
     User,
-    WrenchIcon,
+    PocketKnifeIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -52,7 +52,7 @@ function NavIcon({ href, className }: { href: string; className?: string }) {
         case '/administrator':
             return <CrownIcon className={iconClass} aria-hidden />
         case '/utilities':
-            return <WrenchIcon className={iconClass} aria-hidden />
+            return <PocketKnifeIcon className={iconClass} aria-hidden />
         case '/documentation':
             return <BookText className={iconClass} aria-hidden />
         case '/about':

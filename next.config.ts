@@ -31,6 +31,11 @@ const nextConfig: NextConfig = {
                 destination: '/password-reset',
                 permanent: false,
             },
+            {
+                source: '/utilities/draw',
+                destination: '/utilities/whiteboard',
+                permanent: true,
+            },
         ]
     },
 }

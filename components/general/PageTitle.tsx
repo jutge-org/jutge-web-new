@@ -20,7 +20,7 @@ import {
     UserPlusIcon,
     UserXIcon,
     DownloadIcon,
-    WrenchIcon,
+    PocketKnifeIcon,
 } from 'lucide-react'
 
 export type PageTitleSection =
@@ -197,7 +197,7 @@ function SectionIcon({ section }: { section: PageTitleSection }) {
         case '/administrator':
             return <CrownIcon className={iconClass} aria-hidden />
         case '/utilities':
-            return <WrenchIcon className={iconClass} aria-hidden />
+            return <PocketKnifeIcon className={iconClass} aria-hidden />
         case '/documentation':
             return <BookText className={iconClass} aria-hidden />
         case '/about':
