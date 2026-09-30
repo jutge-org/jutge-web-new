@@ -1,6 +1,6 @@
 # Instructions
 
-Do not open browsers unless explicitely instructed.
+Do not open browsers or run tests unless explicitely instructed.
 
 # Project rules
 

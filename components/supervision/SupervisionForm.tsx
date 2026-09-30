@@ -240,20 +240,20 @@ export function SupervisionForm({ userId, courses }: SupervisionFormProps) {
     const studentPlaceholder = loadingCourses
         ? 'Loading courses…'
         : !courseKey
-          ? 'Select a course first'
-          : loadingStudents
-            ? 'Loading students…'
-            : students.length === 0
-              ? 'No students in this course'
-              : 'Select a student…'
+            ? 'Select a course first'
+            : loadingStudents
+                ? 'Loading students…'
+                : students.length === 0
+                    ? 'No students in this course'
+                    : 'Select a student…'
 
     const superviseHref = courseKey && studentEmail ? supervisionHref(courseKey, studentEmail) : null
 
     return (
-        <Card>
-            <CardContent className="pt-6">
+        <Card className="flex flex-row justify-center">
+            <CardContent className="max-w-4xl">
                 <form
-                    className="flex flex-col gap-4"
+                    className="flex flex-col gap-2"
                     onSubmit={(event) => {
                         event.preventDefault()
                     }}
@@ -276,19 +276,24 @@ export function SupervisionForm({ userId, courses }: SupervisionFormProps) {
                             placeholder={studentPlaceholder}
                         />
                     </ProfileFormRow>
-                    {superviseHref ? (
-                        <Button asChild className="w-full">
-                            <Link href={superviseHref}>
-                                <EyeIcon aria-hidden />
-                                Supervise
-                            </Link>
-                        </Button>
-                    ) : (
-                        <Button type="button" disabled className="w-full">
-                            <EyeIcon aria-hidden />
-                            Supervise
-                        </Button>
-                    )}
+                    <div className="grid gap-3 pt-2 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                        <div className="hidden sm:block" />
+                        <div className="min-w-0">
+                            {superviseHref ? (
+                                <Button asChild className="w-full">
+                                    <Link href={superviseHref}>
+                                        <EyeIcon aria-hidden />
+                                        Supervise
+                                    </Link>
+                                </Button>
+                            ) : (
+                                <Button type="button" disabled className="w-full">
+                                    <EyeIcon aria-hidden />
+                                    Supervise
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                 </form>
             </CardContent>
         </Card>
