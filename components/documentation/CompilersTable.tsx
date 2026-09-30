@@ -1,6 +1,7 @@
 'use client'
 
 import { AgTableFull } from '@/components/administrator/AgTable'
+import { DevIcon } from '@/components/administrator/DevIcon'
 import { compilerIdToSlug, getCompilerStatus } from '@/lib/documentation'
 import type { Compiler } from '@/lib/jutge_api_client'
 import { cn } from '@/lib/utils'
@@ -42,9 +43,17 @@ const colDefs = [
     },
     {
         field: 'language',
-        width: 120,
+        width: 160,
         sortable: true,
         filter: true,
+        cellRenderer: (params: { data: Compiler }) => (
+            <span className="inline-flex items-center gap-2">
+                <span aria-hidden>
+                    <DevIcon proglang={params.data.language} size={16} />
+                </span>
+                {params.data.language}
+            </span>
+        ),
     },
     {
         field: 'status',
