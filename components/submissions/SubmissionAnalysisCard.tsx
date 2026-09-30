@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { VerdictLink } from '@/components/documentation/ReferenceLink'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { buildSubmissionTestcaseHref } from '@/lib/submissions'
@@ -62,7 +63,7 @@ export function SubmissionAnalysisCard({
                                                     {row.verdictEmoji ? (
                                                         <span aria-hidden>{row.verdictEmoji}</span>
                                                     ) : null}
-                                                    {row.verdict}
+                                                    <VerdictLink verdictId={row.verdict} />
                                                 </span>
                                             </TooltipTrigger>
                                             <TooltipContent side="top">{row.verdictFullName}</TooltipContent>

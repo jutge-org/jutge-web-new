@@ -4,7 +4,6 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { ChevronLeftIcon, ChevronRightIcon, ChevronsRightIcon, ChevronUpIcon } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
 
 import { CircuitErrorReportCard } from '@/components/submissions/CircuitErrorReportCard'
 import { CircuitErrorTraceCard } from '@/components/submissions/CircuitErrorTraceCard'
@@ -18,13 +17,13 @@ import { SubmissionAnalysisCard } from '@/components/submissions/SubmissionAnaly
 import { SubmissionCodeMetricsCard } from '@/components/submissions/SubmissionCodeMetricsCard'
 import { SubmissionNavButton } from '@/components/submissions/SubmissionNavButton'
 import { SubmissionSourceCodeCard } from '@/components/submissions/SubmissionSourceCodeCard'
+import { CompilerLink, VerdictLink } from '@/components/documentation/ReferenceLink'
 import { ProblemWidgetCard } from '@/components/problems/ProblemWidgetCard'
 import { WidgetSpinner } from '@/components/general/WidgetSpinner'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useCelebratePendingToAc } from '@/hooks/useCelebratePendingToAc'
-import { compilerIdToSlug } from '@/lib/documentation'
 import { parseSubmissionTime, type SubmissionNavLinks } from '@/lib/submissions'
 import { cn } from '@/lib/utils'
 import type { SubmissionCodeMetricsData } from '@/lib/codeMetrics'
@@ -195,12 +194,9 @@ function SubmissionDetailViewLoaded({
                                             isPending && 'animate-pulse',
                                         )}
                                     >
-                                        <Link
-                                            href={`/documentation/verdicts/${data.verdict}`}
-                                            className="font-medium text-primary underline-offset-4 hover:underline"
-                                        >
+                                        <VerdictLink verdictId={data.verdict} className="font-medium">
                                             {data.verdictFullName}
-                                        </Link>
+                                        </VerdictLink>
                                         {submission.veredict_info && (
                                             <span className="ml-1">({submission.veredict_info})</span>
                                         )}
@@ -215,12 +211,7 @@ function SubmissionDetailViewLoaded({
                                     </span>
                                 </DetailRow>
                                 <DetailRow label="Compiler">
-                                    <Link
-                                        href={`/documentation/compilers/${compilerIdToSlug(submission.compiler_id)}`}
-                                        className="font-medium text-primary underline-offset-4 hover:underline"
-                                    >
-                                        {submission.compiler_id}
-                                    </Link>
+                                    <CompilerLink compilerId={submission.compiler_id} className="font-medium" />
                                 </DetailRow>
                                 <DetailRow label="Submitted">{submittedAtLabel}</DetailRow>
                                 {submission.annotation ? (

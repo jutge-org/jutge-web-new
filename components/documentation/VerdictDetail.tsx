@@ -16,33 +16,47 @@ function DetailRow({ label, children }: { label: string; children: ReactNode }) 
     )
 }
 
+export function VerdictDetailTitle({ verdict }: VerdictDetailProps) {
+    return (
+        <>
+            <span aria-hidden>{verdict.emoji}</span>
+            <span>
+                {verdict.verdict_id}: {verdict.name}
+            </span>
+        </>
+    )
+}
+
+export function VerdictDetailBody({ verdict }: VerdictDetailProps) {
+    return (
+        <dl>
+            <DetailRow label="Verdict">{verdict.name}</DetailRow>
+            <DetailRow label="Acronym">{verdict.verdict_id}</DetailRow>
+            <DetailRow label="Emoji">{verdict.emoji}</DetailRow>
+            <DetailRow label="Icon">
+                <Image
+                    src={`/verdicts/svg/${verdict.verdict_id}.svg`}
+                    alt=""
+                    width={64}
+                    height={64}
+                    className="block"
+                />
+            </DetailRow>
+            <DetailRow label="Meaning">{verdict.description || '—'}</DetailRow>
+        </dl>
+    )
+}
+
 export function VerdictDetail({ verdict }: VerdictDetailProps) {
     return (
         <div className="rounded-2xl border border-border bg-card shadow-sm">
             <div className="border-b border-border px-6 py-4">
                 <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-foreground">
-                    <span aria-hidden>{verdict.emoji}</span>
-                    <span>
-                        {verdict.verdict_id}: {verdict.name}
-                    </span>
+                    <VerdictDetailTitle verdict={verdict} />
                 </h2>
             </div>
             <div className="px-6 py-2">
-                <dl>
-                    <DetailRow label="Verdict">{verdict.name}</DetailRow>
-                    <DetailRow label="Acronym">{verdict.verdict_id}</DetailRow>
-                    <DetailRow label="Emoji">{verdict.emoji}</DetailRow>
-                    <DetailRow label="Icon">
-                        <Image
-                            src={`/verdicts/svg/${verdict.verdict_id}.svg`}
-                            alt=""
-                            width={64}
-                            height={64}
-                            className="block"
-                        />
-                    </DetailRow>
-                    <DetailRow label="Meaning">{verdict.description || '—'}</DetailRow>
-                </dl>
+                <VerdictDetailBody verdict={verdict} />
             </div>
         </div>
     )

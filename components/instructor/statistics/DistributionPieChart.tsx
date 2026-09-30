@@ -1,5 +1,6 @@
 'use client'
 
+import { CompilerLink, VerdictLink } from '@/components/documentation/ReferenceLink'
 import { StatisticsSaveButtonGroup } from '@/components/instructor/statistics/StatisticsSaveButtonGroup'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -16,6 +17,16 @@ import { LabelList, Pie, PieChart } from 'recharts'
 
 /** Pie chart: slices below this percentage are grouped into "Others". */
 const MIN_PERCENT_FOR_PIE_LABEL = 5
+
+function DistributionLabel({ category, label }: { category: string; label: string }) {
+    if (category === 'verdicts') {
+        return <VerdictLink verdictId={label} />
+    }
+    if (category === 'compilers') {
+        return <CompilerLink compilerId={label} />
+    }
+    return label
+}
 
 type DistributionPieChartProps = {
     data: Distribution
@@ -126,7 +137,9 @@ export function DistributionPieChart({ data, category, colors, exportFileName }:
                         .sort((a, b) => b[1] - a[1])
                         .map(([key, value]) => (
                             <TableRow key={key}>
-                                <TableCell>{key}</TableCell>
+                                <TableCell>
+                                    <DistributionLabel category={category} label={key} />
+                                </TableCell>
                                 <TableCell className="text-end">{value}</TableCell>
                                 <TableCell className="text-end">
                                     {tableTotal > 0 ? ((value / tableTotal) * 100).toFixed(1) : 0}%

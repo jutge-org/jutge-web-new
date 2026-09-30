@@ -13,6 +13,7 @@ import {
     Rows2Icon,
 } from 'lucide-react'
 
+import { VerdictLink } from '@/components/documentation/ReferenceLink'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -191,7 +192,7 @@ export function SubmissionTestcaseAnalysisCard({ data, diffHref }: SubmissionTes
                                 <dt className="font-medium text-foreground">Verdict:</dt>
                                 <dd className="inline-flex items-center gap-2 font-bold text-foreground">
                                     {data.verdictEmoji ? <span aria-hidden>{data.verdictEmoji}</span> : null}
-                                    {data.verdict}
+                                    <VerdictLink verdictId={data.verdict} className="font-bold" />
                                 </dd>
                             </div>
                         </dl>

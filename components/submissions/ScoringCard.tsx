@@ -1,3 +1,4 @@
+import { VerdictLink } from '@/components/documentation/ReferenceLink'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -32,7 +33,7 @@ export function ScoringCard({ scoring }: ScoringCardProps) {
                                         <TooltipTrigger asChild>
                                             <div className="flex items-center gap-2">
                                                 {row.verdictEmoji ? <span aria-hidden>{row.verdictEmoji}</span> : null}
-                                                <span>{row.verdict}</span>
+                                                <VerdictLink verdictId={row.verdict} />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent side="top">{row.verdictFullName}</TooltipContent>

@@ -8,6 +8,7 @@ import { AgTableFull } from '@/components/administrator/AgTable'
 import { DevIcon } from '@/components/administrator/DevIcon'
 import { useAuth } from '@/components/AuthProvider'
 import { PageSpinner } from '@/components/ClientGates'
+import { CompilerLink, VerdictLink } from '@/components/documentation/ReferenceLink'
 import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
 import { ProblemTitleSummaryTooltip } from '@/components/problems/ProblemTitleSummaryTooltip'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -178,7 +179,7 @@ function VerdictCell({ verdict, verdicts }: { verdict: string; verdicts: Record<
             <div className={cn(klass)} aria-hidden>
                 {emoji}
             </div>
-            <span>{verdict}</span>
+            <VerdictLink verdictId={verdict} />
         </div>
     )
 }
@@ -188,7 +189,7 @@ function CompilerCell({ compilerId, compilers }: { compilerId: string; compilers
     return (
         <div className="flex flex-row items-center gap-2">
             <DevIcon proglang={language} size={14} />
-            {compilerId}
+            <CompilerLink compilerId={compilerId} />
         </div>
     )
 }

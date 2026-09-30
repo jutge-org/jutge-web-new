@@ -22,6 +22,7 @@ import dynamic from 'next/dynamic'
 import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react'
 import { toast } from 'sonner'
 
+import { VerdictLink } from '@/components/documentation/ReferenceLink'
 import { DocumentTitle } from '@/components/general/DocumentTitle'
 import { MonacoThemeMenu } from '@/components/MonacoThemeMenu'
 import { SubmissionNavButton } from '@/components/submissions/SubmissionNavButton'
@@ -222,7 +223,9 @@ export function SubmissionCodeEditor({
                             <span>{submissionId}</span>—{verdictEmoji ? <span aria-hidden>{verdictEmoji}</span> : null}
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <span>{verdict}</span>
+                                    <span>
+                                        <VerdictLink verdictId={verdict} />
+                                    </span>
                                 </TooltipTrigger>
                                 {verdictFullName ? (
                                     <TooltipContent side="bottom">{verdictFullName}</TooltipContent>

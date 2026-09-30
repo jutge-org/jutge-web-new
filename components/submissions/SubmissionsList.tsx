@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { fetchProblemSubmissionsRowsAction, fetchSubmissionsRowsAction } from '@/lib/data/submissionsActions'
 import { AgTableFull } from '@/components/administrator/AgTable'
+import { CompilerLink, VerdictLink } from '@/components/documentation/ReferenceLink'
 import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
 import { SubmissionsListToolbar } from '@/components/submissions/SubmissionsListToolbar'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
@@ -198,11 +199,12 @@ export function SubmissionsList(props: SubmissionsListProps) {
                 sortable: true,
                 filter: true,
                 hide: !columnVisibility.verdict,
+                cellStyle: { display: 'flex', alignItems: 'center' },
                 cellRenderer: (params: { data: SubmissionRow }) => (
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <span className="flex min-w-0 items-baseline gap-1">
-                                <span className="shrink-0">{params.data.verdict}</span>
+                            <span className="inline-flex min-w-0 items-center gap-1 leading-none">
+                                <VerdictLink verdictId={params.data.verdict} className="shrink-0 leading-none" />
                                 {params.data.verdict_info ? (
                                     <span className="ml-2 min-w-0 truncate text-xs text-muted-foreground">
                                         {params.data.verdict_info}
@@ -228,10 +230,13 @@ export function SubmissionsList(props: SubmissionsListProps) {
                 sortable: true,
                 filter: true,
                 hide: !columnVisibility.compiler_id,
+                cellStyle: { display: 'flex', alignItems: 'center' },
                 cellRenderer: (params: { data: SubmissionRow }) => (
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <span>{params.data.compiler_id}</span>
+                            <span className="inline-flex items-center leading-none">
+                                <CompilerLink compilerId={params.data.compiler_id} className="leading-none" />
+                            </span>
                         </TooltipTrigger>
                         <TooltipContent side="top">{params.data.compilerFullName}</TooltipContent>
                     </Tooltip>
