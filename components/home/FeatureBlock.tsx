@@ -1,5 +1,6 @@
 'use client'
 
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { GraduationCapIcon, UserIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import type { LucideIcon } from 'lucide-react'
@@ -114,17 +115,24 @@ export function FeatureBlock() {
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 >
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                         id="home-features-heading"
+                        triggerOnView
                     >
                         Learn programming by solving problems
-                    </h2>
-                    <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mt-4 text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        triggerOnView
+                    >
                         Jutge.org is a free, open educational platform purpose-built for computer science education —
                         proven through millions of automatic evaluations and years of research-backed use in real
                         university courses.
-                    </p>
+                    </MaskRevealUp>
                 </motion.div>
 
                 <motion.div

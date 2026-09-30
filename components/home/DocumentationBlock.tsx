@@ -1,5 +1,6 @@
 'use client'
 
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { BookTextIcon, InfoIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
@@ -17,17 +18,24 @@ export function DocumentationBlock() {
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 >
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                         id="home-documentation-heading"
+                        triggerOnView
                     >
                         Curious how it all works?
-                    </h2>
-                    <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
-                        Browse the docs for verdicts, compilers, FAQs,&nbsp;...
-                        <br />
-                        or read the story behind Jutge.org.
-                    </p>
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mt-4 text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        lines={[
+                            'Browse the docs for verdicts, compilers, FAQs,\u00a0...',
+                            'or read the story behind Jutge.org.',
+                        ]}
+                        triggerOnView
+                    />
                     <div className="mt-8 flex flex-wrap items-center justify-center gap-8">
                         <SmoothButton asChild color="accent" variant="candy" className="w-42">
                             <Link href="/documentation">

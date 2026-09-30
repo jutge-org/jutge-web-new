@@ -1,5 +1,6 @@
 'use client'
 
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { CheckIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
@@ -75,15 +76,22 @@ export function AccountsBlock() {
         <section id="home-accounts" aria-labelledby="home-accounts-heading" className="scroll-mt-14">
             <div className="mx-auto max-w-5xl px-0 sm:px-6">
                 <div className="mx-auto max-w-2xl text-center">
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                         id="home-accounts-heading"
+                        triggerOnView
                     >
                         Student and Instructor accounts
-                    </h2>
-                    <p className="mx-auto mt-4 max-w-xl text-balance text-foreground text-lg dark:text-foreground/70">
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mx-auto mt-4 max-w-xl text-balance text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        triggerOnView
+                    >
                         Whether you are learning or teaching, Jutge.org is free. Choose the account that fits you.
-                    </p>
+                    </MaskRevealUp>
                 </div>
 
                 <div className="mx-auto mt-12 grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
@@ -97,10 +105,10 @@ export function AccountsBlock() {
                                 shouldReduceMotion
                                     ? { duration: 0 }
                                     : {
-                                        duration: 0.3,
-                                        ease: EASE_OUT,
-                                        delay: index * CARD_ANIMATION_DELAY,
-                                    }
+                                          duration: 0.3,
+                                          ease: EASE_OUT,
+                                          delay: index * CARD_ANIMATION_DELAY,
+                                      }
                             }
                         >
                             <div className="relative flex h-full flex-col">

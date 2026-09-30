@@ -1,5 +1,6 @@
 'use client'
 
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { motion, useReducedMotion } from 'motion/react'
 import Image from 'next/image'
 
@@ -57,15 +58,22 @@ export function RelatedSitesBlock() {
         <section id="home-related-sites" aria-labelledby="home-related-sites-heading" className="scroll-mt-14">
             <div className="mx-auto max-w-6xl px-0 sm:px-6">
                 <div className="mx-auto mb-16 max-w-2xl text-center">
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                         id="home-related-sites-heading"
+                        triggerOnView
                     >
                         Related sites and tools
-                    </h2>
-                    <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mt-4 text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        triggerOnView
+                    >
                         More tools and resources from the Jutge.org ecosystem.
-                    </p>
+                    </MaskRevealUp>
                 </div>
                 <div className="relative">
                     <div

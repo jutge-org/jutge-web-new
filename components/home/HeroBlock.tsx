@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRef } from 'react'
 
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { isMotionReduced } from '@/lib/reducedMotion'
 import { isSoundEffectsEnabled } from '@/lib/soundEffects'
 
@@ -174,12 +175,19 @@ export function HeroBlock() {
                 <div>
                     <HeroLogo />
 
-                    <h1 className="mb-6 inline-block pb-1 font-normal leading-[1.2] tracking-wide text-balance text-7xl sm:text-8xl text-[var(--color-brand-title)] dark:bg-linear-to-r dark:from-cyan-300 dark:via-sky-400 dark:to-blue-500 dark:bg-clip-text font-thin dark:text-transparent">
+                    <MaskRevealUp
+                        as="h1"
+                        className="mb-6 inline-block pb-1 font-normal leading-[1.2] tracking-wide text-balance text-7xl text-[var(--color-brand-title)] sm:text-8xl dark:bg-linear-to-r dark:from-cyan-300 dark:via-sky-400 dark:to-blue-500 dark:bg-clip-text dark:font-thin dark:text-transparent"
+                    >
                         Jutge.org
-                    </h1>
-                    <p className="mx-auto max-w-3xl text-muted-foreground lg:text-2xl dark:font-thin">
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mx-auto max-w-3xl text-muted-foreground lg:text-2xl dark:font-thin"
+                        delay={180}
+                    >
                         The Virtual Learning Environment for Computer Programming
-                    </p>
+                    </MaskRevealUp>
                 </div>
             </div>
         </section>

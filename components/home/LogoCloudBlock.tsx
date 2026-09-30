@@ -1,5 +1,6 @@
 'use client'
 
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { motion, useReducedMotion } from 'motion/react'
 
 const ANIMATION_DURATION = 4
@@ -81,15 +82,22 @@ export function LogoCloudBlock() {
                     initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6 }}
                 >
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                         id="home-sponsors-heading"
+                        triggerOnView
                     >
                         Sponsors
-                    </h2>
-                    <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mt-4 text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        triggerOnView
+                    >
                         Jutge.org is supported by universities and organizations that care about programming education.
-                    </p>
+                    </MaskRevealUp>
                 </motion.div>
 
                 {shouldReduceMotion ? (

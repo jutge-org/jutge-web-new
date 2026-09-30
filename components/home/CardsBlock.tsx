@@ -1,6 +1,7 @@
 'use client'
 
 import AppleInvites, { type Event } from '@/components/smoothui/apple-invites'
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { Skeleton } from '@/components/ui/skeleton'
 import { tradingCardImageUrl } from '@/lib/data/tradingCards'
 import { tradingCardFamily } from '@/lib/tradingCards'
@@ -80,16 +81,24 @@ export function CardsBlock() {
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 >
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                         id="home-collectible-cards-heading"
+                        triggerOnView
                     >
                         Earn collectible cards
-                    </h2>
-                    <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
-                        Solve problems and complete challenges to earn collectible cards. <br />
-                        Brag about your achievements with your friends!
-                    </p>
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mt-4 text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        lines={[
+                            'Solve problems and complete challenges to earn collectible cards.',
+                            'Brag about your achievements with your friends!',
+                        ]}
+                        triggerOnView
+                    />
                 </motion.div>
 
                 <div className="relative mx-auto h-[420px] w-full max-w-xl md:h-[480px]" aria-live="polite">

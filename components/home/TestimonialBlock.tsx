@@ -1,5 +1,6 @@
 'use client'
 
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { StarIcon } from 'lucide-react'
@@ -70,16 +71,23 @@ export function TestimonialBlock() {
                     initial={false}
                     transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, ease: EASE_OUT }}
                 >
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                         id="home-testimonials-heading"
+                        triggerOnView
                     >
                         What people say
-                    </h2>
-                    <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mt-4 text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        triggerOnView
+                    >
                         Feedback from teachers and students who use Jutge.org to teach, practice, and grow as
                         programmers.
-                    </p>
+                    </MaskRevealUp>
                 </motion.div>
 
                 <motion.div

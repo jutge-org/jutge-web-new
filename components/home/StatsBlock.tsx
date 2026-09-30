@@ -1,6 +1,7 @@
 'use client'
 
 import { RecentSubmissionsCard } from '@/components/general/RecentSubmissionsCard'
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { Skeleton } from '@/components/ui/skeleton'
 import { fetchHomepageStats } from '@/lib/data/misc'
 import { fetchCompilers } from '@/lib/data/tables'
@@ -109,15 +110,22 @@ function StatsBlockView({ stats, loading }: StatsBlockProps) {
                     viewport={{ once: true }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 >
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="mb-4 font-bold text-3xl text-[var(--color-brand-title)] lg:text-4xl dark:text-foreground"
                         id="home-stats-heading"
+                        triggerOnView
                     >
                         Platform at a glance
-                    </h2>
-                    <p className="mx-auto max-w-2xl text-foreground text-lg dark:text-foreground/70">
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mx-auto max-w-2xl text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        triggerOnView
+                    >
                         Key numbers from the Jutge.org community.
-                    </p>
+                    </MaskRevealUp>
                     {loading ? <span className="sr-only">Loading platform statistics</span> : null}
                 </motion.div>
 

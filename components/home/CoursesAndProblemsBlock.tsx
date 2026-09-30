@@ -1,6 +1,7 @@
 'use client'
 
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -353,15 +354,22 @@ export function CoursesAndProblemsBlock() {
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 >
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                         id="home-courses-problems-heading"
+                        triggerOnView
                     >
                         Courses and problems
-                    </h2>
-                    <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mt-4 text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        triggerOnView
+                    >
                         Enroll in public courses or courses by your instructors, and solve graded problems by yourself.
-                    </p>
+                    </MaskRevealUp>
                 </motion.div>
 
                 <motion.div

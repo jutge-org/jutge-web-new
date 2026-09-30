@@ -1,5 +1,6 @@
 'use client'
 
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import ProductCard from '@/components/smoothui/product-card'
 import {
     Dialog,
@@ -109,16 +110,23 @@ export function MerchandisingBlock({ embedded = false, title = true }: Merchandi
                         viewport={{ once: true, margin: '-80px' }}
                         whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                     >
-                        <h2
+                        <MaskRevealUp
+                            as="h2"
                             className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                             id={headingId}
+                            triggerOnView
                         >
                             Merchandising
-                        </h2>
-                        <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
+                        </MaskRevealUp>
+                        <MaskRevealUp
+                            as="p"
+                            className="mt-4 text-foreground text-lg dark:text-foreground/70"
+                            delay={180}
+                            triggerOnView
+                        >
                             Stickers for your laptop, a t-shirt for your body, a mug for your coffee, and a figure for
                             your desk.
-                        </p>
+                        </MaskRevealUp>
                     </motion.div>
                 )}
 

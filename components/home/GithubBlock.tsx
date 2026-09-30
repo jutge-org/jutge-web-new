@@ -1,6 +1,7 @@
 'use client'
 
 import { GithubIcon } from '@/components/GithubIcon'
+import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { motion, useReducedMotion } from 'motion/react'
 
@@ -18,16 +19,23 @@ export function GithubBlock() {
                     viewport={{ once: true, margin: '-80px' }}
                     whileInView={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 >
-                    <h2
+                    <MaskRevealUp
+                        as="h2"
                         className="text-balance font-bold text-3xl tracking-tight text-[var(--color-brand-title)] md:text-4xl dark:text-foreground"
                         id="home-github-heading"
+                        triggerOnView
                     >
                         Contribute to Jutge.org
-                    </h2>
-                    <p className="mt-4 text-foreground text-lg dark:text-foreground/70">
+                    </MaskRevealUp>
+                    <MaskRevealUp
+                        as="p"
+                        className="mt-4 text-foreground text-lg dark:text-foreground/70"
+                        delay={180}
+                        triggerOnView
+                    >
                         Many pieces of Jutge.org are open source. Explore the code, open issues, and contribute — every
                         pull request helps students and teachers worldwide.
-                    </p>
+                    </MaskRevealUp>
                     <SmoothButton asChild className="mt-8" color="accent" variant="candy">
                         <a href={GITHUB_ORG_URL} target="_blank" rel="noopener noreferrer">
                             <GithubIcon className="size-4 shrink-0" aria-hidden />
