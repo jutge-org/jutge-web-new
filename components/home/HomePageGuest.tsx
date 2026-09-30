@@ -18,6 +18,7 @@ import { StatsBlock } from '@/components/home/StatsBlock'
 import { TelegramBlock } from '@/components/home/TelegramBlock'
 import { TerminalBlock } from '@/components/home/TerminalBlock'
 import { TestimonialBlock } from '@/components/home/TestimonialBlock'
+import { VsCodeBlock } from '@/components/home/VsCodeBlock'
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -37,6 +38,7 @@ const GUEST_SECTIONS: HomeSectionNavItem[] = [
     { id: 'home-telegram', label: 'Stay informed' },
     { id: 'home-documentation', label: 'Documentation' },
     { id: 'home-terminal', label: 'Command line' },
+    { id: 'home-vscode', label: 'VS Code' },
     { id: 'home-github', label: 'Open source' },
     { id: 'home-collectible-cards', label: 'Collectible cards' },
     { id: 'home-testimonials', label: 'What people say' },
@@ -141,10 +143,11 @@ export function HomePageGuest() {
                 <CoursesAndProblemsBlock />
                 <AccountsBlock />
                 <RelatedSitesBlock />
+                <VsCodeBlock />
+                <TerminalBlock />
                 <TelegramBlock />
                 <CardsBlock />
                 <DocumentationBlock />
-                <TerminalBlock />
                 <GithubBlock />
                 <TestimonialBlock />
                 <MerchandisingBlock />
