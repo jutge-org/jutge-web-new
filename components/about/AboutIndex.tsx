@@ -11,6 +11,7 @@ import {
     Send,
     Shield,
     ShoppingBag as ShoppingBagIcon,
+    Users as UsersIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -22,7 +23,7 @@ const indexIcons: Record<string, typeof Info> = {
     Gallery: Camera,
     Publications: FileText,
     Merchandising: ShoppingBagIcon,
-    Credits: Info,
+    Credits: UsersIcon,
 }
 
 export function AboutIndex() {

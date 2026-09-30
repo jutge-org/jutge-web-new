@@ -4,6 +4,7 @@ import { AboutPageShell } from '@/components/about/AboutPageShell'
 export default function AboutAccessibilityPage() {
     return (
         <AboutPageShell
+            className="mx-auto w-full max-w-4xl"
             activeTab="accessibility"
             breadcrumbs={[
                 { title: 'About', url: '/about' },

@@ -51,6 +51,7 @@ import {
     FileIcon,
     FilePenIcon,
     FileTextIcon,
+    FolderGit2Icon,
     GavelIcon,
     HelpCircleIcon,
     LayoutDashboardIcon,
@@ -58,6 +59,7 @@ import {
     MegaphoneIcon,
     ScrollTextIcon,
     SendIcon,
+    ServerCogIcon,
     FileBracesCornerIcon,
     CrownIcon,
     EyeIcon,
@@ -75,6 +77,7 @@ import {
     UserRoundPenIcon,
     UsersIcon,
     User,
+    WrenchIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -199,8 +202,14 @@ function MainNavDocumentationSubItemIcon({ href }: { href: string }) {
             return <Code2Icon aria-hidden />
         case '/documentation/verdicts':
             return <GavelIcon aria-hidden />
+        case 'https://github.com/jutge-org/jutge-toolkit':
+            return <WrenchIcon aria-hidden />
+        case 'https://api.jutge.org':
+            return <ServerCogIcon aria-hidden />
         case '/documentation/references':
             return <BookMarkedIcon aria-hidden />
+        case 'https://github.com/jutge-org/':
+            return <FolderGit2Icon aria-hidden />
         default:
             return null
     }
@@ -223,7 +232,7 @@ function MainNavAboutSubItemIcon({ href }: { href: string }) {
         case '/about/merchandising':
             return <ShoppingBagIcon aria-hidden />
         case '/about/credits':
-            return <Info aria-hidden />
+            return <UsersIcon aria-hidden />
         default:
             return null
     }

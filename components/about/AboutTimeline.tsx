@@ -1,7 +1,7 @@
 import { referenceLinkClassName } from '@/components/documentation/referenceLinkClassName'
 import { ExternalLink } from '@/components/ExternalLink'
 import { cn } from '@/lib/utils'
-import { ArrowUpRightIcon, type LucideIcon } from 'lucide-react'
+import { ExternalLinkIcon, type LucideIcon } from 'lucide-react'
 import type { CSSProperties, ReactNode } from 'react'
 
 type AboutTimelineProps = {
@@ -76,7 +76,7 @@ export function AboutInfoCard({ icon: Icon, media, title, href, description, chi
             >
                 {title}
             </span>
-            <ArrowUpRightIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <ExternalLinkIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
         </ExternalLink>
     ) : (
         <span className="text-pretty font-semibold tracking-tight text-foreground">{title}</span>

@@ -1,6 +1,16 @@
 import type { Compiler } from '@/lib/jutge_api_client'
 
-export type DocumentationTab = 'index' | 'faq' | 'compilers' | 'verdicts' | 'references' | 'certificates' | 'markdown'
+export type DocumentationTab =
+    | 'index'
+    | 'faq'
+    | 'compilers'
+    | 'verdicts'
+    | 'toolkit'
+    | 'api'
+    | 'references'
+    | 'github'
+    | 'certificates'
+    | 'markdown'
 
 export type DocumentationNavItem = {
     tab: DocumentationTab
@@ -15,6 +25,9 @@ export const documentationNavItems: DocumentationNavItem[] = [
     { tab: 'compilers', label: 'Compilers', href: '/documentation/compilers' },
     { tab: 'verdicts', label: 'Verdicts', href: '/documentation/verdicts' },
     { tab: 'references', label: 'References', href: '/documentation/references' },
+    { tab: 'api', label: 'API', href: 'https://api.jutge.org', external: true },
+    { tab: 'toolkit', label: 'Toolkit', href: 'https://github.com/jutge-org/jutge-toolkit', external: true },
+    { tab: 'github', label: 'GitHub repos', href: 'https://github.com/jutge-org/', external: true },
 ]
 
 export const documentationIndexItems = [
@@ -34,10 +47,9 @@ export const documentationIndexItems = [
         description: 'What each submission verdict means',
     },
     {
-        href: 'https://github.com/jutge-org/jutge-toolkit',
-        label: 'Toolkit',
-        description: 'Official Jutge toolkit on GitHub',
-        external: true,
+        href: '/documentation/references',
+        label: 'References',
+        description: 'Language references and cheat sheets',
     },
     {
         href: 'https://api.jutge.org',
@@ -46,9 +58,10 @@ export const documentationIndexItems = [
         external: true,
     },
     {
-        href: '/documentation/references',
-        label: 'References',
-        description: 'Language references and cheat sheets',
+        href: 'https://github.com/jutge-org/jutge-toolkit',
+        label: 'Toolkit',
+        description: 'Official Jutge toolkit on GitHub',
+        external: true,
     },
     {
         href: 'https://github.com/jutge-org/',
