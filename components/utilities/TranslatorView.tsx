@@ -8,11 +8,30 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import jutge from '@/lib/jutge'
 import { resolveTranslateLanguageId, translateLanguageName, translateLanguages } from '@/lib/translateLanguages'
-import { ArrowLeftRightIcon, ClipboardCopyIcon, LanguagesIcon } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowLeftRightIcon, CircleStopIcon, ClipboardCopyIcon, LanguagesIcon, Volume2Icon } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 const DETECT_LANGUAGE = 'auto'
+
+/** Google Translate codes that differ from the BCP 47 tags speech engines expect. */
+const speechLanguageTags: Record<string, string> = {
+    iw: 'he',
+    jw: 'jv',
+}
+
+function speechLanguageTag(languageId: string): string {
+    return speechLanguageTags[languageId] ?? languageId
+}
+
+function pickSpeechVoice(languageTag: string): SpeechSynthesisVoice | null {
+    const voices = window.speechSynthesis.getVoices()
+    const tag = languageTag.toLowerCase()
+    const exact = voices.find((voice) => voice.lang.toLowerCase() === tag)
+    if (exact) return exact
+    const prefix = tag.split('-')[0]
+    return voices.find((voice) => voice.lang.toLowerCase().split('-')[0] === prefix) ?? null
+}
 
 export function TranslatorView() {
     const { profile } = useAuth()
@@ -22,7 +41,29 @@ export function TranslatorView() {
     const [translation, setTranslation] = useState('')
     const [detectedFrom, setDetectedFrom] = useState<string | null>(null)
     const [pending, setPending] = useState(false)
+    const [reading, setReading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+
+    useEffect(() => {
+        if (!('speechSynthesis' in window)) return
+        window.speechSynthesis.getVoices()
+        const onVoices = () => {
+            window.speechSynthesis.getVoices()
+        }
+        window.speechSynthesis.addEventListener('voiceschanged', onVoices)
+        return () => {
+            window.speechSynthesis.removeEventListener('voiceschanged', onVoices)
+            utteranceRef.current = null
+            window.speechSynthesis.cancel()
+        }
+    }, [])
+
+    function stopReading() {
+        utteranceRef.current = null
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+        setReading(false)
+    }
 
     const resolvedFrom =
         from === DETECT_LANGUAGE ? (detectedFrom ? resolveTranslateLanguageId(detectedFrom) : null) : from
@@ -38,6 +79,7 @@ export function TranslatorView() {
             return
         }
 
+        stopReading()
         setError(null)
         setPending(true)
         try {
@@ -53,11 +95,47 @@ export function TranslatorView() {
 
     function swapLanguages() {
         if (!resolvedFrom || resolvedFrom === to) return
+        stopReading()
         setFrom(to)
         setTo(resolvedFrom)
         setSource(translation)
         setTranslation(source)
         setDetectedFrom(null)
+    }
+
+    function readTranslation() {
+        if (!translation) return
+        if (!('speechSynthesis' in window)) {
+            setError('Speech is not available in this browser.')
+            return
+        }
+        if (reading) {
+            stopReading()
+            return
+        }
+
+        const utterance = new SpeechSynthesisUtterance(translation)
+        utterance.lang = speechLanguageTag(to)
+        utterance.rate = 1.1 // default is 1; valid range 0.1-10
+        const voice = pickSpeechVoice(utterance.lang)
+        if (voice) utterance.voice = voice
+        utterance.onend = () => {
+            if (utteranceRef.current !== utterance) return
+            utteranceRef.current = null
+            setReading(false)
+        }
+        utterance.onerror = (event) => {
+            if (utteranceRef.current !== utterance) return
+            utteranceRef.current = null
+            setReading(false)
+            if (event.error === 'canceled' || event.error === 'interrupted') return
+            setError('Could not read the translation.')
+        }
+
+        utteranceRef.current = utterance
+        setReading(true)
+        setError(null)
+        window.speechSynthesis.speak(utterance)
     }
 
     async function copyTranslation() {
@@ -146,7 +224,14 @@ export function TranslatorView() {
 
                 <div className="flex min-w-0 flex-col gap-4">
                     <Label htmlFor="translator-to">To</Label>
-                    <Select value={to} onValueChange={setTo} disabled={pending}>
+                    <Select
+                        value={to}
+                        onValueChange={(value) => {
+                            stopReading()
+                            setTo(value)
+                        }}
+                        disabled={pending}
+                    >
                         <SelectTrigger id="translator-to" className="w-full">
                             <SelectValue />
                         </SelectTrigger>
@@ -166,7 +251,25 @@ export function TranslatorView() {
                         aria-label="Translation"
                         className="min-h-64"
                     />
-                    <div className="flex justify-end">
+                    <div className="flex flex-wrap justify-end gap-3">
+                        <SmoothButton
+                            type="button"
+                            variant="outline"
+                            color="neutral"
+                            disabled={!translation || pending}
+                            aria-pressed={reading}
+                            onClick={readTranslation}
+                            prefix={
+                                reading ? (
+                                    <CircleStopIcon className="size-4" aria-hidden />
+                                ) : (
+                                    <Volume2Icon className="size-4" aria-hidden />
+                                )
+                            }
+                            className="w-36"
+                        >
+                            {reading ? 'Stop' : 'Speak'}
+                        </SmoothButton>
                         <SmoothButton
                             type="button"
                             variant="outline"
@@ -174,7 +277,7 @@ export function TranslatorView() {
                             disabled={!translation || pending}
                             onClick={() => void copyTranslation()}
                             prefix={<ClipboardCopyIcon className="size-4" aria-hidden />}
-                            className="w-48"
+                            className="w-36"
                         >
                             Copy
                         </SmoothButton>
