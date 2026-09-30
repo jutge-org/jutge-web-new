@@ -1,3 +1,4 @@
+import { referenceLinkClassName } from '@/components/documentation/referenceLinkClassName'
 import { ExternalLink } from '@/components/ExternalLink'
 import { cn } from '@/lib/utils'
 import { ArrowUpRightIcon, type LucideIcon } from 'lucide-react'
@@ -65,15 +66,17 @@ type AboutInfoCardProps = {
 
 export function AboutInfoCard({ icon: Icon, media, title, href, description, children, hover }: AboutInfoCardProps) {
     const heading = href ? (
-        <ExternalLink
-            href={href}
-            className="inline-flex items-start gap-1.5 text-pretty font-semibold tracking-tight text-foreground transition-colors hover:text-violet-600 dark:hover:text-violet-400"
-        >
-            <span>{title}</span>
-            <ArrowUpRightIcon
-                className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-violet-600 dark:group-hover:text-violet-400"
-                aria-hidden
-            />
+        <ExternalLink href={href} className="group/title inline-flex items-start gap-1.5">
+            <span
+                className={cn(
+                    referenceLinkClassName,
+                    'text-pretty text-base/snug font-semibold tracking-tight',
+                    'group-hover/title:underline group-hover/title:underline-offset-4 group-hover/title:decoration-muted-foreground/50 group-hover/title:text-primary',
+                )}
+            >
+                {title}
+            </span>
+            <ArrowUpRightIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
         </ExternalLink>
     ) : (
         <span className="text-pretty font-semibold tracking-tight text-foreground">{title}</span>

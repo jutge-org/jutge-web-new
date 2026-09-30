@@ -5,6 +5,7 @@ import { useEffect, useState, type MouseEvent, type ReactNode } from 'react'
 import { DevIcon } from '@/components/administrator/DevIcon'
 import { PageSpinner } from '@/components/ClientGates'
 import { CompilerDetailBody } from '@/components/documentation/CompilerDetail'
+import { referenceLinkClassName } from '@/components/documentation/referenceLinkClassName'
 import { VerdictDetailBody, VerdictDetailTitle } from '@/components/documentation/VerdictDetail'
 import {
     Dialog,
@@ -19,8 +20,7 @@ import { compilerIdToSlug, findCompilerBySlug, getCompilerStatus } from '@/lib/d
 import type { Compiler, Verdict } from '@/lib/jutge_api_client'
 import { cn } from '@/lib/utils'
 
-export const referenceLinkClassName =
-    'text-sm text-foreground hover:underline hover:underline-offset-4 hover:decoration-muted-foreground/50 hover:text-primary'
+export { referenceLinkClassName }
 
 const dialogClassName = 'flex max-h-[min(85vh,48rem)] flex-col overflow-hidden sm:max-w-3xl [&_code]:break-all'
 
