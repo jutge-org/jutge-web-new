@@ -30,6 +30,7 @@ import {
     getCommandPaletteAppSections,
     getCommandPaletteCommands,
     getCommandPaletteProfileSections,
+    getCommandPaletteUtilitiesSections,
     type CommandPaletteSection,
 } from '@/lib/commandPaletteSections'
 import { dispatchOpenAppearanceSettings } from '@/lib/appearanceSettings'
@@ -45,8 +46,10 @@ import {
     CircleDotIcon,
     FileBracesCornerIcon,
     InfoIcon,
+    LanguagesIcon,
     LayoutGridIcon,
     LogInIcon,
+    PenLineIcon,
     LogOutIcon,
     EyeIcon,
     RectangleHorizontalIcon,
@@ -206,7 +209,7 @@ export function CommandPalette() {
 
     const filteredSections = useMemo(() => {
         if (!trimmedQuery) {
-            return { app: [], command: [], profile: [], documentation: [], about: [] }
+            return { app: [], command: [], profile: [], utilities: [], documentation: [], about: [] }
         }
 
         const appSections = filterCommandPaletteSections(getCommandPaletteAppSections(navContext), trimmedQuery).slice(
@@ -221,12 +224,17 @@ export function CommandPalette() {
             getCommandPaletteProfileSections(navContext),
             trimmedQuery,
         ).slice(0, RESULTS_LIMIT)
+        const utilitiesSections = filterCommandPaletteSections(
+            getCommandPaletteUtilitiesSections(navContext),
+            trimmedQuery,
+        ).slice(0, RESULTS_LIMIT)
         const staticSections = filterCommandPaletteSections(commandPaletteSections, trimmedQuery)
 
         return {
             app: appSections,
             command: commandSections,
             profile: profileSections,
+            utilities: utilitiesSections,
             documentation: staticSections.filter((section) => section.area === 'documentation').slice(0, RESULTS_LIMIT),
             about: staticSections.filter((section) => section.area === 'about').slice(0, RESULTS_LIMIT),
         }
@@ -240,6 +248,7 @@ export function CommandPalette() {
         filteredSections.app.length > 0 ||
         filteredSections.command.length > 0 ||
         filteredSections.profile.length > 0 ||
+        filteredSections.utilities.length > 0 ||
         filteredSections.documentation.length > 0 ||
         filteredSections.about.length > 0
 
@@ -378,6 +387,7 @@ export function CommandPalette() {
     const hasRecents = filteredRecents.length > 0
     const hasSections = filteredSections.app.length > 0
     const hasProfile = filteredSections.profile.length > 0
+    const hasUtilities = filteredSections.utilities.length > 0
     const hasDocumentation = filteredSections.documentation.length > 0
     const hasAbout = filteredSections.about.length > 0
 
@@ -629,6 +639,43 @@ export function CommandPalette() {
                             hasRecents ||
                             hasSections ||
                             hasProfile) &&
+                        hasUtilities ? (
+                            <CommandSeparator />
+                        ) : null}
+                        {!loading && filteredSections.utilities.length > 0 ? (
+                            <CommandGroup heading="Utilities">
+                                {filteredSections.utilities.map((section) => (
+                                    <CommandItem
+                                        key={section.href}
+                                        value={section.href}
+                                        onSelect={() => navigateToSection(section)}
+                                    >
+                                        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                                            <div className="flex min-w-0 items-center gap-2">
+                                                {section.href === '/utilities/draw' ? (
+                                                    <PenLineIcon className="size-3.5 shrink-0" aria-hidden />
+                                                ) : (
+                                                    <LanguagesIcon className="size-3.5 shrink-0" aria-hidden />
+                                                )}
+                                                <span className="truncate font-medium">{section.label}</span>
+                                            </div>
+                                            <span className="truncate pl-5.5 text-xs text-muted-foreground">
+                                                {section.description}
+                                            </span>
+                                        </div>
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        ) : null}
+                        {!loading &&
+                        (hasCommands ||
+                            hasProblems ||
+                            hasCourses ||
+                            hasExams ||
+                            hasRecents ||
+                            hasSections ||
+                            hasProfile ||
+                            hasUtilities) &&
                         hasDocumentation ? (
                             <CommandSeparator />
                         ) : null}
@@ -661,6 +708,7 @@ export function CommandPalette() {
                             hasRecents ||
                             hasSections ||
                             hasProfile ||
+                            hasUtilities ||
                             hasDocumentation) &&
                         hasAbout ? (
                             <CommandSeparator />

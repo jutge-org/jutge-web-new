@@ -77,6 +77,12 @@ const administratorLink: SiteNavLink = {
     match: (pathname) => pathname === '/administrator' || pathname.startsWith('/administrator/'),
 }
 
+const utilitiesLink: SiteNavLink = {
+    href: '/utilities',
+    label: 'Utilities',
+    match: (pathname) => pathname === '/utilities' || pathname.startsWith('/utilities/'),
+}
+
 const documentationLink: SiteNavLink = {
     href: '/documentation',
     label: 'Documentation',
@@ -122,6 +128,7 @@ const authenticatedLinks: readonly SiteNavLink[] = [
     collectibleCardsLink,
     // awardsLink, // Awards temporarily unwired
     profileLink,
+    utilitiesLink,
     documentationLink,
     aboutLink,
 ]
@@ -143,6 +150,7 @@ export const authenticatedNavLinkDescriptions: Record<string, string> = {
     '/collectible-cards': 'Browse your collectible cards',
     '/awards': 'Badges and achievements you have earned',
     '/profile': 'See and update your Jutge.org profile',
+    '/utilities': 'Translate text and other tools',
     '/supervision': 'Supervise a student in a course you teach',
     '/instructor': 'Manage courses, exams, and teaching tools',
     '/administrator': 'Site administration and configuration',

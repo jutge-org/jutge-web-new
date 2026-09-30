@@ -29,6 +29,7 @@ import { ExternalLink } from '@/components/ExternalLink'
 import { aboutNavItems } from '@/lib/about'
 import { administratorIndexItems } from '@/lib/administrator'
 import { documentationNavItems } from '@/lib/documentation'
+import { utilitiesNavItems } from '@/lib/utilities'
 import { instructorIndexItems } from '@/lib/instructor'
 import type { CoursesNavItem } from '@/lib/courses'
 import { getSiteNavLinks, homeLink, pathsHrefEqual, type SiteNavLink } from '@/lib/siteNavLinks'
@@ -78,6 +79,8 @@ import {
     UsersIcon,
     User,
     WrenchIcon,
+    LanguagesIcon,
+    PenLineIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -92,10 +95,13 @@ type MainNavSubmenuItem = {
 
 function orderMainNavMenuLinks(links: readonly SiteNavLink[]): SiteNavLink[] {
     const withoutProfile = links.filter((l) => l.href !== '/profile')
+    const utilities = withoutProfile.find((l) => l.href === '/utilities')
     const documentation = withoutProfile.find((l) => l.href === '/documentation')
     const about = withoutProfile.find((l) => l.href === '/about')
-    const withoutMeta = withoutProfile.filter((l) => l.href !== '/about' && l.href !== '/documentation')
-    const metaLinks = [documentation, about].filter((l): l is SiteNavLink => l != null)
+    const withoutMeta = withoutProfile.filter(
+        (l) => l.href !== '/about' && l.href !== '/documentation' && l.href !== '/utilities',
+    )
+    const metaLinks = [utilities, documentation, about].filter((l): l is SiteNavLink => l != null)
     return [homeLink, ...withoutMeta, ...metaLinks]
 }
 
@@ -125,6 +131,8 @@ function MainNavMenuItemIcon({ href }: { href: string }) {
             return <GraduationCap aria-hidden />
         case '/administrator':
             return <CrownIcon aria-hidden />
+        case '/utilities':
+            return <WrenchIcon aria-hidden />
         case '/documentation':
             return <BookText aria-hidden />
         case '/about':
@@ -194,6 +202,17 @@ function MainNavAdministratorSubItemIcon({ href }: { href: string }) {
     }
 }
 
+function MainNavUtilitiesSubItemIcon({ href }: { href: string }) {
+    switch (href) {
+        case '/utilities/translator':
+            return <LanguagesIcon aria-hidden />
+        case '/utilities/draw':
+            return <PenLineIcon aria-hidden />
+        default:
+            return null
+    }
+}
+
 function MainNavDocumentationSubItemIcon({ href }: { href: string }) {
     switch (href) {
         case '/documentation/faq':
@@ -237,6 +256,10 @@ function MainNavAboutSubItemIcon({ href }: { href: string }) {
             return null
     }
 }
+
+const utilitiesSubmenuItems = utilitiesNavItems
+    .filter((item) => item.tab !== 'index')
+    .map(({ href, label }) => ({ href, label }))
 
 const documentationSubmenuItems = documentationNavItems
     .filter((item) => item.tab !== 'index')
@@ -339,6 +362,9 @@ export function MainBreadcrumbsInLayout() {
     const pathname = usePathname()
     const navLinks = getSiteNavLinks({ authenticated, instructor, tutor, administrator })
     const mainMenuLinks = orderMainNavMenuLinks(navLinks)
+    const metaStartHref = mainMenuLinks.find(
+        (link) => link.href === '/utilities' || link.href === '/documentation',
+    )?.href
     const scrollRef = useRef<HTMLElement>(null)
 
     /** First crumb encodes the main-menu section shown next to Jutge.org. */
@@ -394,7 +420,7 @@ export function MainBreadcrumbsInLayout() {
                             >
                                 {mainMenuLinks.map(({ href, label }) => (
                                     <Fragment key={href}>
-                                        {href === '/documentation' ? <DropdownMenuSeparator /> : null}
+                                        {href === metaStartHref ? <DropdownMenuSeparator /> : null}
                                         {href === '/supervision' || href === '/instructor' ? (
                                             <DropdownMenuSeparator />
                                         ) : null}
@@ -427,6 +453,16 @@ export function MainBreadcrumbsInLayout() {
                                                 pathname={pathname}
                                                 isCurrentSection={linkIsCurrentMainSection(href)}
                                                 subItemIcon={MainNavMenuItemIcon}
+                                            />
+                                        ) : href === '/utilities' ? (
+                                            <MainNavRoleSubmenu
+                                                href={href}
+                                                label={label}
+                                                indexHref="/utilities"
+                                                items={utilitiesSubmenuItems}
+                                                pathname={pathname}
+                                                isCurrentSection={linkIsCurrentMainSection(href)}
+                                                subItemIcon={MainNavUtilitiesSubItemIcon}
                                             />
                                         ) : href === '/documentation' ? (
                                             <MainNavRoleSubmenu

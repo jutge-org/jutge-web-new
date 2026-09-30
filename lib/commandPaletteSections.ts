@@ -1,4 +1,5 @@
 import { aboutIndexItems } from '@/lib/about'
+import { utilitiesIndexItems } from '@/lib/utilities'
 import { documentationIndexItems } from '@/lib/documentation'
 import { GITHUB_ISSUES_URL } from '@/lib/github'
 import { LAYOUT_WIDTH_CONSTRAINED, LAYOUT_WIDTH_FULL, LAYOUT_WIDTH_WIDE, type LayoutWidth } from '@/lib/layoutWidth'
@@ -6,7 +7,7 @@ import { profileNavItems } from '@/lib/profile'
 import { getSiteNavLinkDescription, getSiteNavLinks, homeLink, type SiteNavLinksContext } from '@/lib/siteNavLinks'
 import { includesForSearch } from '@/lib/utils'
 
-export type CommandPaletteSectionArea = 'app' | 'command' | 'profile' | 'documentation' | 'about'
+export type CommandPaletteSectionArea = 'app' | 'command' | 'profile' | 'utilities' | 'documentation' | 'about'
 
 export type CommandPaletteSectionAction = 'login' | 'logout' | 'open-settings' | 'toggle-theme' | 'set-layout-width'
 
@@ -153,6 +154,18 @@ const profileSectionMeta: Record<
         description: 'Request instructor rights for your account',
         keywords: ['Instructor', 'Upgrade account', 'Teacher'],
     },
+}
+
+export function getCommandPaletteUtilitiesSections(context: SiteNavLinksContext): CommandPaletteSection[] {
+    if (!context.authenticated) return []
+
+    return utilitiesIndexItems.map((item) => ({
+        label: item.label,
+        description: item.description,
+        href: item.href,
+        area: 'utilities' as const,
+        keywords: item.label === 'Translator' ? ['Translate', 'Translation', 'Language'] : ['Sketch', 'Diagram'],
+    }))
 }
 
 export function getCommandPaletteProfileSections(context: SiteNavLinksContext): CommandPaletteSection[] {
