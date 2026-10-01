@@ -132,7 +132,7 @@ export function ExamRankingView() {
                                     className="bg-muted border-2 border-background rounded-lg w-40 h-12 px-4 text-center "
                                 >
                                     <ExternalLink
-                                        href={`https://jutge.org/problems/${problem.problem_nm}`}
+                                        href={`/problems/${problem.problem_nm}`}
                                         title={problem.problem_nm}
                                         className="font-bold text-primary"
                                     >

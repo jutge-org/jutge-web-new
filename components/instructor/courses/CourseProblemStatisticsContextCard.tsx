@@ -69,7 +69,7 @@ export function CourseProblemStatisticsContextCard({
                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Problem</p>
                             <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                                 <ExternalLink
-                                    href={`https://jutge.org/problems/${problem_nm}`}
+                                    href={`/problems/${problem_nm}`}
                                     className="text-lg font-semibold text-primary"
                                 >
                                     {problem_nm}

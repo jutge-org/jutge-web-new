@@ -291,7 +291,7 @@ function DialogToShowList({
                     cellRenderer: (p: { data: InstructorListItem }) =>
                         p.data.problem_nm ? (
                             <div className="flex flex-row">
-                                <ExternalLink className="w-24" href={`https://jutge.org/problems/${p.data.problem_nm}`}>
+                                <ExternalLink className="w-24" href={`/problems/${p.data.problem_nm}`}>
                                     {p.data.problem_nm}↗
                                 </ExternalLink>
                                 {getProblemTitle(profile, p.data.problem_nm, allAbstractProblems)}

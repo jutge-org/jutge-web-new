@@ -70,7 +70,7 @@ export function CourseProblemRankingCard({
                 filter: true,
                 cellRenderer: (params: ICellRendererParams<{ problem_nm: string }>) => (
                     <ExternalLink
-                        href={`https://jutge.org/problems/${params.data!.problem_nm}`}
+                        href={`problems/${params.data!.problem_nm}`}
                         className="text-primary"
                     >
                         {params.data!.problem_nm}
