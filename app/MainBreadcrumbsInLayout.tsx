@@ -83,6 +83,7 @@ import {
     LanguagesIcon,
     LineSquiggleIcon,
     TerminalIcon,
+    TurtleIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -214,6 +215,8 @@ function MainNavUtilitiesSubItemIcon({ href }: { href: string }) {
             return <TerminalIcon aria-hidden />
         case '/utilities/sandpack':
             return <TerminalIcon aria-hidden />
+        case '/utilities/pyweb':
+            return <TurtleIcon aria-hidden />
         default:
             return null
     }

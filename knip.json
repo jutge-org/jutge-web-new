@@ -1,4 +1,5 @@
 {
     "$schema": "https://unpkg.com/knip@6/schema.json",
-    "ignore": ["components/ui/**", "lib/jutge_api_client.ts"]
+    "ignore": ["components/ui/**", "lib/jutge_api_client.ts"],
+    "ignoreDependencies": ["skulpt"]
 }

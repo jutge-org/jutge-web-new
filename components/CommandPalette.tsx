@@ -61,6 +61,7 @@ import {
     StretchHorizontalIcon,
     SunMoonIcon,
     TerminalIcon,
+    TurtleIcon,
     UserIcon,
 } from 'lucide-react'
 import { useAppearanceThemePreference } from '@/components/AppearancePreferencesProvider'
@@ -92,6 +93,7 @@ function UtilitySectionIcon({ href }: { href: string }) {
     if (href === '/utilities/whiteboard') return <LineSquiggleIcon className={className} aria-hidden />
     if (href === '/utilities/pyodide') return <TerminalIcon className={className} aria-hidden />
     if (href === '/utilities/sandpack') return <TerminalIcon className={className} aria-hidden />
+    if (href === '/utilities/pyweb') return <TurtleIcon className={className} aria-hidden />
     return <LanguagesIcon className={className} aria-hidden />
 }
 
