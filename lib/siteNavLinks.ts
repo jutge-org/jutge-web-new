@@ -37,7 +37,7 @@ const coursesLink: SiteNavLink = {
 const activityLink: SiteNavLink = {
     href: '/activity',
     label: 'Activity',
-    match: (pathname) => pathname === '/activity',
+    match: (pathname) => pathname === '/activity' || pathname.startsWith('/activity/'),
 }
 
 const collectibleCardsLink: SiteNavLink = {

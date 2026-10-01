@@ -36,6 +36,11 @@ const nextConfig: NextConfig = {
                 destination: '/utilities/whiteboard',
                 permanent: true,
             },
+            {
+                source: '/wrapped',
+                destination: '/activity/wrapped',
+                permanent: true,
+            },
         ]
     },
 }
