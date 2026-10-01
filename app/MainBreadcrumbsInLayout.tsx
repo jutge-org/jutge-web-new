@@ -213,8 +213,6 @@ function MainNavUtilitiesSubItemIcon({ href }: { href: string }) {
             return <LineSquiggleIcon aria-hidden />
         case '/utilities/pyodide':
             return <TerminalIcon aria-hidden />
-        case '/utilities/sandpack':
-            return <TerminalIcon aria-hidden />
         case '/utilities/pyweb':
             return <TurtleIcon aria-hidden />
         default:

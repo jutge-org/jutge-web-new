@@ -92,7 +92,6 @@ function UtilitySectionIcon({ href }: { href: string }) {
     const className = 'size-3.5 shrink-0'
     if (href === '/utilities/whiteboard') return <LineSquiggleIcon className={className} aria-hidden />
     if (href === '/utilities/pyodide') return <TerminalIcon className={className} aria-hidden />
-    if (href === '/utilities/sandpack') return <TerminalIcon className={className} aria-hidden />
     if (href === '/utilities/pyweb') return <TurtleIcon className={className} aria-hidden />
     return <LanguagesIcon className={className} aria-hidden />
 }
