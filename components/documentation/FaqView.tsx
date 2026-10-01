@@ -190,7 +190,7 @@ export function FaqView() {
                                     transition={springTransition}
                                 >
                                     <h2
-                                        className="mb-4 font-semibold text-foreground text-lg"
+                                        className="mb-4 font-semibold text-lg text-[var(--color-brand-title)]"
                                         id={`faq-section-${section.sectionIndex}`}
                                     >
                                         {section.title}
