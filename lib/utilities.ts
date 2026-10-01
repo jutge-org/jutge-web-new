@@ -1,4 +1,4 @@
-export type UtilitiesTab = 'index' | 'translator' | 'whiteboard' | 'pyodide' | 'sandpack' | 'pyweb'
+export type UtilitiesTab = 'index' | 'translator' | 'whiteboard' | 'pyodide' | 'pyweb' | 'sandpack'
 
 export type UtilitiesNavItem = {
     tab: UtilitiesTab
@@ -11,8 +11,8 @@ export const utilitiesNavItems: UtilitiesNavItem[] = [
     { tab: 'translator', label: 'Translator', href: '/utilities/translator' },
     { tab: 'whiteboard', label: 'Whiteboard', href: '/utilities/whiteboard' },
     { tab: 'pyodide', label: 'Pyodide', href: '/utilities/pyodide' },
-    { tab: 'sandpack', label: 'SandPack', href: '/utilities/sandpack' },
     { tab: 'pyweb', label: 'PyWeb', href: '/utilities/pyweb' },
+    { tab: 'sandpack', label: 'SandPack', href: '/utilities/sandpack' },
 ]
 
 export const utilitiesIndexItems = [
@@ -32,13 +32,13 @@ export const utilitiesIndexItems = [
         description: 'Run Python in the browser',
     },
     {
-        href: '/utilities/sandpack',
-        label: 'SandPack',
-        description: 'Edit and run JavaScript in the browser',
-    },
-    {
         href: '/utilities/pyweb',
         label: 'PyWeb',
         description: 'Run Python with turtle graphics',
+    },
+    {
+        href: '/utilities/sandpack',
+        label: 'SandPack',
+        description: 'Edit and run JavaScript in the browser',
     },
 ] as const
