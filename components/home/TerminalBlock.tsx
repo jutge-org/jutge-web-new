@@ -57,7 +57,7 @@ export function TerminalBlock() {
                         Install the Jutge CLI to call the API, and the Jutge Toolkit to author and upload problems.
                     </MaskRevealUp>
                     <div className="mt-8 text-left">
-                        <MacTerminal lines={LINES} loop loopPause={2000} prompt="~ %" rows={12} theme={theme} title="Terminal" />
+                        <MacTerminal lines={LINES} loop loopPause={5000} prompt="~ %" rows={12} theme={theme} title="Terminal" />
                     </div>
                 </motion.div>
             </div>
