@@ -77,6 +77,12 @@ const administratorLink: SiteNavLink = {
     match: (pathname) => pathname === '/administrator' || pathname.startsWith('/administrator/'),
 }
 
+const interpretersLink: SiteNavLink = {
+    href: '/interpreters',
+    label: 'Interpreters',
+    match: (pathname) => pathname === '/interpreters' || pathname.startsWith('/interpreters/'),
+}
+
 const utilitiesLink: SiteNavLink = {
     href: '/utilities',
     label: 'Utilities',
@@ -117,7 +123,14 @@ const guestProblemsLink: SiteNavLink = {
     match: (pathname) => pathname.startsWith('/problems/'),
 }
 
-const guestLinks: readonly SiteNavLink[] = [guestCoursesLink, guestProblemsLink, documentationLink, aboutLink]
+const guestLinks: readonly SiteNavLink[] = [
+    guestCoursesLink,
+    guestProblemsLink,
+    interpretersLink,
+    utilitiesLink,
+    documentationLink,
+    aboutLink,
+]
 
 const authenticatedLinks: readonly SiteNavLink[] = [
     coursesLink,
@@ -128,6 +141,7 @@ const authenticatedLinks: readonly SiteNavLink[] = [
     collectibleCardsLink,
     // awardsLink, // Awards temporarily unwired
     profileLink,
+    interpretersLink,
     utilitiesLink,
     documentationLink,
     aboutLink,
@@ -150,6 +164,7 @@ export const authenticatedNavLinkDescriptions: Record<string, string> = {
     '/collectible-cards': 'Browse your collectible cards',
     '/awards': 'Badges and achievements you have earned',
     '/profile': 'See and update your Jutge.org profile',
+    '/interpreters': 'Run Python and C++ in the browser',
     '/utilities': 'Translate text and other tools',
     '/supervision': 'Supervise a student in a course you teach',
     '/instructor': 'Manage courses, exams, and teaching tools',
@@ -162,6 +177,8 @@ export const guestNavLinkDescriptions: Record<string, string> = {
     '/': 'Return to the home page',
     '/problems/public': 'Browse public programming problems',
     '/courses/public': 'Browse public courses',
+    '/interpreters': 'Run Python and C++ in the browser',
+    '/utilities': 'Translate text and other tools',
     '/documentation': 'Documentation for Jutge.org',
     '/about': 'Find more about this site',
 }

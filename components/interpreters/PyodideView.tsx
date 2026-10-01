@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { PyodideHelpDialog } from '@/components/utilities/PyodideHelpDialog'
+import { PyodideHelpDialog } from '@/components/interpreters/PyodideHelpDialog'
 import { createPyodideSession, loadPyodideRuntime, setPyodideStdin, type PyodideSession } from '@/lib/pyodideRuntime'
 import { EraserIcon } from 'lucide-react'
 import { useEffect, useRef, useState, type ClipboardEvent, type KeyboardEvent } from 'react'

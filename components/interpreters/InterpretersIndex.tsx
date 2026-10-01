@@ -1,20 +1,19 @@
-import { utilitiesIndexItems } from '@/lib/utilities'
+import { interpretersIndexItems } from '@/lib/interpreters'
 import { cn } from '@/lib/utils'
-import { ClockIcon, LanguagesIcon, LineSquiggleIcon, MonitorOffIcon, PocketKnifeIcon } from 'lucide-react'
+import { FileCodeIcon, SquareTerminalIcon, TerminalIcon, TurtleIcon } from 'lucide-react'
 import Link from 'next/link'
 
-const indexIcons: Record<string, typeof PocketKnifeIcon> = {
-    Translator: LanguagesIcon,
-    Whiteboard: LineSquiggleIcon,
-    'Black screen': MonitorOffIcon,
-    Clock: ClockIcon,
+const indexIcons: Record<string, typeof SquareTerminalIcon> = {
+    Pyodide: TerminalIcon,
+    PyWeb: TurtleIcon,
+    JSCPP: FileCodeIcon,
 }
 
-export function UtilitiesIndex() {
+export function InterpretersIndex() {
     return (
-        <nav aria-label="Utilities" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {utilitiesIndexItems.map((item) => {
-                const Icon = indexIcons[item.label] ?? PocketKnifeIcon
+        <nav aria-label="Interpreters" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {interpretersIndexItems.map((item) => {
+                const Icon = indexIcons[item.label] ?? SquareTerminalIcon
 
                 return (
                     <Link
@@ -26,7 +25,7 @@ export function UtilitiesIndex() {
                             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                         )}
                     >
-                        <span className="flex size-14 shrink-0 items-center justify-center rounded-xl border-l-4 border-l-indigo-500 bg-muted/80 text-indigo-600 dark:text-indigo-400">
+                        <span className="flex size-14 shrink-0 items-center justify-center rounded-xl border-l-4 border-l-fuchsia-500 bg-muted/80 text-fuchsia-600 dark:text-fuchsia-400">
                             <Icon className="size-7 group-hover:animate-pulse" aria-hidden />
                         </span>
                         <span className="flex min-w-0 flex-1 flex-col gap-0.5">

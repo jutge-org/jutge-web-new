@@ -37,6 +37,21 @@ const nextConfig: NextConfig = {
                 permanent: true,
             },
             {
+                source: '/utilities/pyodide',
+                destination: '/interpreters/pyodide',
+                permanent: true,
+            },
+            {
+                source: '/utilities/pyweb',
+                destination: '/interpreters/pyweb',
+                permanent: true,
+            },
+            {
+                source: '/utilities/jscpp',
+                destination: '/interpreters/jscpp',
+                permanent: true,
+            },
+            {
                 source: '/wrapped',
                 destination: '/activity/wrapped',
                 permanent: true,

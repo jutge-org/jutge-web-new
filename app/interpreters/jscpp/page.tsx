@@ -3,16 +3,16 @@
 import { Suspense } from 'react'
 
 import { PageSpinner } from '@/components/ClientGates'
-import { JsCppView } from '@/components/utilities/JsCppView'
-import { UtilitiesPageShell } from '@/components/utilities/UtilitiesPageShell'
+import { InterpretersPageShell } from '@/components/interpreters/InterpretersPageShell'
+import { JsCppView } from '@/components/interpreters/JsCppView'
 
-export default function UtilitiesJsCppPage() {
+export default function InterpretersJsCppPage() {
     return (
-        <UtilitiesPageShell
+        <InterpretersPageShell
             activeTab="jscpp"
             breadcrumbs={[
-                { title: 'Utilities', url: '/utilities' },
-                { title: 'JSCPP', url: '/utilities/jscpp' },
+                { title: 'Interpreters', url: '/interpreters' },
+                { title: 'JSCPP', url: '/interpreters/jscpp' },
             ]}
             titleHidden={true}
             title="JSCPP"
@@ -21,6 +21,6 @@ export default function UtilitiesJsCppPage() {
             <Suspense fallback={<PageSpinner />}>
                 <JsCppView />
             </Suspense>
-        </UtilitiesPageShell>
+        </InterpretersPageShell>
     )
 }

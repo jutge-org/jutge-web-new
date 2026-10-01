@@ -21,6 +21,7 @@ import {
     UserXIcon,
     DownloadIcon,
     PocketKnifeIcon,
+    SquareTerminalIcon,
 } from 'lucide-react'
 
 export type PageTitleSection =
@@ -43,6 +44,7 @@ export type PageTitleSection =
     | '/request-instructor-account'
     | '/instructor'
     | '/administrator'
+    | '/interpreters'
     | '/utilities'
     | '/documentation'
     | '/about'
@@ -67,6 +69,7 @@ const cardAccent: Record<PageTitleSection, string> = {
     '/request-instructor-account': 'border-l-4 border-l-purple-500 text-purple-600 dark:text-purple-400',
     '/instructor': 'border-l-4 border-l-purple-500 text-purple-600 dark:text-purple-400',
     '/administrator': 'border-l-4 border-l-orange-500 text-orange-600 dark:text-orange-400',
+    '/interpreters': 'border-l-4 border-l-fuchsia-500 text-fuchsia-600 dark:text-fuchsia-400',
     '/utilities': 'border-l-4 border-l-indigo-500 text-indigo-600 dark:text-indigo-400',
     '/documentation': 'border-l-4 border-l-amber-600 text-amber-600 dark:text-amber-400',
     '/about': 'border-l-4 border-l-violet-500 text-violet-600 dark:text-violet-400',
@@ -92,6 +95,7 @@ const sectionLabel: Record<PageTitleSection, string> = {
     '/request-instructor-account': 'Request instructor account',
     '/instructor': 'Instructor',
     '/administrator': 'Administrator',
+    '/interpreters': 'Interpreters',
     '/utilities': 'Utilities',
     '/documentation': 'Documentation',
     '/about': 'About',
@@ -117,6 +121,7 @@ const guestDescription: Record<PageTitleSection, string> = {
     '/request-instructor-account': 'Upgrade your account to create and manage courses.',
     '/instructor': 'Manage courses, exams, and teaching tools',
     '/administrator': 'Site administration and configuration',
+    '/interpreters': 'Run Python and C++ in the browser',
     '/utilities': 'Translate text and other tools',
     '/documentation': 'Learn how to use this site',
     '/about': 'What is this site and who made it?',
@@ -142,6 +147,7 @@ const authenticatedDescription: Record<PageTitleSection, string> = {
     '/request-instructor-account': 'Upgrade your account to create and manage courses.',
     '/instructor': 'Manage courses, exams, and teaching tools',
     '/administrator': 'Site administration and configuration',
+    '/interpreters': 'Run Python and C++ in the browser',
     '/utilities': 'Translate text and other tools',
     '/documentation': 'Learn how to use this site',
     '/about': 'What is this site and who made it?',
@@ -196,6 +202,8 @@ function SectionIcon({ section }: { section: PageTitleSection }) {
             return <GraduationCap className={iconClass} aria-hidden />
         case '/administrator':
             return <CrownIcon className={iconClass} aria-hidden />
+        case '/interpreters':
+            return <SquareTerminalIcon className={iconClass} aria-hidden />
         case '/utilities':
             return <PocketKnifeIcon className={iconClass} aria-hidden />
         case '/documentation':

@@ -1,0 +1,39 @@
+/* Proportions match the react-clock demo drawn at 250px, scaled up to the page size. */
+.analog-clock {
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 30px 40px 0 #10245e33;
+    zoom: calc(min(70vmin, 32rem) / 250px);
+}
+
+.analog-clock .react-clock__face {
+    border: 3px solid #fff;
+}
+
+.analog-clock .react-clock__second-hand {
+    transition: transform 0.2s cubic-bezier(0.68, 0, 0.27, 1.55);
+}
+
+.analog-clock .react-clock__second-hand__body::before,
+.analog-clock .react-clock__second-hand__body::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 50%;
+    border-radius: 50%;
+    background-color: red;
+}
+
+.analog-clock .react-clock__second-hand__body::before {
+    bottom: 20%;
+    width: 7px;
+    height: 7px;
+    transform: translate(-50%) translateY(-50%);
+}
+
+.analog-clock .react-clock__second-hand__body::after {
+    top: 0;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%);
+}

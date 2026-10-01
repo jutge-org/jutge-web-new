@@ -3,16 +3,16 @@
 import { Suspense } from 'react'
 
 import { PageSpinner } from '@/components/ClientGates'
-import { PyWebView } from '@/components/utilities/PyWebView'
-import { UtilitiesPageShell } from '@/components/utilities/UtilitiesPageShell'
+import { InterpretersPageShell } from '@/components/interpreters/InterpretersPageShell'
+import { PyWebView } from '@/components/interpreters/PyWebView'
 
-export default function UtilitiesPyWebPage() {
+export default function InterpretersPyWebPage() {
     return (
-        <UtilitiesPageShell
+        <InterpretersPageShell
             activeTab="pyweb"
             breadcrumbs={[
-                { title: 'Utilities', url: '/utilities' },
-                { title: 'PyWeb', url: '/utilities/pyweb' },
+                { title: 'Interpreters', url: '/interpreters' },
+                { title: 'PyWeb', url: '/interpreters/pyweb' },
             ]}
             titleHidden={true}
             title="PyWeb"
@@ -21,6 +21,6 @@ export default function UtilitiesPyWebPage() {
             <Suspense fallback={<PageSpinner />}>
                 <PyWebView />
             </Suspense>
-        </UtilitiesPageShell>
+        </InterpretersPageShell>
     )
 }

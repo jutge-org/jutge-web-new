@@ -15,6 +15,7 @@ import {
     SchoolIcon,
     User,
     PocketKnifeIcon,
+    SquareTerminalIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -51,6 +52,8 @@ function NavIcon({ href, className }: { href: string; className?: string }) {
             return <GraduationCap className={iconClass} aria-hidden />
         case '/administrator':
             return <CrownIcon className={iconClass} aria-hidden />
+        case '/interpreters':
+            return <SquareTerminalIcon className={iconClass} aria-hidden />
         case '/utilities':
             return <PocketKnifeIcon className={iconClass} aria-hidden />
         case '/documentation':
@@ -74,6 +77,7 @@ const cardAccent: Record<string, string> = {
     '/supervision': 'border-l-4 border-l-emerald-500 text-emerald-600 dark:text-emerald-400',
     '/instructor': 'border-l-4 border-l-purple-500 text-purple-600 dark:text-purple-400',
     '/administrator': 'border-l-4 border-l-orange-500 text-orange-600 dark:text-orange-400',
+    '/interpreters': 'border-l-4 border-l-fuchsia-500 text-fuchsia-600 dark:text-fuchsia-400',
     '/utilities': 'border-l-4 border-l-indigo-500 text-indigo-600 dark:text-indigo-400',
     '/documentation': 'border-l-4 border-l-amber-400 text-amber-600 dark:text-amber-400',
     '/about': 'border-l-4 border-l-violet-500 text-violet-600 dark:text-violet-400',

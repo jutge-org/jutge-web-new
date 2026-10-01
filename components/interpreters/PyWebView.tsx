@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { PyWebHelpDialog } from '@/components/utilities/PyWebHelpDialog'
+import { PyWebHelpDialog } from '@/components/interpreters/PyWebHelpDialog'
 import { pyWebDemos } from '@/lib/pyweb/demos'
 import { decodeCodeParam, decodeSolutionParam, loadSkulpt, runProgram } from '@/lib/pyweb/runtime'
 

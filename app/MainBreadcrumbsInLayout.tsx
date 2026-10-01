@@ -29,6 +29,7 @@ import { ExternalLink } from '@/components/ExternalLink'
 import { aboutNavItems } from '@/lib/about'
 import { administratorIndexItems } from '@/lib/administrator'
 import { documentationNavItems } from '@/lib/documentation'
+import { interpretersNavItems } from '@/lib/interpreters'
 import { utilitiesNavItems } from '@/lib/utilities'
 import { instructorIndexItems } from '@/lib/instructor'
 import type { CoursesNavItem } from '@/lib/courses'
@@ -48,6 +49,7 @@ import {
     CalendarIcon,
     CameraIcon,
     ChartPieIcon,
+    ClockIcon,
     Code2Icon,
     FileIcon,
     FilePenIcon,
@@ -80,9 +82,11 @@ import {
     UsersIcon,
     User,
     PocketKnifeIcon,
+    SquareTerminalIcon,
     WrenchIcon,
     LanguagesIcon,
     LineSquiggleIcon,
+    MonitorOffIcon,
     TerminalIcon,
     TurtleIcon,
 } from 'lucide-react'
@@ -99,13 +103,18 @@ type MainNavSubmenuItem = {
 
 function orderMainNavMenuLinks(links: readonly SiteNavLink[]): SiteNavLink[] {
     const withoutProfile = links.filter((l) => l.href !== '/profile')
+    const interpreters = withoutProfile.find((l) => l.href === '/interpreters')
     const utilities = withoutProfile.find((l) => l.href === '/utilities')
     const documentation = withoutProfile.find((l) => l.href === '/documentation')
     const about = withoutProfile.find((l) => l.href === '/about')
     const withoutMeta = withoutProfile.filter(
-        (l) => l.href !== '/about' && l.href !== '/documentation' && l.href !== '/utilities',
+        (l) =>
+            l.href !== '/about' &&
+            l.href !== '/documentation' &&
+            l.href !== '/utilities' &&
+            l.href !== '/interpreters',
     )
-    const metaLinks = [utilities, documentation, about].filter((l): l is SiteNavLink => l != null)
+    const metaLinks = [interpreters, utilities, documentation, about].filter((l): l is SiteNavLink => l != null)
     return [homeLink, ...withoutMeta, ...metaLinks]
 }
 
@@ -135,6 +144,8 @@ function MainNavMenuItemIcon({ href }: { href: string }) {
             return <GraduationCap aria-hidden />
         case '/administrator':
             return <CrownIcon aria-hidden />
+        case '/interpreters':
+            return <SquareTerminalIcon aria-hidden />
         case '/utilities':
             return <PocketKnifeIcon aria-hidden />
         case '/documentation':
@@ -206,18 +217,29 @@ function MainNavAdministratorSubItemIcon({ href }: { href: string }) {
     }
 }
 
+function MainNavInterpretersSubItemIcon({ href }: { href: string }) {
+    switch (href) {
+        case '/interpreters/pyodide':
+            return <TerminalIcon aria-hidden />
+        case '/interpreters/pyweb':
+            return <TurtleIcon aria-hidden />
+        case '/interpreters/jscpp':
+            return <FileCodeIcon aria-hidden />
+        default:
+            return null
+    }
+}
+
 function MainNavUtilitiesSubItemIcon({ href }: { href: string }) {
     switch (href) {
         case '/utilities/translator':
             return <LanguagesIcon aria-hidden />
         case '/utilities/whiteboard':
             return <LineSquiggleIcon aria-hidden />
-        case '/utilities/pyodide':
-            return <TerminalIcon aria-hidden />
-        case '/utilities/pyweb':
-            return <TurtleIcon aria-hidden />
-        case '/utilities/jscpp':
-            return <FileCodeIcon aria-hidden />
+        case '/utilities/blackscreen':
+            return <MonitorOffIcon aria-hidden />
+        case '/utilities/clock':
+            return <ClockIcon aria-hidden />
         default:
             return null
     }
@@ -266,6 +288,10 @@ function MainNavAboutSubItemIcon({ href }: { href: string }) {
             return null
     }
 }
+
+const interpretersSubmenuItems = interpretersNavItems
+    .filter((item) => item.tab !== 'index')
+    .map(({ href, label }) => ({ href, label }))
 
 const utilitiesSubmenuItems = utilitiesNavItems
     .filter((item) => item.tab !== 'index')
@@ -373,7 +399,7 @@ export function MainBreadcrumbsInLayout() {
     const navLinks = getSiteNavLinks({ authenticated, instructor, tutor, administrator })
     const mainMenuLinks = orderMainNavMenuLinks(navLinks)
     const metaStartHref = mainMenuLinks.find(
-        (link) => link.href === '/utilities' || link.href === '/documentation',
+        (link) => link.href === '/interpreters' || link.href === '/utilities' || link.href === '/documentation',
     )?.href
     const scrollRef = useRef<HTMLElement>(null)
 
@@ -434,6 +460,7 @@ export function MainBreadcrumbsInLayout() {
                                         {href === '/supervision' || href === '/instructor' ? (
                                             <DropdownMenuSeparator />
                                         ) : null}
+                                        {href === '/documentation' ? <DropdownMenuSeparator /> : null}
                                         {href === '/instructor' ? (
                                             <MainNavRoleSubmenu
                                                 href={href}
@@ -463,6 +490,16 @@ export function MainBreadcrumbsInLayout() {
                                                 pathname={pathname}
                                                 isCurrentSection={linkIsCurrentMainSection(href)}
                                                 subItemIcon={MainNavMenuItemIcon}
+                                            />
+                                        ) : href === '/interpreters' ? (
+                                            <MainNavRoleSubmenu
+                                                href={href}
+                                                label={label}
+                                                indexHref="/interpreters"
+                                                items={interpretersSubmenuItems}
+                                                pathname={pathname}
+                                                isCurrentSection={linkIsCurrentMainSection(href)}
+                                                subItemIcon={MainNavInterpretersSubItemIcon}
                                             />
                                         ) : href === '/utilities' ? (
                                             <MainNavRoleSubmenu

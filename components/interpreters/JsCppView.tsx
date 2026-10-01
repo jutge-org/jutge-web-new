@@ -23,7 +23,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { JsCppHelpDialog } from '@/components/utilities/JsCppHelpDialog'
+import { JsCppHelpDialog } from '@/components/interpreters/JsCppHelpDialog'
 import { defaultJsCppInput, defaultJsCppProgram, jsCppDemos } from '@/lib/jscpp/demos'
 import {
     loadJsCpp,

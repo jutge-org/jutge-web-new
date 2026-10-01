@@ -1,4 +1,5 @@
 import { aboutIndexItems } from '@/lib/about'
+import { interpretersIndexItems } from '@/lib/interpreters'
 import { utilitiesIndexItems } from '@/lib/utilities'
 import { documentationIndexItems } from '@/lib/documentation'
 import { GITHUB_ISSUES_URL } from '@/lib/github'
@@ -7,7 +8,14 @@ import { profileNavItems } from '@/lib/profile'
 import { getSiteNavLinkDescription, getSiteNavLinks, homeLink, type SiteNavLinksContext } from '@/lib/siteNavLinks'
 import { includesForSearch } from '@/lib/utils'
 
-export type CommandPaletteSectionArea = 'app' | 'command' | 'profile' | 'utilities' | 'documentation' | 'about'
+export type CommandPaletteSectionArea =
+    | 'app'
+    | 'command'
+    | 'profile'
+    | 'interpreters'
+    | 'utilities'
+    | 'documentation'
+    | 'about'
 
 export type CommandPaletteSectionAction = 'login' | 'logout' | 'open-settings' | 'toggle-theme' | 'set-layout-width'
 
@@ -156,12 +164,8 @@ const profileSectionMeta: Record<
     },
 }
 
-function utilityKeywords(label: (typeof utilitiesIndexItems)[number]['label']): string[] {
+function interpreterKeywords(label: (typeof interpretersIndexItems)[number]['label']): string[] {
     switch (label) {
-        case 'Translator':
-            return ['Translate', 'Translation', 'Language']
-        case 'Whiteboard':
-            return ['Sketch', 'Diagram']
         case 'Pyodide':
             return ['Python', 'REPL', 'Console']
         case 'PyWeb':
@@ -171,9 +175,30 @@ function utilityKeywords(label: (typeof utilitiesIndexItems)[number]['label']): 
     }
 }
 
-export function getCommandPaletteUtilitiesSections(context: SiteNavLinksContext): CommandPaletteSection[] {
-    if (!context.authenticated) return []
+function utilityKeywords(label: (typeof utilitiesIndexItems)[number]['label']): string[] {
+    switch (label) {
+        case 'Translator':
+            return ['Translate', 'Translation', 'Language']
+        case 'Whiteboard':
+            return ['Sketch', 'Diagram']
+        case 'Black screen':
+            return ['Blank', 'Projector', 'Display']
+        case 'Clock':
+            return ['Time', 'Hours', '12-hour', '24-hour']
+    }
+}
 
+export function getCommandPaletteInterpretersSections(): CommandPaletteSection[] {
+    return interpretersIndexItems.map((item) => ({
+        label: item.label,
+        description: item.description,
+        href: item.href,
+        area: 'interpreters' as const,
+        keywords: interpreterKeywords(item.label),
+    }))
+}
+
+export function getCommandPaletteUtilitiesSections(): CommandPaletteSection[] {
     return utilitiesIndexItems.map((item) => ({
         label: item.label,
         description: item.description,

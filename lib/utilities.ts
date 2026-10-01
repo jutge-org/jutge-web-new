@@ -1,4 +1,4 @@
-export type UtilitiesTab = 'index' | 'translator' | 'whiteboard' | 'pyodide' | 'pyweb' | 'jscpp'
+export type UtilitiesTab = 'index' | 'translator' | 'whiteboard' | 'blackscreen' | 'clock'
 
 export type UtilitiesNavItem = {
     tab: UtilitiesTab
@@ -10,9 +10,8 @@ export const utilitiesNavItems: UtilitiesNavItem[] = [
     { tab: 'index', label: 'Index', href: '/utilities' },
     { tab: 'translator', label: 'Translator', href: '/utilities/translator' },
     { tab: 'whiteboard', label: 'Whiteboard', href: '/utilities/whiteboard' },
-    { tab: 'pyodide', label: 'Pyodide', href: '/utilities/pyodide' },
-    { tab: 'pyweb', label: 'PyWeb', href: '/utilities/pyweb' },
-    { tab: 'jscpp', label: 'JSCPP', href: '/utilities/jscpp' },
+    { tab: 'clock', label: 'Clock', href: '/utilities/clock' },
+    { tab: 'blackscreen', label: 'Black screen', href: '/utilities/blackscreen' },
 ]
 
 export const utilitiesIndexItems = [
@@ -27,18 +26,17 @@ export const utilitiesIndexItems = [
         description: 'Sketch and annotate',
     },
     {
-        href: '/utilities/pyodide',
-        label: 'Pyodide',
-        description: 'Run Python in the browser',
+        href: '/utilities/blackscreen',
+        label: 'Black screen',
+        description: 'Show a full black screen',
     },
     {
-        href: '/utilities/pyweb',
-        label: 'PyWeb',
-        description: 'Run Python with turtle graphics',
-    },
-    {
-        href: '/utilities/jscpp',
-        label: 'JSCPP',
-        description: 'Run C++ in the browser',
+        href: '/utilities/clock',
+        label: 'Clock',
+        description: 'Show the current time',
     },
 ] as const
+
+export function isBlackScreenPath(pathname: string): boolean {
+    return pathname === '/utilities/blackscreen'
+}
