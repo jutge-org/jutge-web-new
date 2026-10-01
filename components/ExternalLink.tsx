@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from 'lucide-react'
 import { type ComponentProps } from 'react'
 
 export function OpensInNewWindow() {
@@ -11,6 +12,7 @@ type ExternalLinkProps = ComponentProps<'a'> & {
 export function ExternalLink({ children, rel = 'noopener noreferrer', ...props }: ExternalLinkProps) {
     return (
         <a target="_blank" rel={rel} {...props}>
+            <ExternalLinkIcon className="size-4" />
             {children}
             <OpensInNewWindow />
         </a>

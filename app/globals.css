@@ -480,3 +480,7 @@ html[data-reduced-motion='reduce'] *::after {
 .grecaptcha-badge {
     visibility: hidden !important;
 }
+
+.jscpp-debug-line {
+    background-color: color-mix(in oklch, var(--primary) 28%, transparent) !important;
+}

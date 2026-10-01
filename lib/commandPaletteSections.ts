@@ -166,6 +166,8 @@ function utilityKeywords(label: (typeof utilitiesIndexItems)[number]['label']): 
             return ['Python', 'REPL', 'Console']
         case 'PyWeb':
             return ['Python', 'Turtle', 'Skulpt', 'Editor']
+        case 'JSCPP':
+            return ['C++', 'CPP', 'Interpreter', 'Debug']
     }
 }
 

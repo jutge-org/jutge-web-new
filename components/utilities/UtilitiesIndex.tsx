@@ -1,6 +1,6 @@
 import { utilitiesIndexItems } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
-import { LanguagesIcon, LineSquiggleIcon, PocketKnifeIcon, TerminalIcon, TurtleIcon } from 'lucide-react'
+import { FileCodeIcon, LanguagesIcon, LineSquiggleIcon, PocketKnifeIcon, TerminalIcon, TurtleIcon } from 'lucide-react'
 import Link from 'next/link'
 
 const indexIcons: Record<string, typeof PocketKnifeIcon> = {
@@ -8,6 +8,7 @@ const indexIcons: Record<string, typeof PocketKnifeIcon> = {
     Whiteboard: LineSquiggleIcon,
     Pyodide: TerminalIcon,
     PyWeb: TurtleIcon,
+    JSCPP: FileCodeIcon,
 }
 
 export function UtilitiesIndex() {

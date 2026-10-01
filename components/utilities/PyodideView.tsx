@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { PyodideHelpDialog } from '@/components/utilities/PyodideHelpDialog'
 import { createPyodideSession, loadPyodideRuntime, setPyodideStdin, type PyodideSession } from '@/lib/pyodideRuntime'
 import { EraserIcon } from 'lucide-react'
 import { useEffect, useRef, useState, type ClipboardEvent, type KeyboardEvent } from 'react'
@@ -356,21 +357,24 @@ export function PyodideView() {
                             Enter runs the line. Shift+Enter inserts a newline. Tab completes. Ctrl+C cancels the input.
                         </p>
                         <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="size-7 shrink-0 text-muted-foreground"
-                                        onClick={clearConsole}
-                                        aria-label="Clear console"
-                                    >
-                                        <EraserIcon aria-hidden />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Clear console</TooltipContent>
-                            </Tooltip>
+                            <div className="flex shrink-0 items-center gap-1">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7 shrink-0 text-muted-foreground"
+                                            onClick={clearConsole}
+                                            aria-label="Clear console"
+                                        >
+                                            <EraserIcon aria-hidden />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Clear console</TooltipContent>
+                                </Tooltip>
+                                <PyodideHelpDialog />
+                            </div>
                         </TooltipProvider>
                     </div>
                     <div ref={logRef} role="log" aria-label="Python session" className="min-h-0 flex-1 overflow-auto">

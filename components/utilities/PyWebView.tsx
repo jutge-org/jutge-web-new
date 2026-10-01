@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { Spinner } from '@/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { PyWebHelpDialog } from '@/components/utilities/PyWebHelpDialog'
 import { pyWebDemos } from '@/lib/pyweb/demos'
 import { decodeCodeParam, decodeSolutionParam, loadSkulpt, runProgram } from '@/lib/pyweb/runtime'
 
@@ -242,6 +243,8 @@ export function PyWebView() {
                                 >
                                     {running ? <Spinner /> : <PlayIcon />}
                                 </ToolbarIconButton>
+                            </ButtonGroup>
+                            <ButtonGroup>
                                 <ToolbarIconButton label="Clear" onClick={clearOutput}>
                                     <EraserIcon />
                                 </ToolbarIconButton>
@@ -284,6 +287,7 @@ export function PyWebView() {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </ButtonGroup>
+                            <PyWebHelpDialog />
                         </TooltipProvider>
                         {runtimeStatus === 'loading' ? (
                             <p className="text-xs text-muted-foreground">Loading Python…</p>

@@ -62,6 +62,7 @@ import {
     SendIcon,
     ServerCogIcon,
     FileBracesCornerIcon,
+    FileCodeIcon,
     CrownIcon,
     EyeIcon,
     GraduationCap,
@@ -215,6 +216,8 @@ function MainNavUtilitiesSubItemIcon({ href }: { href: string }) {
             return <TerminalIcon aria-hidden />
         case '/utilities/pyweb':
             return <TurtleIcon aria-hidden />
+        case '/utilities/jscpp':
+            return <FileCodeIcon aria-hidden />
         default:
             return null
     }
