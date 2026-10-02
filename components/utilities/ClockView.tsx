@@ -1,6 +1,8 @@
 'use client'
 
 import AnimatedTabs from '@/components/smoothui/animated-tabs'
+import AnimatedToggle from '@/components/smoothui/animated-toggle'
+import Scrubber from '@/components/smoothui/scrubber'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -17,10 +19,20 @@ import './analogClock.css'
 type HourCycle = 'h12' | 'h23'
 type ClockViewMode = 'analog' | 'digital'
 
-const BACKGROUND_INTERVAL_MS = 5 * 60 * 1000
+const BACKGROUND_REFRESH_MINUTES_DEFAULT = 5
+const BACKGROUND_REFRESH_MINUTES_MAX = 15
 
-function backgroundImageUrl(token: number) {
-    return `https://picsum.photos/1920/1080?random=${token}`
+function backgroundImageUrl(token: number, grayscale: boolean, blur: boolean) {
+    const params = [`random=${token}`]
+    if (grayscale) params.push('grayscale')
+    if (blur) params.push('blur')
+    return `https://picsum.photos/1920/1080?${params.join('&')}`
+}
+
+function formatBackgroundRefreshMinutes(minutes: number) {
+    if (minutes === 0) return 'Off'
+    if (minutes === 1) return '1 min'
+    return `${minutes} min`
 }
 
 type ClockPiece = {
@@ -77,12 +89,29 @@ function SettingSection({ title, description, children }: SettingSectionProps) {
     )
 }
 
+type SettingRowProps = {
+    label: string
+    children: ReactNode
+}
+
+function SettingRow({ label, children }: SettingRowProps) {
+    return (
+        <div className="flex items-center justify-between gap-3">
+            <span className="text-sm text-muted-foreground">{label}</span>
+            {children}
+        </div>
+    )
+}
+
 type ClockPropertiesDialogProps = {
     open: boolean
     view: ClockViewMode
     hourCycle: HourCycle
     showSeconds: boolean
     showBackground: boolean
+    backgroundRefreshMinutes: number
+    backgroundGrayscale: boolean
+    backgroundBlur: boolean
     announcement: string
     reloadingBackground: boolean
     onOpenChange: (open: boolean) => void
@@ -90,6 +119,9 @@ type ClockPropertiesDialogProps = {
     onHourCycleChange: (hourCycle: HourCycle) => void
     onShowSecondsChange: (showSeconds: boolean) => void
     onShowBackgroundChange: (showBackground: boolean) => void
+    onBackgroundRefreshMinutesChange: (minutes: number) => void
+    onBackgroundGrayscaleChange: (grayscale: boolean) => void
+    onBackgroundBlurChange: (blur: boolean) => void
     onReloadBackground: () => void
     onAnnouncementChange: (announcement: string) => void
 }
@@ -100,6 +132,9 @@ function ClockPropertiesDialog({
     hourCycle,
     showSeconds,
     showBackground,
+    backgroundRefreshMinutes,
+    backgroundGrayscale,
+    backgroundBlur,
     announcement,
     reloadingBackground,
     onOpenChange,
@@ -107,6 +142,9 @@ function ClockPropertiesDialog({
     onHourCycleChange,
     onShowSecondsChange,
     onShowBackgroundChange,
+    onBackgroundRefreshMinutesChange,
+    onBackgroundGrayscaleChange,
+    onBackgroundBlurChange,
     onReloadBackground,
     onAnnouncementChange,
 }: ClockPropertiesDialogProps) {
@@ -168,7 +206,7 @@ function ClockPropertiesDialog({
                         </SettingSection>
                         <SettingSection
                             title="Background"
-                            description="Show a photo behind the clock. A new image appears every 5 minutes."
+                            description="Show a photo behind the clock. Choose how often a new image is loaded, from 0 to 15 minutes. Zero means the image is not refreshed."
                         >
                             <AnimatedTabs
                                 activeTab={showBackground ? 'yes' : 'no'}
@@ -180,8 +218,35 @@ function ClockPropertiesDialog({
                                 ]}
                                 variant="segment"
                             />
-                            <div className="flex items-center gap-3">
-                                <span className="text-sm text-muted-foreground">Reload image</span>
+                            <Scrubber
+                                decimals={0}
+                                disabled={!showBackground}
+                                formatValue={formatBackgroundRefreshMinutes}
+                                label="Refresh"
+                                max={BACKGROUND_REFRESH_MINUTES_MAX}
+                                min={0}
+                                onValueChange={onBackgroundRefreshMinutesChange}
+                                step={1}
+                                ticks={5}
+                                value={backgroundRefreshMinutes}
+                            />
+                            <SettingRow label="Grayscale">
+                                <AnimatedToggle
+                                    checked={backgroundGrayscale}
+                                    disabled={!showBackground}
+                                    label="Grayscale"
+                                    onChange={onBackgroundGrayscaleChange}
+                                />
+                            </SettingRow>
+                            <SettingRow label="Blurred">
+                                <AnimatedToggle
+                                    checked={backgroundBlur}
+                                    disabled={!showBackground}
+                                    label="Blurred"
+                                    onChange={onBackgroundBlurChange}
+                                />
+                            </SettingRow>
+                            <SettingRow label="Reload image">
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
@@ -204,7 +269,7 @@ function ClockPropertiesDialog({
                                         <TooltipContent side="top">Reload background</TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
-                            </div>
+                            </SettingRow>
                         </SettingSection>
                         <SettingSection title="Announcement" description="Show a message below the clock.">
                             <Textarea
@@ -245,7 +310,7 @@ function ClockToolbar({ propertiesOpen, fullscreen, elevated, onPropertiesOpen, 
 
     return (
         <TooltipProvider>
-            <div className="m-2 flex flex-row items-center justify-end gap-2">
+            <div className={cn('flex flex-row items-center justify-end gap-2', elevated && 'm-2')}>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button
@@ -291,9 +356,16 @@ export function ClockView() {
     const [hourCycle, setHourCycle] = useState<HourCycle>('h23')
     const [showSeconds, setShowSeconds] = useState(true)
     const [showBackground, setShowBackground] = useState(false)
+    const [backgroundRefreshMinutes, setBackgroundRefreshMinutes] = useState(BACKGROUND_REFRESH_MINUTES_DEFAULT)
+    const [backgroundGrayscale, setBackgroundGrayscale] = useState(false)
+    const [backgroundBlur, setBackgroundBlur] = useState(false)
     const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null)
     const [reloadingBackground, setReloadingBackground] = useState(false)
     const loadBackgroundRef = useRef<((manual: boolean) => void) | null>(null)
+    const backgroundGrayscaleRef = useRef(backgroundGrayscale)
+    const backgroundBlurRef = useRef(backgroundBlur)
+    backgroundGrayscaleRef.current = backgroundGrayscale
+    backgroundBlurRef.current = backgroundBlur
     const [announcement, setAnnouncement] = useState('')
     const [propertiesOpen, setPropertiesOpen] = useState(false)
     const propertiesOpenRef = useRef(false)
@@ -333,7 +405,7 @@ export function ClockView() {
 
         function loadNextImage(manual: boolean) {
             const id = ++requestId
-            const url = backgroundImageUrl(Date.now())
+            const url = backgroundImageUrl(Date.now(), backgroundGrayscaleRef.current, backgroundBlurRef.current)
             const image = new Image()
             if (manual) setReloadingBackground(true)
             function finish(loaded: boolean) {
@@ -348,15 +420,26 @@ export function ClockView() {
 
         loadBackgroundRef.current = loadNextImage
         loadNextImage(false)
-        const intervalId = window.setInterval(() => loadNextImage(false), BACKGROUND_INTERVAL_MS)
         return () => {
             cancelled = true
             loadBackgroundRef.current = null
-            window.clearInterval(intervalId)
             setReloadingBackground(false)
             setBackgroundUrl(null)
         }
     }, [showBackground])
+
+    useEffect(() => {
+        loadBackgroundRef.current?.(false)
+    }, [backgroundGrayscale, backgroundBlur])
+
+    useEffect(() => {
+        if (!showBackground || backgroundRefreshMinutes <= 0) return
+        const intervalId = window.setInterval(
+            () => loadBackgroundRef.current?.(false),
+            backgroundRefreshMinutes * 60 * 1000,
+        )
+        return () => window.clearInterval(intervalId)
+    }, [showBackground, backgroundRefreshMinutes])
 
     function reloadBackground() {
         loadBackgroundRef.current?.(true)
@@ -499,6 +582,9 @@ export function ClockView() {
                 hourCycle={hourCycle}
                 showSeconds={showSeconds}
                 showBackground={showBackground}
+                backgroundRefreshMinutes={backgroundRefreshMinutes}
+                backgroundGrayscale={backgroundGrayscale}
+                backgroundBlur={backgroundBlur}
                 announcement={announcement}
                 reloadingBackground={reloadingBackground}
                 onOpenChange={setPropertiesOpen}
@@ -506,6 +592,9 @@ export function ClockView() {
                 onHourCycleChange={setHourCycle}
                 onShowSecondsChange={setShowSeconds}
                 onShowBackgroundChange={setShowBackground}
+                onBackgroundRefreshMinutesChange={setBackgroundRefreshMinutes}
+                onBackgroundGrayscaleChange={setBackgroundGrayscale}
+                onBackgroundBlurChange={setBackgroundBlur}
                 onReloadBackground={reloadBackground}
                 onAnnouncementChange={setAnnouncement}
             />
