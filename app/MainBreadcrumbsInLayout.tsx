@@ -118,8 +118,14 @@ function orderMainNavMenuLinks(links: readonly SiteNavLink[]): SiteNavLink[] {
     return [homeLink, ...withoutMeta, ...metaLinks]
 }
 
+function mainNavMenuIconHref(href: string): string {
+    if (href.startsWith('/problems')) return '/problems'
+    if (href.startsWith('/courses')) return '/courses'
+    return href
+}
+
 function MainNavMenuItemIcon({ href }: { href: string }) {
-    switch (href) {
+    switch (mainNavMenuIconHref(href)) {
         case '/':
             return <House aria-hidden />
         case '/problems':
