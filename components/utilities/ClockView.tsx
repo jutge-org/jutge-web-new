@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { useClockFullscreen } from '@/store/clockFullscreen'
-import { BinaryIcon, ClockIcon, FullscreenIcon, Minimize2Icon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
+import { BinaryIcon, ClockIcon, FullscreenIcon, Minimize2Icon, RefreshCwIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import ReactClock from 'react-clock'
 import 'react-clock/dist/Clock.css'
@@ -84,11 +84,13 @@ type ClockPropertiesDialogProps = {
     showSeconds: boolean
     showBackground: boolean
     announcement: string
+    reloadingBackground: boolean
     onOpenChange: (open: boolean) => void
     onViewChange: (view: ClockViewMode) => void
     onHourCycleChange: (hourCycle: HourCycle) => void
     onShowSecondsChange: (showSeconds: boolean) => void
     onShowBackgroundChange: (showBackground: boolean) => void
+    onReloadBackground: () => void
     onAnnouncementChange: (announcement: string) => void
 }
 
@@ -99,11 +101,13 @@ function ClockPropertiesDialog({
     showSeconds,
     showBackground,
     announcement,
+    reloadingBackground,
     onOpenChange,
     onViewChange,
     onHourCycleChange,
     onShowSecondsChange,
     onShowBackgroundChange,
+    onReloadBackground,
     onAnnouncementChange,
 }: ClockPropertiesDialogProps) {
     return (
@@ -176,6 +180,31 @@ function ClockPropertiesDialog({
                                 ]}
                                 variant="segment"
                             />
+                            <div className="flex items-center gap-3">
+                                <span className="text-sm text-muted-foreground">Reload image</span>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="inline-flex">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="icon"
+                                                    aria-label="Reload background"
+                                                    disabled={!showBackground || reloadingBackground}
+                                                    onClick={onReloadBackground}
+                                                >
+                                                    <RefreshCwIcon
+                                                        className={cn(reloadingBackground && 'animate-spin')}
+                                                        aria-hidden
+                                                    />
+                                                </Button>
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top">Reload background</TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
                         </SettingSection>
                         <SettingSection title="Announcement" description="Show a message below the clock.">
                             <Textarea
@@ -263,6 +292,8 @@ export function ClockView() {
     const [showSeconds, setShowSeconds] = useState(true)
     const [showBackground, setShowBackground] = useState(false)
     const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null)
+    const [reloadingBackground, setReloadingBackground] = useState(false)
+    const loadBackgroundRef = useRef<((manual: boolean) => void) | null>(null)
     const [announcement, setAnnouncement] = useState('')
     const [propertiesOpen, setPropertiesOpen] = useState(false)
     const propertiesOpenRef = useRef(false)
@@ -292,27 +323,44 @@ export function ClockView() {
     }, [])
 
     useEffect(() => {
-        if (!showBackground) return
+        if (!showBackground) {
+            loadBackgroundRef.current = null
+            return
+        }
 
         let cancelled = false
+        let requestId = 0
 
-        function loadNextImage() {
+        function loadNextImage(manual: boolean) {
+            const id = ++requestId
             const url = backgroundImageUrl(Date.now())
             const image = new Image()
-            image.onload = () => {
-                if (!cancelled) setBackgroundUrl(url)
+            if (manual) setReloadingBackground(true)
+            function finish(loaded: boolean) {
+                if (cancelled || id !== requestId) return
+                if (loaded) setBackgroundUrl(url)
+                setReloadingBackground(false)
             }
+            image.onload = () => finish(true)
+            image.onerror = () => finish(false)
             image.src = url
         }
 
-        loadNextImage()
-        const intervalId = window.setInterval(loadNextImage, BACKGROUND_INTERVAL_MS)
+        loadBackgroundRef.current = loadNextImage
+        loadNextImage(false)
+        const intervalId = window.setInterval(() => loadNextImage(false), BACKGROUND_INTERVAL_MS)
         return () => {
             cancelled = true
+            loadBackgroundRef.current = null
             window.clearInterval(intervalId)
+            setReloadingBackground(false)
             setBackgroundUrl(null)
         }
     }, [showBackground])
+
+    function reloadBackground() {
+        loadBackgroundRef.current?.(true)
+    }
 
     useEffect(() => {
         return () => setFullscreen(false)
@@ -452,11 +500,13 @@ export function ClockView() {
                 showSeconds={showSeconds}
                 showBackground={showBackground}
                 announcement={announcement}
+                reloadingBackground={reloadingBackground}
                 onOpenChange={setPropertiesOpen}
                 onViewChange={setView}
                 onHourCycleChange={setHourCycle}
                 onShowSecondsChange={setShowSeconds}
                 onShowBackgroundChange={setShowBackground}
+                onReloadBackground={reloadBackground}
                 onAnnouncementChange={setAnnouncement}
             />
         </div>
