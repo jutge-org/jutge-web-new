@@ -1,18 +1,27 @@
 'use client'
 
+import AnimatedTabs from '@/components/smoothui/animated-tabs'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
-import { ButtonGroup } from '@/components/ui/button-group'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { useClockFullscreen } from '@/store/clockFullscreen'
-import { BinaryIcon, ClockIcon, FullscreenIcon, Minimize2Icon, TimerIcon, TimerOffIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { BinaryIcon, ClockIcon, FullscreenIcon, Minimize2Icon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import ReactClock from 'react-clock'
 import 'react-clock/dist/Clock.css'
 import './analogClock.css'
 
 type HourCycle = 'h12' | 'h23'
 type ClockViewMode = 'analog' | 'digital'
+
+const BACKGROUND_INTERVAL_MS = 5 * 60 * 1000
+
+function backgroundImageUrl(token: number) {
+    return `https://picsum.photos/1920/1080?random=${token}`
+}
 
 type ClockPiece = {
     kind: 'time' | 'period'
@@ -52,84 +61,179 @@ function clockPieces(date: Date, hourCycle: HourCycle, showSeconds: boolean): Cl
     return pieces
 }
 
-type ClockToolbarProps = {
+type SettingSectionProps = {
+    title: string
+    description: string
+    children: ReactNode
+}
+
+function SettingSection({ title, description, children }: SettingSectionProps) {
+    return (
+        <fieldset className="space-y-3">
+            <legend className="text-sm font-medium">{title}</legend>
+            <p className="text-sm text-muted-foreground">{description}</p>
+            {children}
+        </fieldset>
+    )
+}
+
+type ClockPropertiesDialogProps = {
+    open: boolean
     view: ClockViewMode
     hourCycle: HourCycle
     showSeconds: boolean
-    fullscreen: boolean
+    showBackground: boolean
+    announcement: string
+    onOpenChange: (open: boolean) => void
     onViewChange: (view: ClockViewMode) => void
     onHourCycleChange: (hourCycle: HourCycle) => void
     onShowSecondsChange: (showSeconds: boolean) => void
-    onFullscreenChange: () => void
+    onShowBackgroundChange: (showBackground: boolean) => void
+    onAnnouncementChange: (announcement: string) => void
 }
 
-function ClockToolbar({
+function ClockPropertiesDialog({
+    open,
     view,
     hourCycle,
     showSeconds,
-    fullscreen,
+    showBackground,
+    announcement,
+    onOpenChange,
     onViewChange,
     onHourCycleChange,
     onShowSecondsChange,
-    onFullscreenChange,
-}: ClockToolbarProps) {
-    const viewLabel = view === 'analog' ? 'Digital clock' : 'Analog clock'
-    const hourCycleLabel = hourCycle === 'h12' ? '24-hour clock' : '12-hour clock'
-    const secondsLabel = showSeconds ? 'Hide seconds' : 'Show seconds'
+    onShowBackgroundChange,
+    onAnnouncementChange,
+}: ClockPropertiesDialogProps) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="flex max-h-[80vh] w-full max-w-lg flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
+                <DialogHeader className="shrink-0 border-b border-border px-6 pt-6 pb-4">
+                    <DialogTitle>Clock properties</DialogTitle>
+                    <DialogDescription>Choose how the clock is displayed.</DialogDescription>
+                </DialogHeader>
+                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
+                    <div className="space-y-8">
+                        <SettingSection title="Display" description="Show an analog face or a digital readout.">
+                            <AnimatedTabs
+                                activeTab={view}
+                                className="w-full"
+                                onChange={(tabId) => onViewChange(tabId as ClockViewMode)}
+                                tabs={[
+                                    {
+                                        id: 'analog',
+                                        label: 'Analog',
+                                        icon: <ClockIcon className="size-4" aria-hidden />,
+                                    },
+                                    {
+                                        id: 'digital',
+                                        label: 'Digital',
+                                        icon: <BinaryIcon className="size-4" aria-hidden />,
+                                    },
+                                ]}
+                                variant="segment"
+                            />
+                        </SettingSection>
+                        <SettingSection
+                            title="Hour format"
+                            description="Choose 12-hour or 24-hour time. This applies to the digital clock."
+                        >
+                            <AnimatedTabs
+                                activeTab={hourCycle}
+                                className="w-full"
+                                onChange={(tabId) => onHourCycleChange(tabId as HourCycle)}
+                                tabs={[
+                                    { id: 'h12', label: '12-hour' },
+                                    { id: 'h23', label: '24-hour' },
+                                ]}
+                                variant="segment"
+                            />
+                        </SettingSection>
+                        <SettingSection title="Seconds" description="Show the second hand and the seconds digits.">
+                            <AnimatedTabs
+                                activeTab={showSeconds ? 'yes' : 'no'}
+                                className="w-full"
+                                onChange={(tabId) => onShowSecondsChange(tabId === 'yes')}
+                                tabs={[
+                                    { id: 'yes', label: 'Yes' },
+                                    { id: 'no', label: 'No' },
+                                ]}
+                                variant="segment"
+                            />
+                        </SettingSection>
+                        <SettingSection
+                            title="Background"
+                            description="Show a photo behind the clock. A new image appears every 5 minutes."
+                        >
+                            <AnimatedTabs
+                                activeTab={showBackground ? 'yes' : 'no'}
+                                className="w-full"
+                                onChange={(tabId) => onShowBackgroundChange(tabId === 'yes')}
+                                tabs={[
+                                    { id: 'yes', label: 'Yes' },
+                                    { id: 'no', label: 'No' },
+                                ]}
+                                variant="segment"
+                            />
+                        </SettingSection>
+                        <SettingSection title="Announcement" description="Show a message below the clock.">
+                            <Textarea
+                                value={announcement}
+                                onChange={(event) => onAnnouncementChange(event.target.value)}
+                                placeholder="Announcement"
+                                rows={2}
+                                aria-label="Announcement"
+                            />
+                        </SettingSection>
+                    </div>
+                </div>
+                <div className="flex shrink-0 justify-end border-t border-border px-6 py-4">
+                    <SmoothButton
+                        type="button"
+                        className="w-full md:w-auto"
+                        onClick={() => onOpenChange(false)}
+                        prefix={<XIcon aria-hidden />}
+                    >
+                        Close
+                    </SmoothButton>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+type ClockToolbarProps = {
+    propertiesOpen: boolean
+    fullscreen: boolean
+    elevated: boolean
+    onPropertiesOpen: () => void
+    onFullscreenChange: () => void
+}
+
+function ClockToolbar({ propertiesOpen, fullscreen, elevated, onPropertiesOpen, onFullscreenChange }: ClockToolbarProps) {
     const fullscreenLabel = fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'
 
     return (
         <TooltipProvider>
-            <div className="flex flex-row items-center justify-end gap-2">
-                <ButtonGroup aria-label="Clock display">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                aria-label={viewLabel}
-                                onClick={() => onViewChange(view === 'analog' ? 'digital' : 'analog')}
-                            >
-                                {view === 'analog' ? <BinaryIcon aria-hidden /> : <ClockIcon aria-hidden />}
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top">{viewLabel}</TooltipContent>
-                    </Tooltip>
-                    {view === 'digital' ? (
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="icon"
-                                    aria-label={hourCycleLabel}
-                                    className="tabular-nums"
-                                    onClick={() => onHourCycleChange(hourCycle === 'h12' ? 'h23' : 'h12')}
-                                >
-                                    {hourCycle === 'h12' ? '24' : '12'}
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top">{hourCycleLabel}</TooltipContent>
-                        </Tooltip>
-                    ) : null}
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                aria-label={secondsLabel}
-                                aria-pressed={showSeconds}
-                                className={cn(showSeconds && 'bg-muted')}
-                                onClick={() => onShowSecondsChange(!showSeconds)}
-                            >
-                                {showSeconds ? <TimerIcon aria-hidden /> : <TimerOffIcon aria-hidden />}
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top">{secondsLabel}</TooltipContent>
-                    </Tooltip>
-                </ButtonGroup>
+            <div className="m-2 flex flex-row items-center justify-end gap-2">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            aria-label="Properties"
+                            aria-haspopup="dialog"
+                            aria-expanded={propertiesOpen}
+                            className={cn(elevated && 'shadow-md')}
+                            onClick={onPropertiesOpen}
+                        >
+                            <SlidersHorizontalIcon aria-hidden />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Properties</TooltipContent>
+                </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button
@@ -138,7 +242,7 @@ function ClockToolbar({
                             size="icon"
                             aria-label={fullscreenLabel}
                             aria-pressed={fullscreen}
-                            className={cn(fullscreen && 'bg-muted')}
+                            className={cn(fullscreen && 'bg-muted', elevated && 'shadow-md')}
                             onClick={onFullscreenChange}
                         >
                             {fullscreen ? <Minimize2Icon aria-hidden /> : <FullscreenIcon aria-hidden />}
@@ -157,6 +261,12 @@ export function ClockView() {
     const [view, setView] = useState<ClockViewMode>('analog')
     const [hourCycle, setHourCycle] = useState<HourCycle>('h23')
     const [showSeconds, setShowSeconds] = useState(true)
+    const [showBackground, setShowBackground] = useState(false)
+    const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null)
+    const [announcement, setAnnouncement] = useState('')
+    const [propertiesOpen, setPropertiesOpen] = useState(false)
+    const propertiesOpenRef = useRef(false)
+    propertiesOpenRef.current = propertiesOpen
     const fullscreen = useClockFullscreen((state) => state.active)
     const setFullscreen = useClockFullscreen((state) => state.setActive)
     const pieces = clockPieces(now, hourCycle, showSeconds)
@@ -182,6 +292,29 @@ export function ClockView() {
     }, [])
 
     useEffect(() => {
+        if (!showBackground) return
+
+        let cancelled = false
+
+        function loadNextImage() {
+            const url = backgroundImageUrl(Date.now())
+            const image = new Image()
+            image.onload = () => {
+                if (!cancelled) setBackgroundUrl(url)
+            }
+            image.src = url
+        }
+
+        loadNextImage()
+        const intervalId = window.setInterval(loadNextImage, BACKGROUND_INTERVAL_MS)
+        return () => {
+            cancelled = true
+            window.clearInterval(intervalId)
+            setBackgroundUrl(null)
+        }
+    }, [showBackground])
+
+    useEffect(() => {
         return () => setFullscreen(false)
     }, [setFullscreen])
 
@@ -192,6 +325,7 @@ export function ClockView() {
         document.body.style.overflow = 'hidden'
 
         function onKeyDown(event: KeyboardEvent) {
+            if (propertiesOpenRef.current) return
             if (event.key === 'Escape') {
                 setFullscreen(false)
                 return
@@ -227,71 +361,104 @@ export function ClockView() {
         <div
             ref={stageRef}
             className={cn(
-                'flex min-h-0 flex-1 flex-col',
+                'relative flex min-h-0 flex-1 flex-col overflow-hidden',
                 fullscreen && 'fixed inset-0 z-40 bg-background p-4 sm:p-6',
             )}
         >
+            {backgroundUrl ? (
+                <img
+                    src={backgroundUrl}
+                    alt=""
+                    className="pointer-events-none absolute inset-0 size-full object-cover rounded-2xl"
+                />
+            ) : null}
             <h1 className="sr-only">Clock</h1>
-            <div className="grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)]">
+            <div className="relative z-10 grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)]">
                 <ClockToolbar
-                    view={view}
-                    hourCycle={hourCycle}
-                    showSeconds={showSeconds}
+                    propertiesOpen={propertiesOpen}
                     fullscreen={fullscreen}
-                    onViewChange={setView}
-                    onHourCycleChange={setHourCycle}
-                    onShowSecondsChange={setShowSeconds}
+                    elevated={backgroundUrl !== null}
+                    onPropertiesOpen={() => setPropertiesOpen(true)}
                     onFullscreenChange={() => setFullscreen(!fullscreen)}
                 />
-                <div className="@container flex w-full min-w-0 items-center justify-center">
-                    {view === 'analog' ? (
-                        <ReactClock
-                            className="analog-clock"
-                            value={now}
-                            size={250}
-                            renderSecondHand={showSeconds}
-                            hourHandLength={60}
-                            hourHandOppositeLength={20}
-                            hourHandWidth={8}
-                            hourMarksLength={20}
-                            hourMarksWidth={8}
-                            minuteHandLength={90}
-                            minuteHandOppositeLength={20}
-                            minuteHandWidth={6}
-                            minuteMarksWidth={3}
-                            secondHandLength={75}
-                            secondHandOppositeLength={25}
-                            secondHandWidth={3}
-                        />
-                    ) : (
-                        <time
-                            dateTime={now.toISOString()}
-                            suppressHydrationWarning
-                            className="flex max-w-full items-baseline justify-center gap-[0.12em] px-2 text-center text-[clamp(4rem,14cqw,11rem)] leading-none font-medium tracking-tight text-foreground tabular-nums"
-                        >
-                            {pieces.map((piece, index) =>
-                                piece.kind === 'period' ? (
-                                    <span
-                                        key={`${piece.kind}-${index}`}
-                                        suppressHydrationWarning
-                                        className="text-[0.22em] font-semibold tracking-wide whitespace-nowrap text-muted-foreground"
-                                    >
-                                        {piece.value}
-                                    </span>
-                                ) : (
-                                    <span
-                                        key={`${piece.kind}-${index}`}
-                                        suppressHydrationWarning
-                                        className="whitespace-nowrap"
-                                    >
-                                        {piece.value}
-                                    </span>
-                                ),
+                <div className="@container flex h-full min-h-0 w-full min-w-0 flex-col items-center">
+                    <div className="clock-face-slot flex min-h-0 w-full flex-1 items-center justify-center">
+                        {view === 'analog' ? (
+                            <ReactClock
+                                className="analog-clock"
+                                value={now}
+                                size={250}
+                                renderSecondHand={showSeconds}
+                                hourHandLength={60}
+                                hourHandOppositeLength={20}
+                                hourHandWidth={8}
+                                hourMarksLength={20}
+                                hourMarksWidth={8}
+                                minuteHandLength={90}
+                                minuteHandOppositeLength={20}
+                                minuteHandWidth={6}
+                                minuteMarksWidth={3}
+                                secondHandLength={75}
+                                secondHandOppositeLength={25}
+                                secondHandWidth={3}
+                            />
+                        ) : (
+                            <time
+                                dateTime={now.toISOString()}
+                                suppressHydrationWarning
+                                className={cn(
+                                    'flex max-h-full max-w-full items-baseline justify-center gap-[0.12em] px-2 text-center text-[clamp(4rem,14cqw,11rem)] leading-none font-medium tracking-tight text-foreground tabular-nums',
+                                    backgroundUrl && 'rounded-[1.5rem] bg-background/80 px-[0.28em] py-[0.08em] shadow-lg backdrop-blur-md',
+                                )}
+                            >
+                                {pieces.map((piece, index) =>
+                                    piece.kind === 'period' ? (
+                                        <span
+                                            key={`${piece.kind}-${index}`}
+                                            suppressHydrationWarning
+                                            className="text-[0.22em] font-semibold tracking-wide whitespace-nowrap text-muted-foreground"
+                                        >
+                                            {piece.value}
+                                        </span>
+                                    ) : (
+                                        <span
+                                            key={`${piece.kind}-${index}`}
+                                            suppressHydrationWarning
+                                            className="whitespace-nowrap"
+                                        >
+                                            {piece.value}
+                                        </span>
+                                    ),
+                                )}
+                            </time>
+                        )}
+                    </div>
+                    {announcement.trim() ? (
+                        <p
+                            className={cn(
+                                'max-w-3xl shrink-0 px-4 pt-4 pb-2 text-center text-[clamp(1.25rem,4cqw,2.25rem)] leading-snug font-medium text-balance whitespace-pre-wrap text-foreground',
+                                backgroundUrl && 'rounded-2xl bg-background/80 shadow-lg backdrop-blur-md',
                             )}
-                        </time>
-                    )}
+                        >
+                            {announcement}
+                        </p>
+                    ) : null}
                 </div>
             </div>
+            <ClockPropertiesDialog
+                open={propertiesOpen}
+                view={view}
+                hourCycle={hourCycle}
+                showSeconds={showSeconds}
+                showBackground={showBackground}
+                announcement={announcement}
+                onOpenChange={setPropertiesOpen}
+                onViewChange={setView}
+                onHourCycleChange={setHourCycle}
+                onShowSecondsChange={setShowSeconds}
+                onShowBackgroundChange={setShowBackground}
+                onAnnouncementChange={setAnnouncement}
+            />
         </div>
     )
 }

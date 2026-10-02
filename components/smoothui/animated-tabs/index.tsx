@@ -129,18 +129,18 @@ export default function AnimatedTabs({
 
     const getTabStyles = (isActive: boolean) =>
         cn(
-            'relative z-10 flex flex-col items-center justify-center gap-1 px-2 pt-2 pb-4 text-center font-medium text-sm transition-colors md:flex-row md:gap-2 md:px-4 md:text-left',
+            'relative z-10 flex items-center justify-center font-medium text-sm transition-colors',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             variant === 'underline' && [
-                'flex-1 rounded-t-md',
+                'flex-1 flex-col gap-1 rounded-t-md px-2 pt-2 pb-4 text-center md:flex-row md:gap-2 md:px-4 md:text-left',
                 isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             ],
             variant === 'pill' && [
-                'rounded-full',
+                'gap-2 rounded-full px-4 py-2.5 text-center',
                 isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             ],
             variant === 'segment' && [
-                'flex-1 rounded-md',
+                'flex-1 gap-2 rounded-md px-4 py-2.5 text-center',
                 isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             ],
         )

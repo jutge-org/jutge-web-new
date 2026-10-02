@@ -130,9 +130,9 @@ export function Radio({
     }
     return (
       <motion.div
-        animate={{ opacity: 1, transform: "translateY(0px)" }}
+        animate={{ opacity: 1, y: 0 }}
         className="flex items-center gap-2"
-        initial={{ opacity: 0, transform: "translateY(4px)" }}
+        initial={{ opacity: 0, y: 4 }}
         transition={{
           ...SPRING_DEFAULT,
           delay: staggerDelay,
@@ -148,11 +148,11 @@ export function Radio({
       <motion.div
         className="relative"
         transition={shouldReduceMotion ? { duration: 0 } : SPRING_DEFAULT}
-        whileHover={shouldReduceMotion ? {} : { transform: "scale(1.1)" }}
+        whileHover={shouldReduceMotion ? undefined : { scale: 1.1 }}
       >
         <RadioGroupPrimitive.Item
           className={cn(
-            "group/radio aspect-square size-4 shrink-0 rounded-full border border-input bg-background shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-brand dark:bg-input/30 dark:aria-invalid:ring-destructive/40",
+            "group/radio relative flex aspect-square size-4 shrink-0 items-center justify-center rounded-full border border-input bg-background shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-brand dark:bg-input/30 dark:aria-invalid:ring-destructive/40",
             className
           )}
           data-slot="radio-group-item"
@@ -168,7 +168,7 @@ export function Radio({
               animate={
                 shouldReduceMotion
                   ? { opacity: 1 }
-                  : { opacity: 1, transform: "scale(1)" }
+                  : { opacity: 1, scale: 1 }
               }
               className="block size-2 rounded-full bg-brand"
               exit={
@@ -176,14 +176,14 @@ export function Radio({
                   ? { opacity: 0, transition: { duration: 0 } }
                   : {
                       opacity: 0,
-                      transform: "scale(0)",
+                      scale: 0,
                       transition: { ...SPRING_DEFAULT, bounce: 0 },
                     }
               }
               initial={
                 shouldReduceMotion
                   ? { opacity: 1 }
-                  : { opacity: 0, transform: "scale(0)" }
+                  : { opacity: 0, scale: 0 }
               }
               transition={shouldReduceMotion ? { duration: 0 } : SPRING_DOT}
             />

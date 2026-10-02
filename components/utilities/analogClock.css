@@ -1,9 +1,14 @@
+/* The face slot is a size container so the clock can shrink to leave room for an announcement. */
+.clock-face-slot {
+    container-type: size;
+}
+
 /* Proportions match the react-clock demo drawn at 250px, scaled up to the page size. */
 .analog-clock {
     background-color: #fff;
     border-radius: 50%;
     box-shadow: 0 30px 40px 0 #10245e33;
-    zoom: calc(min(70vmin, 32rem) / 250px);
+    zoom: calc(min(70vmin, 32rem, 100cqb, 100cqi) / 250px);
 }
 
 .analog-clock .react-clock__face {
