@@ -17,7 +17,7 @@ import { sleep } from 'radash'
 import { Dispatch, JSX, SetStateAction, useState } from 'react'
 import Dropzone from 'shadcn-dropzone'
 import { toast } from 'sonner'
-import { ZodSchema } from 'zod'
+import { type ZodType } from 'zod'
 import { cn, commandFilter } from '@/lib/utils'
 import { DateTimePicker } from '@/components/instructor/DateTime'
 import { MultiSelect } from '@/components/instructor/MultiSelect'
@@ -39,7 +39,7 @@ export type JFormInputField = {
     label: string | JSX.Element
     value: string
     setValue?: (value: string) => void
-    validator?: ZodSchema
+    validator?: ZodType
     disabled?: boolean
     placeHolder?: string
     help?: string | JSX.Element
@@ -50,7 +50,7 @@ export type JFormNumberField = {
     label: string | JSX.Element
     value: number
     setValue?: (value: number) => void
-    validator?: ZodSchema
+    validator?: ZodType
     disabled?: boolean
     placeHolder?: string
     help?: string | JSX.Element
@@ -61,7 +61,7 @@ export type JFormPasswordField = {
     label: string | JSX.Element
     value: string | null
     setValue?: (value: string) => void
-    validator?: ZodSchema
+    validator?: ZodType
     disabled?: boolean
     placeHolder?: string
     help?: string | JSX.Element
@@ -72,7 +72,7 @@ export type JFormTextareaField = {
     label: string | JSX.Element
     value: string
     setValue: (value: string) => void
-    validator?: ZodSchema
+    validator?: ZodType
     disabled?: boolean
     placeHolder?: string
     rows?: number
@@ -84,7 +84,7 @@ export type JFormHtmlField = {
     label: string | JSX.Element
     value: string
     setValue: (value: string) => void
-    validator?: ZodSchema
+    validator?: ZodType
     disabled?: boolean
     placeHolder?: string
     help?: string | JSX.Element
@@ -95,7 +95,7 @@ export type JFormMarkdownField = {
     label: string | JSX.Element
     value: string
     setValue?: (value: string) => void
-    validator?: ZodSchema
+    validator?: ZodType
     disabled?: boolean
     placeHolder?: string
     help?: string | JSX.Element
@@ -106,7 +106,7 @@ export type JFormFileField = {
     label: string | JSX.Element
     value: File | null
     setValue: Dispatch<SetStateAction<File | null>>
-    validator?: ZodSchema
+    validator?: ZodType
     accept?: string[]
     disabled?: boolean
     help?: string | JSX.Element
@@ -118,7 +118,7 @@ export type JFormSwitchField = {
     value: boolean
     setValue: (value: boolean) => void
     disabled?: boolean
-    validator?: ZodSchema
+    validator?: ZodType
     help?: string | JSX.Element
 }
 
