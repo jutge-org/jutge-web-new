@@ -484,3 +484,16 @@ html[data-reduced-motion='reduce'] *::after {
 .jscpp-debug-line {
     background-color: color-mix(in oklch, var(--primary) 28%, transparent) !important;
 }
+
+/* MDEditor dark mode uses GitHub's canvas (#0d1117). Match form controls (`dark:bg-input/30`).
+   Only the editor root paints that fill. The toolbar and preview sit on top of it, so they stay
+   transparent; another copy of the same translucent color would stack and look lighter. */
+.dark .w-md-editor.wmde-markdown-var {
+    --color-canvas-default: color-mix(in oklab, var(--input) 30%, transparent);
+    --md-editor-box-shadow-color: var(--input);
+}
+
+.dark .w-md-editor .w-md-editor-toolbar,
+.dark .w-md-editor .wmde-markdown {
+    background-color: transparent;
+}
