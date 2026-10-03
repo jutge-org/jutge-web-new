@@ -1,7 +1,7 @@
 'use client'
 
 import MDEditor from '@uiw/react-md-editor'
-import { UserPenIcon } from 'lucide-react'
+import { PenOffIcon, UserPenIcon } from 'lucide-react'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 
@@ -75,6 +75,23 @@ export function UserProfileEditForm({ profile, countries }: UserProfileEditFormP
                     }}
                 >
                     <dl className="px-6 py-4">
+                        <ProfileFormRow label="Email" htmlFor="profile-email">
+                            <div className="relative w-full">
+                                <Input
+                                    id="profile-email"
+                                    type="email"
+                                    value={profile.email}
+                                    readOnly
+                                    autoComplete="email"
+                                    className="w-full pr-10"
+                                />
+                                <PenOffIcon
+                                    className="absolute right-0 top-0 m-2.5 h-4 w-4 text-muted-foreground"
+                                    aria-hidden
+                                />
+                            </div>
+                        </ProfileFormRow>
+
                         <ProfileFormRow label="Name" htmlFor="profile-name">
                             <Input
                                 id="profile-name"
