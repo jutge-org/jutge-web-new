@@ -1,14 +1,13 @@
 'use client'
 
-import { HandIcon, XIcon } from 'lucide-react'
-import Image from 'next/image'
-
-import { ExternalLink } from '@/components/ExternalLink'
 import { HomeWidgetCard } from '@/components/general/HomeWidgetCard'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { GITHUB_REPO_URL } from '@/lib/github'
 import { useOpenWebSettingsStore } from '@/store/openWebSettings'
+import { HandIcon, XIcon } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export function HomeWelcome() {
     const modules = useOpenWebSettingsStore((state) => state.settings.dashboard.modules)
@@ -56,19 +55,21 @@ export function HomeWelcome() {
                     <p className="min-w-0 text-sm leading-relaxed text-muted-foreground">
                         This site is under construction and, in the future, will be the definitive website of Jutge.org.
                         Please use{' '}
-                        <ExternalLink
+                        <Link
                             href={GITHUB_REPO_URL}
                             className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
+                            target="_blank"
                         >
                             https://jutge.org
-                        </ExternalLink>{' '}
+                        </Link>{' '}
                         if you find any problem. Please report issues and contribute enhancements through the{' '}
-                        <ExternalLink
+                        <Link
                             href={GITHUB_REPO_URL}
                             className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
+                            target="_blank"
                         >
                             GitHub repository
-                        </ExternalLink>
+                        </Link>
                         .
                     </p>
                 </div>
