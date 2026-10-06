@@ -66,6 +66,7 @@ import {
     Settings2Icon,
     SquareIcon,
     SquareTerminalIcon,
+    SquareTextIcon,
     StretchHorizontalIcon,
     SunMoonIcon,
     TerminalIcon,
@@ -107,6 +108,7 @@ function InterpreterSectionIcon({ href }: { href: string }) {
 
 function UtilitySectionIcon({ href }: { href: string }) {
     const className = 'size-3.5 shrink-0'
+    if (href === '/utilities/editor') return <SquareTextIcon className={className} aria-hidden />
     if (href === '/utilities/whiteboard') return <LineSquiggleIcon className={className} aria-hidden />
     if (href === '/utilities/blackscreen') return <MonitorOffIcon className={className} aria-hidden />
     if (href === '/utilities/clock') return <ClockIcon className={className} aria-hidden />

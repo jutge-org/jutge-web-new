@@ -179,6 +179,8 @@ function utilityKeywords(label: (typeof utilitiesIndexItems)[number]['label']): 
     switch (label) {
         case 'Translator':
             return ['Translate', 'Translation', 'Language']
+        case 'Editor':
+            return ['Code', 'Monaco', 'Source', 'Syntax']
         case 'Whiteboard':
             return ['Sketch', 'Diagram']
         case 'Black screen':

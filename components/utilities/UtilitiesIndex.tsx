@@ -1,10 +1,11 @@
 import { utilitiesIndexItems } from '@/lib/utilities'
 import { cn } from '@/lib/utils'
-import { ClockIcon, LanguagesIcon, LineSquiggleIcon, MonitorOffIcon, PocketKnifeIcon } from 'lucide-react'
+import { ClockIcon, LanguagesIcon, LineSquiggleIcon, MonitorOffIcon, PocketKnifeIcon, SquareTextIcon } from 'lucide-react'
 import Link from 'next/link'
 
 const indexIcons: Record<string, typeof PocketKnifeIcon> = {
     Translator: LanguagesIcon,
+    Editor: SquareTextIcon,
     Whiteboard: LineSquiggleIcon,
     'Black screen': MonitorOffIcon,
     Clock: ClockIcon,

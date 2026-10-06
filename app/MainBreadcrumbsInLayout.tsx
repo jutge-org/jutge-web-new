@@ -86,6 +86,7 @@ import {
     User,
     PocketKnifeIcon,
     SquareTerminalIcon,
+    SquareTextIcon,
     WrenchIcon,
     LanguagesIcon,
     LineSquiggleIcon,
@@ -243,6 +244,8 @@ function MainNavUtilitiesSubItemIcon({ href }: { href: string }) {
     switch (href) {
         case '/utilities/translator':
             return <LanguagesIcon aria-hidden />
+        case '/utilities/editor':
+            return <SquareTextIcon aria-hidden />
         case '/utilities/whiteboard':
             return <LineSquiggleIcon aria-hidden />
         case '/utilities/blackscreen':
