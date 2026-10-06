@@ -418,7 +418,7 @@ export function MainBreadcrumbsInLayout() {
     useEffect(() => {
         const el = scrollRef.current
         if (!el) return
-        el.scrollLeft = el.scrollWidth
+        el.scrollLeft = el.scrollWidth - el.clientWidth
     }, [breadcrumbs])
 
     function linkIsCurrentMainSection(linkHref: string): boolean {
@@ -428,14 +428,9 @@ export function MainBreadcrumbsInLayout() {
     }
 
     return (
-        <Breadcrumb
-            ref={scrollRef}
-            className="min-w-0 flex-1 overflow-x-auto font-bold tracking-tight [scrollbar-width:thin]"
-        >
-            <BreadcrumbList className="flex-nowrap gap-2 text-base text-foreground sm:gap-2">
-                <BreadcrumbItem className="shrink-0">
-                    <div className="flex items-center gap-1">
-                        <DropdownMenu>
+        <div className="flex min-w-0 flex-1 items-center font-bold tracking-tight">
+            <div className="flex shrink-0 items-center gap-1">
+                <DropdownMenu>
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -557,63 +552,72 @@ export function MainBreadcrumbsInLayout() {
                                     </Fragment>
                                 ))}
                             </SmoothDropdownMenuContent>
-                        </DropdownMenu>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <BreadcrumbLink asChild>
-                                        <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img
-                                                src="/logos/jutge.svg"
-                                                alt="Jutge.org"
-                                                className="ml-3 h-6 w-auto dark:invert"
-                                            />
-                                        </Link>
-                                    </BreadcrumbLink>
-                                </TooltipTrigger>
-                                <TooltipContent>Home</TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                        {menuAnchor && menuAnchor.url !== '/' ? (
-                            <BreadcrumbLink asChild className="ml-3">
-                                <Link
-                                    href={menuAnchor.url}
-                                    className="shrink-0 font-semibold text-foreground transition-colors hover:text-primary hover:underline hover:underline-offset-4"
-                                >
-                                    {menuAnchor.title}
-                                </Link>
-                            </BreadcrumbLink>
-                        ) : (
-                            <BreadcrumbPage className="ml-3 shrink-0 font-bold">Jutge.org</BreadcrumbPage>
-                        )}
-                    </div>
-                </BreadcrumbItem>
+                </DropdownMenu>
+            </div>
+            <Breadcrumb
+                ref={scrollRef}
+                className="min-w-0 flex-1 overflow-x-auto [scrollbar-width:thin]"
+            >
+                <BreadcrumbList className="flex-nowrap gap-2 text-base text-foreground sm:gap-2">
+                    <BreadcrumbItem className="shrink-0">
+                        <div className="flex items-center gap-1">
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <BreadcrumbLink asChild>
+                                            <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src="/logos/jutge.svg"
+                                                    alt="Jutge.org"
+                                                    className="ml-3 h-6 w-auto dark:invert"
+                                                />
+                                            </Link>
+                                        </BreadcrumbLink>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Home</TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            {menuAnchor && menuAnchor.url !== '/' ? (
+                                <BreadcrumbLink asChild className="ml-3">
+                                    <Link
+                                        href={menuAnchor.url}
+                                        className="shrink-0 font-semibold text-foreground transition-colors hover:text-primary hover:underline hover:underline-offset-4"
+                                    >
+                                        {menuAnchor.title}
+                                    </Link>
+                                </BreadcrumbLink>
+                            ) : (
+                                <BreadcrumbPage className="ml-3 shrink-0 font-bold">Jutge.org</BreadcrumbPage>
+                            )}
+                        </div>
+                    </BreadcrumbItem>
 
-                {trail.map((segment, index) => {
-                    const isLast = index === trail.length - 1
+                    {trail.map((segment, index) => {
+                        const isLast = index === trail.length - 1
 
-                    return (
-                        <Fragment key={`${segment.url}::${index}`}>
-                            <BreadcrumbSeparator className="shrink-0" />
-                            <BreadcrumbItem className="min-w-0 max-w-48 shrink-0 sm:max-w-md">
-                                {isLast ? (
-                                    <BreadcrumbPage className="truncate font-semibold">{segment.title}</BreadcrumbPage>
-                                ) : (
-                                    <BreadcrumbLink asChild>
-                                        <Link
-                                            href={segment.url}
-                                            className="truncate font-semibold text-foreground hover:text-primary hover:underline hover:underline-offset-4"
-                                        >
-                                            {segment.title}
-                                        </Link>
-                                    </BreadcrumbLink>
-                                )}
-                            </BreadcrumbItem>
-                        </Fragment>
-                    )
-                })}
-            </BreadcrumbList>
-        </Breadcrumb>
+                        return (
+                            <Fragment key={`${segment.url}::${index}`}>
+                                <BreadcrumbSeparator className="shrink-0" />
+                                <BreadcrumbItem className="min-w-0 max-w-48 shrink-0 sm:max-w-md">
+                                    {isLast ? (
+                                        <BreadcrumbPage className="truncate font-semibold">{segment.title}</BreadcrumbPage>
+                                    ) : (
+                                        <BreadcrumbLink asChild>
+                                            <Link
+                                                href={segment.url}
+                                                className="truncate font-semibold text-foreground hover:text-primary hover:underline hover:underline-offset-4"
+                                            >
+                                                {segment.title}
+                                            </Link>
+                                        </BreadcrumbLink>
+                                    )}
+                                </BreadcrumbItem>
+                            </Fragment>
+                        )
+                    })}
+                </BreadcrumbList>
+            </Breadcrumb>
+        </div>
     )
 }
