@@ -3,10 +3,10 @@
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { useRecents } from '@/components/RecentsProvider'
-import { Button } from '@/components/ui/button'
+import { SmoothDropdownMenuContent } from '@/components/smoothui/dropdown-menu/animated-content'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import {
     DropdownMenu,
-    DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
@@ -79,15 +79,21 @@ export function RecentMenu() {
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <DropdownMenuTrigger asChild>
-                            <Button type="button" variant="outline" size="icon" aria-label="Recent items">
-                                <HistoryIcon className="size-4.5" aria-hidden />
-                            </Button>
+                            <SmoothButton
+                                type="button"
+                                variant="outline"
+                                size="icon-sm"
+                                className="size-8 [&_svg]:size-4.5"
+                                aria-label="Recent items"
+                            >
+                                <HistoryIcon aria-hidden />
+                            </SmoothButton>
                         </DropdownMenuTrigger>
                     </TooltipTrigger>
                     <TooltipContent>Recent items</TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <DropdownMenuContent
+            <SmoothDropdownMenuContent
                 align="end"
                 className="min-w-64 max-w-80 **:data-[slot=dropdown-menu-item]:py-1.5 **:data-[slot=dropdown-menu-item]:text-base"
             >
@@ -132,7 +138,7 @@ export function RecentMenu() {
                     )}
                     emptyLabel="No recent submissions"
                 />
-            </DropdownMenuContent>
+            </SmoothDropdownMenuContent>
         </DropdownMenu>
     )
 }

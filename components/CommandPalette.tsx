@@ -8,6 +8,8 @@ import {
     type CommandPaletteCourse,
 } from '@/lib/data/commandPalette'
 import { CommandSearchInput } from '@/components/CommandSearchInput'
+import { SmoothCommandDialog } from '@/components/smoothui/command/dialog'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { useLayoutWidth } from '@/components/layout/LayoutWidthProvider'
@@ -15,7 +17,6 @@ import { useRecents } from '@/components/RecentsProvider'
 import { SignInDialog } from '@/components/SignInDialog'
 import {
     Command,
-    CommandDialog,
     CommandEmpty,
     CommandGroup,
     CommandItem,
@@ -437,24 +438,28 @@ export function CommandPalette() {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <button
+                        <SmoothButton
                             type="button"
+                            variant="outline"
+                            size="sm"
                             aria-label="Quick search"
                             onClick={() => setOpen(true)}
-                            className="hidden h-8 w-40 items-center gap-2 rounded-md border border-input bg-muted/40 px-2.5 text-sm text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:inline-flex"
+                            className="hidden h-8 w-40 justify-start gap-2 bg-muted/40 px-2.5 font-normal text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground md:inline-flex"
+                            prefix={<SearchIcon className="size-4 shrink-0" aria-hidden />}
+                            suffix={
+                                <span className="hidden shrink-0 sm:inline-flex">
+                                    <SearchShortcutHint />
+                                </span>
+                            }
                         >
-                            <SearchIcon className="size-4 shrink-0" aria-hidden />
                             <span className="min-w-0 flex-1 truncate text-left">Search…</span>
-                            <span className="hidden shrink-0 sm:inline-flex">
-                                <SearchShortcutHint />
-                            </span>
-                        </button>
+                        </SmoothButton>
                     </TooltipTrigger>
                     <TooltipContent>Quick search</TooltipContent>
                 </Tooltip>
             </TooltipProvider>
 
-            <CommandDialog
+            <SmoothCommandDialog
                 open={open}
                 onOpenChange={setOpen}
                 title="Quick search"
@@ -804,7 +809,7 @@ export function CommandPalette() {
                         ) : null}
                     </CommandList>
                 </Command>
-            </CommandDialog>
+            </SmoothCommandDialog>
 
             {!authenticated ? (
                 <SignInDialog

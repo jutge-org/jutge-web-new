@@ -5,10 +5,10 @@ import { useState, useTransition } from 'react'
 
 import { useAuth } from '@/components/AuthProvider'
 import { SignInDialog } from '@/components/SignInDialog'
-import { Button } from '@/components/ui/button'
+import { SmoothDropdownMenuContent } from '@/components/smoothui/dropdown-menu/animated-content'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import {
     DropdownMenu,
-    DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
@@ -51,21 +51,27 @@ export function AuthToolbar() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <DropdownMenuTrigger asChild>
-                                <Button type="button" variant="outline" size="icon" aria-label="User menu">
+                                <SmoothButton
+                                    type="button"
+                                    variant="outline"
+                                    size="icon-sm"
+                                    className="size-8 [&_svg]:size-4.5"
+                                    aria-label="User menu"
+                                >
                                     {administrator ? (
-                                        <CrownIcon className="size-4.5" aria-hidden />
+                                        <CrownIcon aria-hidden />
                                     ) : instructor ? (
-                                        <GraduationCapIcon className="size-4.5" aria-hidden />
+                                        <GraduationCapIcon aria-hidden />
                                     ) : (
-                                        <User className="size-4.5" aria-hidden />
+                                        <User aria-hidden />
                                     )}
-                                </Button>
+                                </SmoothButton>
                             </DropdownMenuTrigger>
                         </TooltipTrigger>
                         <TooltipContent>{userName ?? 'User menu'}</TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
-                <DropdownMenuContent
+                <SmoothDropdownMenuContent
                     align="end"
                     className="min-w-48 **:data-[slot=dropdown-menu-item]:py-1.5 **:data-[slot=dropdown-menu-item]:text-base mr-4"
                 >
@@ -95,7 +101,7 @@ export function AuthToolbar() {
                         <SignOut aria-hidden />
                         Sign out
                     </DropdownMenuItem>
-                </DropdownMenuContent>
+                </SmoothDropdownMenuContent>
             </DropdownMenu>
         )
     }
@@ -105,15 +111,16 @@ export function AuthToolbar() {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button
+                        <SmoothButton
                             variant="outline"
-                            size="icon"
+                            size="icon-sm"
+                            className="size-8 [&_svg]:size-4.5"
                             type="button"
                             aria-label="Sign in"
                             onClick={() => setDialogOpen(true)}
                         >
                             <SignIn aria-hidden />
-                        </Button>
+                        </SmoothButton>
                     </TooltipTrigger>
                     <TooltipContent>Sign in</TooltipContent>
                 </Tooltip>

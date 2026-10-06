@@ -12,7 +12,7 @@ import { RootShell } from '@/components/RootShell'
 import { MainBreadcrumbsInLayout } from '@/app/MainBreadcrumbsInLayout'
 import { useAuth } from '@/components/AuthProvider'
 import { SubNavInLayout } from '@/components/layout/SubNavInLayout'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { dispatchOpenAppearanceSettings } from '@/lib/appearanceSettings'
 import { isContextualHeaderGradientsEnabled } from '@/lib/contextualHeaderGradients'
@@ -70,15 +70,16 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button
+                                            <SmoothButton
                                                 type="button"
                                                 variant="outline"
-                                                size="icon"
+                                                size="icon-sm"
+                                                className="size-8 [&_svg]:size-4.5"
                                                 aria-label="Settings"
                                                 onClick={dispatchOpenAppearanceSettings}
                                             >
-                                                <Settings2Icon className="size-4.5" aria-hidden />
-                                            </Button>
+                                                <Settings2Icon aria-hidden />
+                                            </SmoothButton>
                                         </TooltipTrigger>
                                         <TooltipContent>Settings</TooltipContent>
                                     </Tooltip>

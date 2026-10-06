@@ -4,7 +4,7 @@ import { Command as CommandPrimitive } from 'cmdk'
 import { MicIcon, MicOffIcon } from 'lucide-react'
 import { useCallback, useRef, type ComponentProps } from 'react'
 
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { InputGroup, InputGroupAddon } from '@/components/ui/input-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition'
@@ -69,7 +69,7 @@ export function CommandSearchInput({ className, onValueChange, value, ...props }
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button
+                                <SmoothButton
                                     type="button"
                                     variant="ghost"
                                     size="icon-sm"
@@ -81,7 +81,7 @@ export function CommandSearchInput({ className, onValueChange, value, ...props }
                                     aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
                                 >
                                     {isListening ? <MicOffIcon className="size-4" /> : <MicIcon className="size-4" />}
-                                </Button>
+                                </SmoothButton>
                             </TooltipTrigger>
                             <TooltipContent side="top">{isListening ? 'Stop listening' : 'Voice input'}</TooltipContent>
                         </Tooltip>

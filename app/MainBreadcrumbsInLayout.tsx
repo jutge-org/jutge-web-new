@@ -8,15 +8,17 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
+import {
+    SmoothDropdownMenuContent,
+    SmoothDropdownMenuSubContent,
+} from '@/components/smoothui/dropdown-menu/animated-content'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import {
     DropdownMenu,
-    DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuPortal,
     DropdownMenuSeparator,
     DropdownMenuSub,
-    DropdownMenuSubContent,
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -342,7 +344,7 @@ function MainNavRoleSubmenu({
                 {label}
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-                <DropdownMenuSubContent className="min-w-52 shadow-lg **:data-[slot=dropdown-menu-item]:py-1.5 **:data-[slot=dropdown-menu-item]:text-base">
+                <SmoothDropdownMenuSubContent className="min-w-52 shadow-lg **:data-[slot=dropdown-menu-item]:py-1.5 **:data-[slot=dropdown-menu-item]:text-base">
                     <DropdownMenuItem asChild>
                         <Link
                             href={indexHref}
@@ -376,7 +378,7 @@ function MainNavRoleSubmenu({
                             </DropdownMenuItem>
                         ),
                     )}
-                </DropdownMenuSubContent>
+                </SmoothDropdownMenuSubContent>
             </DropdownMenuPortal>
         </DropdownMenuSub>
     )
@@ -438,10 +440,11 @@ export function MainBreadcrumbsInLayout() {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <DropdownMenuTrigger asChild>
-                                            <Button
+                                            <SmoothButton
                                                 type="button"
                                                 variant="outline"
-                                                size="icon"
+                                                size="icon-sm"
+                                                className="size-8 [&_svg]:size-4"
                                                 aria-haspopup="menu"
                                                 aria-label={
                                                     menuAnchor
@@ -449,14 +452,14 @@ export function MainBreadcrumbsInLayout() {
                                                         : 'Open main menu'
                                                 }
                                             >
-                                                <MenuIcon className="size-4 shrink-0" aria-hidden />
-                                            </Button>
+                                                <MenuIcon className="shrink-0" aria-hidden />
+                                            </SmoothButton>
                                         </DropdownMenuTrigger>
                                     </TooltipTrigger>
                                     <TooltipContent>Main menu</TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
-                            <DropdownMenuContent
+                            <SmoothDropdownMenuContent
                                 align="start"
                                 className="min-w-52 -translate-y-2 translate-x-4 overflow-visible shadow-lg **:data-[slot=dropdown-menu-item]:py-1.5 **:data-[slot=dropdown-menu-item]:text-base **:data-[slot=dropdown-menu-sub-trigger]:py-1.5 **:data-[slot=dropdown-menu-sub-trigger]:text-base"
                             >
@@ -553,7 +556,7 @@ export function MainBreadcrumbsInLayout() {
                                         )}
                                     </Fragment>
                                 ))}
-                            </DropdownMenuContent>
+                            </SmoothDropdownMenuContent>
                         </DropdownMenu>
                         <TooltipProvider>
                             <Tooltip>
