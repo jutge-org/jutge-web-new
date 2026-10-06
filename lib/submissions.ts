@@ -153,6 +153,46 @@ export function buildLastSubmissionsByProblemNm(submissions: Submission[]): Map<
 
 export const PRIVATE_TESTCASE_NAME = '[privates]'
 
+export type SubmissionTestcaseType = 'sample' | 'hint' | 'public' | 'distilled' | 'private'
+
+const SUBMISSION_TESTCASE_TYPE_ORDER: Record<SubmissionTestcaseType, number> = {
+    sample: 0,
+    hint: 1,
+    public: 2,
+    distilled: 3,
+    private: 4,
+}
+
+export function getSubmissionTestcaseType(testcase: string): SubmissionTestcaseType {
+    if (testcase.includes('sample')) {
+        return 'sample'
+    }
+    if (testcase.startsWith('hint')) {
+        return 'hint'
+    }
+    if (testcase.startsWith('public')) {
+        return 'public'
+    }
+    if (testcase.startsWith('distilled')) {
+        return 'distilled'
+    }
+    return 'private'
+}
+
+export function compareSubmissionAnalysisByTestcase(a: { testcase: string }, b: { testcase: string }): number {
+    const typeOrder =
+        SUBMISSION_TESTCASE_TYPE_ORDER[getSubmissionTestcaseType(a.testcase)] -
+        SUBMISSION_TESTCASE_TYPE_ORDER[getSubmissionTestcaseType(b.testcase)]
+    if (typeOrder !== 0) {
+        return typeOrder
+    }
+    return a.testcase.localeCompare(b.testcase)
+}
+
+export function sortSubmissionAnalysisRows<T extends { testcase: string }>(rows: readonly T[]): T[] {
+    return [...rows].sort(compareSubmissionAnalysisByTestcase)
+}
+
 export function isLinkableTestcase(testcase: string): boolean {
     return testcase !== PRIVATE_TESTCASE_NAME
 }

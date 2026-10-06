@@ -3,7 +3,11 @@ import Link from 'next/link'
 import { VerdictLink } from '@/components/documentation/ReferenceLink'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { buildSubmissionTestcaseHref } from '@/lib/submissions'
+import {
+    buildSubmissionTestcaseHref,
+    getSubmissionTestcaseType,
+    sortSubmissionAnalysisRows,
+} from '@/lib/submissions'
 import type { SubmissionAnalysisRow } from '@/lib/data/submissions'
 
 type SubmissionAnalysisCardProps = {
@@ -19,6 +23,8 @@ export function SubmissionAnalysisCard({
     submissionId,
     getTestcaseHref,
 }: SubmissionAnalysisCardProps) {
+    const sortedAnalysis = sortSubmissionAnalysisRows(analysis)
+
     return (
         <Card className="gap-0 pt-2 pb-2 ring-0 border border-border shadow-sm">
             <CardHeader className="border-b border-border px-4 py-2">
@@ -29,12 +35,13 @@ export function SubmissionAnalysisCard({
                     <thead>
                         <tr>
                             <th className="pl-4 pr-8 pb-0.5 text-left font-semibold">Test case</th>
+                            <th className="pr-8 pb-0.5 text-left font-semibold">Type</th>
                             <th className="pr-8 pb-0.5 text-left font-semibold">Execution</th>
                             <th className="pb-1 text-left font-semibold">Verdict</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {analysis.map((row) => {
+                        {sortedAnalysis.map((row) => {
                             const href = getTestcaseHref
                                 ? getTestcaseHref(row.testcase)
                                 : buildSubmissionTestcaseHref(problemKey, submissionId, row.testcase)
@@ -43,12 +50,15 @@ export function SubmissionAnalysisCard({
                                 <tr key={row.testcase}>
                                     <td className="py-0.5 pl-4 pr-8">
                                         {href ? (
-                                            <Link href={href} className="text-primary hover:underline">
+                                            <Link href={href} className="text-primary underline">
                                                 {row.testcase}
                                             </Link>
                                         ) : (
                                             row.testcase
                                         )}
+                                    </td>
+                                    <td className="py-0.5 pr-8 text-muted-foreground">
+                                        {getSubmissionTestcaseType(row.testcase)}
                                     </td>
                                     <td className="py-0.5 pr-8">
                                         <span className="inline-flex items-center gap-2">
