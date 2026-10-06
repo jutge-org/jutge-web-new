@@ -576,52 +576,50 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
                                 <AArrowUpIcon />
                             </ToolbarIconButton>
                         </ButtonGroup>
-                        <ButtonGroup>
-                            <DropdownMenu>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                className="max-w-44 gap-1.5"
-                                                aria-label="Programming language"
-                                                disabled={languages.length === 0}
-                                            >
-                                                <DevIcon proglang={activeDocument?.proglang ?? DEFAULT_PROGLANG} size={16} />
-                                                <span className="truncate">
-                                                    {formatProglangName(activeDocument?.proglang ?? DEFAULT_PROGLANG)}
-                                                </span>
-                                                <ChevronDownIcon className="size-4 shrink-0 opacity-60" aria-hidden />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">Programming language</TooltipContent>
-                                </Tooltip>
-                                <DropdownMenuContent align="end" className="w-56">
-                                    <DropdownMenuRadioGroup
-                                        value={activeDocument?.proglang ?? DEFAULT_PROGLANG}
-                                        onValueChange={handleProglangChange}
-                                    >
-                                        {languages.map((entry) => (
-                                            <DropdownMenuRadioItem key={entry} value={entry} className="gap-2">
-                                                <DevIcon proglang={entry} size={16} />
-                                                <span>{formatProglangName(entry)}</span>
-                                            </DropdownMenuRadioItem>
-                                        ))}
-                                    </DropdownMenuRadioGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            <MonacoThemeMenu
-                                value={editorTheme}
-                                onValueChange={handleEditorThemeChange}
-                                onThemePreview={(theme) => void previewEditorTheme(theme)}
-                                onOpenChange={handleThemeMenuOpenChange}
-                                size="icon-sm"
-                                groupedSlot={<ThemeToggle size="icon-sm" />}
-                            />
-                        </ButtonGroup>
+                        <DropdownMenu>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className="max-w-44 gap-1.5"
+                                            aria-label="Programming language"
+                                            disabled={languages.length === 0}
+                                        >
+                                            <DevIcon proglang={activeDocument?.proglang ?? DEFAULT_PROGLANG} size={16} />
+                                            <span className="truncate">
+                                                {formatProglangName(activeDocument?.proglang ?? DEFAULT_PROGLANG)}
+                                            </span>
+                                            <ChevronDownIcon className="size-4 shrink-0 opacity-60" aria-hidden />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">Programming language</TooltipContent>
+                            </Tooltip>
+                            <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuRadioGroup
+                                    value={activeDocument?.proglang ?? DEFAULT_PROGLANG}
+                                    onValueChange={handleProglangChange}
+                                >
+                                    {languages.map((entry) => (
+                                        <DropdownMenuRadioItem key={entry} value={entry} className="gap-2">
+                                            <DevIcon proglang={entry} size={16} />
+                                            <span>{formatProglangName(entry)}</span>
+                                        </DropdownMenuRadioItem>
+                                    ))}
+                                </DropdownMenuRadioGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <MonacoThemeMenu
+                            value={editorTheme}
+                            onValueChange={handleEditorThemeChange}
+                            onThemePreview={(theme) => void previewEditorTheme(theme)}
+                            onOpenChange={handleThemeMenuOpenChange}
+                            size="icon-sm"
+                            groupedSlot={<ThemeToggle size="icon-sm" />}
+                        />
                         {variant === 'embedded' ? (
                             <ToolbarIconButton label="Open full screen" asChild>
                                 <Link href={UTILITY_EDITOR_VIEW_HREF}>
