@@ -72,7 +72,7 @@ function ProblemSubmissionsPageContent({ isAdministrator }: { isAdministrator: b
                     data={shell.detail}
                     status={shell.status}
                     defaultCompilerId={shell.defaultCompilerId}
-                    isInstructorOwner={shell.isInstructorOwner ?? false}
+                    isInstructorOwner={shell.isInstructorOwner}
                     isAdministrator={isAdministrator}
                     showStatement={false}
                     showTestcases={false}

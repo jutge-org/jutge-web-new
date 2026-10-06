@@ -1,9 +1,13 @@
-import { tryGetCurrentUser } from '@/lib/data/auth'
 import type { JutgeApiClient } from '@/lib/jutge_api_client'
 import { decodeSolutionB64, extensionForProglang, solutionFilename } from '@/lib/solutions'
 
+import {
+    canAccessInstructorSharedResources,
+    instructorCanAccessProblemSolutions,
+    type InstructorProblemResourceAccess,
+    type InstructorSharedFetchResult,
+} from './instructorSharedResources'
 import { fetchCompilers } from './tables'
-import { fetchInstructorOwnsProblem } from './problemDetail'
 
 export type ProblemSolutionContent = {
     code: string
@@ -11,22 +15,27 @@ export type ProblemSolutionContent = {
     codeFilename: string
 }
 
-async function canAccessProblemSolutions(problem_nm: string): Promise<boolean> {
-    const user = await tryGetCurrentUser()
-    if (!user) {
-        return false
+export async function fetchProblemSolutionProglangs(
+    client: JutgeApiClient,
+    problem_id: string,
+    access: InstructorProblemResourceAccess,
+    shared_solutions: number,
+): Promise<InstructorSharedFetchResult<string[]>> {
+    if (!(await canAccessInstructorSharedResources())) {
+        return { status: 'forbidden' }
     }
 
-    if (user.administrator) {
-        return true
+    if (!instructorCanAccessProblemSolutions(access, shared_solutions)) {
+        return { status: 'not_shared' }
     }
 
-    return fetchInstructorOwnsProblem(problem_nm)
-}
-
-export async function fetchProblemSolutionProglangs(client: JutgeApiClient, problem_id: string): Promise<string[]> {
-    const proglangs = await client.problems.getSolutions(problem_id)
-    return [...proglangs].sort((a, b) => a.localeCompare(b))
+    try {
+        const proglangs = await client.problems.getSolutions(problem_id)
+        const data = [...proglangs].sort((a, b) => a.localeCompare(b))
+        return { status: 'ok', data }
+    } catch {
+        return { status: 'not_shared' }
+    }
 }
 
 export async function fetchProblemSolutionContent(
@@ -34,9 +43,15 @@ export async function fetchProblemSolutionContent(
     problem_id: string,
     problem_nm: string,
     proglang: string,
-): Promise<ProblemSolutionContent | null> {
-    if (!(await canAccessProblemSolutions(problem_nm))) {
-        return null
+    access: InstructorProblemResourceAccess,
+    shared_solutions: number,
+): Promise<InstructorSharedFetchResult<ProblemSolutionContent>> {
+    if (!(await canAccessInstructorSharedResources())) {
+        return { status: 'forbidden' }
+    }
+
+    if (!instructorCanAccessProblemSolutions(access, shared_solutions)) {
+        return { status: 'not_shared' }
     }
 
     try {
@@ -48,11 +63,14 @@ export async function fetchProblemSolutionContent(
         const codeExtension = extensionForProglang(proglang, compilers)
 
         return {
-            code: decodeSolutionB64(contentB64),
-            codeExtension,
-            codeFilename: solutionFilename(problem_nm, proglang, codeExtension),
+            status: 'ok',
+            data: {
+                code: decodeSolutionB64(contentB64),
+                codeExtension,
+                codeFilename: solutionFilename(problem_nm, proglang, codeExtension),
+            },
         }
     } catch {
-        return null
+        return { status: 'not_shared' }
     }
 }

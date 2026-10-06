@@ -5,16 +5,38 @@ import { useState } from 'react'
 import { ProblemTestcaseAccordionItem } from '@/components/problems/ProblemTestcaseAccordionItem'
 import { ProblemWidgetCard } from '@/components/problems/ProblemWidgetCard'
 import { Card, CardDescription, CardHeader } from '@/components/ui/card'
-import type { DecodedTestcase } from '@/lib/data/problemDetail'
+import {
+    INSTRUCTOR_TESTCASES_NOT_SHARED_MESSAGE,
+    type InstructorProblemResourceAccess,
+} from '@/lib/data/instructorSharedResources'
 
 type ProblemTestcasesProps =
     | {
           loading: true
-          testcases?: never
+          problemId?: never
+          driverId?: never
+          testcaseAccess?: never
+          shared_testcases?: never
+          testcaseNames?: never
+          notShared?: never
       }
     | {
           loading?: false
-          testcases: DecodedTestcase[]
+          notShared: true
+          problemId?: never
+          driverId?: never
+          testcaseAccess?: never
+          shared_testcases?: never
+          testcaseNames?: never
+      }
+    | {
+          loading?: false
+          notShared?: false
+          problemId: string
+          driverId: string | null | undefined
+          testcaseAccess: InstructorProblemResourceAccess
+          shared_testcases: number
+          testcaseNames: string[]
       }
 
 export function ProblemTestcases(props: ProblemTestcasesProps) {
@@ -24,7 +46,17 @@ export function ProblemTestcases(props: ProblemTestcasesProps) {
         return <ProblemWidgetCard title="Test cases" />
     }
 
-    const { testcases } = props
+    if (props.notShared) {
+        return (
+            <Card className="ring-0 border border-border shadow-sm">
+                <CardHeader>
+                    <CardDescription>{INSTRUCTOR_TESTCASES_NOT_SHARED_MESSAGE}</CardDescription>
+                </CardHeader>
+            </Card>
+        )
+    }
+
+    const { problemId, driverId, testcaseAccess, shared_testcases, testcaseNames } = props
 
     function toggleTestcase(name: string) {
         setOpenItems((current) =>
@@ -32,7 +64,7 @@ export function ProblemTestcases(props: ProblemTestcasesProps) {
         )
     }
 
-    if (testcases.length === 0) {
+    if (testcaseNames.length === 0) {
         return (
             <Card className="ring-0 border border-border shadow-sm">
                 <CardHeader>
@@ -51,12 +83,16 @@ export function ProblemTestcases(props: ProblemTestcasesProps) {
                     </CardDescription>
                 </CardHeader>
             </Card>
-            {testcases.map((testcase) => (
+            {testcaseNames.map((testcaseName) => (
                 <ProblemTestcaseAccordionItem
-                    key={testcase.name}
-                    testcase={testcase}
-                    isOpen={openItems.includes(testcase.name)}
-                    onToggle={() => toggleTestcase(testcase.name)}
+                    key={testcaseName}
+                    problemId={problemId}
+                    testcaseName={testcaseName}
+                    driverId={driverId}
+                    testcaseAccess={testcaseAccess}
+                    shared_testcases={shared_testcases}
+                    isOpen={openItems.includes(testcaseName)}
+                    onToggle={() => toggleTestcase(testcaseName)}
                 />
             ))}
         </div>

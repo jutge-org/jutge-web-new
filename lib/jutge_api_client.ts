@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-10-06T08:35:22.442Z
+ * This file has been automatically generated at 2026-10-06T09:32:54.736Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -239,6 +239,8 @@ export type BriefAbstractProblem = {
     created_at: Iso8601Date
     updated_at: Iso8601Date
     solution_tags: SolutionTags | null
+    shared_solutions: number
+    shared_testcases: number
 }
 
 export type BriefProblem = {
@@ -269,6 +271,8 @@ export type AbstractProblem = {
     created_at: Iso8601Date
     updated_at: Iso8601Date
     solution_tags: SolutionTags | null
+    shared_solutions: number
+    shared_testcases: number
     problems: BriefProblemDict
 }
 
@@ -2496,7 +2500,7 @@ class Module_problems {
      *
      * 🔐 Authentication: instructorOrAdmin
      * No warnings
-     * Permission is granted to admins and instructors who own the problem.
+     * Permission is granted to admins, the problem owner, or any instructor if solutions are shared.
      */
     async getSolutions(problem_id: string): Promise<string[]> {
         const [output, ofiles] = await this.root.execute("problems.getSolutions", problem_id)
@@ -2508,7 +2512,7 @@ class Module_problems {
      *
      * 🔐 Authentication: instructorOrAdmin
      * No warnings
-     * Permission is granted to admins and instructors who own the problem.
+     * Permission is granted to admins, the problem owner, or any instructor if solutions are shared.
      */
     async getSolutionAsB64(data: { problem_id: string; proglang: string }): Promise<string> {
         const [output, ofiles] = await this.root.execute("problems.getSolutionAsB64", data)
@@ -2520,11 +2524,35 @@ class Module_problems {
      *
      * 🔐 Authentication: instructorOrAdmin
      * No warnings
-     * Permission is granted to admins and instructors who own the problem.
+     * Permission is granted to admins, the problem owner, or any instructor if solutions are shared.
      */
     async getSolutionAsFile(data: { problem_id: string; proglang: string }): Promise<Download> {
         const [output, ofiles] = await this.root.execute("problems.getSolutionAsFile", data)
         return ofiles[0]
+    }
+
+    /**
+     * Get names of all testcases of a problem.
+     *
+     * 🔐 Authentication: instructorOrAdmin
+     * No warnings
+     * Permission is granted to admins, the problem owner, or any instructor if testcases are shared.
+     */
+    async getTestcases(problem_id: string): Promise<string[]> {
+        const [output, ofiles] = await this.root.execute("problems.getTestcases", problem_id)
+        return output
+    }
+
+    /**
+     * Get one testcase of a problem (input and correct output as base64).
+     *
+     * 🔐 Authentication: instructorOrAdmin
+     * No warnings
+     * Permission is granted to admins, the problem owner, or any instructor if testcases are shared.
+     */
+    async getTestcase(data: { problem_id: string; testcase: string }): Promise<Testcase> {
+        const [output, ofiles] = await this.root.execute("problems.getTestcase", data)
+        return output
     }
 
     /**

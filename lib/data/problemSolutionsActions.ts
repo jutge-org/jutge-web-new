@@ -1,7 +1,11 @@
 import { getCurrentClient, tryGetCurrentUser } from '@/lib/data/auth'
+import {
+    INSTRUCTOR_SOLUTIONS_NOT_SHARED_MESSAGE,
+    instructorCanAccessProblemSolutions,
+    type InstructorProblemResourceAccess,
+} from '@/lib/data/instructorSharedResources'
 import { decodeSolutionB64, extensionForProglang, solutionFilename } from '@/lib/solutions'
 import { fetchCompilers } from '@/lib/data/tables'
-import { fetchInstructorOwnsProblem } from '@/lib/data/problemDetail'
 
 export type ProblemSolutionActionResult =
     | {
@@ -16,15 +20,20 @@ export async function fetchProblemSolutionAction(data: {
     problem_id: string
     problem_nm: string
     proglang: string
+    access: InstructorProblemResourceAccess
+    shared_solutions: number
 }): Promise<ProblemSolutionActionResult> {
     const user = await tryGetCurrentUser()
     if (!user) {
         return { ok: false, error: 'Forbidden' }
     }
-    const isInstructorOwner = await fetchInstructorOwnsProblem(data.problem_nm)
 
-    if (!isInstructorOwner && !user.administrator) {
+    if (!user.administrator && !user.instructor) {
         return { ok: false, error: 'Forbidden' }
+    }
+
+    if (!instructorCanAccessProblemSolutions(data.access, data.shared_solutions)) {
+        return { ok: false, error: INSTRUCTOR_SOLUTIONS_NOT_SHARED_MESSAGE }
     }
 
     try {
@@ -46,6 +55,6 @@ export async function fetchProblemSolutionAction(data: {
             codeFilename: solutionFilename(data.problem_nm, data.proglang, codeExtension),
         }
     } catch {
-        return { ok: false, error: 'Failed to load solution' }
+        return { ok: false, error: INSTRUCTOR_SOLUTIONS_NOT_SHARED_MESSAGE }
     }
 }

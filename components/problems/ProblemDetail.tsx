@@ -6,7 +6,6 @@ import { ProblemStatement, ProblemStatementSkeleton } from '@/components/problem
 import { PublicTestcases, PublicTestcasesSkeleton } from '@/components/problems/PublicTestcases'
 import { WidgetSpinner } from '@/components/general/WidgetSpinner'
 import { isGameProblem } from '@/lib/problems'
-import { showInstructorProblemTabs } from '@/lib/problemNav'
 import { cn } from '@/lib/utils'
 import type { AbstractStatus } from '@/lib/jutge_api_client'
 import type { ProblemDetailData } from '@/lib/data/problemDetail'
@@ -70,7 +69,7 @@ export function ProblemDetail(props: ProblemDetailProps) {
         return (
             <div className="flex flex-col gap-6">
                 <ProblemHeaderCardLoading overlapHeader={overlapHeader} />
-                {showNav ? <ProblemNav pageKey={pageKey} showInstructorTabs={false} /> : null}
+                {showNav ? <ProblemNav pageKey={pageKey} /> : null}
                 {children}
                 {showStatement ? <ProblemStatementSkeleton /> : null}
                 {showTestcases ? <PublicTestcasesSkeleton /> : null}
@@ -83,7 +82,7 @@ export function ProblemDetail(props: ProblemDetailProps) {
         assetsLoading = false,
         status,
         defaultCompilerId,
-        isInstructorOwner = false,
+        isInstructorOwner,
         isAdministrator = false,
         readOnly = false,
         supervisionContext,
@@ -91,7 +90,6 @@ export function ProblemDetail(props: ProblemDetailProps) {
     const { problem } = data
     const isGame = isGameProblem(problem.abstract_problem.driver_id)
     const showActions = !readOnly && status !== undefined && !isGame
-    const showInstructorTabs = showInstructorProblemTabs(isInstructorOwner, isAdministrator)
     // Game banner sits above the header; only the first card should overlap the navbar.
     const headerOverlap = overlapHeader && !isGame
 
@@ -112,8 +110,10 @@ export function ProblemDetail(props: ProblemDetailProps) {
             {showNav ? (
                 <ProblemNav
                     pageKey={pageKey}
-                    showInstructorTabs={showInstructorTabs}
                     problem_nm={problem.problem_nm}
+                    driverId={problem.abstract_problem.driver_id}
+                    shared_solutions={problem.abstract_problem.shared_solutions}
+                    shared_testcases={problem.abstract_problem.shared_testcases}
                     isInstructorOwner={isInstructorOwner}
                 />
             ) : null}

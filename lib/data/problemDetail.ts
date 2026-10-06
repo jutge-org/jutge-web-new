@@ -22,6 +22,11 @@ export type DecodedTestcase = {
     outputImageSrc?: string
 }
 
+/** Strip input-file extension for UI labels; API keys and URLs keep the full name. */
+export function formatTestcaseDisplayName(name: string): string {
+    return name.endsWith('.inp') ? name.slice(0, -4) : name
+}
+
 export type LanguageVariant = {
     problem_id: string
     language_id: string

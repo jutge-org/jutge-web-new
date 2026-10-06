@@ -5,6 +5,10 @@ import { useState } from 'react'
 import { ProblemSolutionAccordionItem } from '@/components/problems/ProblemSolutionAccordionItem'
 import { ProblemWidgetCard } from '@/components/problems/ProblemWidgetCard'
 import { Card, CardDescription, CardHeader } from '@/components/ui/card'
+import {
+    INSTRUCTOR_SOLUTIONS_NOT_SHARED_MESSAGE,
+    type InstructorProblemResourceAccess,
+} from '@/lib/data/instructorSharedResources'
 
 type ProblemSolutionsProps =
     | {
@@ -13,13 +17,25 @@ type ProblemSolutionsProps =
           problemId?: string
           problem_nm?: string
           proglangs?: never
+          notShared?: never
       }
     | {
           loading?: false
+          notShared: true
+          pageKey?: never
+          problemId?: never
+          problem_nm?: never
+          proglangs?: never
+      }
+    | {
+          loading?: false
+          notShared?: false
           pageKey: string
           problemId: string
           problem_nm: string
           proglangs: string[]
+          solutionAccess: InstructorProblemResourceAccess
+          shared_solutions: number
       }
 
 export function ProblemSolutions(props: ProblemSolutionsProps) {
@@ -29,7 +45,17 @@ export function ProblemSolutions(props: ProblemSolutionsProps) {
         return <ProblemWidgetCard title="Solutions" />
     }
 
-    const { pageKey, problemId, problem_nm, proglangs } = props
+    if (props.notShared) {
+        return (
+            <Card className="ring-0 border border-border shadow-sm">
+                <CardHeader>
+                    <CardDescription>{INSTRUCTOR_SOLUTIONS_NOT_SHARED_MESSAGE}</CardDescription>
+                </CardHeader>
+            </Card>
+        )
+    }
+
+    const { pageKey, problemId, problem_nm, proglangs, solutionAccess, shared_solutions } = props
 
     function toggleProglang(proglang: string) {
         setOpenItems((current) =>
@@ -63,6 +89,8 @@ export function ProblemSolutions(props: ProblemSolutionsProps) {
                     problemId={problemId}
                     problem_nm={problem_nm}
                     proglang={proglang}
+                    solutionAccess={solutionAccess}
+                    shared_solutions={shared_solutions}
                     isOpen={openItems.includes(proglang)}
                     onToggle={() => toggleProglang(proglang)}
                 />

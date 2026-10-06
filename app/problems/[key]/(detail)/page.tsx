@@ -65,7 +65,7 @@ export default function ProblemPage() {
                     assetsLoading={assetsLoading}
                     status={shell.status}
                     defaultCompilerId={shell.defaultCompilerId}
-                    isInstructorOwner={shell.isInstructorOwner ?? false}
+                    isInstructorOwner={shell.isInstructorOwner}
                     isAdministrator={user?.administrator ?? false}
                     readOnly={!authenticated}
                     showNav={authenticated}

@@ -137,3 +137,8 @@ export function hasInstructorProblemAccess(
 
     return isInstructorOwner || isAdministrator
 }
+
+/** Solutions and test cases tabs: any signed-in instructor or administrator. */
+export function hasInstructorOrAdministratorAccess(isInstructor: boolean, isAdministrator: boolean): boolean {
+    return isInstructor || isAdministrator
+}

@@ -6,13 +6,33 @@ export type ProblemNavItem = {
     href: string
 }
 
-export function showInstructorProblemTabs(isInstructorOwner: boolean, isAdministrator = false): boolean {
-    return isInstructorOwner || isAdministrator
+export type ProblemInstructorNavTabs = {
+    showSolutionsTab: boolean
+    showTestcasesTab: boolean
+}
+
+export function problemInstructorNavTabs({
+    isAdministrator,
+    isInstructorOwner,
+    sharedSolutions,
+    sharedTestcases,
+}: {
+    isAdministrator: boolean
+    isInstructorOwner: boolean
+    sharedSolutions: boolean
+    sharedTestcases: boolean
+}): ProblemInstructorNavTabs {
+    const unrestricted = isAdministrator || isInstructorOwner
+
+    return {
+        showSolutionsTab: unrestricted || sharedSolutions,
+        showTestcasesTab: unrestricted || sharedTestcases,
+    }
 }
 
 export function problemNavItems(
     pageKey: string,
-    showInstructorTabs: boolean,
+    instructorTabs: ProblemInstructorNavTabs,
     problem_nm?: string | null,
     isInstructorOwner = false,
 ): ProblemNavItem[] {
@@ -21,11 +41,12 @@ export function problemNavItems(
         { tab: 'submissions', label: 'Submissions', href: `/problems/${pageKey}/submissions` },
     ]
 
-    if (showInstructorTabs) {
-        items.push(
-            { tab: 'solutions', label: 'Solutions', href: `/problems/${pageKey}/solutions` },
-            { tab: 'testcases', label: 'Test cases', href: `/problems/${pageKey}/testcases` },
-        )
+    if (instructorTabs.showSolutionsTab) {
+        items.push({ tab: 'solutions', label: 'Solutions', href: `/problems/${pageKey}/solutions` })
+    }
+
+    if (instructorTabs.showTestcasesTab) {
+        items.push({ tab: 'testcases', label: 'Test cases', href: `/problems/${pageKey}/testcases` })
     }
 
     if (isInstructorOwner && problem_nm) {

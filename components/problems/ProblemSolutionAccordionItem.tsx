@@ -3,6 +3,7 @@
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
+import type { InstructorProblemResourceAccess } from '@/lib/data/instructorSharedResources'
 import { fetchProblemSolutionAction } from '@/lib/data/problemSolutionsActions'
 import { DevIcon } from '@/components/administrator/DevIcon'
 import { SolutionSourceCodeToolbar } from '@/components/problems/SolutionSourceCodeToolbar'
@@ -22,6 +23,8 @@ type ProblemSolutionAccordionItemProps = {
     problemId: string
     problem_nm: string
     proglang: string
+    solutionAccess: InstructorProblemResourceAccess
+    shared_solutions: number
     isOpen: boolean
     onToggle: () => void
 }
@@ -31,6 +34,8 @@ export function ProblemSolutionAccordionItem({
     problemId,
     problem_nm,
     proglang,
+    solutionAccess,
+    shared_solutions,
     isOpen,
     onToggle,
 }: ProblemSolutionAccordionItemProps) {
@@ -63,6 +68,8 @@ export function ProblemSolutionAccordionItem({
             problem_id: problemId,
             problem_nm,
             proglang,
+            access: solutionAccess,
+            shared_solutions,
         }).then((result) => {
             if (cancelled) {
                 return
@@ -82,7 +89,7 @@ export function ProblemSolutionAccordionItem({
         return () => {
             cancelled = true
         }
-    }, [isOpen, problemId, problem_nm, proglang])
+    }, [isOpen, problemId, problem_nm, proglang, shared_solutions, solutionAccess])
 
     return (
         <TooltipProvider>
