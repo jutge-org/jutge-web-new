@@ -13,8 +13,11 @@ import {
     LockIcon,
     LockOpenIcon,
     ExpandIcon,
+    FileXIcon,
+    FolderXIcon,
     MapIcon,
     Minimize2Icon,
+    PlusIcon,
     UploadIcon,
 } from 'lucide-react'
 import type { editor } from 'monaco-editor'
@@ -24,6 +27,7 @@ import dynamic from 'next/dynamic'
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ChangeEvent, type ComponentProps } from 'react'
 import { toast } from 'sonner'
 
+import { useAuth } from '@/components/AuthProvider'
 import { DevIcon } from '@/components/administrator/DevIcon'
 import { DocumentTitle } from '@/components/general/DocumentTitle'
 import { WidgetSpinner } from '@/components/general/WidgetSpinner'
@@ -34,10 +38,13 @@ import { ButtonGroup } from '@/components/ui/button-group'
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useFontScalePreference } from '@/hooks/use-font-scale-preference'
 import { useMonacoThemePreference } from '@/hooks/use-monaco-theme-preference'
@@ -50,10 +57,14 @@ import { resolveMonacoEditorTheme, type MonacoThemeSelection } from '@/lib/monac
 import { extensionForProglang, formatProglangName } from '@/lib/solutions'
 import {
     activeCompilerLanguages,
-    readUtilityEditorCode,
-    readUtilityEditorProglang,
-    writeUtilityEditorCode,
-    writeUtilityEditorProglang,
+    createUtilityEditorDocument,
+    fallbackUtilityEditorProglang,
+    nextUtilityEditorDocumentName,
+    readUtilityEditorState,
+    readUtilityEditorEpoch,
+    writeUtilityEditorState,
+    type UtilityEditorDocument,
+    type UtilityEditorState,
 } from '@/lib/utilityEditor'
 import { cn } from '@/lib/utils'
 
@@ -63,7 +74,7 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
 })
 
 const BASE_FONT_SIZE = 14
-const DEFAULT_PROGLANG = 'Python3'
+const DEFAULT_PROGLANG = 'Python'
 const UTILITY_EDITOR_VIEW_HREF = '/utilities/editor/view'
 
 type ToolbarIconButtonProps = ComponentProps<typeof Button> & {
@@ -95,6 +106,7 @@ type UtilityCodeEditorProps = {
 }
 
 export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
+    const { user } = useAuth()
     const uploadInputId = useId()
     const { resolvedTheme } = useTheme()
     const [editorTheme, setEditorTheme] = useMonacoThemePreference()
@@ -103,8 +115,7 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
     const [showLineNumbers, setShowLineNumbers] = useState(true)
     const [showMinimap, setShowMinimap] = useState(false)
     const [mounted, setMounted] = useState(false)
-    const [code, setCode] = useState('')
-    const [proglang, setProglang] = useState(DEFAULT_PROGLANG)
+    const [editorState, setEditorState] = useState<UtilityEditorState | null>(null)
     const [languages, setLanguages] = useState<string[]>([])
     const [compilers, setCompilers] = useState<Awaited<ReturnType<typeof fetchCompilers>>>([])
     const [compilersLoaded, setCompilersLoaded] = useState(false)
@@ -113,56 +124,102 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
     const editorThemeRef = useRef(editorTheme)
     const themePreviewIdRef = useRef(0)
     const uploadInputRef = useRef<HTMLInputElement>(null)
+    const nameInputRef = useRef<HTMLInputElement>(null)
+    const pendingNameFocusRef = useRef(false)
+    const signedInRef = useRef(false)
 
     editorThemeRef.current = editorTheme
 
-    useEffect(() => {
-        setMounted(true)
-        setCode(readUtilityEditorCode())
-    }, [])
+    const activeDocument = editorState?.documents.find((document) => document.id === editorState.activeId) ?? null
 
     useEffect(() => {
+        let cancelled = false
+        setMounted(true)
         void (async () => {
+            const epoch = readUtilityEditorEpoch()
             const nextCompilers = await fetchCompilers()
+            if (cancelled || epoch !== readUtilityEditorEpoch()) {
+                return
+            }
+
             const available = activeCompilerLanguages(nextCompilers)
+            const fallback = fallbackUtilityEditorProglang(available, DEFAULT_PROGLANG)
+            const stored = readUtilityEditorState(fallback)
+            const documents = stored.documents.map((document) => ({
+                ...document,
+                name: document.name.trim() || 'Untitled',
+                proglang: available.length === 0 || available.includes(document.proglang) ? document.proglang : fallback,
+            }))
             setCompilers(nextCompilers)
             setLanguages(available)
-            const stored = readUtilityEditorProglang(DEFAULT_PROGLANG)
-            const initial =
-                available.includes(stored) ? stored : available.includes(DEFAULT_PROGLANG) ? DEFAULT_PROGLANG : available[0] ?? DEFAULT_PROGLANG
-            setProglang(initial)
+            setEditorState({ activeId: stored.activeId, documents })
             setCompilersLoaded(true)
         })()
+
+        return () => {
+            cancelled = true
+        }
     }, [])
 
-    const codeExtension = useMemo(() => {
-        if (!compilersLoaded) {
-            return 'txt'
+    useEffect(() => {
+        if (!compilersLoaded || !editorState) {
+            return
         }
-        return extensionForProglang(proglang, compilers) ?? 'txt'
-    }, [compilers, compilersLoaded, proglang])
+        writeUtilityEditorState(editorState)
+    }, [compilersLoaded, editorState])
 
     useEffect(() => {
-        if (!compilersLoaded) {
+        if (user) {
+            signedInRef.current = true
+            return
+        }
+        if (!signedInRef.current) {
+            return
+        }
+        signedInRef.current = false
+        const fallback = fallbackUtilityEditorProglang(languages, DEFAULT_PROGLANG)
+        const document = createUtilityEditorDocument('Untitled', fallback)
+        setEditorState({ activeId: document.id, documents: [document] })
+    }, [languages, user])
+
+    useEffect(() => {
+        if (!pendingNameFocusRef.current) {
+            return
+        }
+        pendingNameFocusRef.current = false
+        nameInputRef.current?.focus()
+        nameInputRef.current?.select()
+    }, [editorState?.activeId])
+
+    const codeExtension = useMemo(() => {
+        if (!compilersLoaded || !activeDocument) {
+            return 'txt'
+        }
+        return extensionForProglang(activeDocument.proglang, compilers) ?? 'txt'
+    }, [activeDocument, compilers, compilersLoaded])
+
+    useEffect(() => {
+        if (!compilersLoaded || !activeDocument) {
             return
         }
 
-        const extension = extensionForProglang(proglang, compilers) ?? 'txt'
+        const extension = extensionForProglang(activeDocument.proglang, compilers) ?? 'txt'
         const monacoLanguage = monacoLanguageForExtension(extension) ?? 'plaintext'
         const monaco = monacoRef.current
         const editorInstance = editorRef.current
         if (monaco && editorInstance) {
             const model = editorInstance.getModel()
-            if (model) {
+            if (model && model.getLanguageId() !== monacoLanguage) {
                 monaco.editor.setModelLanguage(model, monacoLanguage)
             }
         }
-    }, [compilers, compilersLoaded, proglang])
+    }, [activeDocument, compilers, compilersLoaded])
 
     const language = monacoLanguageForExtension(codeExtension) ?? 'plaintext'
     const activeMonacoTheme = resolveMonacoEditorTheme(editorTheme, mounted ? resolvedTheme : undefined)
     const fontSize = Math.round(BASE_FONT_SIZE * fontScale)
-    const downloadFilename = `editor-${proglang.replace(/[^\w+-]+/g, '_')}.${codeExtension}`
+    const documentName = activeDocument?.name.trim() || 'Untitled'
+    const downloadFilename = `${documentName.replace(/[^\w.+-]+/g, '_') || 'document'}.${codeExtension}`
 
     const applyMonacoTheme = useCallback(
         async (themeId: string) => {
@@ -231,15 +288,101 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
         void applyEditorTheme()
     }
 
-    function handleCodeChange(value: string | undefined) {
-        const next = value ?? ''
-        setCode(next)
-        writeUtilityEditorCode(next)
+    function updateDocument(id: string, patch: Partial<Pick<UtilityEditorDocument, 'name' | 'code' | 'proglang'>>) {
+        setEditorState((current) => {
+            if (!current) {
+                return current
+            }
+
+            let changed = false
+            const documents = current.documents.map((document) => {
+                if (document.id !== id) {
+                    return document
+                }
+                const next = { ...document, ...patch }
+                if (next.name === document.name && next.code === document.code && next.proglang === document.proglang) {
+                    return document
+                }
+                changed = true
+                return next
+            })
+
+            return changed ? { ...current, documents } : current
+        })
+    }
+
+    function handleCodeChange(documentId: string, value: string | undefined) {
+        if (value === undefined) {
+            return
+        }
+        updateDocument(documentId, { code: value })
     }
 
     function handleProglangChange(next: string) {
-        setProglang(next)
-        writeUtilityEditorProglang(next)
+        if (!activeDocument) {
+            return
+        }
+        updateDocument(activeDocument.id, { proglang: next })
+    }
+
+    function handleNameChange(name: string) {
+        if (!activeDocument) {
+            return
+        }
+        updateDocument(activeDocument.id, { name })
+    }
+
+    function commitDocumentName() {
+        if (!activeDocument) {
+            return
+        }
+        const trimmed = activeDocument.name.trim()
+        if (trimmed === activeDocument.name) {
+            return
+        }
+        updateDocument(activeDocument.id, { name: trimmed || 'Untitled' })
+    }
+
+    function selectDocument(id: string) {
+        setEditorState((current) => {
+            if (!current || !current.documents.some((document) => document.id === id)) {
+                return current
+            }
+            return { ...current, activeId: id }
+        })
+    }
+
+    function addDocument() {
+        const proglang = activeDocument?.proglang ?? fallbackUtilityEditorProglang(languages, DEFAULT_PROGLANG)
+        const document = createUtilityEditorDocument(
+            nextUtilityEditorDocumentName(editorState?.documents ?? []),
+            proglang,
+        )
+        pendingNameFocusRef.current = true
+        setEditorState((current) => {
+            if (!current) {
+                return { activeId: document.id, documents: [document] }
+            }
+            return { activeId: document.id, documents: [...current.documents, document] }
+        })
+    }
+
+    function deleteActiveDocument() {
+        setEditorState((current) => {
+            if (!current || current.documents.length < 2) {
+                return current
+            }
+            const index = current.documents.findIndex((document) => document.id === current.activeId)
+            const documents = current.documents.filter((document) => document.id !== current.activeId)
+            const next = documents[Math.max(0, index - 1)] ?? documents[0]
+            return { activeId: next.id, documents }
+        })
+    }
+
+    function deleteAllDocuments() {
+        const fallback = fallbackUtilityEditorProglang(languages, DEFAULT_PROGLANG)
+        const document = createUtilityEditorDocument('Untitled', fallback)
+        setEditorState({ activeId: document.id, documents: [document] })
     }
 
     function toggleReadOnly() {
@@ -255,7 +398,7 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
     }
 
     function copyCode() {
-        navigator.clipboard.writeText(code).then(
+        navigator.clipboard.writeText(activeDocument?.code ?? '').then(
             () => toast.success('Copied to clipboard'),
             () => toast.error('Failed to copy'),
         )
@@ -263,7 +406,7 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
 
     function downloadCode() {
         try {
-            saveAs(new Blob([code], { type: 'text/plain;charset=utf-8' }), downloadFilename)
+            saveAs(new Blob([activeDocument?.code ?? ''], { type: 'text/plain;charset=utf-8' }), downloadFilename)
         } catch {
             toast.error('Failed to download')
         }
@@ -283,8 +426,9 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
         const reader = new FileReader()
         reader.onload = () => {
             const text = typeof reader.result === 'string' ? reader.result : ''
-            setCode(text)
-            writeUtilityEditorCode(text)
+            if (activeDocument) {
+                updateDocument(activeDocument.id, { code: text })
+            }
             toast.success(`Loaded ${file.name}`)
         }
         reader.onerror = () => {
@@ -293,17 +437,83 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
         reader.readAsText(file)
     }
 
-    const shellClassName =
-        variant === 'fullscreen'
-            ? 'flex h-full min-h-0 flex-col'
-            : 'flex h-full min-h-0 flex-col rounded-xl border border-border'
-
     return (
         <TooltipProvider>
-            <div className={shellClassName}>
-                <DocumentTitle title="Editor" />
-                <header className="flex shrink-0 items-center justify-between gap-4 border-b border-border px-4 py-0">
-                    <h1 className="truncate text-sm font-semibold text-foreground">Editor</h1>
+            <div className="flex h-full min-h-0 flex-col">
+                <DocumentTitle title={documentName} />
+                <header
+                    className={cn(
+                        'flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border pb-2',
+                        variant === 'fullscreen' && 'pt-2 px-2',
+                    )}
+                >
+                    <h1 className="sr-only">{documentName}</h1>
+                    <div className="flex min-w-0 items-center">
+                        <Input
+                            ref={nameInputRef}
+                            value={activeDocument?.name ?? ''}
+                            onChange={(event) => handleNameChange(event.target.value)}
+                            onBlur={commitDocumentName}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    event.currentTarget.blur()
+                                }
+                            }}
+                            aria-label="Document name"
+                            disabled={!activeDocument}
+                            spellCheck={false}
+                            className="h-7 w-40 rounded-r-none px-2 text-sm focus-visible:z-10 md:text-sm"
+                        />
+                        <ButtonGroup className="-ml-px">
+                            <DropdownMenu>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="icon-sm"
+                                                className="rounded-none"
+                                                aria-label="Select document"
+                                                disabled={!editorState}
+                                            >
+                                                <ChevronDownIcon />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">Select document</TooltipContent>
+                                </Tooltip>
+                                <DropdownMenuContent align="start" className="w-56">
+                                    <DropdownMenuRadioGroup
+                                        value={editorState?.activeId}
+                                        onValueChange={selectDocument}
+                                    >
+                                        {editorState?.documents.map((document) => (
+                                            <DropdownMenuRadioItem key={document.id} value={document.id} className="gap-2">
+                                                <DevIcon proglang={document.proglang} size={14} />
+                                                <span className="truncate">{document.name.trim() || 'Untitled'}</span>
+                                            </DropdownMenuRadioItem>
+                                        ))}
+                                    </DropdownMenuRadioGroup>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        disabled={!editorState || editorState.documents.length < 2}
+                                        onSelect={deleteActiveDocument}
+                                    >
+                                        <FileXIcon aria-hidden />
+                                        Delete document
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem disabled={!editorState} onSelect={deleteAllDocuments}>
+                                        <FolderXIcon aria-hidden />
+                                        Delete all documents
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <ToolbarIconButton label="New document" onClick={addDocument} disabled={!editorState}>
+                                <PlusIcon />
+                            </ToolbarIconButton>
+                        </ButtonGroup>
+                    </div>
                     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                         <ButtonGroup>
                             <ToolbarIconButton label="Copy to clipboard" onClick={copyCode}>
@@ -379,8 +589,10 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
                                                 aria-label="Programming language"
                                                 disabled={languages.length === 0}
                                             >
-                                                <DevIcon proglang={proglang} size={16} />
-                                                <span className="truncate">{formatProglangName(proglang)}</span>
+                                                <DevIcon proglang={activeDocument?.proglang ?? DEFAULT_PROGLANG} size={16} />
+                                                <span className="truncate">
+                                                    {formatProglangName(activeDocument?.proglang ?? DEFAULT_PROGLANG)}
+                                                </span>
                                                 <ChevronDownIcon className="size-4 shrink-0 opacity-60" aria-hidden />
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -388,7 +600,10 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
                                     <TooltipContent side="top">Programming language</TooltipContent>
                                 </Tooltip>
                                 <DropdownMenuContent align="end" className="w-56">
-                                    <DropdownMenuRadioGroup value={proglang} onValueChange={handleProglangChange}>
+                                    <DropdownMenuRadioGroup
+                                        value={activeDocument?.proglang ?? DEFAULT_PROGLANG}
+                                        onValueChange={handleProglangChange}
+                                    >
                                         {languages.map((entry) => (
                                             <DropdownMenuRadioItem key={entry} value={entry} className="gap-2">
                                                 <DevIcon proglang={entry} size={16} />
@@ -424,14 +639,15 @@ export function UtilityCodeEditor({ variant }: UtilityCodeEditorProps) {
                 </header>
                 <div className="min-h-0 flex-1">
                     {!compilersLoaded ? <WidgetSpinner className="h-full min-h-48" label="Loading editor" /> : null}
-                    {compilersLoaded ? (
+                    {compilersLoaded && activeDocument ? (
                         <MonacoEditor
+                            key={activeDocument.id}
                             height="100%"
                             beforeMount={handleBeforeMount}
                             onMount={handleMount}
                             language={language}
-                            value={code}
-                            onChange={handleCodeChange}
+                            value={activeDocument.code}
+                            onChange={(value) => handleCodeChange(activeDocument.id, value)}
                             theme={activeMonacoTheme}
                             options={{
                                 automaticLayout: true,

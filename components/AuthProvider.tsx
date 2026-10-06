@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import jutge, { invalidateCachedCall } from '@/lib/jutge'
 import type { CredentialsIn, Profile } from '@/lib/jutge_api_client'
 import { profileToSessionUser, type SessionUser } from '@/lib/session'
+import { clearUtilityEditorState } from '@/lib/utilityEditor'
 
 export type AuthContextValue = {
     user: SessionUser | null
@@ -114,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function logout() {
         try {
+            clearUtilityEditorState()
             localStorage.removeItem('token')
             localStorage.removeItem('expiration')
             localStorage.removeItem('user_uid')
