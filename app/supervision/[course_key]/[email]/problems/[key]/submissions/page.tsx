@@ -1,21 +1,20 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { notFound, useParams } from 'next/navigation'
-
 import { SupervisorGate } from '@/components/ClientGates'
 import { ProblemDetail } from '@/components/problems/ProblemDetail'
 import { SubmissionsList } from '@/components/submissions/SubmissionsList'
 import { SupervisionPageShell } from '@/components/supervision/SupervisionPageShell'
-import { SupervisionProblemNav } from '@/components/supervision/SupervisionProblemNav'
-import { useSupervisionPageMeta, supervisionContextWithMeta } from '@/hooks/use-supervision-page-meta'
-import { useSupervisionProblemShell } from '@/hooks/use-supervision-problem-shell'
+import { SupervisionProblemNav, supervisionProblemNavPropsFromDetail } from '@/components/supervision/SupervisionProblemNav'
+import { supervisionContextWithMeta, useSupervisionPageMeta } from '@/hooks/use-supervision-page-meta'
 import { useSupervisionParams } from '@/hooks/use-supervision-params'
+import { useSupervisionProblemShell } from '@/hooks/use-supervision-problem-shell'
 import { fetchSupervisionProblemSubmissionsData } from '@/lib/data/supervisionSubmissions'
-import { isGameProblem } from '@/lib/problems'
 import { problemNmFromKey } from '@/lib/problemBreadcrumbs'
-import { supervisionBaseBreadcrumbs, supervisionProblemBreadcrumbs } from '@/lib/supervision'
+import { isGameProblem } from '@/lib/problems'
 import type { ProblemSubmissionRow } from '@/lib/submissions'
+import { supervisionBaseBreadcrumbs, supervisionProblemBreadcrumbs } from '@/lib/supervision'
+import { notFound, useParams } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 export default function SupervisionProblemSubmissionsPage() {
     return (
@@ -95,6 +94,8 @@ function SupervisionProblemSubmissionsPageContent() {
                   { title: 'Submissions', url: '#' },
               ]
 
+    const navProps = supervisionProblemNavPropsFromDetail(key, context, shell.detail, shell.problem_nm)
+
     return (
         <SupervisionPageShell context={context} courseTitle={meta?.courseTitle} breadcrumbs={breadcrumbs}>
             {shell.detail ? (
@@ -110,7 +111,7 @@ function SupervisionProblemSubmissionsPageContent() {
                     supervisionContext={context}
                 >
                     <div className="flex flex-col gap-6">
-                        <SupervisionProblemNav pageKey={key} context={context} />
+                        <SupervisionProblemNav {...navProps} />
                         {submissionsLoading ? (
                             <SubmissionsList
                                 rows={[]}
@@ -140,7 +141,7 @@ function SupervisionProblemSubmissionsPageContent() {
                     overlapHeader={false}
                 >
                     <div className="flex flex-col gap-6">
-                        <SupervisionProblemNav pageKey={key} context={context} />
+                        <SupervisionProblemNav {...navProps} />
                         <SubmissionsList
                             rows={[]}
                             variant="problem"

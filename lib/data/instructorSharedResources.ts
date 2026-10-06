@@ -104,5 +104,5 @@ export async function canAccessInstructorSharedResources(): Promise<boolean> {
         return false
     }
 
-    return user.administrator || user.instructor
+    return user.administrator || user.instructor || user.tutor
 }

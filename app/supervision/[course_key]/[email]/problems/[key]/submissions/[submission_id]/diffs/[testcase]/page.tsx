@@ -9,7 +9,7 @@ import { ProblemWidgetCard } from '@/components/problems/ProblemWidgetCard'
 import { SubmissionSourceCodeCard } from '@/components/submissions/SubmissionSourceCodeCard'
 import { SubmissionTestcaseAnalysisCard } from '@/components/submissions/SubmissionTestcaseAnalysisCard'
 import { SupervisionPageShell } from '@/components/supervision/SupervisionPageShell'
-import { SupervisionProblemNav } from '@/components/supervision/SupervisionProblemNav'
+import { SupervisionProblemNav, supervisionProblemNavPropsFromDetail } from '@/components/supervision/SupervisionProblemNav'
 import { useSupervisionPageMeta, supervisionContextWithMeta } from '@/hooks/use-supervision-page-meta'
 import { useSupervisionProblemShell } from '@/hooks/use-supervision-problem-shell'
 import { useSupervisionParams } from '@/hooks/use-supervision-params'
@@ -132,6 +132,7 @@ function SupervisionSubmissionTestcaseAnalysisPageContent() {
                   { title: testcase, url: testcaseHref },
               ]
 
+    const navProps = supervisionProblemNavPropsFromDetail(key, context, shell.detail, shell.problem_nm)
     const analysisLoading = testcaseAnalysis === undefined
     const codeLoading = submissionCode === undefined
 
@@ -150,7 +151,7 @@ function SupervisionSubmissionTestcaseAnalysisPageContent() {
                     supervisionContext={context}
                 >
                     <div className="flex flex-col gap-6">
-                        <SupervisionProblemNav pageKey={key} context={context} />
+                        <SupervisionProblemNav {...navProps} />
                         {analysisLoading ? (
                             <ProblemWidgetCard title={`Analysis of test case ${testcase}`} />
                         ) : (
@@ -178,7 +179,7 @@ function SupervisionSubmissionTestcaseAnalysisPageContent() {
                     overlapHeader={false}
                 >
                     <div className="flex flex-col gap-6">
-                        <SupervisionProblemNav pageKey={key} context={context} />
+                        <SupervisionProblemNav {...navProps} />
                         <ProblemWidgetCard title={`Analysis of test case ${testcase}`} />
                         <ProblemWidgetCard title="Source code" />
                     </div>

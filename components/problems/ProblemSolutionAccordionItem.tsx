@@ -27,6 +27,7 @@ type ProblemSolutionAccordionItemProps = {
     shared_solutions: number
     isOpen: boolean
     onToggle: () => void
+    solutionViewHrefOverride?: string
 }
 
 export function ProblemSolutionAccordionItem({
@@ -38,6 +39,7 @@ export function ProblemSolutionAccordionItem({
     shared_solutions,
     isOpen,
     onToggle,
+    solutionViewHrefOverride,
 }: ProblemSolutionAccordionItemProps) {
     const [code, setCode] = useState<string | null>(null)
     const [codeExtension, setCodeExtension] = useState<string | null>(null)
@@ -118,6 +120,7 @@ export function ProblemSolutionAccordionItem({
                                 highlightTheme={highlightTheme}
                                 setHighlightTheme={setHighlightTheme}
                                 setPreviewTheme={setPreviewTheme}
+                                viewHrefOverride={solutionViewHrefOverride}
                             />
                         ) : null}
                         <button

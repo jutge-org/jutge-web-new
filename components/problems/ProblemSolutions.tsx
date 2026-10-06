@@ -36,6 +36,7 @@ type ProblemSolutionsProps =
           proglangs: string[]
           solutionAccess: InstructorProblemResourceAccess
           shared_solutions: number
+          solutionViewHrefForProglang?: (proglang: string) => string
       }
 
 export function ProblemSolutions(props: ProblemSolutionsProps) {
@@ -55,7 +56,8 @@ export function ProblemSolutions(props: ProblemSolutionsProps) {
         )
     }
 
-    const { pageKey, problemId, problem_nm, proglangs, solutionAccess, shared_solutions } = props
+    const { pageKey, problemId, problem_nm, proglangs, solutionAccess, shared_solutions, solutionViewHrefForProglang } =
+        props
 
     function toggleProglang(proglang: string) {
         setOpenItems((current) =>
@@ -93,6 +95,7 @@ export function ProblemSolutions(props: ProblemSolutionsProps) {
                     shared_solutions={shared_solutions}
                     isOpen={openItems.includes(proglang)}
                     onToggle={() => toggleProglang(proglang)}
+                    solutionViewHrefOverride={solutionViewHrefForProglang?.(proglang)}
                 />
             ))}
         </div>

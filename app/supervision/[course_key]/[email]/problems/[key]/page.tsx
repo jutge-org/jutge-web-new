@@ -6,7 +6,7 @@ import { notFound, useParams } from 'next/navigation'
 import { SupervisorGate } from '@/components/ClientGates'
 import { ProblemDetail } from '@/components/problems/ProblemDetail'
 import { SupervisionPageShell } from '@/components/supervision/SupervisionPageShell'
-import { SupervisionProblemNav } from '@/components/supervision/SupervisionProblemNav'
+import { SupervisionProblemNav, supervisionProblemNavPropsFromDetail } from '@/components/supervision/SupervisionProblemNav'
 import { useSupervisionPageMeta, supervisionContextWithMeta } from '@/hooks/use-supervision-page-meta'
 import { useSupervisionProblemShell } from '@/hooks/use-supervision-problem-shell'
 import { useSupervisionParams } from '@/hooks/use-supervision-params'
@@ -53,6 +53,8 @@ function SupervisionProblemPageContent() {
                   { title: problemNmFromKey(key) ?? key, url: '#' },
               ]
 
+    const navProps = supervisionProblemNavPropsFromDetail(key, context, shell.detail, shell.problem_nm)
+
     return (
         <SupervisionPageShell context={context} courseTitle={meta?.courseTitle} breadcrumbs={breadcrumbs}>
             {shell.detail ? (
@@ -65,11 +67,11 @@ function SupervisionProblemPageContent() {
                     overlapHeader={false}
                     supervisionContext={context}
                 >
-                    <SupervisionProblemNav pageKey={key} context={context} />
+                    <SupervisionProblemNav {...navProps} />
                 </ProblemDetail>
             ) : (
                 <ProblemDetail loading pageKey={key} showNav={false} overlapHeader={false}>
-                    <SupervisionProblemNav pageKey={key} context={context} />
+                    <SupervisionProblemNav {...navProps} />
                 </ProblemDetail>
             )}
         </SupervisionPageShell>

@@ -8,7 +8,7 @@ import { ProblemDetail } from '@/components/problems/ProblemDetail'
 import { SubmissionDetailView } from '@/components/submissions/SubmissionDetailView'
 import { SubmissionPendingRefresh } from '@/components/submissions/SubmissionPendingRefresh'
 import { SupervisionPageShell } from '@/components/supervision/SupervisionPageShell'
-import { SupervisionProblemNav } from '@/components/supervision/SupervisionProblemNav'
+import { SupervisionProblemNav, supervisionProblemNavPropsFromDetail } from '@/components/supervision/SupervisionProblemNav'
 import { useSupervisionPageMeta, supervisionContextWithMeta } from '@/hooks/use-supervision-page-meta'
 import { useSupervisionProblemShell } from '@/hooks/use-supervision-problem-shell'
 import { useSupervisionParams } from '@/hooks/use-supervision-params'
@@ -184,6 +184,8 @@ function SupervisionSubmissionDetailPageContent() {
                   { title: submission_id, url: '#' },
               ]
 
+    const navProps = supervisionProblemNavPropsFromDetail(key, context, shell.detail, shell.problem_nm)
+
     const getTestcaseHref = (testcase: string) => {
         if (!isLinkableTestcase(testcase)) {
             return null
@@ -234,7 +236,7 @@ function SupervisionSubmissionDetailPageContent() {
                     supervisionContext={context}
                 >
                     <div className="flex flex-col gap-6">
-                        <SupervisionProblemNav pageKey={key} context={context} />
+                        <SupervisionProblemNav {...navProps} />
                         {submissionView}
                     </div>
                 </ProblemDetail>
@@ -248,7 +250,7 @@ function SupervisionSubmissionDetailPageContent() {
                     overlapHeader={false}
                 >
                     <div className="flex flex-col gap-6">
-                        <SupervisionProblemNav pageKey={key} context={context} />
+                        <SupervisionProblemNav {...navProps} />
                         {submissionView}
                     </div>
                 </ProblemDetail>

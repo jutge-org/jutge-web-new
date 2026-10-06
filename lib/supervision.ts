@@ -1,3 +1,5 @@
+import { solutionProglangPathSegment } from '@/lib/solutions'
+import type { ProblemInstructorNavTabs } from '@/lib/problemNav'
 import { parseProblemKey } from '@/lib/problems'
 import {
     buildLastSubmissionsByProblemNm,
@@ -74,6 +76,22 @@ export function supervisionProblemSubmissionsHref(ctx: SupervisionContext, key: 
     return `${supervisionProblemHref(ctx, key)}/submissions`
 }
 
+export function supervisionProblemSolutionsHref(ctx: SupervisionContext, key: string): string {
+    return `${supervisionProblemHref(ctx, key)}/solutions`
+}
+
+export function supervisionProblemTestcasesHref(ctx: SupervisionContext, key: string): string {
+    return `${supervisionProblemHref(ctx, key)}/testcases`
+}
+
+export function supervisionSolutionViewHref(ctx: SupervisionContext, pageKey: string, proglang: string): string {
+    return `${supervisionProblemSolutionsHref(ctx, pageKey)}/${solutionProglangPathSegment(proglang)}/view`
+}
+
+export function supervisionSolutionDownloadHref(ctx: SupervisionContext, pageKey: string, proglang: string): string {
+    return `${supervisionProblemSolutionsHref(ctx, pageKey)}/${solutionProglangPathSegment(proglang)}`
+}
+
 export function supervisionSubmissionHref(ctx: SupervisionContext, problem_id: string, submission_id: string): string {
     return `${supervisionProblemHref(ctx, problem_id)}/submissions/${submission_id}`
 }
@@ -108,7 +126,7 @@ export function storeSupervisionCoursePreference(_userId: string, courseKey: str
     useOpenWebSettingsStore.getState().setSupervisionLastCourse(courseKey)
 }
 
-export type SupervisionProblemTab = 'statement' | 'submissions'
+export type SupervisionProblemTab = 'statement' | 'submissions' | 'solutions' | 'testcases'
 
 export type SupervisionProblemNavItem = {
     tab: SupervisionProblemTab
@@ -116,11 +134,33 @@ export type SupervisionProblemNavItem = {
     href: string
 }
 
-export function supervisionProblemNavItems(ctx: SupervisionContext, pageKey: string): SupervisionProblemNavItem[] {
-    return [
+export function supervisionProblemNavItems(
+    ctx: SupervisionContext,
+    pageKey: string,
+    instructorTabs: ProblemInstructorNavTabs = { showSolutionsTab: false, showTestcasesTab: false },
+): SupervisionProblemNavItem[] {
+    const items: SupervisionProblemNavItem[] = [
         { tab: 'statement', label: 'Statement', href: supervisionProblemHref(ctx, pageKey) },
         { tab: 'submissions', label: 'Submissions', href: supervisionProblemSubmissionsHref(ctx, pageKey) },
     ]
+
+    if (instructorTabs.showSolutionsTab) {
+        items.push({
+            tab: 'solutions',
+            label: 'Solutions',
+            href: supervisionProblemSolutionsHref(ctx, pageKey),
+        })
+    }
+
+    if (instructorTabs.showTestcasesTab) {
+        items.push({
+            tab: 'testcases',
+            label: 'Test cases',
+            href: supervisionProblemTestcasesHref(ctx, pageKey),
+        })
+    }
+
+    return items
 }
 
 export function supervisionProblemTabFromPathname(
@@ -132,6 +172,14 @@ export function supervisionProblemTabFromPathname(
 
     if (pathname.startsWith(`${base}/submissions`)) {
         return 'submissions'
+    }
+
+    if (pathname === `${base}/solutions` || pathname.startsWith(`${base}/solutions/`)) {
+        return 'solutions'
+    }
+
+    if (pathname === `${base}/testcases` || pathname.startsWith(`${base}/testcases/`)) {
+        return 'testcases'
     }
 
     return 'statement'

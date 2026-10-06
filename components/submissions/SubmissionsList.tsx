@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
 import { fetchProblemSubmissionsRowsAction, fetchSubmissionsRowsAction } from '@/lib/data/submissionsActions'
-import { AgTableFull } from '@/components/administrator/AgTable'
+import { AgTable, AgTableFull } from '@/components/administrator/AgTable'
 import { CompilerLink, VerdictLink } from '@/components/documentation/ReferenceLink'
 import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
 import { SubmissionsListToolbar } from '@/components/submissions/SubmissionsListToolbar'
@@ -27,27 +27,28 @@ import {
     filterSubmissions,
     tallySubmissionOkKo,
 } from '@/lib/submissions'
+import { Skeleton } from '../ui/skeleton'
 
 dayjs.extend(relativeTime)
 
 type SubmissionsListProps =
     | {
-          rows: SubmissionRow[]
-          variant?: 'default'
-          showHelp?: boolean
-          loading?: boolean
-          onRefreshPending?: () => Promise<SubmissionRow[]>
-          emptyMessage?: string
-      }
+        rows: SubmissionRow[]
+        variant?: 'default'
+        showHelp?: boolean
+        loading?: boolean
+        onRefreshPending?: () => Promise<SubmissionRow[]>
+        emptyMessage?: string
+    }
     | {
-          rows: ProblemSubmissionRow[]
-          variant: 'problem'
-          problemNm: string
-          showHelp?: boolean
-          loading?: boolean
-          onRefreshPending?: () => Promise<ProblemSubmissionRow[]>
-          emptyMessage?: string
-      }
+        rows: ProblemSubmissionRow[]
+        variant: 'problem'
+        problemNm: string
+        showHelp?: boolean
+        loading?: boolean
+        onRefreshPending?: () => Promise<ProblemSubmissionRow[]>
+        emptyMessage?: string
+    }
 
 export function SubmissionsList(props: SubmissionsListProps) {
     const {
@@ -82,8 +83,8 @@ export function SubmissionsList(props: SubmissionsListProps) {
             const nextRows = onRefreshPending
                 ? await onRefreshPending()
                 : problemNm !== undefined
-                  ? await fetchProblemSubmissionsRowsAction(problemNm)
-                  : await fetchSubmissionsRowsAction()
+                    ? await fetchProblemSubmissionsRowsAction(problemNm)
+                    : await fetchSubmissionsRowsAction()
 
             setRows(nextRows)
 
@@ -136,49 +137,49 @@ export function SubmissionsList(props: SubmissionsListProps) {
             },
             variant === 'problem'
                 ? {
-                      field: 'language_id',
-                      headerName: 'Language',
-                      width: 120,
-                      sortable: true,
-                      filter: true,
-                      hide: !columnVisibility.language_id,
-                      cellRenderer: (params: { data: ProblemSubmissionRow }) => (
-                          <Tooltip>
-                              <TooltipTrigger asChild>
-                                  <Link
-                                      href={params.data.languageHref}
-                                      className="text-sm hover:text-primary hover:underline"
-                                  >
-                                      {params.data.language_id}
-                                  </Link>
-                              </TooltipTrigger>
-                              <TooltipContent side="top">{params.data.languageTitle}</TooltipContent>
-                          </Tooltip>
-                      ),
-                      valueGetter: (params: { data: ProblemSubmissionRow }) => params.data.language_id,
-                  }
+                    field: 'language_id',
+                    headerName: 'Language',
+                    width: 120,
+                    sortable: true,
+                    filter: true,
+                    hide: !columnVisibility.language_id,
+                    cellRenderer: (params: { data: ProblemSubmissionRow }) => (
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href={params.data.languageHref}
+                                    className="text-sm hover:text-primary hover:underline"
+                                >
+                                    {params.data.language_id}
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">{params.data.languageTitle}</TooltipContent>
+                        </Tooltip>
+                    ),
+                    valueGetter: (params: { data: ProblemSubmissionRow }) => params.data.language_id,
+                }
                 : {
-                      field: 'problem_id',
-                      headerName: 'Problem',
-                      width: 112,
-                      sortable: true,
-                      filter: true,
-                      hide: !columnVisibility.problem_id,
-                      cellRenderer: (params: { data: SubmissionRow }) => (
-                          <Tooltip>
-                              <TooltipTrigger asChild>
-                                  <Link
-                                      href={params.data.problemHref}
-                                      className="text-sm hover:text-primary hover:underline"
-                                  >
-                                      <ProblemIdLabel problemId={params.data.problem_id} />
-                                  </Link>
-                              </TooltipTrigger>
-                              <TooltipContent side="top">{params.data.problemTitle}</TooltipContent>
-                          </Tooltip>
-                      ),
-                      valueGetter: (params: { data: SubmissionRow }) => params.data.problem_id,
-                  },
+                    field: 'problem_id',
+                    headerName: 'Problem',
+                    width: 112,
+                    sortable: true,
+                    filter: true,
+                    hide: !columnVisibility.problem_id,
+                    cellRenderer: (params: { data: SubmissionRow }) => (
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link
+                                    href={params.data.problemHref}
+                                    className="text-sm hover:text-primary hover:underline"
+                                >
+                                    <ProblemIdLabel problemId={params.data.problem_id} />
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">{params.data.problemTitle}</TooltipContent>
+                        </Tooltip>
+                    ),
+                    valueGetter: (params: { data: SubmissionRow }) => params.data.problem_id,
+                },
             {
                 field: 'submission_id',
                 headerName: 'Submission',

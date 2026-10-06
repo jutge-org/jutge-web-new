@@ -33,6 +33,8 @@ type SolutionSourceCodeToolbarProps = {
     highlightTheme: HljsThemeSelection
     setHighlightTheme: (theme: HljsThemeSelection) => void
     setPreviewTheme: (theme: HljsThemeSelection | null) => void
+    /** When set, used instead of the default `/problems/.../view` link. */
+    viewHrefOverride?: string
 }
 
 export function SolutionSourceCodeToolbar({
@@ -45,10 +47,11 @@ export function SolutionSourceCodeToolbar({
     highlightTheme,
     setHighlightTheme,
     setPreviewTheme,
+    viewHrefOverride,
 }: SolutionSourceCodeToolbarProps) {
     const [themeSearch, setThemeSearch] = useState('')
 
-    const viewHref = solutionViewHref(pageKey, proglang)
+    const viewHref = viewHrefOverride ?? solutionViewHref(pageKey, proglang)
 
     const filteredThemes = useMemo(() => {
         const query = themeSearch.trim()
