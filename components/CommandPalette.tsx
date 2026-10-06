@@ -444,7 +444,7 @@ export function CommandPalette() {
                             size="sm"
                             aria-label="Quick search"
                             onClick={() => setOpen(true)}
-                            className="hidden h-8 w-40 justify-start gap-2 bg-muted/40 px-2.5 font-normal text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground md:inline-flex"
+                            className="hidden h-8 w-40 justify-start gap-2 bg-transparent px-2.5 font-normal text-muted-foreground shadow-sm hover:bg-muted/40 hover:text-foreground md:inline-flex"
                             prefix={<SearchIcon className="size-4 shrink-0" aria-hidden />}
                             suffix={
                                 <span className="hidden shrink-0 sm:inline-flex">
