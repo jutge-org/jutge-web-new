@@ -14,7 +14,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { groupDashboardModules, visibleDashboardModules } from '@/lib/dashboardModules'
 import { canAccessSupervision, type SessionUser } from '@/lib/session'
 import { useDashboardCustomizationStore } from '@/store/dashboardCustomization'
-import { useOpenWebDashboardModules, useOpenWebSettingsReady } from '@/store/openWebSettings'
+import {
+    useOpenWebDashboardModules,
+    useOpenWebSettingsReady,
+    useOpenWebShowHomeGithubCorner,
+} from '@/store/openWebSettings'
 
 type HomePageUserProps = {
     user: SessionUser | null
@@ -25,10 +29,11 @@ export function HomePageUser({ user }: HomePageUserProps) {
     const editing = useDashboardCustomizationStore((state) => state.editing)
     const startEditing = useDashboardCustomizationStore((state) => state.startEditing)
     const settingsReady = useOpenWebSettingsReady()
+    const showHomeGithubCorner = useOpenWebShowHomeGithubCorner()
 
     return (
         <div className="flex flex-col gap-6">
-            <HomeYearsGithubCorner />
+            {showHomeGithubCorner ? <HomeYearsGithubCorner /> : null}
             <MainBreadcrumbs breadcrumbs={[{ title: 'Jutge.org', url: '/' }]} />
 
             <div className="flex flex-col gap-2">

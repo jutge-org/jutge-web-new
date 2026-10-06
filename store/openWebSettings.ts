@@ -56,6 +56,8 @@ type OpenWebSettingsStore = {
     setSupervisionLastCourse: (courseKey: string) => void
     setSupervisionLastStudent: (courseKey: string, email: string) => void
     setUpcomingExamCollapsed: (examKey: string, collapsed: boolean) => void
+    setShowHeaderSearch: (show: boolean) => void
+    setShowHomeGithubCorner: (show: boolean) => void
     getSupervisionLastCourse: () => string
     getSupervisionLastStudent: (courseKey: string) => string
     setRecents: (updater: RecentsData | ((prev: RecentsData) => RecentsData)) => void
@@ -356,6 +358,26 @@ export const useOpenWebSettingsStore = create<OpenWebSettingsStore>((set, get) =
         }))
     },
 
+    setShowHeaderSearch: (show) => {
+        set((state) => ({
+            settings: patchSettings(state.settings, (settings) => ({
+                ...settings,
+                ui: { ...settings.ui, showHeaderSearch: show },
+            })),
+            dirty: true,
+        }))
+    },
+
+    setShowHomeGithubCorner: (show) => {
+        set((state) => ({
+            settings: patchSettings(state.settings, (settings) => ({
+                ...settings,
+                ui: { ...settings.ui, showHomeGithubCorner: show },
+            })),
+            dirty: true,
+        }))
+    },
+
     getSupervisionLastCourse: () => get().settings.ui.supervisionLastCourse,
 
     getSupervisionLastStudent: (courseKey) => get().settings.ui.supervisionLastStudentByCourse[courseKey] ?? '',
@@ -424,6 +446,14 @@ export function useOpenWebLayoutWidth() {
 
 export function useOpenWebTheme() {
     return useOpenWebSettingsStore((state) => state.settings.appearance.theme)
+}
+
+export function useOpenWebShowHeaderSearch() {
+    return useOpenWebSettingsStore((state) => state.settings.ui.showHeaderSearch)
+}
+
+export function useOpenWebShowHomeGithubCorner() {
+    return useOpenWebSettingsStore((state) => state.settings.ui.showHomeGithubCorner)
 }
 
 export function courseStatisticsPeriodFromSettings(

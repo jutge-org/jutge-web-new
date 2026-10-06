@@ -27,9 +27,15 @@ import {
 } from '@/lib/statementEtBook'
 import type { DashboardCardSize } from '@/lib/dashboardModules'
 import type { ThemePreference } from '@/lib/openWebSettings'
+import { GithubIcon } from '@/components/GithubIcon'
 import { cn } from '@/lib/utils'
 import { useDashboardCustomizationStore } from '@/store/dashboardCustomization'
-import { useOpenWebDashboardCardSize, useOpenWebSettingsStore } from '@/store/openWebSettings'
+import {
+    useOpenWebDashboardCardSize,
+    useOpenWebShowHeaderSearch,
+    useOpenWebShowHomeGithubCorner,
+    useOpenWebSettingsStore,
+} from '@/store/openWebSettings'
 import {
     AccessibilityIcon,
     AArrowDownIcon,
@@ -45,6 +51,7 @@ import {
     RectangleHorizontalIcon,
     RotateCcwIcon,
     ScanTextIcon,
+    SearchIcon,
     SquareIcon,
     StretchHorizontalIcon,
     SunIcon,
@@ -178,6 +185,10 @@ export function AppearanceSettings({ className, onNavigateAway }: AppearanceSett
     const startEditing = useDashboardCustomizationStore((state) => state.startEditing)
     const dashboardCardSize = useOpenWebDashboardCardSize()
     const setDashboardCardSize = useOpenWebSettingsStore((state) => state.setDashboardCardSize)
+    const showHeaderSearch = useOpenWebShowHeaderSearch()
+    const setShowHeaderSearch = useOpenWebSettingsStore((state) => state.setShowHeaderSearch)
+    const showHomeGithubCorner = useOpenWebShowHomeGithubCorner()
+    const setShowHomeGithubCorner = useOpenWebSettingsStore((state) => state.setShowHomeGithubCorner)
     const {
         monacoTheme,
         setMonacoTheme,
@@ -286,6 +297,34 @@ export function AppearanceSettings({ className, onNavigateAway }: AppearanceSett
                             value={LAYOUT_WIDTH_FULL}
                             label="Full"
                             icon={<StretchHorizontalIcon className="size-4" aria-hidden />}
+                        />
+                    </ToggleGroup>
+                </SettingSection>
+                <SettingSection
+                    title="Header search"
+                    description="Show the search box in the header. You can still open search with the keyboard shortcut when it is hidden."
+                >
+                    <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        spacing={0}
+                        value={showHeaderSearch ? 'show' : 'hide'}
+                        onValueChange={(value) => {
+                            if (value) {
+                                setShowHeaderSearch(value === 'show')
+                            }
+                        }}
+                        className="grid w-full grid-cols-2"
+                    >
+                        <SegmentedOption
+                            value="show"
+                            label="Show"
+                            icon={<SearchIcon className="size-4" aria-hidden />}
+                        />
+                        <SegmentedOption
+                            value="hide"
+                            label="Hide"
+                            icon={<SquareIcon className="size-4" aria-hidden />}
                         />
                     </ToggleGroup>
                 </SettingSection>
@@ -429,6 +468,34 @@ export function AppearanceSettings({ className, onNavigateAway }: AppearanceSett
                             <LayoutDashboardIcon className="size-4" aria-hidden />
                             Customize dashboard
                         </Button>
+                    </SettingSection>
+                    <SettingSection
+                        title="GitHub corner"
+                        description="Show the GitHub ribbon on your home page."
+                    >
+                        <ToggleGroup
+                            type="single"
+                            variant="outline"
+                            spacing={0}
+                            value={showHomeGithubCorner ? 'show' : 'hide'}
+                            onValueChange={(value) => {
+                                if (value) {
+                                    setShowHomeGithubCorner(value === 'show')
+                                }
+                            }}
+                            className="grid w-full grid-cols-2"
+                        >
+                            <SegmentedOption
+                                value="show"
+                                label="Show"
+                                icon={<GithubIcon className="size-4" aria-hidden />}
+                            />
+                            <SegmentedOption
+                                value="hide"
+                                label="Hide"
+                                icon={<SquareIcon className="size-4" aria-hidden />}
+                            />
+                        </ToggleGroup>
                     </SettingSection>
                     <SettingSection
                         title="Card size"

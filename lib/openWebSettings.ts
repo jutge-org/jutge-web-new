@@ -76,6 +76,10 @@ export type OpenWebUiSettings = {
     supervisionLastCourse: string
     supervisionLastStudentByCourse: Record<string, string>
     upcomingExamsCollapsed: Record<string, boolean>
+    /** Quick search box in the header (keyboard shortcut still works when hidden). */
+    showHeaderSearch: boolean
+    /** GitHub corner ribbon on the signed-in home page. */
+    showHomeGithubCorner: boolean
 }
 
 export type OpenWebDashboardSettings = {
@@ -121,6 +125,8 @@ export function createDefaultOpenWebSettings(): OpenWebSettings {
             supervisionLastCourse: '',
             supervisionLastStudentByCourse: {},
             upcomingExamsCollapsed: {},
+            showHeaderSearch: true,
+            showHomeGithubCorner: true,
         },
         dashboard: {
             modules: [...DEFAULT_DASHBOARD_MODULES],
@@ -213,6 +219,10 @@ function parseUpcomingExamsCollapsed(value: unknown): Record<string, boolean> {
     return result
 }
 
+function parseBooleanSetting(value: unknown, defaultValue: boolean): boolean {
+    return typeof value === 'boolean' ? value : defaultValue
+}
+
 function parseSupervisionLastStudentByCourse(value: unknown): Record<string, string> {
     if (typeof value !== 'object' || value === null) {
         return {}
@@ -277,6 +287,8 @@ export function parseOpenWebSettings(raw: unknown): OpenWebSettings {
                     : defaults.ui.supervisionLastCourse,
             supervisionLastStudentByCourse: parseSupervisionLastStudentByCourse(ui?.supervisionLastStudentByCourse),
             upcomingExamsCollapsed: parseUpcomingExamsCollapsed(ui?.upcomingExamsCollapsed),
+            showHeaderSearch: parseBooleanSetting(ui?.showHeaderSearch, defaults.ui.showHeaderSearch),
+            showHomeGithubCorner: parseBooleanSetting(ui?.showHomeGithubCorner, defaults.ui.showHomeGithubCorner),
         },
         dashboard: {
             modules,

@@ -73,6 +73,7 @@ import {
 import { useAppearanceThemePreference } from '@/components/AppearancePreferencesProvider'
 import { useTheme } from 'next-themes'
 import { usePathname, useRouter } from 'next/navigation'
+import { useOpenWebShowHeaderSearch } from '@/store/openWebSettings'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 
@@ -111,6 +112,7 @@ function UtilitySectionIcon({ href }: { href: string }) {
 }
 
 export function CommandPalette() {
+    const showHeaderSearch = useOpenWebShowHeaderSearch()
     const { user, logout } = useAuth()
     const authenticated = user !== null
     const instructor = user?.instructor ?? false
@@ -435,29 +437,31 @@ export function CommandPalette() {
 
     return (
         <>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <SmoothButton
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            aria-label="Quick search"
-                            onClick={() => setOpen(true)}
-                            className="hidden h-8 w-40 justify-start gap-2 bg-transparent px-2.5 font-normal text-muted-foreground shadow-sm hover:bg-muted/40 hover:text-foreground md:inline-flex"
-                            prefix={<SearchIcon className="size-4 shrink-0" aria-hidden />}
-                            suffix={
-                                <span className="hidden shrink-0 sm:inline-flex">
-                                    <SearchShortcutHint />
-                                </span>
-                            }
-                        >
-                            <span className="min-w-0 flex-1 truncate text-left">Search…</span>
-                        </SmoothButton>
-                    </TooltipTrigger>
-                    <TooltipContent>Quick search</TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+            {showHeaderSearch ? (
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <SmoothButton
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                aria-label="Quick search"
+                                onClick={() => setOpen(true)}
+                                className="hidden h-8 w-40 justify-start gap-2 bg-transparent px-2.5 font-normal text-muted-foreground shadow-sm hover:bg-muted/40 hover:text-foreground md:inline-flex"
+                                prefix={<SearchIcon className="size-4 shrink-0" aria-hidden />}
+                                suffix={
+                                    <span className="hidden shrink-0 sm:inline-flex">
+                                        <SearchShortcutHint />
+                                    </span>
+                                }
+                            >
+                                <span className="min-w-0 flex-1 truncate text-left">Search…</span>
+                            </SmoothButton>
+                        </TooltipTrigger>
+                        <TooltipContent>Quick search</TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            ) : null}
 
             <SmoothCommandDialog
                 open={open}
