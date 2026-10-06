@@ -9,7 +9,7 @@ import { HOME_DASHBOARD_MODULE_COMPONENTS } from '@/components/general/HomeDashb
 import { HomeUpcomingExams } from '@/components/general/HomeUpcomingExams'
 import { HomeYearsGithubCorner } from '@/components/general/HomeYearsGithubCorner'
 import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { groupDashboardModules, visibleDashboardModules } from '@/lib/dashboardModules'
 import { canAccessSupervision, type SessionUser } from '@/lib/session'
@@ -48,16 +48,17 @@ export function HomePageUser({ user }: HomePageUserProps) {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button
+                                        <SmoothButton
                                             type="button"
-                                            variant="outline"
-                                            size="icon"
-                                            className="size-7"
+                                            color="blue"
+                                            variant="candy"
+                                            size="xs"
+                                            className="size-7 px-0"
                                             aria-label="Customize dashboard"
                                             onClick={startEditing}
                                         >
                                             <SlidersHorizontalIcon className="size-3.5" aria-hidden />
-                                        </Button>
+                                        </SmoothButton>
                                     </TooltipTrigger>
                                     <TooltipContent>Customize dashboard</TooltipContent>
                                 </Tooltip>
@@ -92,10 +93,10 @@ function DashboardModulesView({ administrator }: { administrator: boolean }) {
             {modules.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-12 text-center">
                     <p className="text-sm text-muted-foreground">Your dashboard is empty.</p>
-                    <Button type="button" variant="outline" onClick={startEditing}>
+                    <SmoothButton type="button" color="blue" variant="candy" size="sm" onClick={startEditing}>
                         <SlidersHorizontalIcon className="size-4" aria-hidden />
                         Customize dashboard
-                    </Button>
+                    </SmoothButton>
                 </div>
             ) : null}
             {groupDashboardModules(modules).map((group) => {
@@ -146,11 +147,17 @@ function RoleButtons({ user }: { user: SessionUser | null }) {
 
 function RoleButton({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
     return (
-        <Button asChild variant="outline" size="sm" className="h-7 w-32 gap-1.5 px-2.5 text-xs font-semibold">
+        <SmoothButton
+            asChild
+            color="blue"
+            variant="candy"
+            size="xs"
+            className="w-32 font-semibold"
+        >
             <Link href={href}>
                 {children}
                 {label}
             </Link>
-        </Button>
+        </SmoothButton>
     )
 }
