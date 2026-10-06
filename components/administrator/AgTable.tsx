@@ -40,6 +40,8 @@ function useAgTheme(wrapperBorder = true, themeParams?: Record<string, string>) 
 
 const AG_TABLE_CLASS = 'w-full [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-muted-foreground/50'
 
+const AG_TABLE_FULL_MIN_HEIGHT_PX = 240
+
 function useViewportTableHeight(containerRef: RefObject<HTMLDivElement | null>) {
     const [height, setHeight] = useState<number>()
 
@@ -56,7 +58,7 @@ function useViewportTableHeight(containerRef: RefObject<HTMLDivElement | null>) 
             const top = el.getBoundingClientRect().top
             const footerTop = footerEl?.getBoundingClientRect().top ?? window.innerHeight
             const mainPaddingBottom = mainEl ? parseFloat(getComputedStyle(mainEl).paddingBottom) || 0 : 0
-            setHeight(Math.max(0, footerTop - top - mainPaddingBottom))
+            setHeight(Math.max(AG_TABLE_FULL_MIN_HEIGHT_PX, footerTop - top - mainPaddingBottom))
         }
 
         updateHeight()
