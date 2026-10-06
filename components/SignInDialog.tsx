@@ -5,8 +5,9 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 
 import { useAuth } from '@/components/AuthProvider'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { SmoothDialogContent } from '@/components/smoothui/dialog/animated-content'
+import SmoothButton from '@/components/smoothui/smooth-button'
+import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { LogInIcon } from 'lucide-react'
@@ -77,14 +78,14 @@ export function SignInDialog({ open, onOpenChange, onSignedIn, onDismiss, initia
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-sm p-6">
+            <SmoothDialogContent className="sm:max-w-sm rounded-xl p-6">
                 <DialogHeader>
                     <DialogTitle>Sign in</DialogTitle>
                     <DialogDescription className="">Sign in with your Jutge.org email and password.</DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-4">
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-1.5 mt-4">
                         <Label htmlFor="jutge-auth-email">Email</Label>
                         <Input
                             id="jutge-auth-email"
@@ -134,11 +135,18 @@ export function SignInDialog({ open, onOpenChange, onSignedIn, onDismiss, initia
                     ) : null}
                 </div>
 
-                <Button type="button" onClick={handleSignIn} disabled={pending} className="mt-2 w-full gap-2">
-                    <LogInIcon className="size-4" />
+                <SmoothButton
+                    type="button"
+                    color="accent"
+                    variant="candy"
+                    onClick={handleSignIn}
+                    disabled={pending}
+                    className="mt-6 w-full"
+                >
+                    <LogInIcon className="size-4" aria-hidden />
                     {pending ? 'Signing in…' : 'Sign in'}
-                </Button>
-            </DialogContent>
+                </SmoothButton>
+            </SmoothDialogContent>
         </Dialog>
     )
 }
