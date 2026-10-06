@@ -4,8 +4,7 @@ import { fetchSupervisionCourseStudents } from '@/lib/data/supervisionActions'
 import { CommandSearchInput } from '@/components/CommandSearchInput'
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ProfileFormRow } from '@/components/profile/ProfileFormRow'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import {
     Command,
     CommandEmpty,
@@ -86,7 +85,7 @@ function CourseCombobox({
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button
+                <SmoothButton
                     type="button"
                     variant="outline"
                     role="combobox"
@@ -94,6 +93,7 @@ function CourseCombobox({
                     aria-label="Select course"
                     disabled={disabled}
                     className="w-full justify-between font-normal"
+                    suffix={<ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" aria-hidden />}
                 >
                     <span className="flex min-w-0 items-center gap-2">
                         {selectedCourse ? (
@@ -101,8 +101,7 @@ function CourseCombobox({
                         ) : null}
                         <span className="truncate">{selectedCourse?.title ?? placeholder}</span>
                     </span>
-                    <ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" aria-hidden />
-                </Button>
+                </SmoothButton>
             </PopoverTrigger>
             <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
                 <Command shouldFilter={false}>
@@ -158,7 +157,7 @@ function StudentCombobox({
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button
+                <SmoothButton
                     type="button"
                     variant="outline"
                     role="combobox"
@@ -166,12 +165,12 @@ function StudentCombobox({
                     aria-label="Select student"
                     disabled={disabled}
                     className="w-full justify-between font-normal"
+                    suffix={<ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" aria-hidden />}
                 >
                     <span className="truncate">
                         {selectedStudent ? formatStudentLabel(selectedStudent) : placeholder}
                     </span>
-                    <ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" aria-hidden />
-                </Button>
+                </SmoothButton>
             </PopoverTrigger>
             <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
                 <Command shouldFilter={false}>
@@ -250,52 +249,59 @@ export function SupervisionForm({ userId, courses }: SupervisionFormProps) {
     const superviseHref = courseKey && studentEmail ? supervisionHref(courseKey, studentEmail) : null
 
     return (
-        <Card className="flex flex-row justify-center">
-            <CardContent className="max-w-4xl">
-                <form
-                    className="flex flex-col gap-2"
-                    onSubmit={(event) => {
-                        event.preventDefault()
-                    }}
-                >
-                    <ProfileFormRow label="Course">
-                        <CourseCombobox
-                            courses={courseOptions}
-                            value={courseKey}
-                            onValueChange={setCourseKey}
-                            disabled={loadingCourses}
-                            placeholder={coursePlaceholder}
-                        />
-                    </ProfileFormRow>
-                    <ProfileFormRow label="Student">
-                        <StudentCombobox
-                            students={students}
-                            value={studentEmail}
-                            onValueChange={setStudentEmail}
-                            disabled={loadingCourses || !courseKey || loadingStudents || students.length === 0}
-                            placeholder={studentPlaceholder}
-                        />
-                    </ProfileFormRow>
-                    <div className="grid gap-3 pt-2 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                        <div className="hidden sm:block" />
-                        <div className="min-w-0">
-                            {superviseHref ? (
-                                <Button asChild className="w-full">
-                                    <Link href={superviseHref}>
-                                        <EyeIcon aria-hidden />
-                                        Supervise
-                                    </Link>
-                                </Button>
-                            ) : (
-                                <Button type="button" disabled className="w-full">
-                                    <EyeIcon aria-hidden />
-                                    Supervise
-                                </Button>
-                            )}
-                        </div>
+        <section className="flex justify-center rounded-xl border border-border bg-card shadow-xs">
+            <form
+                className="mb-3 w-full max-w-4xl px-6 py-4"
+                onSubmit={(event) => {
+                    event.preventDefault()
+                }}
+            >
+                <ProfileFormRow label="Course">
+                    <CourseCombobox
+                        courses={courseOptions}
+                        value={courseKey}
+                        onValueChange={setCourseKey}
+                        disabled={loadingCourses}
+                        placeholder={coursePlaceholder}
+                    />
+                </ProfileFormRow>
+                <ProfileFormRow label="Student">
+                    <StudentCombobox
+                        students={students}
+                        value={studentEmail}
+                        onValueChange={setStudentEmail}
+                        disabled={loadingCourses || !courseKey || loadingStudents || students.length === 0}
+                        placeholder={studentPlaceholder}
+                    />
+                </ProfileFormRow>
+                <div className="grid gap-3 pt-2 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                    <div className="hidden sm:block" />
+                    <div className="min-w-0">
+                        {superviseHref ? (
+                            <SmoothButton
+                                asChild
+                                color="accent"
+                                variant="candy"
+                                className="w-full gap-2"
+                                prefix={<EyeIcon className="size-4" aria-hidden />}
+                            >
+                                <Link href={superviseHref}>Supervise</Link>
+                            </SmoothButton>
+                        ) : (
+                            <SmoothButton
+                                type="button"
+                                color="accent"
+                                variant="candy"
+                                disabled
+                                className="w-full gap-2"
+                                prefix={<EyeIcon className="size-4" aria-hidden />}
+                            >
+                                Supervise
+                            </SmoothButton>
+                        )}
                     </div>
-                </form>
-            </CardContent>
-        </Card>
+                </div>
+            </form>
+        </section>
     )
 }

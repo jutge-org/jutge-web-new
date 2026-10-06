@@ -12,6 +12,7 @@ import { SmoothCommandDialog } from '@/components/smoothui/command/dialog'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
+import { headerToolbarOutlineButtonClassName } from '@/components/layout/headerToolbarClasses'
 import { useLayoutWidth } from '@/components/layout/LayoutWidthProvider'
 import { useRecents } from '@/components/RecentsProvider'
 import { SignInDialog } from '@/components/SignInDialog'
@@ -41,6 +42,7 @@ import { filterAndSortExams, type ExamRow } from '@/lib/exams'
 import { LAYOUT_WIDTH_CONSTRAINED, LAYOUT_WIDTH_FULL, LAYOUT_WIDTH_WIDE } from '@/lib/layoutWidth'
 import { filterProblems, resolveProblemIconUrl } from '@/lib/problems'
 import { filterCommandPaletteRecents, type CommandPaletteRecentItem } from '@/lib/recents'
+import { cn } from '@/lib/utils'
 import type { ProblemRow } from '@/lib/data/problems'
 import {
     BookOpenIcon,
@@ -447,7 +449,10 @@ export function CommandPalette() {
                                 size="sm"
                                 aria-label="Quick search"
                                 onClick={() => setOpen(true)}
-                                className="hidden h-8 w-40 justify-start gap-2 bg-transparent px-2.5 font-normal text-muted-foreground shadow-sm hover:bg-muted/40 hover:text-foreground md:inline-flex"
+                                className={cn(
+                                    'hidden h-8 w-40 justify-start gap-2 px-2.5 font-normal text-muted-foreground shadow-sm md:inline-flex',
+                                    headerToolbarOutlineButtonClassName,
+                                )}
                                 prefix={<SearchIcon className="size-4 shrink-0" aria-hidden />}
                                 suffix={
                                     <span className="hidden shrink-0 sm:inline-flex">
@@ -626,8 +631,8 @@ export function CommandPalette() {
                             </CommandGroup>
                         ) : null}
                         {!loading &&
-                        (hasCommands || hasProblems || hasCourses || hasExams || hasRecents) &&
-                        hasSections ? (
+                            (hasCommands || hasProblems || hasCourses || hasExams || hasRecents) &&
+                            hasSections ? (
                             <CommandSeparator />
                         ) : null}
                         {!loading && filteredSections.app.length > 0 ? (
@@ -652,8 +657,8 @@ export function CommandPalette() {
                             </CommandGroup>
                         ) : null}
                         {!loading &&
-                        (hasCommands || hasProblems || hasCourses || hasExams || hasRecents || hasSections) &&
-                        hasProfile ? (
+                            (hasCommands || hasProblems || hasCourses || hasExams || hasRecents || hasSections) &&
+                            hasProfile ? (
                             <CommandSeparator />
                         ) : null}
                         {!loading && filteredSections.profile.length > 0 ? (
@@ -678,14 +683,14 @@ export function CommandPalette() {
                             </CommandGroup>
                         ) : null}
                         {!loading &&
-                        (hasCommands ||
-                            hasProblems ||
-                            hasCourses ||
-                            hasExams ||
-                            hasRecents ||
-                            hasSections ||
-                            hasProfile) &&
-                        hasInterpreters ? (
+                            (hasCommands ||
+                                hasProblems ||
+                                hasCourses ||
+                                hasExams ||
+                                hasRecents ||
+                                hasSections ||
+                                hasProfile) &&
+                            hasInterpreters ? (
                             <CommandSeparator />
                         ) : null}
                         {!loading && filteredSections.interpreters.length > 0 ? (
@@ -710,15 +715,15 @@ export function CommandPalette() {
                             </CommandGroup>
                         ) : null}
                         {!loading &&
-                        (hasCommands ||
-                            hasProblems ||
-                            hasCourses ||
-                            hasExams ||
-                            hasRecents ||
-                            hasSections ||
-                            hasProfile ||
-                            hasInterpreters) &&
-                        hasUtilities ? (
+                            (hasCommands ||
+                                hasProblems ||
+                                hasCourses ||
+                                hasExams ||
+                                hasRecents ||
+                                hasSections ||
+                                hasProfile ||
+                                hasInterpreters) &&
+                            hasUtilities ? (
                             <CommandSeparator />
                         ) : null}
                         {!loading && filteredSections.utilities.length > 0 ? (
@@ -743,16 +748,16 @@ export function CommandPalette() {
                             </CommandGroup>
                         ) : null}
                         {!loading &&
-                        (hasCommands ||
-                            hasProblems ||
-                            hasCourses ||
-                            hasExams ||
-                            hasRecents ||
-                            hasSections ||
-                            hasProfile ||
-                            hasInterpreters ||
-                            hasUtilities) &&
-                        hasDocumentation ? (
+                            (hasCommands ||
+                                hasProblems ||
+                                hasCourses ||
+                                hasExams ||
+                                hasRecents ||
+                                hasSections ||
+                                hasProfile ||
+                                hasInterpreters ||
+                                hasUtilities) &&
+                            hasDocumentation ? (
                             <CommandSeparator />
                         ) : null}
                         {!loading && filteredSections.documentation.length > 0 ? (
@@ -777,17 +782,17 @@ export function CommandPalette() {
                             </CommandGroup>
                         ) : null}
                         {!loading &&
-                        (hasCommands ||
-                            hasProblems ||
-                            hasCourses ||
-                            hasExams ||
-                            hasRecents ||
-                            hasSections ||
-                            hasProfile ||
-                            hasInterpreters ||
-                            hasUtilities ||
-                            hasDocumentation) &&
-                        hasAbout ? (
+                            (hasCommands ||
+                                hasProblems ||
+                                hasCourses ||
+                                hasExams ||
+                                hasRecents ||
+                                hasSections ||
+                                hasProfile ||
+                                hasInterpreters ||
+                                hasUtilities ||
+                                hasDocumentation) &&
+                            hasAbout ? (
                             <CommandSeparator />
                         ) : null}
                         {!loading && filteredSections.about.length > 0 ? (

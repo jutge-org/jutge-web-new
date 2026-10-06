@@ -12,6 +12,7 @@ import {
     SmoothDropdownMenuContent,
     SmoothDropdownMenuSubContent,
 } from '@/components/smoothui/dropdown-menu/animated-content'
+import { headerToolbarMenuIconButtonClassName } from '@/components/layout/headerToolbarClasses'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import {
     DropdownMenu,
@@ -369,7 +370,7 @@ function MainNavRoleSubmenu({
                                     href={item.href}
                                     className={cn(
                                         navSubItemIsCurrent(pathname, item.href, indexHref) &&
-                                            'font-semibold text-foreground',
+                                        'font-semibold text-foreground',
                                     )}
                                 >
                                     <MainNavSubmenuItemIcon item={item} SubItemIcon={SubItemIcon} />
@@ -431,127 +432,127 @@ export function MainBreadcrumbsInLayout() {
         <div className="flex min-w-0 flex-1 items-center font-bold tracking-tight">
             <div className="flex shrink-0 items-center gap-1">
                 <DropdownMenu>
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <DropdownMenuTrigger asChild>
-                                            <SmoothButton
-                                                type="button"
-                                                variant="outline"
-                                                size="icon-sm"
-                                                className="size-8 [&_svg]:size-4"
-                                                aria-haspopup="menu"
-                                                aria-label={
-                                                    menuAnchor
-                                                        ? `Open main menu (current section: ${menuAnchor.title})`
-                                                        : 'Open main menu'
-                                                }
-                                            >
-                                                <MenuIcon className="shrink-0" aria-hidden />
-                                            </SmoothButton>
-                                        </DropdownMenuTrigger>
-                                    </TooltipTrigger>
-                                    <TooltipContent>Main menu</TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                            <SmoothDropdownMenuContent
-                                align="start"
-                                className="min-w-52 -translate-y-2 translate-x-4 overflow-visible shadow-lg **:data-[slot=dropdown-menu-item]:py-1.5 **:data-[slot=dropdown-menu-item]:text-base **:data-[slot=dropdown-menu-sub-trigger]:py-1.5 **:data-[slot=dropdown-menu-sub-trigger]:text-base"
-                            >
-                                {mainMenuLinks.map(({ href, label }) => (
-                                    <Fragment key={href}>
-                                        {href === metaStartHref ? <DropdownMenuSeparator /> : null}
-                                        {href === '/supervision' || href === '/instructor' ? (
-                                            <DropdownMenuSeparator />
-                                        ) : null}
-                                        {href === '/documentation' ? <DropdownMenuSeparator /> : null}
-                                        {href === '/instructor' ? (
-                                            <MainNavRoleSubmenu
-                                                href={href}
-                                                label={label}
-                                                indexHref="/instructor"
-                                                items={instructorIndexItems}
-                                                pathname={pathname}
-                                                isCurrentSection={linkIsCurrentMainSection(href)}
-                                                subItemIcon={MainNavInstructorSubItemIcon}
-                                            />
-                                        ) : href === '/administrator' ? (
-                                            <MainNavRoleSubmenu
-                                                href={href}
-                                                label={label}
-                                                indexHref="/administrator"
-                                                items={administratorIndexItems}
-                                                pathname={pathname}
-                                                isCurrentSection={linkIsCurrentMainSection(href)}
-                                                subItemIcon={MainNavAdministratorSubItemIcon}
-                                            />
-                                        ) : href === '/courses' && authenticated ? (
-                                            <MainNavRoleSubmenu
-                                                href={href}
-                                                label={label}
-                                                indexHref="/courses"
-                                                items={enrolledCoursesNavItems}
-                                                pathname={pathname}
-                                                isCurrentSection={linkIsCurrentMainSection(href)}
-                                                subItemIcon={MainNavMenuItemIcon}
-                                            />
-                                        ) : href === '/interpreters' ? (
-                                            <MainNavRoleSubmenu
-                                                href={href}
-                                                label={label}
-                                                indexHref="/interpreters"
-                                                items={interpretersSubmenuItems}
-                                                pathname={pathname}
-                                                isCurrentSection={linkIsCurrentMainSection(href)}
-                                                subItemIcon={MainNavInterpretersSubItemIcon}
-                                            />
-                                        ) : href === '/utilities' ? (
-                                            <MainNavRoleSubmenu
-                                                href={href}
-                                                label={label}
-                                                indexHref="/utilities"
-                                                items={utilitiesSubmenuItems}
-                                                pathname={pathname}
-                                                isCurrentSection={linkIsCurrentMainSection(href)}
-                                                subItemIcon={MainNavUtilitiesSubItemIcon}
-                                            />
-                                        ) : href === '/documentation' ? (
-                                            <MainNavRoleSubmenu
-                                                href={href}
-                                                label={label}
-                                                indexHref="/documentation"
-                                                items={documentationSubmenuItems}
-                                                pathname={pathname}
-                                                isCurrentSection={linkIsCurrentMainSection(href)}
-                                                subItemIcon={MainNavDocumentationSubItemIcon}
-                                            />
-                                        ) : href === '/about' ? (
-                                            <MainNavRoleSubmenu
-                                                href={href}
-                                                label={label}
-                                                indexHref="/about"
-                                                items={aboutSubmenuItems}
-                                                pathname={pathname}
-                                                isCurrentSection={linkIsCurrentMainSection(href)}
-                                                subItemIcon={MainNavAboutSubItemIcon}
-                                            />
-                                        ) : (
-                                            <DropdownMenuItem asChild>
-                                                <Link
-                                                    href={href}
-                                                    className={cn(
-                                                        linkIsCurrentMainSection(href) &&
-                                                            'font-semibold text-foreground',
-                                                    )}
-                                                >
-                                                    <MainNavMenuItemIcon href={href} />
-                                                    {label}
-                                                </Link>
-                                            </DropdownMenuItem>
-                                        )}
-                                    </Fragment>
-                                ))}
-                            </SmoothDropdownMenuContent>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <DropdownMenuTrigger asChild>
+                                    <SmoothButton
+                                        type="button"
+                                        variant="outline"
+                                        size="icon-sm"
+                                        className={headerToolbarMenuIconButtonClassName}
+                                        aria-haspopup="menu"
+                                        aria-label={
+                                            menuAnchor
+                                                ? `Open main menu (current section: ${menuAnchor.title})`
+                                                : 'Open main menu'
+                                        }
+                                    >
+                                        <MenuIcon className="shrink-0" aria-hidden />
+                                    </SmoothButton>
+                                </DropdownMenuTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>Main menu</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    <SmoothDropdownMenuContent
+                        align="start"
+                        className="min-w-52 -translate-y-2 translate-x-4 overflow-visible shadow-lg **:data-[slot=dropdown-menu-item]:py-1.5 **:data-[slot=dropdown-menu-item]:text-base **:data-[slot=dropdown-menu-sub-trigger]:py-1.5 **:data-[slot=dropdown-menu-sub-trigger]:text-base"
+                    >
+                        {mainMenuLinks.map(({ href, label }) => (
+                            <Fragment key={href}>
+                                {href === metaStartHref ? <DropdownMenuSeparator /> : null}
+                                {href === '/supervision' || href === '/instructor' ? (
+                                    <DropdownMenuSeparator />
+                                ) : null}
+                                {href === '/documentation' ? <DropdownMenuSeparator /> : null}
+                                {href === '/instructor' ? (
+                                    <MainNavRoleSubmenu
+                                        href={href}
+                                        label={label}
+                                        indexHref="/instructor"
+                                        items={instructorIndexItems}
+                                        pathname={pathname}
+                                        isCurrentSection={linkIsCurrentMainSection(href)}
+                                        subItemIcon={MainNavInstructorSubItemIcon}
+                                    />
+                                ) : href === '/administrator' ? (
+                                    <MainNavRoleSubmenu
+                                        href={href}
+                                        label={label}
+                                        indexHref="/administrator"
+                                        items={administratorIndexItems}
+                                        pathname={pathname}
+                                        isCurrentSection={linkIsCurrentMainSection(href)}
+                                        subItemIcon={MainNavAdministratorSubItemIcon}
+                                    />
+                                ) : href === '/courses' && authenticated ? (
+                                    <MainNavRoleSubmenu
+                                        href={href}
+                                        label={label}
+                                        indexHref="/courses"
+                                        items={enrolledCoursesNavItems}
+                                        pathname={pathname}
+                                        isCurrentSection={linkIsCurrentMainSection(href)}
+                                        subItemIcon={MainNavMenuItemIcon}
+                                    />
+                                ) : href === '/interpreters' ? (
+                                    <MainNavRoleSubmenu
+                                        href={href}
+                                        label={label}
+                                        indexHref="/interpreters"
+                                        items={interpretersSubmenuItems}
+                                        pathname={pathname}
+                                        isCurrentSection={linkIsCurrentMainSection(href)}
+                                        subItemIcon={MainNavInterpretersSubItemIcon}
+                                    />
+                                ) : href === '/utilities' ? (
+                                    <MainNavRoleSubmenu
+                                        href={href}
+                                        label={label}
+                                        indexHref="/utilities"
+                                        items={utilitiesSubmenuItems}
+                                        pathname={pathname}
+                                        isCurrentSection={linkIsCurrentMainSection(href)}
+                                        subItemIcon={MainNavUtilitiesSubItemIcon}
+                                    />
+                                ) : href === '/documentation' ? (
+                                    <MainNavRoleSubmenu
+                                        href={href}
+                                        label={label}
+                                        indexHref="/documentation"
+                                        items={documentationSubmenuItems}
+                                        pathname={pathname}
+                                        isCurrentSection={linkIsCurrentMainSection(href)}
+                                        subItemIcon={MainNavDocumentationSubItemIcon}
+                                    />
+                                ) : href === '/about' ? (
+                                    <MainNavRoleSubmenu
+                                        href={href}
+                                        label={label}
+                                        indexHref="/about"
+                                        items={aboutSubmenuItems}
+                                        pathname={pathname}
+                                        isCurrentSection={linkIsCurrentMainSection(href)}
+                                        subItemIcon={MainNavAboutSubItemIcon}
+                                    />
+                                ) : (
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            href={href}
+                                            className={cn(
+                                                linkIsCurrentMainSection(href) &&
+                                                'font-semibold text-foreground',
+                                            )}
+                                        >
+                                            <MainNavMenuItemIcon href={href} />
+                                            {label}
+                                        </Link>
+                                    </DropdownMenuItem>
+                                )}
+                            </Fragment>
+                        ))}
+                    </SmoothDropdownMenuContent>
                 </DropdownMenu>
             </div>
             <Breadcrumb

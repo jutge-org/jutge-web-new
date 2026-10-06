@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
+import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
 import { useAuth } from '@/components/AuthProvider'
 import { SignInDialog } from '@/components/SignInDialog'
 import { SmoothDropdownMenuContent } from '@/components/smoothui/dropdown-menu/animated-content'
@@ -55,7 +56,7 @@ export function AuthToolbar() {
                                     type="button"
                                     variant="outline"
                                     size="icon-sm"
-                                    className="size-8 [&_svg]:size-4.5"
+                                    className={headerToolbarIconButtonClassName}
                                     aria-label="User menu"
                                 >
                                     {administrator ? (
@@ -114,7 +115,7 @@ export function AuthToolbar() {
                         <SmoothButton
                             variant="outline"
                             size="icon-sm"
-                            className="size-8 [&_svg]:size-4.5"
+                            className={headerToolbarIconButtonClassName}
                             type="button"
                             aria-label="Sign in"
                             onClick={() => setDialogOpen(true)}

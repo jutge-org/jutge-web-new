@@ -7,6 +7,7 @@ import { useAppearancePreferences } from '@/components/AppearancePreferencesProv
 import { RecentMenu } from '@/components/RecentMenu'
 import { RecentsProvider } from '@/components/RecentsProvider'
 import { AppFooter } from '@/components/layout/AppFooter'
+import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
 import { LayoutWidthContainer } from '@/components/layout/LayoutWidthContainer'
 import { RootShell } from '@/components/RootShell'
 import { MainBreadcrumbsInLayout } from '@/app/MainBreadcrumbsInLayout'
@@ -74,7 +75,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
                                                 type="button"
                                                 variant="outline"
                                                 size="icon-sm"
-                                                className="size-8 [&_svg]:size-4.5"
+                                                className={headerToolbarIconButtonClassName}
                                                 aria-label="Settings"
                                                 onClick={dispatchOpenAppearanceSettings}
                                             >

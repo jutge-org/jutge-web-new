@@ -4,6 +4,7 @@ import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { useRecents } from '@/components/RecentsProvider'
 import { SmoothDropdownMenuContent } from '@/components/smoothui/dropdown-menu/animated-content'
+import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import {
     DropdownMenu,
@@ -83,7 +84,7 @@ export function RecentMenu() {
                                 type="button"
                                 variant="outline"
                                 size="icon-sm"
-                                className="size-8 [&_svg]:size-4.5"
+                                className={headerToolbarIconButtonClassName}
                                 aria-label="Recent items"
                             >
                                 <HistoryIcon aria-hidden />
