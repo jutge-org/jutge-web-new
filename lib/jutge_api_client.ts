@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-09-25T08:08:22.753Z
+ * This file has been automatically generated at 2026-10-06T08:35:22.442Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -890,17 +890,16 @@ export type InstructorCourseUpdate = {
     tutors: CourseMembers | null
 }
 
-export type InstructorCourseUpdateIconInput = {
-    course_nm: string
-    icon: string
-}
-
 export type InstructorExamCourse = {
     course_nm: string
     title: string
 }
 
-export type InstructorExamDocument = RunningExamDocument
+export type InstructorExamDocument = {
+    document_nm: string
+    title: string
+    description: string
+}
 
 export type InstructorExamCompiler = {
     compiler_id: string
@@ -1019,7 +1018,7 @@ export type InstructorExam = {
     course: InstructorExamCourse
     created_at: Iso8601Date
     updated_at: Iso8601Date
-    documents: RunningExamDocument[]
+    documents: InstructorExamDocument[]
     compilers: InstructorExamCompiler[]
     problems: InstructorExamProblem[]
     students: InstructorExamStudent[]
@@ -2490,6 +2489,54 @@ class Module_problems {
     async getTemplate(data: { problem_id: string; template: string }): Promise<Download> {
         const [output, ofiles] = await this.root.execute("problems.getTemplate", data)
         return ofiles[0]
+    }
+
+    /**
+     * Get list of proglangs for which the problem has an official solution.
+     *
+     * 🔐 Authentication: instructorOrAdmin
+     * No warnings
+     * Permission is granted to admins and instructors who own the problem.
+     */
+    async getSolutions(problem_id: string): Promise<string[]> {
+        const [output, ofiles] = await this.root.execute("problems.getSolutions", problem_id)
+        return output
+    }
+
+    /**
+     * Get official solution for a problem in proglang as a string in base64.
+     *
+     * 🔐 Authentication: instructorOrAdmin
+     * No warnings
+     * Permission is granted to admins and instructors who own the problem.
+     */
+    async getSolutionAsB64(data: { problem_id: string; proglang: string }): Promise<string> {
+        const [output, ofiles] = await this.root.execute("problems.getSolutionAsB64", data)
+        return output
+    }
+
+    /**
+     * Get official solution for a problem in proglang as a file.
+     *
+     * 🔐 Authentication: instructorOrAdmin
+     * No warnings
+     * Permission is granted to admins and instructors who own the problem.
+     */
+    async getSolutionAsFile(data: { problem_id: string; proglang: string }): Promise<Download> {
+        const [output, ofiles] = await this.root.execute("problems.getSolutionAsFile", data)
+        return ofiles[0]
+    }
+
+    /**
+     * Get all testcases of a problem.
+     *
+     * 🔐 Authentication: instructorOrAdmin
+     * No warnings
+     * Permission is granted to admins, the problem owner, or any instructor if testcases are shared.
+     */
+    async getAllTestcases(problem_id: string): Promise<Testcase[]> {
+        const [output, ofiles] = await this.root.execute("problems.getAllTestcases", problem_id)
+        return output
     }
 
     /**
@@ -4332,18 +4379,6 @@ class Module_instructor_courses {
     }
 
     /**
-     * Update the icon of a course.
-     *
-     * 🔐 Authentication: instructor
-     * No warnings
-     *
-     */
-    async updateIcon(data: InstructorCourseUpdateIconInput): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.courses.updateIcon", data)
-        return output
-    }
-
-    /**
      * Delete an existing course.
      *
      * 🔐 Authentication: instructor
@@ -4488,7 +4523,7 @@ class Module_instructor_exams {
      * No warnings
      *
      */
-    async getDocuments(exam_nm: string): Promise<RunningExamDocument[]> {
+    async getDocuments(exam_nm: string): Promise<InstructorExamDocument[]> {
         const [output, ofiles] = await this.root.execute("instructor.exams.getDocuments", exam_nm)
         return output
     }
@@ -4868,54 +4903,6 @@ class Module_instructor_problems {
      */
     async download(problem_nm: string): Promise<Download> {
         const [output, ofiles] = await this.root.execute("instructor.problems.download", problem_nm)
-        return ofiles[0]
-    }
-
-    /**
-     * Get all testcases of a problem.
-     *
-     * 🔐 Authentication: instructorOrAdmin
-     * No warnings
-     * Permission is granted to admins, the problem owner, or any instructor if testcases are shared.
-     */
-    async getAllTestcases(problem_id: string): Promise<Testcase[]> {
-        const [output, ofiles] = await this.root.execute("instructor.problems.getAllTestcases", problem_id)
-        return output
-    }
-
-    /**
-     * Get list of proglangs for which the problem has an official solution.
-     *
-     * 🔐 Authentication: instructorOrAdmin
-     * No warnings
-     * Permission is granted to admins and instructors who own the problem.
-     */
-    async getSolutions(problem_id: string): Promise<string[]> {
-        const [output, ofiles] = await this.root.execute("instructor.problems.getSolutions", problem_id)
-        return output
-    }
-
-    /**
-     * Get official solution for a problem in proglang as a string in base64.
-     *
-     * 🔐 Authentication: instructorOrAdmin
-     * No warnings
-     * Permission is granted to admins and instructors who own the problem.
-     */
-    async getSolutionAsB64(data: { problem_id: string; proglang: string }): Promise<string> {
-        const [output, ofiles] = await this.root.execute("instructor.problems.getSolutionAsB64", data)
-        return output
-    }
-
-    /**
-     * Get official solution for a problem in proglang as a file.
-     *
-     * 🔐 Authentication: instructorOrAdmin
-     * No warnings
-     * Permission is granted to admins and instructors who own the problem.
-     */
-    async getSolutionAsFile(data: { problem_id: string; proglang: string }): Promise<Download> {
-        const [output, ofiles] = await this.root.execute("instructor.problems.getSolutionAsFile", data)
         return ofiles[0]
     }
 

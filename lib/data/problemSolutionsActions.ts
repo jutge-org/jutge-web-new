@@ -30,7 +30,7 @@ export async function fetchProblemSolutionAction(data: {
     try {
         const client = await getCurrentClient()
         const [contentB64, compilers] = await Promise.all([
-            client.instructor.problems.getSolutionAsB64({
+            client.problems.getSolutionAsB64({
                 problem_id: data.problem_id,
                 proglang: data.proglang,
             }),

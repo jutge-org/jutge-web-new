@@ -21,6 +21,6 @@ export async function downloadProblemTemplate(problemId: string, template: strin
 }
 
 export async function downloadProblemSolution(problemId: string, proglang: string) {
-    const download = await jutge.instructor.problems.getSolutionAsFile({ problem_id: problemId, proglang })
+    const download = await jutge.problems.getSolutionAsFile({ problem_id: problemId, proglang })
     offerDownloadFile(download)
 }

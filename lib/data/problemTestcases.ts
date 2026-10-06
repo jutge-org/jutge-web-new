@@ -28,7 +28,7 @@ export async function fetchAllProblemTestcases(
     }
 
     try {
-        const testcases = await client.instructor.problems.getAllTestcases(problem_id)
+        const testcases = await client.problems.getAllTestcases(problem_id)
         const outputAsImage = isGraphicProblem(driverId)
 
         return [...testcases]

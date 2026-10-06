@@ -25,7 +25,7 @@ async function canAccessProblemSolutions(problem_nm: string): Promise<boolean> {
 }
 
 export async function fetchProblemSolutionProglangs(client: JutgeApiClient, problem_id: string): Promise<string[]> {
-    const proglangs = await client.instructor.problems.getSolutions(problem_id)
+    const proglangs = await client.problems.getSolutions(problem_id)
     return [...proglangs].sort((a, b) => a.localeCompare(b))
 }
 
@@ -41,7 +41,7 @@ export async function fetchProblemSolutionContent(
 
     try {
         const [contentB64, compilers] = await Promise.all([
-            client.instructor.problems.getSolutionAsB64({ problem_id, proglang }),
+            client.problems.getSolutionAsB64({ problem_id, proglang }),
             fetchCompilers(),
         ])
 
