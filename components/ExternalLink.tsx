@@ -7,12 +7,13 @@ export function OpensInNewWindow() {
 
 type ExternalLinkProps = ComponentProps<'a'> & {
     href: string
+    icon?: boolean
 }
 
-export function ExternalLink({ children, rel = 'noopener noreferrer', ...props }: ExternalLinkProps) {
+export function ExternalLink({ children, rel = 'noopener noreferrer', icon = true, ...props }: ExternalLinkProps) {
     return (
         <a target="_blank" rel={rel} {...props}>
-            <ExternalLinkIcon className="size-4" />
+            {icon ? <ExternalLinkIcon className="size-4" /> : null}
             {children}
             <OpensInNewWindow />
         </a>

@@ -362,7 +362,7 @@ function MainNavRoleSubmenu({
                     {items.map((item) =>
                         item.external ? (
                             <DropdownMenuItem asChild key={item.href}>
-                                <ExternalLink href={item.href}>
+                                <ExternalLink href={item.href} icon={false}>
                                     <MainNavSubmenuItemIcon item={item} SubItemIcon={SubItemIcon} />
                                     {item.label}
                                 </ExternalLink>
