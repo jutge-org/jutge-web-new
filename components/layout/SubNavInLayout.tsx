@@ -33,7 +33,7 @@ export function SubNavInLayout() {
                         return (
                             <li key={item.key} className="shrink-0">
                                 {item.external ? (
-                                    <ExternalLink href={item.href} className={className}>
+                                    <ExternalLink href={item.href} icon={false} className={className}>
                                         {item.label}
                                         {item.badge}
                                     </ExternalLink>
