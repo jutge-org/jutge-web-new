@@ -29,6 +29,63 @@ type RegistrationFormFieldsProps = {
 const PASSWORD_REQUIREMENTS =
     'Password must be at least 12 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character. For your own security, choose a strong password and do not use the same password on other websites. Password will be reset periodically by the system.'
 
+const NAME_HELPER =
+    'Please write your full name as you would write it in your own language for an official document and capitalize it correctly.'
+
+const PARENT_EMAIL_HELPER =
+    'If you are a minor under your jurisdiction, you need to provide the email of a parent or guardian.'
+
+const REGISTRATION_HELPER_FILLER =
+    'Please fill out the form to sign up for Jutge.org.'
+
+const EMAIL_HELPER =
+    'Use an email address you check regularly. We will send a confirmation message there and you will use it to sign in to Jutge.org.'
+
+const BIRTH_YEAR_HELPER =
+    'Enter the year you were born, as a four-digit number. We use it to determine whether guardian consent may be required.'
+
+const COUNTRY_HELPER = 'Select the country where you live or study.'
+
+const POLICIES_HELPER =
+    'You must read and accept the Terms of Service and the Honor Code before you can complete registration.'
+
+const CONFIRM_PASSWORD_HELPER =
+    'Enter the same password again. It must match the password field exactly.'
+
+type RegistrationFieldHelper =
+    | 'email'
+    | 'name'
+    | 'birthYear'
+    | 'country'
+    | 'policies'
+    | 'parentEmail'
+    | 'password'
+    | 'confirmPassword'
+    | 'none'
+
+function registrationHelperText(helper: RegistrationFieldHelper): string {
+    switch (helper) {
+        case 'email':
+            return EMAIL_HELPER
+        case 'name':
+            return NAME_HELPER
+        case 'birthYear':
+            return BIRTH_YEAR_HELPER
+        case 'country':
+            return COUNTRY_HELPER
+        case 'policies':
+            return POLICIES_HELPER
+        case 'parentEmail':
+            return PARENT_EMAIL_HELPER
+        case 'password':
+            return PASSWORD_REQUIREMENTS
+        case 'confirmPassword':
+            return CONFIRM_PASSWORD_HELPER
+        case 'none':
+            return REGISTRATION_HELPER_FILLER
+    }
+}
+
 function isStrongPassword(password: string): boolean {
     if (password.length < 12) return false
     if (!/[A-Z]/.test(password)) return false
@@ -56,23 +113,20 @@ export function RegistrationFormFields({
     const [confirmPassword, setConfirmPassword] = useState('')
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [pending, setPending] = useState(false)
-    const [nameHelperVisible, setNameHelperVisible] = useState(false)
-    const [parentEmailHelperVisible, setParentEmailHelperVisible] = useState(false)
-    const [passwordHelperVisible, setPasswordHelperVisible] = useState(false)
+    const [activeHelper, setActiveHelper] = useState<RegistrationFieldHelper>('none')
 
-    function updatePasswordHelperVisibility(visible: boolean) {
-        if (visible) {
-            setPasswordHelperVisible(true)
-            return
-        }
+    function syncPasswordFieldHelperAfterBlur() {
         window.setTimeout(() => {
-            const active = document.activeElement
-            if (
-                active?.id !== 'registration-password' &&
-                active?.id !== 'registration-confirm-password'
-            ) {
-                setPasswordHelperVisible(false)
+            const activeId = document.activeElement?.id
+            if (activeId === 'registration-password') {
+                setActiveHelper('password')
+                return
             }
+            if (activeId === 'registration-confirm-password') {
+                setActiveHelper('confirmPassword')
+                return
+            }
+            setActiveHelper('none')
         }, 0)
     }
 
@@ -201,6 +255,19 @@ export function RegistrationFormFields({
                     }}
                 >
                     <dl className="px-6 py-4">
+                        <div className="grid gap-2 pb-1 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                            <div className="hidden sm:block" aria-hidden />
+                            <div className="flex flex-col gap-2">
+                                <h1 className="text-xl font-bold">Sign up</h1>
+                                <p
+                                    className="min-h-24 text-sm leading-snug text-muted-foreground"
+                                    aria-live="polite"
+                                >
+                                    {registrationHelperText(activeHelper)}
+                                </p>
+                            </div>
+                        </div>
+
                         <ProfileFormRow label="Email" htmlFor="registration-email">
                             <Input
                                 id="registration-email"
@@ -208,20 +275,12 @@ export function RegistrationFormFields({
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                onFocus={() => setActiveHelper('email')}
+                                onBlur={() => setActiveHelper('none')}
                                 placeholder="Your email"
                                 autoComplete="username"
                             />
                         </ProfileFormRow>
-
-                        {nameHelperVisible ? (
-                            <div className="grid gap-2 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                                <div className="hidden sm:block" />
-                                <p className="text-sm text-muted-foreground">
-                                    Please write your full name as you would write it in your own language for an official
-                                    document and capitalize it correctly.
-                                </p>
-                            </div>
-                        ) : null}
 
                         <ProfileFormRow
                             label="Full name"
@@ -232,8 +291,8 @@ export function RegistrationFormFields({
                                 name="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                onFocus={() => setNameHelperVisible(true)}
-                                onBlur={() => setNameHelperVisible(false)}
+                                onFocus={() => setActiveHelper('name')}
+                                onBlur={() => setActiveHelper('none')}
                                 placeholder="Your complete and official name"
                                 autoComplete="name"
                             />
@@ -249,6 +308,8 @@ export function RegistrationFormFields({
                                 maxLength={4}
                                 value={birthYear}
                                 onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                onFocus={() => setActiveHelper('birthYear')}
+                                onBlur={() => setActiveHelper('none')}
                                 placeholder="Year"
                                 className="w-24"
                                 autoComplete="bday-year"
@@ -256,8 +317,18 @@ export function RegistrationFormFields({
                         </ProfileFormRow>
 
                         <ProfileFormRow label="Country" htmlFor="registration-country">
-                            <Select value={countryId} onValueChange={setCountryId}>
-                                <SelectTrigger id="registration-country" className="w-full">
+                            <Select
+                                value={countryId}
+                                onValueChange={setCountryId}
+                                onOpenChange={(open) => {
+                                    setActiveHelper(open ? 'country' : 'none')
+                                }}
+                            >
+                                <SelectTrigger
+                                    id="registration-country"
+                                    className="w-full"
+                                    onFocus={() => setActiveHelper('country')}
+                                >
                                     <SelectValue placeholder="Select your country" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -276,6 +347,8 @@ export function RegistrationFormFields({
                                     id="registration-policies"
                                     checked={agreedToPolicies}
                                     onCheckedChange={(checked) => setAgreedToPolicies(checked === true)}
+                                    onFocus={() => setActiveHelper('policies')}
+                                    onBlur={() => setActiveHelper('none')}
                                     aria-describedby="registration-policies-description"
                                 />
                                 <Label
@@ -290,16 +363,6 @@ export function RegistrationFormFields({
                         </ProfileFormRow>
 
 
-                        {parentEmailHelperVisible ? (
-                            <div className="grid gap-2 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                                <div className="hidden sm:block" />
-                                <p className="text-sm text-muted-foreground">
-                                    If you are a minor under your jurisdiction, you need to provide the email of a parent
-                                    or guardian.
-                                </p>
-                            </div>
-                        ) : null}
-
                         <ProfileFormRow
                             label="Guardian email"
                             htmlFor="registration-parent-email"
@@ -310,19 +373,12 @@ export function RegistrationFormFields({
                                 type="email"
                                 value={parentEmail}
                                 onChange={(e) => setParentEmail(e.target.value)}
-                                onFocus={() => setParentEmailHelperVisible(true)}
-                                onBlur={() => setParentEmailHelperVisible(false)}
+                                onFocus={() => setActiveHelper('parentEmail')}
+                                onBlur={() => setActiveHelper('none')}
                                 placeholder="Email of your parent or guardian, if you are minor"
                                 autoComplete="off"
                             />
                         </ProfileFormRow>
-
-                        {passwordHelperVisible ? (
-                            <div className="grid gap-2 pt-8 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                                <div className="hidden sm:block" />
-                                <p className="text-sm text-muted-foreground">{PASSWORD_REQUIREMENTS}</p>
-                            </div>
-                        ) : null}
 
                         <ProfileFormRow label="Password" htmlFor="registration-password">
                             <Input
@@ -331,8 +387,8 @@ export function RegistrationFormFields({
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                onFocus={() => updatePasswordHelperVisibility(true)}
-                                onBlur={() => updatePasswordHelperVisibility(false)}
+                                onFocus={() => setActiveHelper('password')}
+                                onBlur={syncPasswordFieldHelperAfterBlur}
                                 placeholder="Your password"
                                 autoComplete="new-password"
                             />
@@ -345,8 +401,8 @@ export function RegistrationFormFields({
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                onFocus={() => updatePasswordHelperVisibility(true)}
-                                onBlur={() => updatePasswordHelperVisibility(false)}
+                                onFocus={() => setActiveHelper('confirmPassword')}
+                                onBlur={syncPasswordFieldHelperAfterBlur}
                                 placeholder="Repeat your password"
                                 autoComplete="new-password"
                             />
