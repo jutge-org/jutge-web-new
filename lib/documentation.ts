@@ -34,7 +34,7 @@ export const documentationIndexItems = [
     {
         href: '/documentation/faq',
         label: 'FAQ',
-        description: 'Common questions about problems, solutions, verdicts, code metrics, and Python libraries',
+        description: 'Frequently asked questions',
     },
     {
         href: '/documentation/compilers',

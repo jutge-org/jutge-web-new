@@ -32,7 +32,7 @@ export const aboutIndexItems = [
     {
         href: 'https://t.me/+TPaxNOQFmhx1oDIz',
         label: 'Telegram channel',
-        description: 'Join the Jutge.org Telegram community',
+        description: 'Jutge.org Telegram service status',
         external: true,
     },
     {
