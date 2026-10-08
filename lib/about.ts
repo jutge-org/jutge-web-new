@@ -121,6 +121,7 @@ export const developerCredits: CreditPerson[] = [
     { name: 'Carlos Martín Tresànchez' },
     { name: 'Miquel Torner Viñals', image: '/credits/mtorner.webp' },
     { name: 'Yeray Zalaya Domingo', image: '/credits/yeray.webp' },
+    { name: 'Joaquín Millán Aldaz', image: '/credits/jmillan.webp' },
 ]
 
 export type PictureItem = {
