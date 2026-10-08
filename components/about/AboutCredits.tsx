@@ -19,7 +19,7 @@ export function AboutCredits() {
                                 <img
                                     src={person.image}
                                     alt=""
-                                    className="size-20 shrink-0 rounded-xl object-cover hover:animate-pulse"
+                                    className="size-24 shrink-0 rounded-xl object-cover hover:animate-pulse"
                                 />
                             ) : undefined
                         }
@@ -41,7 +41,7 @@ export function AboutCredits() {
             >
                 <ul className="grid gap-3 sm:grid-cols-2">
                     {developerCredits.map((person) => (
-                        <li key={`${person.name}-${person.role ?? 'dev'}`}>
+                        <li key={person.name}>
                             <AboutInfoCard
                                 media={
                                     person.image ? (

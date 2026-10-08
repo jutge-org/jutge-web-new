@@ -79,7 +79,7 @@ export function jutgeAsset(path: string): string {
 export type CreditPerson = {
     name: string
     image?: string
-    role?: string
+    role?: string | string[]
     affiliation?: string
 }
 
@@ -102,26 +102,26 @@ export const maintenanceCredits: CreditPerson[] = [
 ]
 
 export const developerCredits: CreditPerson[] = [
-    { name: 'Jordi Petit', image: '/credits/jpetit.webp' },
-    { name: 'Salvador Roura', image: '/credits/roura.webp' },
-    { name: 'Omer Giménez', image: '/credits/omer.webp' },
-    { name: 'Alex Catarineu' },
-    { name: 'Victor Guerrero' },
-    { name: 'Albert Vaca', image: '/credits/vaka.webp' },
-    { name: 'Javier de San Pedro', image: '/credits/jspedro.webp' },
-    { name: 'Enric Cusell', image: '/credits/ecusell.webp' },
-    { name: 'Jan Mas Rovira', image: '/credits/janmas.webp' },
-    { name: 'Albert Lobo', image: '/credits/lobo.webp' },
-    { name: 'Anaga Mani' },
-    { name: 'Dyvia Venkataramani' },
-    { name: 'Cristina Raluca Vijulie', image: '/credits/cristina.webp' },
-    { name: 'Jordi Reig Callis', image: '/credits/jreig.webp' },
-    { name: 'Alejandro Adán Navarro', image: '/credits/adan.webp' },
-    { name: 'Pau Fernández', image: '/credits/pauek.webp' },
-    { name: 'Carlos Martín Tresànchez' },
-    { name: 'Miquel Torner Viñals', image: '/credits/mtorner.webp' },
-    { name: 'Yeray Zalaya Domingo', image: '/credits/yeray.webp' },
-    { name: 'Joaquín Millán Aldaz', image: '/credits/jmillan.webp' },
+    { name: 'Jordi Petit', image: '/credits/jpetit.webp', role: 'Lead' },
+    { name: 'Salvador Roura', image: '/credits/roura.webp', role: 'Lead' },
+    { name: 'Omer Giménez', image: '/credits/omer.webp', role: 'Zen' },
+    { name: 'Alex Catarineu', role: ['Back end', 'Front end'] },
+    { name: 'Victor Guerrero', role: ['Back end', 'Front end'] },
+    { name: 'Albert Vaca', image: '/credits/vaka.webp', role: ['Back end', 'Front end'] },
+    { name: 'Javier de San Pedro', image: '/credits/jspedro.webp', role: 'Circuits' },
+    { name: 'Enric Cusell', image: '/credits/ecusell.webp', role: 'Security' },
+    { name: 'Jan Mas Rovira', image: '/credits/janmas.webp', role: 'Haskell Inspector' },
+    { name: 'Albert Lobo', image: '/credits/lobo.webp', role: 'Translations' },
+    { name: 'Anaga Mani', role: 'Distiller' },
+    { name: 'Dyvia Venkataramani', role: 'Distiller' },
+    { name: 'Cristina Raluca Vijulie', image: '/credits/cristina.webp', role: ['Front end', 'Back end'] },
+    { name: 'Jordi Reig Callis', image: '/credits/jreig.webp', role: 'Back end' },
+    { name: 'Alejandro Adán Navarro', image: '/credits/adan.webp', role: 'Back end' },
+    { name: 'Pau Fernández', image: '/credits/pauek.webp', role: 'Lead' },
+    { name: 'Carlos Martín Tresànchez', role: 'Back end' },
+    { name: 'Miquel Torner Viñals', image: '/credits/mtorner.webp', role: 'Circuits' },
+    { name: 'Yeray Zalaya Domingo', image: '/credits/yeray.webp', role: 'Front end' },
+    { name: 'Joaquín Millán Aldaz', image: '/credits/jmillan.webp', role: 'VSC Extension' },
 ]
 
 export type PictureItem = {

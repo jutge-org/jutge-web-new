@@ -1,5 +1,6 @@
 import { referenceLinkClassName } from '@/components/documentation/referenceLinkClassName'
 import { ExternalLink } from '@/components/ExternalLink'
+import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { ExternalLinkIcon, type LucideIcon } from 'lucide-react'
 import type { CSSProperties, ReactNode } from 'react'
@@ -57,14 +58,20 @@ type AboutInfoCardProps = {
     icon?: LucideIcon
     media?: ReactNode
     title: ReactNode
-    badge?: string
+    badge?: string | string[]
     href?: string
     description?: ReactNode
     children?: ReactNode
     hover?: boolean
 }
 
-export function AboutInfoCard({ icon: Icon, media, title, href, description, children, hover }: AboutInfoCardProps) {
+function aboutInfoCardTags(badge?: string | string[]): string[] {
+    if (!badge) return []
+    return Array.isArray(badge) ? badge : [badge]
+}
+
+export function AboutInfoCard({ icon: Icon, media, title, badge, href, description, children, hover }: AboutInfoCardProps) {
+    const tags = aboutInfoCardTags(badge)
     const heading = href ? (
         <ExternalLink href={href} className="group/title inline-flex items-start gap-1.5">
             <span
@@ -87,7 +94,7 @@ export function AboutInfoCard({ icon: Icon, media, title, href, description, chi
     return (
         <article
             className={cn(
-                'group relative flex gap-4 rounded-2xl border border-border bg-card px-5 py-4 shadow-sm transition-[box-shadow,border-color,background-color] duration-200 ease-out',
+                'group relative flex items-center gap-4 rounded-2xl border border-border bg-card px-5 py-4 shadow-sm transition-[box-shadow,border-color,background-color] duration-200 ease-out',
                 shouldHover && 'hover:border-primary/25 hover:bg-accent/40 hover:shadow-lg',
             )}
         >
@@ -101,9 +108,18 @@ export function AboutInfoCard({ icon: Icon, media, title, href, description, chi
                     </span>
                 ) : null)}
             <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
-                    <h3 className="text-base leading-snug">{heading}</h3>
-                </div>
+                <h3 className="text-base leading-snug">{heading}</h3>
+                {tags.length > 0 ? (
+                    <ul className="mt-1.5 flex flex-wrap gap-1.5" aria-label="Tags">
+                        {tags.map((tag) => (
+                            <li key={tag}>
+                                <Badge variant="secondary" className="font-normal text-muted-foreground rounded-sm px-1 text-xs">
+                                    {tag}
+                                </Badge>
+                            </li>
+                        ))}
+                    </ul>
+                ) : null}
                 {description ? (
                     <div className="mt-1.5 space-y-1 text-sm leading-relaxed text-muted-foreground">{description}</div>
                 ) : null}
