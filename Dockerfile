@@ -21,6 +21,10 @@ COPY . .
 # Set environment variable for standalone build
 ENV DOCKER_BUILD=true
 
+# Set environment variable for Recaptcha site key
+ARG NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+ENV NEXT_PUBLIC_RECAPTCHA_SITE_KEY=$NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+
 # Build the Next.js app
 RUN bun run build
 
