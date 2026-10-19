@@ -64,7 +64,7 @@ export function HomeUpcomingExams() {
     }
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
             {exams.map((exam) => (
                 <UpcomingExamCard key={exam.exam_key} exam={exam} />
             ))}
@@ -101,17 +101,19 @@ function UpcomingExamCard({ exam }: { exam: ExamRow }) {
     if (isCollapsed) {
         return (
             <Card className="rounded-2xl border-none bg-purple-600 text-purple-50 shadow-sm dark:bg-purple-700">
-                <CardContent className="flex items-center gap-2.5 px-4 py-2">
+                <CardContent className="flex items-center gap-2.5 px-4 py-0">
                     <CourseIconImage iconUrl={exam.courseIconUrl} size="2sm" className="ring-1 ring-white/25" />
-                    <span className="shrink-0 text-xs font-semibold tracking-wide text-purple-100 uppercase">
-                        Upcoming exam
-                    </span>
-                    <Link
-                        href={`/exams/${exam.exam_key}`}
-                        className="min-w-0 flex-1 truncate text-sm font-semibold text-white hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-purple-600"
-                    >
-                        {exam.title}
-                    </Link>
+                    <div className="flex min-w-0 flex-1 items-baseline gap-2 overflow-hidden">
+                        <span className="shrink-0 text-xs leading-none font-semibold tracking-wide text-purple-100 uppercase">
+                            Upcoming exam
+                        </span>
+                        <Link
+                            href={`/exams/${exam.exam_key}`}
+                            className="min-w-0 flex-1 truncate text-sm leading-none font-semibold text-white hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-purple-600"
+                        >
+                            {exam.title}
+                        </Link>
+                    </div>
                     <span className="hidden shrink-0 items-center gap-1.5 text-xs font-medium text-purple-100 sm:flex">
                         <ClockIcon className="size-3.5 shrink-0" aria-hidden />
                         <span>{exam.exp_time_start}</span>
@@ -131,12 +133,12 @@ function UpcomingExamCard({ exam }: { exam: ExamRow }) {
 
     return (
         <Card className="rounded-2xl border-none bg-purple-600 text-purple-50 shadow-sm dark:bg-purple-700">
-            <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:gap-5">
+            <CardContent className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-start sm:gap-4">
                 <Link href={`/exams/${exam.exam_key}`} className="shrink-0" aria-hidden tabIndex={-1}>
                     <CourseIconImage iconUrl={exam.courseIconUrl} size="md" className="ring-1 ring-white/25" />
                 </Link>
 
-                <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                             <p className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-purple-100 uppercase">
