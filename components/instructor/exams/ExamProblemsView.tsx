@@ -9,7 +9,6 @@ import {
     instructorExamUpdateProblems,
 } from '@/lib/instructor/client'
 import { AgTableFull } from '@/components/administrator/AgTable'
-import { ExternalLink } from '@/components/ExternalLink'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { useTextareaDialog } from '@/components/instructor/TextareaDialog'
 import { Button } from '@/components/ui/button'
@@ -54,6 +53,7 @@ import { useParams } from 'next/navigation'
 import { capitalize } from 'radash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
 type ExamProblemsViewProps = {
     profile: Profile
@@ -98,7 +98,7 @@ export function ExamProblemsView({ profile }: ExamProblemsViewProps) {
                 sortable: false,
                 rowDrag: true,
                 cellRenderer: (p: { data: InstructorExamProblem }) => (
-                    <ExternalLink href={`/problems/${p.data.problem_nm}`}>{p.data.problem_nm}↗</ExternalLink>
+                    <Link href={`/problems/${p.data.problem_nm}`}>{p.data.problem_nm}</Link>
                 ),
                 valueGetter: (p: { data: InstructorExamProblem }) => p.data.problem_nm,
             },

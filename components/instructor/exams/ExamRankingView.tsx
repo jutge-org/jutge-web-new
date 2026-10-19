@@ -6,7 +6,6 @@ import {
     fetchInstructorExamRanking,
     fetchMiscHexColors,
 } from '@/lib/instructor/client'
-import { ExternalLink } from '@/components/ExternalLink'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type {
     ColorMapping,
@@ -19,6 +18,7 @@ import { PauseIcon, RabbitIcon, SnailIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
 
 export function ExamRankingView() {
     const { exam_nm } = useParams<{ exam_nm: string }>()
@@ -131,13 +131,13 @@ export function ExamRankingView() {
                                     key={index}
                                     className="bg-muted border-2 border-background rounded-lg w-40 h-12 px-4 text-center "
                                 >
-                                    <ExternalLink
+                                    <Link
                                         href={`/problems/${problem.problem_nm}`}
                                         title={problem.problem_nm}
                                         className="font-bold text-primary"
                                     >
                                         {problem.caption || `P${index + 1}`}
-                                    </ExternalLink>
+                                    </Link>
                                     {problem.weight !== null && (
                                         <>
                                             <br />
