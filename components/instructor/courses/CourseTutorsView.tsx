@@ -13,6 +13,7 @@ import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { useEmailsDialog } from '@/components/instructor/EmailsDialog'
 import { Button } from '@/components/ui/button'
 import { usePageChanges } from '@/hooks/use-page-changes'
+import { emailRenderer } from '@/lib/administrator/grid-renderers'
 import { offerDownloadFile, showError, type Dict } from '@/lib/instructor/utils'
 import type { CourseMembers, InstructorCourse, StudentProfile } from '@/lib/jutge_api_client'
 import type { RowSelectionOptions } from 'ag-grid-community'
@@ -85,7 +86,7 @@ function CourseTutorsForm(props: CourseTutorsProps) {
     })
 
     const [colDefs] = useState([
-        { field: 'email', flex: 1, filter: true },
+        { field: 'email', flex: 1, filter: true, cellRenderer: emailRenderer('email') },
         { field: 'name', flex: 1, filter: true },
         { field: 'state', width: 120, filter: true },
     ])

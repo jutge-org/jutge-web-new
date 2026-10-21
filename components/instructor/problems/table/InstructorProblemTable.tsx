@@ -1,7 +1,6 @@
 'use client'
 
 import { AgTableFull } from '@/components/administrator/AgTable'
-import { ExternalLink } from '@/components/ExternalLink'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -100,11 +99,15 @@ export default function InstructorProblemTable({ rows }: { rows: ProblemRow[] })
                         <SquarePlusIcon /> New problem
                     </Button>
                 </Link>
-                <ExternalLink href="https://github.com/jutge-org/jutge-toolkit">
+                <Link
+                    href="https://github.com/jutge-org/jutge-toolkit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     <Button variant="outline" className="w-36 justify-start" title="Open Jutge Toolkit website">
                         <WrenchIcon /> Jutge Toolkit
                     </Button>
-                </ExternalLink>
+                </Link>
                 <div className="grow" />
                 <Label className="text-sm">
                     <Switch checked={showDeprecated} onCheckedChange={(checked) => setShowDeprecated(checked)} />

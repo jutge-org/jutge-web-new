@@ -2,7 +2,7 @@
 
 import { fetchAllAbstractProblems, fetchInstructorList, instructorListUpdate } from '@/lib/instructor/client'
 import { AgTable, AgTableFull } from '@/components/administrator/AgTable'
-import { ExternalLink } from '@/components/ExternalLink'
+import Link from 'next/link'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -44,9 +44,9 @@ export function ListItemsView({ profile }: ListItemsViewProps) {
             cellRenderer: (p: { data: Item }) =>
                 p.data.problem_nm ? (
                     <div className="flex flex-row">
-                        <ExternalLink className="w-24" href={`/problems/${p.data.problem_nm}`}>
-                            {p.data.problem_nm}↗
-                        </ExternalLink>
+                        <Link className="w-24" href={`/problems/${p.data.problem_nm}`}>
+                            {p.data.problem_nm}
+                        </Link>
                         {p.data.title}
                     </div>
                 ) : (
@@ -215,7 +215,9 @@ function DialogToAddProblems({
             width: 120,
             filter: true,
             cellRenderer: (p: { data: ProblemItem }) => (
-                <ExternalLink href={`/problems/${p.data.problem_nm}`}>{p.data.problem_nm}↗</ExternalLink>
+                <Link href={`/problems/${p.data.problem_nm}`} target="_blank" rel="noopener noreferrer">
+                    {p.data.problem_nm}
+                </Link>
             ),
         },
         { field: 'title', flex: 1, filter: true },
