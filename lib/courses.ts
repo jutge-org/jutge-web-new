@@ -287,6 +287,24 @@ function compareCourseRows(a: SearchableCourseRow, b: SearchableCourseRow, sortF
     }
 }
 
+/** Private available courses are shown only to invited students; public ones are open to enroll. */
+export function partitionAvailableCoursesByAccess<T extends Pick<CourseRow, 'isPublic'>>(
+    courses: readonly T[],
+): { invited: T[]; public: T[] } {
+    const invited: T[] = []
+    const publicCourses: T[] = []
+
+    for (const course of courses) {
+        if (course.isPublic) {
+            publicCourses.push(course)
+        } else {
+            invited.push(course)
+        }
+    }
+
+    return { invited, public: publicCourses }
+}
+
 export function filterAndSortCourses<T extends SearchableCourseRow>(
     courses: T[],
     searchQuery: string,

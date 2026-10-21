@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { GlobeIcon, GraduationCapIcon, ShieldCheckIcon, SignatureIcon, UsersIcon } from 'lucide-react'
+import { GlobeIcon, GraduationCapIcon, MailIcon, ShieldCheckIcon, SignatureIcon, UsersIcon } from 'lucide-react'
 
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ProblemCountBadge } from '@/components/courses/ProblemCountBadge'
@@ -36,6 +36,7 @@ type CourseCardIdentityProps = {
     isTutor?: boolean
     isOfficial: boolean
     isPublic?: boolean
+    isInvited?: boolean
     /** Makes the title link cover the whole strip, for strips with no other interactive parts. */
     stretched?: boolean
 }
@@ -49,6 +50,7 @@ export function CourseCardIdentity({
     isTutor,
     isOfficial,
     isPublic,
+    isInvited,
     stretched = false,
 }: CourseCardIdentityProps) {
     return (
@@ -77,7 +79,13 @@ export function CourseCardIdentity({
                         <SignatureIcon className="size-3 shrink-0" aria-hidden />
                         <span className="truncate">{ownerName}</span>
                     </span>
-                    <CourseBadges isOwner={isOwner} isTutor={isTutor} isOfficial={isOfficial} isPublic={isPublic} />
+                    <CourseBadges
+                        isOwner={isOwner}
+                        isTutor={isTutor}
+                        isOfficial={isOfficial}
+                        isPublic={isPublic}
+                        isInvited={isInvited}
+                    />
                 </div>
             </div>
         </>
@@ -89,10 +97,11 @@ type CourseBadgesProps = {
     isTutor?: boolean
     isOfficial: boolean
     isPublic?: boolean
+    isInvited?: boolean
 }
 
-function CourseBadges({ isOwner, isTutor, isOfficial, isPublic }: CourseBadgesProps) {
-    if (!isOwner && !isTutor && !isOfficial && !isPublic) {
+function CourseBadges({ isOwner, isTutor, isOfficial, isPublic, isInvited }: CourseBadgesProps) {
+    if (!isOwner && !isTutor && !isOfficial && !isPublic && !isInvited) {
         return null
     }
 
@@ -114,6 +123,12 @@ function CourseBadges({ isOwner, isTutor, isOfficial, isPublic }: CourseBadgesPr
                 <Badge variant="outline" className="h-5 gap-1 px-1.5 text-[11px] font-normal">
                     <ShieldCheckIcon aria-hidden />
                     Official
+                </Badge>
+            ) : null}
+            {isInvited ? (
+                <Badge variant="outline" className="h-5 gap-1 px-1.5 text-[11px] font-normal">
+                    <MailIcon aria-hidden />
+                    Invited
                 </Badge>
             ) : null}
             {isPublic ? (

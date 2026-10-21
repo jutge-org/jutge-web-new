@@ -35,7 +35,12 @@ import { documentationNavItems } from '@/lib/documentation'
 import { interpretersNavItems } from '@/lib/interpreters'
 import { utilitiesNavItems } from '@/lib/utilities'
 import { instructorIndexItems } from '@/lib/instructor'
-import type { CoursesNavItem } from '@/lib/courses'
+import {
+    coursesPageTitles,
+    coursesTabHref,
+    DEFAULT_COURSES_TAB,
+    type CoursesNavItem,
+} from '@/lib/courses'
 import { getSiteNavLinks, homeLink, pathsHrefEqual, type SiteNavLink } from '@/lib/siteNavLinks'
 import { cn } from '@/lib/utils'
 import { useMainBreadcrumbs } from '@/store/MainBreadcrumbs'
@@ -95,7 +100,7 @@ import {
     TurtleIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { Fragment, useEffect, useRef, useState, type ComponentType } from 'react'
 
 type MainNavSubmenuItem = {
@@ -317,8 +322,36 @@ const aboutSubmenuItems = aboutNavItems
     .filter((item) => item.tab !== 'index')
     .map(({ href, label, external }) => ({ href, label, external }))
 
-function navSubItemIsCurrent(pathname: string, href: string, indexHref: string): boolean {
-    if (href === indexHref) return pathname === indexHref
+const coursesSubmenuFooterItems: readonly MainNavSubmenuItem[] = [
+    {
+        href: coursesTabHref('available'),
+        label: coursesPageTitles.available,
+    },
+]
+
+function navSubItemIsCurrent(
+    pathname: string,
+    href: string,
+    indexHref: string,
+    searchParams: URLSearchParams | null,
+): boolean {
+    const queryIndex = href.indexOf('?')
+    if (queryIndex !== -1) {
+        const path = href.slice(0, queryIndex)
+        if (pathname !== path && !pathname.startsWith(`${path}/`)) return false
+        const expected = new URLSearchParams(href.slice(queryIndex + 1))
+        for (const [key, value] of expected) {
+            if (searchParams?.get(key) !== value) return false
+        }
+        return true
+    }
+    if (href === indexHref) {
+        if (pathname === indexHref) {
+            const tab = searchParams?.get('tab')
+            if (tab && tab !== DEFAULT_COURSES_TAB) return false
+        }
+        return pathname === indexHref
+    }
     return pathname === href || pathname.startsWith(`${href}/`)
 }
 
@@ -327,6 +360,7 @@ type MainNavRoleSubmenuProps = {
     label: string
     indexHref: string
     items: readonly MainNavSubmenuItem[]
+    footerItems?: readonly MainNavSubmenuItem[]
     pathname: string
     isCurrentSection: boolean
     subItemIcon: ComponentType<{ href: string }>
@@ -337,10 +371,13 @@ function MainNavRoleSubmenu({
     label,
     indexHref,
     items,
+    footerItems,
     pathname,
     isCurrentSection,
     subItemIcon: SubItemIcon,
 }: MainNavRoleSubmenuProps) {
+    const searchParams = useSearchParams()
+
     return (
         <DropdownMenuSub>
             <DropdownMenuSubTrigger className={cn(isCurrentSection && 'font-semibold text-foreground')}>
@@ -352,7 +389,10 @@ function MainNavRoleSubmenu({
                     <DropdownMenuItem asChild>
                         <Link
                             href={indexHref}
-                            className={cn(navSubItemIsCurrent(pathname, indexHref, indexHref) && 'text-foreground')}
+                            className={cn(
+                                navSubItemIsCurrent(pathname, indexHref, indexHref, searchParams) &&
+                                'text-foreground',
+                            )}
                         >
                             <MainNavMenuItemIcon href={href} />
                             Index
@@ -372,7 +412,7 @@ function MainNavRoleSubmenu({
                                 <Link
                                     href={item.href}
                                     className={cn(
-                                        navSubItemIsCurrent(pathname, item.href, indexHref) &&
+                                        navSubItemIsCurrent(pathname, item.href, indexHref, searchParams) &&
                                         'font-semibold text-foreground',
                                     )}
                                 >
@@ -382,6 +422,34 @@ function MainNavRoleSubmenu({
                             </DropdownMenuItem>
                         ),
                     )}
+                    {footerItems && footerItems.length > 0 ? (
+                        <>
+                            <DropdownMenuSeparator />
+                            {footerItems.map((item) =>
+                                item.external ? (
+                                    <DropdownMenuItem asChild key={item.href}>
+                                        <ExternalLink href={item.href} icon={false}>
+                                            <MainNavSubmenuItemIcon item={item} SubItemIcon={SubItemIcon} />
+                                            {item.label}
+                                        </ExternalLink>
+                                    </DropdownMenuItem>
+                                ) : (
+                                    <DropdownMenuItem asChild key={item.href}>
+                                        <Link
+                                            href={item.href}
+                                            className={cn(
+                                                navSubItemIsCurrent(pathname, item.href, indexHref, searchParams) &&
+                                                'font-semibold text-foreground',
+                                            )}
+                                        >
+                                            <MainNavSubmenuItemIcon item={item} SubItemIcon={SubItemIcon} />
+                                            {item.label}
+                                        </Link>
+                                    </DropdownMenuItem>
+                                ),
+                            )}
+                        </>
+                    ) : null}
                 </SmoothDropdownMenuSubContent>
             </DropdownMenuPortal>
         </DropdownMenuSub>
@@ -495,6 +563,7 @@ export function MainBreadcrumbsInLayout() {
                                         label={label}
                                         indexHref="/courses"
                                         items={enrolledCoursesNavItems}
+                                        footerItems={coursesSubmenuFooterItems}
                                         pathname={pathname}
                                         isCurrentSection={linkIsCurrentMainSection(href)}
                                         subItemIcon={MainNavMenuItemIcon}

@@ -27,10 +27,12 @@ import { useConfirmDialog } from '@/components/administrator/ConfirmDialog'
 import { CourseCardIdentity, CourseCardShell, CourseStats, CourseStatsLoading } from '@/components/courses/CourseCard'
 import { CoursesListToolbar } from '@/components/courses/CoursesListToolbar'
 import { SuperviseCourseMenuItem } from '@/components/supervision/SuperviseCourseMenuItem'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { Spinner } from '@/components/ui/spinner'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { CourseProgress } from '@/lib/data/coursesProgress'
 import {
@@ -45,6 +47,7 @@ import {
     type CoursesSortField,
     type CoursesTab,
     filterAndSortCourses,
+    partitionAvailableCoursesByAccess,
 } from '@/lib/courses'
 
 const UNENROLL_CONFIRMATION =
@@ -52,6 +55,166 @@ const UNENROLL_CONFIRMATION =
 
 const ARCHIVE_ALL_PENDING_KEY = '*'
 const ARCHIVE_ALL_MIN_COURSES = 4
+
+type AvailableAccessTab = 'invited' | 'public'
+
+type CourseCardsListProps = {
+    courses: CourseRow[]
+    tab: CoursesTab
+    pendingKey: string | null
+    userId: string
+    progress?: Record<string, CourseProgress>
+    progressLoading: boolean
+    showArchiveAll: boolean
+    onAction: (course: CourseRow, action: CourseAction) => void
+    onArchiveAll: () => void
+}
+
+function CourseCardsList({
+    courses,
+    tab,
+    pendingKey,
+    userId,
+    progress,
+    progressLoading,
+    showArchiveAll,
+    onAction,
+    onArchiveAll,
+}: CourseCardsListProps) {
+    return (
+        <div className="flex flex-col gap-4">
+            {courses.map((course) => (
+                <StudentCourseCard
+                    key={course.course_key}
+                    course={course}
+                    tab={tab}
+                    pendingKey={pendingKey}
+                    userId={userId}
+                    progress={progress?.[course.course_key]}
+                    progressLoading={progressLoading}
+                    showArchiveAll={showArchiveAll}
+                    onAction={onAction}
+                    onArchiveAll={onArchiveAll}
+                />
+            ))}
+        </div>
+    )
+}
+
+type AvailableCoursesTabPanelProps = CourseCardsListProps & {
+    accessTab: AvailableAccessTab
+    totalInAccessTab: number
+}
+
+function AvailableCoursesTabPanel({
+    courses,
+    accessTab,
+    totalInAccessTab,
+    ...listProps
+}: AvailableCoursesTabPanelProps) {
+    if (courses.length > 0) {
+        return <CourseCardsList courses={courses} {...listProps} />
+    }
+
+    if (totalInAccessTab === 0) {
+        const empty =
+            accessTab === 'invited'
+                ? {
+                      title: 'No invited courses',
+                      description: 'When an instructor invites you to a private course, it will appear here.',
+                  }
+                : {
+                      title: 'No public courses',
+                      description: 'There are no public courses you can join right now.',
+                  }
+
+        return (
+            <Empty className="border border-dashed border-border bg-muted/20 py-12">
+                <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                        <GraduationCap aria-hidden />
+                    </EmptyMedia>
+                    <EmptyTitle>{empty.title}</EmptyTitle>
+                    <EmptyDescription>{empty.description}</EmptyDescription>
+                </EmptyHeader>
+            </Empty>
+        )
+    }
+
+    return (
+        <Empty className="border border-dashed border-border bg-muted/20 py-12">
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <SearchIcon aria-hidden />
+                </EmptyMedia>
+                <EmptyTitle>No matching courses</EmptyTitle>
+                <EmptyDescription>Try a different search term, adjust filters, or clear the search box.</EmptyDescription>
+            </EmptyHeader>
+        </Empty>
+    )
+}
+
+type AvailableCoursesTabsProps = Omit<CourseCardsListProps, 'courses'> & {
+    invitedCourses: CourseRow[]
+    publicCourses: CourseRow[]
+    invitedTotal: number
+    publicTotal: number
+    accessTab: AvailableAccessTab
+    onAccessTabChange: (tab: AvailableAccessTab) => void
+}
+
+function AvailableCoursesTabs({
+    invitedCourses,
+    publicCourses,
+    invitedTotal,
+    publicTotal,
+    accessTab,
+    onAccessTabChange,
+    ...listProps
+}: AvailableCoursesTabsProps) {
+    return (
+        <Tabs
+            value={accessTab}
+            onValueChange={(value) => onAccessTabChange(value as AvailableAccessTab)}
+            className="gap-4"
+        >
+            <TabsList className="grid h-auto w-full grid-cols-1 gap-1 p-1 sm:grid-cols-2 sm:h-auto">
+                <TabsTrigger value="invited" className="h-auto min-h-8 px-2 py-1.5 text-left sm:text-center">
+                    <span className="text-pretty">Courses where you are invited</span>
+                    {invitedTotal > 0 ? (
+                        <Badge variant="secondary" className="ml-1 shrink-0 px-1.5 tabular-nums">
+                            {invitedTotal}
+                        </Badge>
+                    ) : null}
+                </TabsTrigger>
+                <TabsTrigger value="public" className="h-auto min-h-8 px-2 py-1.5 text-left sm:text-center">
+                    Public courses
+                    {publicTotal > 0 ? (
+                        <Badge variant="secondary" className="ml-1 shrink-0 px-1.5 tabular-nums">
+                            {publicTotal}
+                        </Badge>
+                    ) : null}
+                </TabsTrigger>
+            </TabsList>
+            <TabsContent value="invited" className="mt-0">
+                <AvailableCoursesTabPanel
+                    courses={invitedCourses}
+                    accessTab="invited"
+                    totalInAccessTab={invitedTotal}
+                    {...listProps}
+                />
+            </TabsContent>
+            <TabsContent value="public" className="mt-0">
+                <AvailableCoursesTabPanel
+                    courses={publicCourses}
+                    accessTab="public"
+                    totalInAccessTab={publicTotal}
+                    {...listProps}
+                />
+            </TabsContent>
+        </Tabs>
+    )
+}
 
 type CoursesListProps = {
     tab: CoursesTab
@@ -103,6 +266,7 @@ function StudentCourseCard({
                 isTutor={course.isTutor}
                 isOfficial={course.isOfficial}
                 isPublic={course.isPublic}
+                isInvited={tab === 'available' && !course.isPublic}
             />
 
             {progressLoading && !progress ? (
@@ -225,6 +389,7 @@ export function CoursesList({
     const [officialFilter, setOfficialFilter] = useState<CoursesOfficialFilter>('all')
     const [instructorFilter, setInstructorFilter] = useState<CoursesInstructorFilter>('all')
     const [sortField, setSortField] = useState<CoursesSortField>('title')
+    const [availableAccessTab, setAvailableAccessTab] = useState<AvailableAccessTab>('invited')
     const [, startTransition] = useTransition()
     const [runConfirmDialog, ConfirmDialogComponent] = useConfirmDialog({
         title: 'Are you sure?',
@@ -241,6 +406,25 @@ export function CoursesList({
         () => filterAndSortCourses(courses, searchQuery, officialFilter, sortField, instructorFilter),
         [courses, instructorFilter, officialFilter, searchQuery, sortField],
     )
+
+    const availableByAccess = useMemo(() => {
+        if (tab !== 'available') {
+            return null
+        }
+        return {
+            all: partitionAvailableCoursesByAccess(courses),
+            visible: partitionAvailableCoursesByAccess(visibleCourses),
+        }
+    }, [courses, tab, visibleCourses])
+
+    const toolbarVisibleCount =
+        availableByAccess && tab === 'available'
+            ? availableByAccess.visible[availableAccessTab].length
+            : visibleCourses.length
+    const toolbarTotalCount =
+        availableByAccess && tab === 'available'
+            ? availableByAccess.all[availableAccessTab].length
+            : courses.length
 
     const showArchiveAll = tab === 'enrolled' && courses.length >= ARCHIVE_ALL_MIN_COURSES
 
@@ -363,43 +547,55 @@ export function CoursesList({
                     onInstructorFilterChange={setInstructorFilter}
                     sortField={sortField}
                     onSortFieldChange={setSortField}
-                    visibleCount={visibleCourses.length}
-                    totalCount={courses.length}
+                    visibleCount={toolbarVisibleCount}
+                    totalCount={toolbarTotalCount}
                     showHelp
                 />
 
-                {visibleCourses.length === 0 ? (
-                    <Empty className="border border-dashed border-border bg-muted/20 py-12">
-                        <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                                <SearchIcon aria-hidden />
-                            </EmptyMedia>
-                            <EmptyTitle>No matching courses</EmptyTitle>
-                            <EmptyDescription>
-                                Try a different search term, adjust filters, or clear the search box.
-                            </EmptyDescription>
-                        </EmptyHeader>
-                    </Empty>
-                ) : (
-                    <TooltipProvider>
-                        <div className="flex flex-col gap-4">
-                            {visibleCourses.map((course) => (
-                                <StudentCourseCard
-                                    key={course.course_key}
-                                    course={course}
-                                    tab={tab}
-                                    pendingKey={pendingKey}
-                                    userId={userId}
-                                    progress={progress?.[course.course_key]}
-                                    progressLoading={progressLoading}
-                                    showArchiveAll={showArchiveAll}
-                                    onAction={handleAction}
-                                    onArchiveAll={handleArchiveAll}
-                                />
-                            ))}
-                        </div>
-                    </TooltipProvider>
-                )}
+                <TooltipProvider>
+                    {availableByAccess ? (
+                        <AvailableCoursesTabs
+                            invitedCourses={availableByAccess.visible.invited}
+                            publicCourses={availableByAccess.visible.public}
+                            invitedTotal={availableByAccess.all.invited.length}
+                            publicTotal={availableByAccess.all.public.length}
+                            accessTab={availableAccessTab}
+                            onAccessTabChange={setAvailableAccessTab}
+                            tab={tab}
+                            pendingKey={pendingKey}
+                            userId={userId}
+                            progress={progress}
+                            progressLoading={progressLoading}
+                            showArchiveAll={showArchiveAll}
+                            onAction={handleAction}
+                            onArchiveAll={handleArchiveAll}
+                        />
+                    ) : visibleCourses.length === 0 ? (
+                        <Empty className="border border-dashed border-border bg-muted/20 py-12">
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <SearchIcon aria-hidden />
+                                </EmptyMedia>
+                                <EmptyTitle>No matching courses</EmptyTitle>
+                                <EmptyDescription>
+                                    Try a different search term, adjust filters, or clear the search box.
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
+                    ) : (
+                        <CourseCardsList
+                            courses={visibleCourses}
+                            tab={tab}
+                            pendingKey={pendingKey}
+                            userId={userId}
+                            progress={progress}
+                            progressLoading={progressLoading}
+                            showArchiveAll={showArchiveAll}
+                            onAction={handleAction}
+                            onArchiveAll={handleArchiveAll}
+                        />
+                    )}
+                </TooltipProvider>
             </div>
             <ConfirmDialogComponent />
             <UnenrollDialogComponent />
