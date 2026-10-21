@@ -32,6 +32,7 @@ export function useProblemAssets(
                 result ?? {
                     shortHtmlStatement: '',
                     templates: [],
+                    sampleSession: null,
                     publicTestcases: [],
                     languages: {},
                 },

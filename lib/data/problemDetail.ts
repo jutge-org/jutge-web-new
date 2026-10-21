@@ -37,6 +37,8 @@ export type ProblemDetailData = {
     problem: Problem
     shortHtmlStatement: string
     templates: string[]
+    /** When set, replaces public test cases on the problem statement. */
+    sampleSession: string | null
     publicTestcases: DecodedTestcase[]
     languageVariants: LanguageVariant[]
     officialSolutions: string[]
@@ -48,7 +50,7 @@ export type ProblemDetailData = {
 
 export type ProblemDetailAssets = Pick<
     ProblemDetailData,
-    'shortHtmlStatement' | 'templates' | 'publicTestcases' | 'languages'
+    'shortHtmlStatement' | 'templates' | 'sampleSession' | 'publicTestcases' | 'languages'
 >
 
 export type ProblemDetailEnrichment = Pick<
@@ -116,6 +118,14 @@ export async function resolveProblemId(key: string): Promise<string | null> {
 export async function fetchProblemStatus(client: JutgeApiClient, problem_nm: string): Promise<AbstractStatus | null> {
     try {
         return await client.student.statuses.getForAbstractProblem(problem_nm)
+    } catch {
+        return null
+    }
+}
+
+async function fetchSampleSession(client: JutgeApiClient, problemId: string): Promise<string | null> {
+    try {
+        return await client.problems.getSampleSession(problemId)
     } catch {
         return null
     }
@@ -197,6 +207,24 @@ export async function fetchProblemAssets(
 ): Promise<ProblemDetailAssets | null> {
     try {
         const client = await getProblemsApiClient()
+        const sampleSession = await fetchSampleSession(client, problemId)
+
+        if (sampleSession !== null) {
+            const [shortHtmlStatement, templates, languages] = await Promise.all([
+                client.problems.getShortHtmlStatement(problemId),
+                client.problems.getTemplates(problemId),
+                fetchLanguages(),
+            ])
+
+            return {
+                shortHtmlStatement,
+                templates,
+                sampleSession,
+                publicTestcases: [],
+                languages,
+            }
+        }
+
         const [shortHtmlStatement, templates, sampleTestcases, publicTestcases, languages] = await Promise.all([
             client.problems.getShortHtmlStatement(problemId),
             client.problems.getTemplates(problemId),
@@ -208,6 +236,7 @@ export async function fetchProblemAssets(
         return {
             shortHtmlStatement,
             templates,
+            sampleSession: null,
             publicTestcases: [...sampleTestcases, ...publicTestcases].map((testcase) =>
                 decodeTestcase(testcase, isGraphicProblem(driverId)),
             ),
@@ -230,10 +259,15 @@ export async function fetchProblemDetail(
         const parsed = parseProblemKey(problemId)
         const problemNm = parsed.kind !== 'invalid' ? parsed.problem_nm : splitProblemId(problemId).main
 
+        const sampleSessionPromise = includeAssets
+            ? fetchSampleSession(client, problemId)
+            : Promise.resolve(null as string | null)
+
         const [
             problem,
             shortHtmlStatement,
             templates,
+            sampleSession,
             sampleTestcases,
             publicTestcases,
             problemSuppl,
@@ -244,8 +278,17 @@ export async function fetchProblemDetail(
             client.problems.getProblem(problemId),
             includeAssets ? client.problems.getShortHtmlStatement(problemId) : Promise.resolve(''),
             includeAssets ? client.problems.getTemplates(problemId) : Promise.resolve([] as string[]),
-            includeAssets ? client.problems.getSampleTestcases(problemId) : Promise.resolve([] as Testcase[]),
-            includeAssets ? client.problems.getPublicTestcases(problemId) : Promise.resolve([] as Testcase[]),
+            sampleSessionPromise,
+            includeAssets
+                ? sampleSessionPromise.then((session) =>
+                      session !== null ? ([] as Testcase[]) : client.problems.getSampleTestcases(problemId),
+                  )
+                : Promise.resolve([] as Testcase[]),
+            includeAssets
+                ? sampleSessionPromise.then((session) =>
+                      session !== null ? ([] as Testcase[]) : client.problems.getPublicTestcases(problemId),
+                  )
+                : Promise.resolve([] as Testcase[]),
             includeEnrichment ? client.problems.getProblemSuppl(problemId) : Promise.resolve(null),
             fetchAbstractProblem(problemNm),
             includeAssets ? fetchLanguages() : Promise.resolve({} as Record<string, Language>),
@@ -277,6 +320,7 @@ export async function fetchProblemDetail(
             problem,
             shortHtmlStatement,
             templates,
+            sampleSession: includeAssets ? sampleSession : null,
             publicTestcases: [...sampleTestcases, ...publicTestcases].map((testcase) =>
                 decodeTestcase(testcase, isGraphicProblem(problem.abstract_problem.driver_id)),
             ),

@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-10-16T06:13:32.318Z
+ * This file has been automatically generated at 2026-10-21T08:10:28.817Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -2386,6 +2386,19 @@ class Module_problems {
     }
 
     /**
+     * Get sample session of a problem.
+     *
+     * The sample session is the sample.dt file that contains the sample input and output for a Python problem.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: any
+     */
+    async getSampleSession(problem_id: string): Promise<string> {
+        const [output, ofiles] = await this.root.execute("problems.getSampleSession", problem_id)
+        return output
+    }
+
+    /**
      * Get public testcases of a problem.
      *
      * Public testcases are like sample testcases, but are not meant to be shown in the problem statatement, because of their long length.
@@ -3712,6 +3725,7 @@ class Module_student_tradingCards {
 class Module_tutor {
     private readonly root: JutgeApiClient
 
+    readonly examctl: Module_tutor_examctl
     readonly courses: Module_tutor_courses
     readonly profile: Module_tutor_profile
     readonly statuses: Module_tutor_statuses
@@ -3719,10 +3733,273 @@ class Module_tutor {
 
     constructor(root: JutgeApiClient) {
         this.root = root
+        this.examctl = new Module_tutor_examctl(root)
         this.courses = new Module_tutor_courses(root)
         this.profile = new Module_tutor_profile(root)
         this.statuses = new Module_tutor_statuses(root)
         this.submissions = new Module_tutor_submissions(root)
+    }
+}
+
+/**
+ *
+ *
+This module is used to control live exams (and constests, because contests are just exams with a public ranking).
+
+This module is available for instructors of the exam and for tutors enrolled in the exam's course.
+
+Current interface is still experimental and may change in the future.
+
+ *
+ */
+class Module_tutor_examctl {
+    private readonly root: JutgeApiClient
+
+    constructor(root: JutgeApiClient) {
+        this.root = root
+    }
+
+    /**
+     * Get the status of the exam.
+     *
+     * Returns waiting, started, or finished, plus the start time and the latest end time among students who have not finished.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async getStatus(): Promise<{
+        status: string /* waiting, started, or finished */
+        time_start: Iso8601Date | null
+        time_end: Iso8601Date | null
+    }> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.getStatus", null)
+        return output
+    }
+
+    /**
+     * List every student in the live exam.
+     *
+     * Returns each student with first login, computed end time, entry, finish, ban, and invite flags, and distinct submission and login IPs.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async liveRoster(): Promise<
+        {
+            email: string /* Email of the student */
+            name: string /* Name of the student */
+            start_time: Iso8601Date | null
+            end_time: Iso8601Date | null
+            entered: number /* Whether the student has entered the exam */
+            finished: number /* Whether the student has finished */
+            banned: number /* Whether the student is banned */
+            invited: number /* Whether the student is invited */
+            submission_ips: string[] /* Distinct submission IP addresses */
+            login_ips: string[] /* Distinct login IP addresses */
+        }[]
+    > {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.liveRoster", null)
+        return output
+    }
+
+    /**
+     * Get the latest submissions of the exam.
+     *
+     * Returns the most recent submissions, up to the given limit, with email, problem, verdict, and compiler.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async latestSubmissions(data: {
+        limit: number /* Maximum number of submissions to return */
+    }): Promise<
+        {
+            email: string /* Email of the student */
+            problem: string /* Problem name */
+            verdict: string | null
+            verdict_info: string | null
+            time_in: Iso8601Date /* Submission time */
+            problem_id: string /* Problem id */
+            compiler_id: string /* Compiler id */
+        }[]
+    > {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.latestSubmissions", data)
+        return output
+    }
+
+    /**
+     * List students who logged in from more than one IP.
+     *
+     * Returns each student with more than one distinct login IP, and the time of each login.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async multipleIPs(): Promise<
+        {
+            email: string /* Email of the student */
+            name: string /* Name of the student */
+            ips: {
+                ip: string /* Login IP address */
+                at: Iso8601Date /* Login time */
+            }[] /* Login IP addresses and times */
+        }[]
+    > {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.multipleIPs", null)
+        return output
+    }
+
+    /**
+     * Get statistics of the exam.
+     *
+     * Returns verdict, status, compiler, and language counts by problem, plus submission counts bucketed over time.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async getStatistics(): Promise<ExamStatistics> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.getStatistics", null)
+        return output
+    }
+
+    /**
+     * Get the ranking.
+     *
+     * Under development.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async getRanking(): Promise<Ranking> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.getRanking", null)
+        return output
+    }
+
+    /**
+     * Start an exam.
+     *
+     * Starts an exam, saving who has started it and its start time.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async start(): Promise<void> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.start", null)
+        return output
+    }
+
+    /**
+     * Finish one student.
+     *
+     * Sets the student as finished, ending access to the exam.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async finish(data: { email: string /* Email of the student */ }): Promise<void> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.finish", data)
+        return output
+    }
+
+    /**
+     * Unfinish one student.
+     *
+     * Clears the finished flag and reopens access to the exam.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async unfinish(data: { email: string /* Email of the student */ }): Promise<void> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.unfinish", data)
+        return output
+    }
+
+    /**
+     * Ban one student.
+     *
+     * Sets the student as banned and stores the reason, ending their access to the exam.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async ban(data: {
+        email: string /* Email of the student */
+        reason_ban: string /* Reason the student is banned */
+    }): Promise<void> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.ban", data)
+        return output
+    }
+
+    /**
+     * Unban one student.
+     *
+     * Clears the banned flag and the ban reason, restoring access to the exam.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async unban(data: { email: string /* Email of the student */ }): Promise<void> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.unban", data)
+        return output
+    }
+
+    /**
+     * Invite one student.
+     *
+     * Marks the student as invited, leaving the student out of the ranking. Only available when the exam is a contest.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async invite(data: { email: string /* Email of the student */ }): Promise<void> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.invite", data)
+        return output
+    }
+
+    /**
+     * Uninvite one student.
+     *
+     * Clears the invited flag so the student is included in the ranking. Only available when the exam is a contest.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async uninvite(data: { email: string /* Email of the student */ }): Promise<void> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.uninvite", data)
+        return output
+    }
+
+    /**
+     * Add or remove minutes for every student.
+     *
+     * Adds minutes for every student. Negative values remove time. The reason is appended, separated by "; ".
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async addMinutes(data: {
+        minutes: number /* Minutes to add. A negative value removes time. */
+        reason_inc: string /* Reason for the time change, appended to the existing reason */
+    }): Promise<void> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.addMinutes", data)
+        return output
+    }
+
+    /**
+     * Add or remove minutes for one student.
+     *
+     * Adds minutes for one student. Negative values remove time. The reason is appended, separated by "; ".
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: examctl
+     */
+    async addStudentMinutes(data: {
+        email: string /* Email of the student */
+        minutes: number /* Minutes to add. A negative value removes time. */
+        reason_inc: string /* Reason for the time change, appended to the existing reason */
+    }): Promise<void> {
+        const [output, ofiles] = await this.root.execute("tutor.examctl.addStudentMinutes", data)
+        return output
     }
 }
 
@@ -4090,7 +4367,6 @@ class Module_instructor {
     readonly lists: Module_instructor_lists
     readonly courses: Module_instructor_courses
     readonly exams: Module_instructor_exams
-    readonly examctl: Module_instructor_examctl
     readonly problems: Module_instructor_problems
     readonly queries: Module_instructor_queries
     readonly tags: Module_instructor_tags
@@ -4102,7 +4378,6 @@ class Module_instructor {
         this.lists = new Module_instructor_lists(root)
         this.courses = new Module_instructor_courses(root)
         this.exams = new Module_instructor_exams(root)
-        this.examctl = new Module_instructor_examctl(root)
         this.problems = new Module_instructor_problems(root)
         this.queries = new Module_instructor_queries(root)
         this.tags = new Module_instructor_tags(root)
@@ -4762,272 +5037,6 @@ class Module_instructor_exams {
      */
     async getRanking(exam_nm: string): Promise<Ranking> {
         const [output, ofiles] = await this.root.execute("instructor.exams.getRanking", exam_nm)
-        return output
-    }
-}
-
-/**
- *
- *
-This module is used to control live exams (and constests, because contests are just exams with a public ranking).
-
-It starts an exam and, for one student identified by email, finishes, bans, or (on contests) invites them.
-
-It can also add or remove minutes, report status, statistics, and the ranking, and list the live roster, latest submissions, and students who logged in from more than one IP.
-
-This module is only available for instructors of the exam.
-
-Current interface is still experimental and may change in the future.
-
- *
- */
-class Module_instructor_examctl {
-    private readonly root: JutgeApiClient
-
-    constructor(root: JutgeApiClient) {
-        this.root = root
-    }
-
-    /**
-     * Get the status of the exam.
-     *
-     * Returns waiting, started, or finished, plus the start time and the latest end time among students who have not finished.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async getStatus(): Promise<{
-        status: string /* waiting, started, or finished */
-        time_start: Iso8601Date | null
-        time_end: Iso8601Date | null
-    }> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.getStatus", null)
-        return output
-    }
-
-    /**
-     * List every student in the live exam.
-     *
-     * Returns each student with first login, computed end time, entry, finish, ban, and invite flags, and distinct submission and login IPs.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async liveRoster(): Promise<
-        {
-            email: string /* Email of the student */
-            name: string /* Name of the student */
-            start_time: Iso8601Date | null
-            end_time: Iso8601Date | null
-            entered: number /* Whether the student has entered the exam */
-            finished: number /* Whether the student has finished */
-            banned: number /* Whether the student is banned */
-            invited: number /* Whether the student is invited */
-            submission_ips: string[] /* Distinct submission IP addresses */
-            login_ips: string[] /* Distinct login IP addresses */
-        }[]
-    > {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.liveRoster", null)
-        return output
-    }
-
-    /**
-     * Get the latest submissions of the exam.
-     *
-     * Returns the most recent submissions, up to the given limit, with email, problem, verdict, and compiler.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async latestSubmissions(data: {
-        limit: number /* Maximum number of submissions to return */
-    }): Promise<
-        {
-            email: string /* Email of the student */
-            problem: string /* Problem name */
-            verdict: string | null
-            verdict_info: string | null
-            time_in: Iso8601Date /* Submission time */
-            problem_id: string /* Problem id */
-            compiler_id: string /* Compiler id */
-        }[]
-    > {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.latestSubmissions", data)
-        return output
-    }
-
-    /**
-     * List students who logged in from more than one IP.
-     *
-     * Returns each student with more than one distinct login IP, and the time of each login.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async multipleIPs(): Promise<
-        {
-            email: string /* Email of the student */
-            name: string /* Name of the student */
-            ips: {
-                ip: string /* Login IP address */
-                at: Iso8601Date /* Login time */
-            }[] /* Login IP addresses and times */
-        }[]
-    > {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.multipleIPs", null)
-        return output
-    }
-
-    /**
-     * Get statistics of the exam.
-     *
-     * Returns verdict, status, compiler, and language counts by problem, plus submission counts bucketed over time.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async getStatistics(): Promise<ExamStatistics> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.getStatistics", null)
-        return output
-    }
-
-    /**
-     * Get the ranking.
-     *
-     * Under development.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async getRanking(): Promise<Ranking> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.getRanking", null)
-        return output
-    }
-
-    /**
-     * Start an exam.
-     *
-     * Starts an exam, saving who has started it and its start time.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async start(): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.start", null)
-        return output
-    }
-
-    /**
-     * Finish one student.
-     *
-     * Sets the student as finished, ending access to the exam.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async finish(data: { email: string /* Email of the student */ }): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.finish", data)
-        return output
-    }
-
-    /**
-     * Unfinish one student.
-     *
-     * Clears the finished flag and reopens access to the exam.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async unfinish(data: { email: string /* Email of the student */ }): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.unfinish", data)
-        return output
-    }
-
-    /**
-     * Ban one student.
-     *
-     * Sets the student as banned and stores the reason, ending their access to the exam.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async ban(data: {
-        email: string /* Email of the student */
-        reason_ban: string /* Reason the student is banned */
-    }): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.ban", data)
-        return output
-    }
-
-    /**
-     * Unban one student.
-     *
-     * Clears the banned flag and the ban reason, restoring access to the exam.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async unban(data: { email: string /* Email of the student */ }): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.unban", data)
-        return output
-    }
-
-    /**
-     * Invite one student.
-     *
-     * Marks the student as invited, leaving the student out of the ranking. Only available when the exam is a contest.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async invite(data: { email: string /* Email of the student */ }): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.invite", data)
-        return output
-    }
-
-    /**
-     * Uninvite one student.
-     *
-     * Clears the invited flag so the student is included in the ranking. Only available when the exam is a contest.
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async uninvite(data: { email: string /* Email of the student */ }): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.uninvite", data)
-        return output
-    }
-
-    /**
-     * Add or remove minutes for every student.
-     *
-     * Adds minutes for every student. Negative values remove time. The reason is appended, separated by "; ".
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async addMinutes(data: {
-        minutes: number /* Minutes to add. A negative value removes time. */
-        reason_inc: string /* Reason for the time change, appended to the existing reason */
-    }): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.addMinutes", data)
-        return output
-    }
-
-    /**
-     * Add or remove minutes for one student.
-     *
-     * Adds minutes for one student. Negative values remove time. The reason is appended, separated by "; ".
-     *
-     * 🗂️ Domains: jutge, exam, contest
-     * 🔐 Authentication: instructorExam
-     */
-    async addStudentMinutes(data: {
-        email: string /* Email of the student */
-        minutes: number /* Minutes to add. A negative value removes time. */
-        reason_inc: string /* Reason for the time change, appended to the existing reason */
-    }): Promise<void> {
-        const [output, ofiles] = await this.root.execute("instructor.examctl.addStudentMinutes", data)
         return output
     }
 }

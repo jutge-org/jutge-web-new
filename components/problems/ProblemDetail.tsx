@@ -4,6 +4,7 @@ import { ProblemHealthCard } from '@/components/problems/ProblemHealthCard'
 import { ProblemNav } from '@/components/problems/ProblemNav'
 import { ProblemStatement, ProblemStatementSkeleton } from '@/components/problems/ProblemStatement'
 import { PublicTestcases, PublicTestcasesSkeleton } from '@/components/problems/PublicTestcases'
+import { SampleSession } from '@/components/problems/SampleSession'
 import { WidgetSpinner } from '@/components/general/WidgetSpinner'
 import { isGameProblem } from '@/lib/problems'
 import { cn } from '@/lib/utils'
@@ -136,8 +137,8 @@ export function ProblemDetail(props: ProblemDetailProps) {
             ) : null}
 
             {showTestcases ? (
-                assetsLoading ? (
-                    <PublicTestcasesSkeleton />
+                assetsLoading ? null : data.sampleSession ? (
+                    <SampleSession session={data.sampleSession} />
                 ) : data.publicTestcases.length > 0 ? (
                     <PublicTestcases testcases={data.publicTestcases} />
                 ) : null
