@@ -2,7 +2,7 @@
 
 import { fetchAllAbstractProblems, fetchInstructorList, instructorListUpdate } from '@/lib/instructor/client'
 import { AgTable, AgTableFull } from '@/components/administrator/AgTable'
-import Link from 'next/link'
+import { ProblemNmLink, iconUrlFromAbstractProblems } from '@/components/instructor/ProblemNmLink'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -19,8 +19,8 @@ import { sleep } from 'radash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-type Item = { description: string | null; problem_nm: string | null; title: string | null }
-type ProblemItem = { problem_nm: string; title: string }
+type Item = { description: string | null; problem_nm: string | null; title: string | null; iconUrl: string | null }
+type ProblemItem = { problem_nm: string; title: string; iconUrl: string | null }
 
 type ListItemsViewProps = {
     profile: Profile
@@ -43,10 +43,12 @@ export function ListItemsView({ profile }: ListItemsViewProps) {
             headerName: 'Items',
             cellRenderer: (p: { data: Item }) =>
                 p.data.problem_nm ? (
-                    <div className="flex flex-row">
-                        <Link className="w-24" href={`/problems/${p.data.problem_nm}`}>
-                            {p.data.problem_nm}
-                        </Link>
+                    <div className="flex flex-row items-center gap-2">
+                        <ProblemNmLink
+                            className="w-24 shrink-0"
+                            problem_nm={p.data.problem_nm}
+                            iconUrl={p.data.iconUrl}
+                        />
                         {p.data.title}
                     </div>
                 ) : (
@@ -67,6 +69,7 @@ export function ListItemsView({ profile }: ListItemsViewProps) {
                 problem_nm: item.problem_nm,
                 description: item.description,
                 title: item.problem_nm ? getProblemTitle(profile, item.problem_nm, problems) : null,
+                iconUrl: item.problem_nm ? iconUrlFromAbstractProblems(item.problem_nm, problems) : null,
             }))
 
             setList(list)
@@ -113,6 +116,7 @@ export function ListItemsView({ profile }: ListItemsViewProps) {
             problem_nm,
             title: getProblemTitle(profile, problem_nm, problems),
             description: null,
+            iconUrl: iconUrlFromAbstractProblems(problem_nm, problems),
         }))
         const selectedRows = grid.getSelectedNodes().map((node) => node.rowIndex) as number[]
         const index = selectedRows.length > 0 ? Math.max(...selectedRows) : items.length
@@ -127,6 +131,7 @@ export function ListItemsView({ profile }: ListItemsViewProps) {
             problem_nm: null,
             title: null,
             description: separator,
+            iconUrl: null,
         }
         const selectedRows = grid.getSelectedNodes().map((node) => node.rowIndex) as number[]
         const index = selectedRows.length > 0 ? Math.max(...selectedRows) : items.length
@@ -205,6 +210,7 @@ function DialogToAddProblems({
             .map(([problem_nm]) => ({
                 problem_nm,
                 title: getProblemTitle(profile, problem_nm, problems),
+                iconUrl: iconUrlFromAbstractProblems(problem_nm, problems),
             }))
             .sort((a, b) => a.problem_nm.localeCompare(b.problem_nm)),
     )
@@ -215,9 +221,11 @@ function DialogToAddProblems({
             width: 120,
             filter: true,
             cellRenderer: (p: { data: ProblemItem }) => (
-                <Link href={`/problems/${p.data.problem_nm}`} target="_blank" rel="noopener noreferrer">
-                    {p.data.problem_nm}
-                </Link>
+                <ProblemNmLink
+                    problem_nm={p.data.problem_nm}
+                    iconUrl={p.data.iconUrl}
+                    openInNewTab
+                />
             ),
         },
         { field: 'title', flex: 1, filter: true },

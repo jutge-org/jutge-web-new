@@ -3,6 +3,8 @@
 import { fetchAbstractProblem, fetchInstructorProblemDownload } from '@/lib/instructor/client'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { JForm, type JFormFields } from '@/components/instructor/JForm'
+import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
+import { problemIconUrl } from '@/lib/problems'
 import { mapmap, offerDownloadFile } from '@/lib/instructor/utils'
 import type { AbstractProblem } from '@/lib/jutge_api_client'
 import dayjs from 'dayjs'
@@ -38,6 +40,8 @@ export function ProblemPropertiesView() {
         const download = await fetchInstructorProblemDownload(problem_nm)
         offerDownloadFile(download, download.name)
     }
+
+    const iconUrl = problemIconUrl(abstractProblem.icon)
 
     const fields: JFormFields = {
         problem_nm: {
@@ -152,6 +156,15 @@ export function ProblemPropertiesView() {
                 >
                     <CloudDownloadIcon className="size-12" strokeWidth={0.8} />
                 </Button>
+            ),
+        },
+        icon: {
+            type: 'free',
+            label: 'Icon',
+            content: iconUrl ? (
+                <ProblemIconImage iconUrl={iconUrl} size="lg" />
+            ) : (
+                <span className="text-sm text-muted-foreground">—</span>
             ),
         },
     }

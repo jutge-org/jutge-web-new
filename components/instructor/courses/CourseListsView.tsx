@@ -8,7 +8,7 @@ import {
     instructorCourseUpdate,
 } from '@/lib/instructor/client'
 import { AgTable, AgTableFull } from '@/components/administrator/AgTable'
-import { ExternalLink } from '@/components/ExternalLink'
+import { ProblemNmLink, iconUrlFromAbstractProblems } from '@/components/instructor/ProblemNmLink'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { Button } from '@/components/ui/button'
 import {
@@ -290,10 +290,12 @@ function DialogToShowList({
                     sortable: false,
                     cellRenderer: (p: { data: InstructorListItem }) =>
                         p.data.problem_nm ? (
-                            <div className="flex flex-row">
-                                <ExternalLink className="w-24" href={`/problems/${p.data.problem_nm}`}>
-                                    {p.data.problem_nm}↗
-                                </ExternalLink>
+                            <div className="flex flex-row items-center gap-2">
+                                <ProblemNmLink
+                                    className="w-24 shrink-0"
+                                    problem_nm={p.data.problem_nm}
+                                    iconUrl={iconUrlFromAbstractProblems(p.data.problem_nm, allAbstractProblems)}
+                                />
                                 {getProblemTitle(profile, p.data.problem_nm, allAbstractProblems)}
                             </div>
                         ) : (

@@ -1,7 +1,7 @@
 'use client'
 
 import { AgTableFull } from '@/components/administrator/AgTable'
-import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
+import { ProblemNmLink } from '@/components/instructor/ProblemNmLink'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -21,14 +21,11 @@ const problemTableColumnDefs = [
         field: 'problem_nm',
         headerName: 'Id',
         cellRenderer: (p: ICellRendererParams<ProblemRow>) => (
-            <Link href={`/instructor/problems/${p.data!.problem_nm}/properties`}>
-                <span className="flex flex-row items-center gap-2">
-                    {p.data!.iconUrl ? (
-                        <ProblemIconImage iconUrl={p.data!.iconUrl} size="xs" className="translate-y-px" />
-                    ) : null}
-                    {p.data!.problem_nm}
-                </span>
-            </Link>
+            <ProblemNmLink
+                problem_nm={p.data!.problem_nm}
+                iconUrl={p.data!.iconUrl}
+                href={`/instructor/problems/${p.data!.problem_nm}/properties`}
+            />
         ),
         width: 120,
         filter: true,

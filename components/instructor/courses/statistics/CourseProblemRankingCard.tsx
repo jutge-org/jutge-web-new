@@ -2,15 +2,13 @@
 
 import { array2csv } from '@/actions/instructor/csv'
 import { AgTable } from '@/components/administrator/AgTable'
-import { ExternalLink } from '@/components/ExternalLink'
-import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
+import { ProblemNmLink, iconUrlFromAbstractProblems } from '@/components/instructor/ProblemNmLink'
 import { SaveFileIconButton } from '@/components/instructor/statistics/SaveFileIconButton'
 import { CardAction, CardContent, CardHeader, CardTitle, ResizableCard } from '@/components/ResizableCard'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { deriveCourseProblemRanking } from '@/lib/instructor/courseProblemRanking'
 import type { Dict } from '@/lib/instructor/utils'
-import { problemIconUrl } from '@/lib/problems'
 import { saveFileWithDialog } from '@/lib/saveFileWithDialog'
 import type { AbstractProblem, CourseSubmission, InstructorCourse, InstructorList } from '@/lib/jutge_api_client'
 import type { ICellRendererParams } from 'ag-grid-community'
@@ -38,43 +36,16 @@ export function CourseProblemRankingCard({
     const colDefs = useMemo(
         () => [
             {
-                field: 'iconUrl',
-                headerName: '',
-                width: 48,
-                minWidth: 48,
-                maxWidth: 48,
-                sortable: false,
-                filter: false,
-                resizable: false,
-                suppressHeaderMenuButton: true,
-                cellStyle: {
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingLeft: 0,
-                    paddingRight: 0,
-                },
-                cellRenderer: (params: ICellRendererParams<{ problem_nm: string }>) => {
-                    const iconUrl = problemIconUrl(abstractProblems[params.data!.problem_nm]?.icon)
-                    return iconUrl ? (
-                        <span className="flex size-full items-center justify-center">
-                            <ProblemIconImage iconUrl={iconUrl} size="xs" />
-                        </span>
-                    ) : null
-                },
-            },
-            {
                 field: 'problem_nm',
                 headerName: 'Id',
-                width: 120,
+                width: 140,
                 filter: true,
                 cellRenderer: (params: ICellRendererParams<{ problem_nm: string }>) => (
-                    <ExternalLink
-                        href={`problems/${params.data!.problem_nm}`}
+                    <ProblemNmLink
+                        problem_nm={params.data!.problem_nm}
+                        iconUrl={iconUrlFromAbstractProblems(params.data!.problem_nm, abstractProblems)}
                         className="text-primary"
-                    >
-                        {params.data!.problem_nm}
-                    </ExternalLink>
+                    />
                 ),
             },
             {

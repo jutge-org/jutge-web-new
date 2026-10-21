@@ -53,6 +53,7 @@ import { useParams } from 'next/navigation'
 import { capitalize } from 'radash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { ProblemNmLink, iconUrlFromAbstractProblems } from '@/components/instructor/ProblemNmLink'
 import Link from 'next/link'
 
 type ExamProblemsViewProps = {
@@ -97,9 +98,16 @@ export function ExamProblemsView({ profile }: ExamProblemsViewProps) {
                 width: 125,
                 sortable: false,
                 rowDrag: true,
-                cellRenderer: (p: { data: InstructorExamProblem }) => (
-                    <Link href={`/problems/${p.data.problem_nm}`}>{p.data.problem_nm}</Link>
-                ),
+                cellRenderer: (p: { data: InstructorExamProblem }) => {
+                    const abstractProblems =
+                        allAbstractProblems !== null ? allAbstractProblems : usedAbstractProblems!
+                    return (
+                        <ProblemNmLink
+                            problem_nm={p.data.problem_nm}
+                            iconUrl={iconUrlFromAbstractProblems(p.data.problem_nm, abstractProblems)}
+                        />
+                    )
+                },
                 valueGetter: (p: { data: InstructorExamProblem }) => p.data.problem_nm,
             },
             {
