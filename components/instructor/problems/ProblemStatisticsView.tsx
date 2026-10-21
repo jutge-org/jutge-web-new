@@ -1400,13 +1400,14 @@ export function ProblemStatisticsView({ problem_nm: problemNmProp }: ProblemStat
 
     useEffect(() => {
         if (!problem_nm) return
+        const problemNm = problem_nm
 
         async function fetchData() {
             const [submissions, colorMap, languages, abstract, buckets] = await Promise.all([
-                fetchInstructorAnonymousSubmissions(problem_nm),
+                fetchInstructorAnonymousSubmissions(problemNm),
                 fetchMiscHexColors(),
                 fetchTablesLanguages(),
-                fetchAbstractProblem(problem_nm),
+                fetchAbstractProblem(problemNm),
                 fetchInstructorProblemPopularityBuckets(),
             ])
             setStatistics({ submissions })
