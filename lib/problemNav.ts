@@ -1,4 +1,10 @@
-export type ProblemTab = 'statement' | 'submissions' | 'solutions' | 'testcases' | 'properties'
+export type ProblemTab =
+    | 'statement'
+    | 'submissions'
+    | 'solutions'
+    | 'testcases'
+    | 'statistics'
+    | 'properties'
 
 export type ProblemNavItem = {
     tab: ProblemTab
@@ -35,6 +41,7 @@ export function problemNavItems(
     instructorTabs: ProblemInstructorNavTabs,
     problem_nm?: string | null,
     isInstructorOwner = false,
+    showStatisticsTab = false,
 ): ProblemNavItem[] {
     const items: ProblemNavItem[] = [
         { tab: 'statement', label: 'Statement', href: `/problems/${pageKey}` },
@@ -47,6 +54,10 @@ export function problemNavItems(
 
     if (instructorTabs.showTestcasesTab) {
         items.push({ tab: 'testcases', label: 'Test cases', href: `/problems/${pageKey}/testcases` })
+    }
+
+    if (showStatisticsTab) {
+        items.push({ tab: 'statistics', label: 'Statistics', href: `/problems/${pageKey}/statistics` })
     }
 
     if (isInstructorOwner && problem_nm) {
@@ -73,6 +84,10 @@ export function problemTabFromPathname(pathname: string, pageKey: string): Probl
 
     if (pathname === `${base}/testcases` || pathname.startsWith(`${base}/testcases/`)) {
         return 'testcases'
+    }
+
+    if (pathname === `${base}/statistics` || pathname.startsWith(`${base}/statistics/`)) {
+        return 'statistics'
     }
 
     return 'statement'

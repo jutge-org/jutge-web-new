@@ -1383,8 +1383,13 @@ export function ProblemStatisticsPanel({
     )
 }
 
-export function ProblemStatisticsView() {
-    const { problem_nm } = useParams<{ problem_nm: string }>()
+type ProblemStatisticsViewProps = {
+    problem_nm?: string
+}
+
+export function ProblemStatisticsView({ problem_nm: problemNmProp }: ProblemStatisticsViewProps = {}) {
+    const params = useParams<{ problem_nm?: string }>()
+    const problem_nm = problemNmProp ?? params.problem_nm
     const [statistics, setStatistics] = useState<{
         submissions: ProblemAnonymousSubmission[]
     } | null>(null)
@@ -1394,6 +1399,8 @@ export function ProblemStatisticsView() {
     const [popularityBuckets, setPopularityBuckets] = useState<ProblemPopularityBucketEntry[] | null>(null)
 
     useEffect(() => {
+        if (!problem_nm) return
+
         async function fetchData() {
             const [submissions, colorMap, languages, abstract, buckets] = await Promise.all([
                 fetchInstructorAnonymousSubmissions(problem_nm),
@@ -1417,6 +1424,7 @@ export function ProblemStatisticsView() {
     )
 
     if (
+        !problem_nm ||
         statistics === null ||
         colors === null ||
         abstractProblem === null ||

@@ -56,15 +56,21 @@ export function ProblemNav({
         showSecondaryNav,
     ])
 
+    const showStatisticsTab = showSecondaryNav && Boolean(problem_nm) && !isGameProblem(driverId)
+
     const items = useMemo((): readonly SubNavItem[] => {
-        return problemNavItems(pageKey, instructorTabs, problem_nm, isInstructorOwner === true).map(
-            ({ tab, label, href }) => ({
-                key: tab,
-                label,
-                href,
-            }),
-        )
-    }, [pageKey, instructorTabs, problem_nm, isInstructorOwner])
+        return problemNavItems(
+            pageKey,
+            instructorTabs,
+            problem_nm,
+            isInstructorOwner === true,
+            showStatisticsTab,
+        ).map(({ tab, label, href }) => ({
+            key: tab,
+            label,
+            href,
+        }))
+    }, [pageKey, instructorTabs, problem_nm, isInstructorOwner, showStatisticsTab])
 
     if (!showSecondaryNav) {
         return null
