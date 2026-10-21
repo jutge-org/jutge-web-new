@@ -172,6 +172,17 @@ function AvailableCoursesTabs({
     onAccessTabChange,
     ...listProps
 }: AvailableCoursesTabsProps) {
+    if (invitedTotal === 0) {
+        return (
+            <AvailableCoursesTabPanel
+                courses={publicCourses}
+                accessTab="public"
+                totalInAccessTab={publicTotal}
+                {...listProps}
+            />
+        )
+    }
+
     return (
         <Tabs
             value={accessTab}
@@ -181,11 +192,9 @@ function AvailableCoursesTabs({
             <TabsList className="grid h-auto w-full grid-cols-1 gap-1 p-1 sm:grid-cols-2 sm:h-auto">
                 <TabsTrigger value="invited" className="h-auto min-h-8 px-2 py-1.5 text-left sm:text-center">
                     <span className="text-pretty">Courses where you are invited</span>
-                    {invitedTotal > 0 ? (
-                        <Badge variant="secondary" className="ml-1 shrink-0 px-1.5 tabular-nums">
-                            {invitedTotal}
-                        </Badge>
-                    ) : null}
+                    <Badge variant="secondary" className="ml-1 shrink-0 px-1.5 tabular-nums">
+                        {invitedTotal}
+                    </Badge>
                 </TabsTrigger>
                 <TabsTrigger value="public" className="h-auto min-h-8 px-2 py-1.5 text-left sm:text-center">
                     Public courses
@@ -417,13 +426,16 @@ export function CoursesList({
         }
     }, [courses, tab, visibleCourses])
 
+    const availableAccessTabEffective: AvailableAccessTab =
+        availableByAccess && availableByAccess.all.invited.length === 0 ? 'public' : availableAccessTab
+
     const toolbarVisibleCount =
         availableByAccess && tab === 'available'
-            ? availableByAccess.visible[availableAccessTab].length
+            ? availableByAccess.visible[availableAccessTabEffective].length
             : visibleCourses.length
     const toolbarTotalCount =
         availableByAccess && tab === 'available'
-            ? availableByAccess.all[availableAccessTab].length
+            ? availableByAccess.all[availableAccessTabEffective].length
             : courses.length
 
     const showArchiveAll = tab === 'enrolled' && courses.length >= ARCHIVE_ALL_MIN_COURSES
