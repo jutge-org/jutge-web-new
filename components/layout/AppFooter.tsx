@@ -1,11 +1,16 @@
 import { UpcLogoIcon } from '@/components/UpcLogoIcon'
 import { LayoutWidthContainer } from '@/components/layout/LayoutWidthContainer'
+import { cn } from '@/lib/utils'
 
-export function AppFooter() {
+type AppFooterProps = {
+    className?: string
+}
+
+export function AppFooter({ className }: AppFooterProps) {
     const currentYear = new Date().getFullYear()
 
     return (
-        <footer className="relative z-10 mt-auto border-t border-border bg-muted dark:bg-background">
+        <footer className={cn('relative z-10 mt-auto border-t border-border', className)}>
             <LayoutWidthContainer className="flex flex-row flex-wrap items-center justify-between gap-x-4 gap-y-2 px-6 py-3 text-sm text-muted-foreground">
                 <span>
                     © Universitat Politècnica de Catalunya

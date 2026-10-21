@@ -16,6 +16,7 @@ import { SubNavInLayout } from '@/components/layout/SubNavInLayout'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { dispatchOpenAppearanceSettings } from '@/lib/appearanceSettings'
+import { contextualChromeBackgroundClassName } from '@/lib/contextualChromeGradients'
 import { isContextualHeaderGradientsEnabled } from '@/lib/contextualHeaderGradients'
 import { cn } from '@/lib/utils'
 import { useDashboardCustomizationStore } from '@/store/dashboardCustomization'
@@ -24,31 +25,10 @@ import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 
 function headerBarClassName(pathname: string, gradientsEnabled: boolean): string {
-    const base = 'sticky top-0 z-50 border-b border-border'
-
-    if (gradientsEnabled && pathname.startsWith('/administrator')) {
-        return cn(
-            base,
-            'bg-gradient-to-r from-orange-300 to-muted',
-            'dark:from-orange-950 dark:to-background',
-        )
-    }
-    if (gradientsEnabled && pathname.startsWith('/instructor')) {
-        return cn(
-            base,
-            'bg-gradient-to-r from-purple-300 to-muted',
-            'dark:from-purple-950 dark:to-background',
-        )
-    }
-    if (gradientsEnabled && pathname.startsWith('/supervision')) {
-        return cn(
-            base,
-            'bg-gradient-to-r from-emerald-300 to-muted',
-            'dark:from-emerald-950 dark:to-background',
-        )
-    }
-
-    return cn(base, 'bg-muted dark:bg-background')
+    return cn(
+        'sticky top-0 z-50 border-b border-border',
+        contextualChromeBackgroundClassName(pathname, gradientsEnabled),
+    )
 }
 
 function AppShellInner({ children }: { children: React.ReactNode }) {
@@ -99,7 +79,11 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
                         <SubNavInLayout />
                     </header>
                 }
-                footer={<AppFooter />}
+                footer={
+                    <AppFooter
+                        className={contextualChromeBackgroundClassName(pathname, gradientsEnabled)}
+                    />
+                }
             >
                 {children}
             </RootShell>
