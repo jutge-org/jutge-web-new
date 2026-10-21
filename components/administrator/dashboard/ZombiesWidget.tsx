@@ -13,9 +13,11 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Zombies } from '@/lib/jutge_api_client'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { SmoothDropdownMenuContent } from '@/components/smoothui/dropdown-menu/animated-content'
+import SmoothButton from '@/components/smoothui/smooth-button'
+import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Spinner } from '@/components/ui/spinner'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import Widget from '@/components/administrator/dashboard/Widget'
@@ -97,12 +99,29 @@ export default function ZombiesWidget({ variant = 'table' }: ZombiesWidgetProps)
         <>
             {data && data.ies + data.pendings > 0 && (
                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button className="px-2" size="sm">
-                            <ChevronDownIcon />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-48">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <DropdownMenuTrigger asChild>
+                                    <SmoothButton
+                                        type="button"
+                                        color="blue"
+                                        variant="candy"
+                                        size="xs"
+                                        className="px-2"
+                                        aria-label="Zombie submission actions"
+                                    >
+                                        <ChevronDownIcon aria-hidden />
+                                    </SmoothButton>
+                                </DropdownMenuTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>Actions</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    <SmoothDropdownMenuContent
+                        align="end"
+                        className="w-48 **:data-[slot=dropdown-menu-item]:py-1.5 **:data-[slot=dropdown-menu-item]:text-sm"
+                    >
                         {data.ies > 0 && (
                             <>
                                 <DropdownMenuItem onClick={viewIEs}>
@@ -136,7 +155,7 @@ export default function ZombiesWidget({ variant = 'table' }: ZombiesWidgetProps)
                                 </DropdownMenuItem>
                             </>
                         )}
-                    </DropdownMenuContent>
+                    </SmoothDropdownMenuContent>
                 </DropdownMenu>
             )}
         </>
