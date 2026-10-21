@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { fetchTradingCards, type TradingCardRow } from '@/lib/data/tradingCards'
 import jutge from '@/lib/jutge'
+import { tradingCardDisplayName } from '@/lib/tradingCards'
 
 export function HomeRecentCollectibleCards() {
     const [cards, setCards] = useState<TradingCardRow[] | null>(null)
@@ -77,7 +78,7 @@ export function HomeRecentCollectibleCards() {
                         <TooltipProvider>
                             <div className="flex flex-row gap-3 overflow-x-auto pb-2 scrollbar-thin">
                                 {recentCards.map((card) => {
-                                    const cardName = card.card_id.split('/')[1]
+                                    const cardName = tradingCardDisplayName(card)
                                     return (
                                         <Tooltip key={card.card_id}>
                                             <TooltipTrigger asChild>
@@ -85,13 +86,13 @@ export function HomeRecentCollectibleCards() {
                                                     type="button"
                                                     onClick={() => handleCardClick(card)}
                                                     className="group relative w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-20"
-                                                    aria-label={`View Card ${cardName}`}
+                                                    aria-label={`View ${cardName}`}
                                                 >
                                                     <TradingCardThumbnail src={card.imageUrl} />
                                                 </button>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>Card {cardName}</p>
+                                                <p>{cardName}</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     )

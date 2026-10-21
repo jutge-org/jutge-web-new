@@ -18,6 +18,14 @@ export function tradingCardName(card_id: string): string {
     return rest.replace(/\.png$/i, '') || card_id
 }
 
+export function tradingCardDisplayName(card: Pick<TradingCardRow, 'card_id' | 'title'>): string {
+    const trimmed = card.title.trim()
+    if (trimmed) {
+        return trimmed
+    }
+    return tradingCardName(card.card_id)
+}
+
 export function collectTradingCardFamilies(cards: Pick<TradingCardRow, 'card_id'>[]): string[] {
     const families = new Set<string>()
     for (const card of cards) {
@@ -37,7 +45,7 @@ function matchesTradingCardSearch(card: TradingCardRow, query: string): boolean 
     }
 
     const family = tradingCardFamily(card.card_id)
-    const name = tradingCardName(card.card_id)
+    const name = tradingCardDisplayName(card)
     return includesForSearch([card.card_id, family, name].join(' '), query)
 }
 
@@ -55,7 +63,7 @@ function compareTradingCards(
 ): number {
     switch (sortField) {
         case 'name': {
-            const byName = tradingCardName(a.card_id).localeCompare(tradingCardName(b.card_id), undefined, {
+            const byName = tradingCardDisplayName(a).localeCompare(tradingCardDisplayName(b), undefined, {
                 sensitivity: 'base',
             })
             if (byName !== 0) return byName
@@ -66,7 +74,7 @@ function compareTradingCards(
                 sensitivity: 'base',
             })
             if (byFamily !== 0) return byFamily
-            return tradingCardName(a.card_id).localeCompare(tradingCardName(b.card_id), undefined, {
+            return tradingCardDisplayName(a).localeCompare(tradingCardDisplayName(b), undefined, {
                 sensitivity: 'base',
             })
         }

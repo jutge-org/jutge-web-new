@@ -2,6 +2,7 @@ import type { JutgeApiClient, TradingCard } from '@/lib/jutge_api_client'
 
 export type TradingCardRow = {
     card_id: string
+    title: string
     imageUrl: string
     created_at: string | number
 }
@@ -17,6 +18,7 @@ export function tradingCardImageUrl(card_id: string, size: 'sm' | '' = ''): stri
 function buildTradingCardRow(card: TradingCard): TradingCardRow {
     return {
         card_id: card.card_id,
+        title: card.title,
         imageUrl: tradingCardImageUrl(card.card_id),
         created_at: card.created_at as string | number,
     }

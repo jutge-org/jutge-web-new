@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-10-21T08:10:28.817Z
+ * This file has been automatically generated at 2026-10-21T11:03:33.222Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -735,6 +735,7 @@ export type Setting = {
 
 export type TradingCard = {
     card_id: string
+    title: string
     created_at: Iso8601Date
     updated_at: Iso8601Date
 }
