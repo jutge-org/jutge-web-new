@@ -1,6 +1,13 @@
 'use client'
 
-import { CrownIcon, EyeIcon, GraduationCapIcon, LayoutDashboardIcon, SlidersHorizontalIcon } from 'lucide-react'
+import {
+    BookOpenIcon,
+    CrownIcon,
+    EyeIcon,
+    GraduationCapIcon,
+    LayoutDashboardIcon,
+    SlidersHorizontalIcon,
+} from 'lucide-react'
 import Link from 'next/link'
 
 import { PageSpinner } from '@/components/ClientGates'
@@ -131,6 +138,9 @@ function RoleButtons({ user }: { user: SessionUser | null }) {
 
     return (
         <>
+            <RoleButton href="/courses" label="Courses">
+                <BookOpenIcon className="size-3.5" aria-hidden />
+            </RoleButton>
             {canAccessSupervision(user) ? (
                 <RoleButton href="/supervision" label="Supervision">
                     <EyeIcon className="size-3.5" aria-hidden />
