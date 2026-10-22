@@ -23,6 +23,7 @@ import {
     unarchiveCourseAction,
     unenrollCourseAction,
 } from '@/lib/data/coursesActions'
+import { notifyEnrolledCoursesNavChanged } from '@/lib/enrolledCoursesNav'
 import { useConfirmDialog } from '@/components/administrator/ConfirmDialog'
 import { CourseCardIdentity, CourseCardShell, CourseStats, CourseStatsLoading } from '@/components/courses/CourseCard'
 import { CoursesListToolbar } from '@/components/courses/CoursesListToolbar'
@@ -470,6 +471,9 @@ export function CoursesList({
 
             if (result.ok) {
                 toast.success(courseActionSuccessMessage(action, course.title, course.ownerName))
+                if (action === 'enroll' || action === 'unenroll') {
+                    notifyEnrolledCoursesNavChanged()
+                }
                 router.refresh()
                 onCoursesChanged?.()
                 return

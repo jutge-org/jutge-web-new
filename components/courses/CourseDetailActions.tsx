@@ -32,10 +32,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import {
     canSuperviseCourse,
     courseActionSuccessMessage,
+    coursesTabHref,
     instructorCoursePropertiesHref,
     type CourseStatus,
     type CourseStudentAction,
 } from '@/lib/courses'
+import { notifyEnrolledCoursesNavChanged } from '@/lib/enrolledCoursesNav'
 
 export type CourseViewerRole = {
     label: string
@@ -143,6 +145,13 @@ export function CourseDetailActions({
 
             if (result.ok) {
                 toast.success(courseActionSuccessMessage(action, title, ownerName))
+                if (action === 'enroll' || action === 'unenroll') {
+                    notifyEnrolledCoursesNavChanged()
+                }
+                if (action === 'unenroll') {
+                    router.push(coursesTabHref('available'))
+                    return
+                }
                 router.refresh()
                 onCourseChanged?.()
                 return

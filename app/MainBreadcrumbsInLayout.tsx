@@ -26,6 +26,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAuth } from '@/components/AuthProvider'
 import { fetchEnrolledCoursesNavItems } from '@/lib/data/courses'
+import { ENROLLED_COURSES_NAV_CHANGED_EVENT } from '@/lib/enrolledCoursesNav'
 import jutge from '@/lib/jutge'
 import { CourseIconImage } from '@/components/courses/CourseIconImage'
 import { ExternalLink } from '@/components/ExternalLink'
@@ -463,6 +464,7 @@ export function MainBreadcrumbsInLayout() {
     const tutor = user?.tutor ?? false
     const administrator = user?.administrator ?? false
     const [enrolledCoursesNavItems, setEnrolledCoursesNavItems] = useState<readonly CoursesNavItem[]>([])
+    const [enrolledCoursesNavReloadToken, setEnrolledCoursesNavReloadToken] = useState(0)
 
     useEffect(() => {
         if (!authenticated || !jutge.meta?.token) {
@@ -472,7 +474,15 @@ export function MainBreadcrumbsInLayout() {
         void fetchEnrolledCoursesNavItems(jutge)
             .then(setEnrolledCoursesNavItems)
             .catch(() => setEnrolledCoursesNavItems([]))
-    }, [authenticated, user?.id])
+    }, [authenticated, user?.id, enrolledCoursesNavReloadToken])
+
+    useEffect(() => {
+        function onEnrolledCoursesNavChanged() {
+            setEnrolledCoursesNavReloadToken((token) => token + 1)
+        }
+        window.addEventListener(ENROLLED_COURSES_NAV_CHANGED_EVENT, onEnrolledCoursesNavChanged)
+        return () => window.removeEventListener(ENROLLED_COURSES_NAV_CHANGED_EVENT, onEnrolledCoursesNavChanged)
+    }, [])
 
     const breadcrumbs = useMainBreadcrumbs((s) => s.breadcrumbs)
     const pathname = usePathname()
