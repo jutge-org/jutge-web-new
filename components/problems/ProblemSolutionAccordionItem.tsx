@@ -1,13 +1,17 @@
 'use client'
 
-import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
+import { ChevronDownIcon, ChevronUpIcon, DownloadIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import type { InstructorProblemResourceAccess } from '@/lib/data/instructorSharedResources'
+import {
+    INSTRUCTOR_SOLUTIONS_NOT_SHARED_MESSAGE,
+    type InstructorProblemResourceAccess,
+} from '@/lib/data/instructorSharedResources'
 import { fetchProblemSolutionAction } from '@/lib/data/problemSolutionsActions'
 import { DevIcon } from '@/components/administrator/DevIcon'
 import { SolutionSourceCodeToolbar } from '@/components/problems/SolutionSourceCodeToolbar'
 import { HighlightedSourceCode } from '@/components/submissions/HighlightedSourceCode'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -15,7 +19,8 @@ import { useFontScalePreference } from '@/hooks/use-font-scale-preference'
 import { useHljsThemePreference } from '@/hooks/use-hljs-theme-preference'
 import { SOURCE_CODE_FONT_SCALE_KEY } from '@/lib/fontScale'
 import type { HljsThemeSelection } from '@/lib/hljsThemes'
-import { formatProglangName } from '@/lib/solutions'
+import { downloadProblemSolution } from '@/lib/downloadProblemAssets'
+import { formatProglangName, isMakeSolutionProglang } from '@/lib/solutions'
 import { cn } from '@/lib/utils'
 
 type ProblemSolutionAccordionItemProps = {
@@ -48,18 +53,32 @@ export function ProblemSolutionAccordionItem({
     const [fontScale, setFontScale] = useFontScalePreference(SOURCE_CODE_FONT_SCALE_KEY)
     const [highlightTheme, setHighlightTheme] = useHljsThemePreference()
     const [previewTheme, setPreviewTheme] = useState<HljsThemeSelection | null>(null)
+    const [downloading, setDownloading] = useState(false)
     const loadedProglangRef = useRef<string | null>(null)
 
     const activeTheme = previewTheme ?? highlightTheme
+    const isMakeSolution = isMakeSolutionProglang(proglang)
 
     const expandLabel = isOpen
         ? `Collapse ${formatProglangName(proglang)} solution`
         : `Expand ${formatProglangName(proglang)} solution`
-    const pendingContent = isOpen && !code && !error
+    const pendingContent = isOpen && !isMakeSolution && !code && !error
     const showToolbar = isOpen && Boolean(code && codeFilename)
 
+    async function downloadMakeSolution() {
+        setError(null)
+        setDownloading(true)
+        try {
+            await downloadProblemSolution(problemId, proglang)
+        } catch {
+            setError(INSTRUCTOR_SOLUTIONS_NOT_SHARED_MESSAGE)
+        } finally {
+            setDownloading(false)
+        }
+    }
+
     useEffect(() => {
-        if (!isOpen || loadedProglangRef.current === proglang) {
+        if (isMakeSolution || !isOpen || loadedProglangRef.current === proglang) {
             return
         }
 
@@ -91,7 +110,7 @@ export function ProblemSolutionAccordionItem({
         return () => {
             cancelled = true
         }
-    }, [isOpen, problemId, problem_nm, proglang, shared_solutions, solutionAccess])
+    }, [isMakeSolution, isOpen, problemId, problem_nm, proglang, shared_solutions, solutionAccess])
 
     return (
         <TooltipProvider>
@@ -143,7 +162,19 @@ export function ProblemSolutionAccordionItem({
                             <Skeleton className="h-72 w-full rounded-none" aria-label="Loading solution" />
                         ) : null}
                         {error ? <p className="px-4 py-3 text-sm text-destructive">{error}</p> : null}
-                        {code ? (
+                        {isMakeSolution ? (
+                            <div className="flex justify-center px-4 py-8">
+                                <Button
+                                    type="button"
+                                    disabled={downloading}
+                                    onClick={() => void downloadMakeSolution()}
+                                >
+                                    <DownloadIcon aria-hidden />
+                                    {downloading ? 'Downloading…' : 'Download'}
+                                </Button>
+                            </div>
+                        ) : null}
+                        {!isMakeSolution && code ? (
                             <HighlightedSourceCode
                                 code={code}
                                 codeExtension={codeExtension}

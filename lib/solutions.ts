@@ -1,5 +1,11 @@
 import type { Compiler } from '@/lib/jutge_api_client'
 
+export const MAKE_SOLUTION_PROGLANG = 'Make'
+
+export function isMakeSolutionProglang(proglang: string): boolean {
+    return proglang === MAKE_SOLUTION_PROGLANG
+}
+
 export function extensionForProglang(proglang: string, compilers: Compiler[]): string | null {
     const compiler = compilers.find((entry) => entry.language === proglang)
     return compiler?.extension ?? null
