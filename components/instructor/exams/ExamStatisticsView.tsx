@@ -27,7 +27,7 @@ import type {
 } from '@/lib/jutge_api_client'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import { ChartPieIcon, TableIcon } from 'lucide-react'
+import { ChartBarDecreasingIcon, ChartPieIcon, TableIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { JSX, useEffect, useState } from 'react'
@@ -194,6 +194,8 @@ type MySummaryChartProps = {
 }
 
 function MySummaryChart(props: MySummaryChartProps) {
+    const [chartVisible, setChartVisible] = useState(true)
+
     const captions: Dict<string> = {}
     for (const problem of props.exam.problems) {
         captions[problem.problem_nm] = problem.caption || problem.problem_nm
@@ -213,7 +215,7 @@ function MySummaryChart(props: MySummaryChartProps) {
         chartData.push(item)
     }
 
-    return (
+    const chart = (
         <ChartContainer config={chartConfig} className="h-93 w-full">
             <BarChart data={chartData} layout="vertical">
                 <CartesianGrid horizontal={false} vertical={false} />
@@ -234,6 +236,54 @@ function MySummaryChart(props: MySummaryChartProps) {
                 ))}
             </BarChart>
         </ChartContainer>
+    )
+
+    const table = (
+        <ScrollArea className="h-93 w-full">
+            <Table>
+                <TableBody>
+                    {props.exam.problems.flatMap((problem) => {
+                        const distribution = props.data[problem.problem_nm]
+                        if (!distribution) {
+                            return []
+                        }
+                        const caption = captions[problem.problem_nm]
+                        const total = Object.values(distribution).reduce((sum, count) => sum + count, 0)
+                        return Object.entries(distribution)
+                            .sort((a, b) => b[1] - a[1])
+                            .map(([key, count]) => (
+                                <TableRow key={`${problem.problem_nm}-${key}`}>
+                                    <TableCell>{caption}</TableCell>
+                                    <TableCell>{key}</TableCell>
+                                    <TableCell className="text-end">{count}</TableCell>
+                                    <TableCell className="text-end">
+                                        {total > 0 ? ((count / total) * 100).toFixed(1) : '0.0'}%
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                    })}
+                </TableBody>
+            </Table>
+        </ScrollArea>
+    )
+
+    return (
+        <>
+            {chartVisible ? chart : table}
+            <ToggleGroup
+                type="single"
+                onValueChange={(value) => setChartVisible(value === 'pie')}
+                className="mx-auto mb-2"
+                defaultValue="pie"
+            >
+                <ToggleGroupItem value={'pie'} aria-label="Toggle chart">
+                    <ChartBarDecreasingIcon className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value={'table'} aria-label="Toggle table">
+                    <TableIcon className="h-4 w-4" />
+                </ToggleGroupItem>
+            </ToggleGroup>
+        </>
     )
 }
 
@@ -392,7 +442,7 @@ function MyPieChart(props: MyPieChartProps) {
             <ToggleGroup
                 type="single"
                 onValueChange={(value) => setChartVisible(value === 'pie')}
-                className="mb-2"
+                className="mx-auto mb-2"
                 defaultValue="pie"
             >
                 <ToggleGroupItem value={'pie'} aria-label="Toggle pie chart">

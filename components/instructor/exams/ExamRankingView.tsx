@@ -7,6 +7,7 @@ import {
     fetchMiscHexColors,
 } from '@/lib/instructor/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import type {
     ColorMapping,
     InstructorBriefExam,
@@ -30,6 +31,7 @@ export function ExamRankingView() {
 
     const [speed, setSpeed] = useState('0')
     const [counter, setCounter] = useState(0)
+    const [blurNames, setBlurNames] = useState(false)
 
     const fetchData = useCallback(async () => {
         const exam = await fetchInstructorExam(exam_nm)
@@ -91,6 +93,15 @@ export function ExamRankingView() {
                         </SelectItem>
                     </SelectContent>
                 </Select>
+                <Switch
+                    id="exam-ranking-blur-names"
+                    checked={blurNames}
+                    onCheckedChange={setBlurNames}
+                    aria-label="Blur student names"
+                />
+                <label htmlFor="exam-ranking-blur-names" className="cursor-pointer select-none">
+                    Blur names
+                </label>
             </div>
             <div className="text-sm flex justify-center items-center">
                 <table>
@@ -156,7 +167,9 @@ export function ExamRankingView() {
                                 <td className="bg-muted border-2 border-background rounded-lg px-2 text-right">
                                     {row.position}
                                 </td>
-                                <td className="bg-muted border-2 border-background rounded-lg px-2 truncate">
+                                <td
+                                    className={`bg-muted border-2 border-background rounded-lg px-2 truncate${blurNames ? ' blur-sm select-none' : ''}`}
+                                >
                                     {row.name}
                                 </td>
                                 {exam.avatars && (
