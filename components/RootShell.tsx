@@ -1,6 +1,7 @@
 'use client'
 
 import { LayoutWidthContainer } from '@/components/layout/LayoutWidthContainer'
+import { isFullscreenSolutionEditorPath } from '@/lib/solutions'
 import { isFullscreenSubmissionEditorPath } from '@/lib/submissions'
 import { isBlackScreenPath, isUtilityEditorViewPath } from '@/lib/utilities'
 import { useClockFullscreen } from '@/store/clockFullscreen'
@@ -17,7 +18,12 @@ export function RootShell({ children, header, footer }: RootShellProps) {
     const pathname = usePathname() ?? ''
     const clockFullscreen = useClockFullscreen((state) => state.active)
 
-    if (isFullscreenSubmissionEditorPath(pathname) || isBlackScreenPath(pathname) || isUtilityEditorViewPath(pathname)) {
+    if (
+        isFullscreenSubmissionEditorPath(pathname) ||
+        isFullscreenSolutionEditorPath(pathname) ||
+        isBlackScreenPath(pathname) ||
+        isUtilityEditorViewPath(pathname)
+    ) {
         return children
     }
 

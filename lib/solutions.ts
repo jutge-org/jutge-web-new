@@ -29,6 +29,17 @@ export function solutionViewHref(pageKey: string, proglang: string): string {
     return `/problems/${pageKey}/solutions/${solutionProglangPathSegment(proglang)}/view`
 }
 
+const PROBLEM_SOLUTION_CODE_VIEW_PATH = /^\/problems\/[^/]+\/solutions\/[^/]+\/view$/
+const SUPERVISION_PROBLEM_SOLUTION_CODE_VIEW_PATH =
+    /^\/supervision\/[^/]+\/[^/]+\/problems\/[^/]+\/solutions\/[^/]+\/view$/
+
+export function isFullscreenSolutionEditorPath(pathname: string): boolean {
+    return (
+        PROBLEM_SOLUTION_CODE_VIEW_PATH.test(pathname) ||
+        SUPERVISION_PROBLEM_SOLUTION_CODE_VIEW_PATH.test(pathname)
+    )
+}
+
 export function solutionDownloadHref(pageKey: string, proglang: string): string {
     return `/problems/${pageKey}/solutions/${solutionProglangPathSegment(proglang)}`
 }
