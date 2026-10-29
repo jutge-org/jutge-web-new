@@ -3,6 +3,9 @@
 # environment variables
 .env
 
+#backups of joe
+*~
+
 # dependencies
 /node_modules
 /.pnp
