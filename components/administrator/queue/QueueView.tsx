@@ -1,7 +1,13 @@
 'use client'
 
+import Link from 'next/link'
 import { AgTableFull } from '@/components/administrator/AgTable'
 import { DevIcon } from '@/components/administrator/DevIcon'
+import { useProfileDialog } from '@/components/administrator/users/ProfileDialog'
+import { useAuth } from '@/components/AuthProvider'
+import { CompilerLink, VerdictLink, referenceLinkClassName } from '@/components/documentation/ReferenceLink'
+import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
+import { ProblemTitleSummaryTooltip } from '@/components/problems/ProblemTitleSummaryTooltip'
 import dayjs from 'dayjs'
 import {
     AudioLinesIcon,
@@ -17,7 +23,7 @@ import {
     TriangleAlertIcon,
 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import {
     adminFatalizeIEs,
@@ -25,10 +31,14 @@ import {
     adminResubmitIEs,
     adminResubmitPendings,
     fetchAdminQueue,
+    fetchAdminUserProfiles,
     fetchTablesCompilers,
     fetchTablesVerdicts,
 } from '@/lib/administrator/client'
-import { Compiler, SubmissionQueueItem, SubmissionQueueItems } from '@/lib/jutge_api_client'
+import { parseProblemKey } from '@/lib/problems'
+import { buildSubmissionHref } from '@/lib/submissions'
+import { cn } from '@/lib/utils'
+import { Compiler, SubmissionQueueItem, SubmissionQueueItems, Verdict } from '@/lib/jutge_api_client'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -50,46 +60,83 @@ export default function QueueView() {
     const defaultView = searchParams.get('view') || 'queue'
 
     const [rows, setRows] = useState<SubmissionQueueItems>([])
+    const [compilers, setCompilers] = useState<Record<string, Compiler>>({})
+    const [verdicts, setVerdicts] = useState<Record<string, Verdict>>({})
     const [view, setView] = useState(defaultView)
     const [speed, setSpeed] = useState('5')
-    const [counter, setCounter] = useState(0)
-    const [colDefs, setColDefs] = useState<any[]>([])
+    const pollTickRef = useRef(0)
+    const pausePollingUntilRef = useRef(0)
 
     const isMobile = useIsMobile()
+    const { profile } = useAuth()
+    const preferredLanguageId = profile?.language_id ?? null
+    const [runProfileDialog, ProfileDialogComponent] = useProfileDialog()
 
-    const fetchData = useCallback(async () => {
-        async function getRows() {
-            let verdicts: string[] = []
-            const limit = 500
+    const pauseQueuePolling = useCallback(() => {
+        pausePollingUntilRef.current = Date.now() + 60_000
+    }, [])
 
-            if (view == 'queue') {
-                verdicts = []
-            } else if (view == 'zombies') {
-                verdicts = ['IE', 'Pending']
-            } else if (view == 'setter-errors') {
-                verdicts = ['SE']
-            } else if (view == 'fatal-errors') {
-                verdicts = ['FE']
-            } else if (view == 'pendings') {
-                verdicts = ['Pending']
-            } else if (view == 'internal-errors') {
-                verdicts = ['IE']
+    const openUserProfile = useCallback(
+        async (userId: string) => {
+            try {
+                const profiles = await fetchAdminUserProfiles(userId)
+                const match = profiles.find((p) => p.user_id === userId) ?? profiles[0]
+                if (match) {
+                    pauseQueuePolling()
+                    await runProfileDialog(match)
+                } else {
+                    toast.error('Could not load user profile.')
+                }
+            } catch {
+                toast.error('Could not load user profile.')
             }
-            return await fetchAdminQueue({ verdicts, limit })
+        },
+        [pauseQueuePolling, runProfileDialog],
+    )
+
+    useEffect(() => {
+        let cancelled = false
+        void Promise.all([fetchTablesCompilers(), fetchTablesVerdicts()]).then(([nextCompilers, nextVerdicts]) => {
+            if (!cancelled) {
+                setCompilers(nextCompilers)
+                setVerdicts(nextVerdicts)
+            }
+        })
+        return () => {
+            cancelled = true
         }
+    }, [])
 
-        const rows = await getRows()
-        const verdicts = await fetchTablesVerdicts()
-        const compilers = await fetchTablesCompilers()
+    const fetchRows = useCallback(async () => {
+        let verdictFilter: string[] = []
+        const limit = 500
 
-        const colDefs = [
+        if (view == 'queue') {
+            verdictFilter = []
+        } else if (view == 'zombies') {
+            verdictFilter = ['IE', 'Pending']
+        } else if (view == 'setter-errors') {
+            verdictFilter = ['SE']
+        } else if (view == 'fatal-errors') {
+            verdictFilter = ['FE']
+        } else if (view == 'pendings') {
+            verdictFilter = ['Pending']
+        } else if (view == 'internal-errors') {
+            verdictFilter = ['IE']
+        }
+        return await fetchAdminQueue({ verdicts: verdictFilter, limit })
+    }, [view])
+
+    const colDefs = useMemo(
+        () => [
             {
                 field: 'time_in_desktop',
                 hide: isMobile,
                 headerName: 'Time',
                 filter: true,
                 width: 180,
-                cellRenderer: (p: any) => {
+                valueGetter: (p: { data?: SubmissionQueueItem }) => p.data?.time_in,
+                cellRenderer: (p: { data: SubmissionQueueItem }) => {
                     return formatTime(p.data.time_in, isMobile)
                 },
             },
@@ -99,7 +146,8 @@ export default function QueueView() {
                 headerName: 'Time',
                 filter: true,
                 width: 90,
-                cellRenderer: (p: any) => {
+                valueGetter: (p: { data?: SubmissionQueueItem }) => p.data?.time_in,
+                cellRenderer: (p: { data: SubmissionQueueItem }) => {
                     return formatTime(p.data.time_in, isMobile)
                 },
             },
@@ -108,6 +156,14 @@ export default function QueueView() {
                 headerName: 'UID',
                 filter: true,
                 width: 115,
+                cellRenderer: (p: { data: SubmissionQueueItem }) => (
+                    <Link
+                        href={buildSubmissionHref(p.data.problem_id, p.data.submission_id)}
+                        className={referenceLinkClassName}
+                    >
+                        {p.data.submission_uid}
+                    </Link>
+                ),
             },
             {
                 field: 'submission_id',
@@ -115,6 +171,14 @@ export default function QueueView() {
                 headerName: 'ID',
                 filter: true,
                 width: 90,
+                cellRenderer: (p: { data: SubmissionQueueItem }) => (
+                    <Link
+                        href={buildSubmissionHref(p.data.problem_id, p.data.submission_id)}
+                        className={referenceLinkClassName}
+                    >
+                        {p.data.submission_id}
+                    </Link>
+                ),
             },
             {
                 field: 'user_id',
@@ -122,6 +186,15 @@ export default function QueueView() {
                 filter: true,
                 headerName: 'User Id',
                 width: 90,
+                cellRenderer: (p: { data: SubmissionQueueItem }) => (
+                    <button
+                        type="button"
+                        className={referenceLinkClassName}
+                        onClick={() => void openUserProfile(p.data.user_id)}
+                    >
+                        {p.data.user_id}
+                    </button>
+                ),
             },
             {
                 field: 'user',
@@ -129,40 +202,55 @@ export default function QueueView() {
                 filter: true,
                 headerName: 'User',
                 flex: 1,
-                cellRenderer: (p: any) => {
-                    return (
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <span>{p.data.user__name}</span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>{p.data.user_id}</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    )
-                },
+                valueGetter: (p: { data?: SubmissionQueueItem }) => p.data?.user__name ?? '',
+                cellRenderer: (p: { data: SubmissionQueueItem }) => (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button
+                                type="button"
+                                className={referenceLinkClassName}
+                                onClick={() => void openUserProfile(p.data.user_id)}
+                            >
+                                {p.data.user__name}
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{p.data.user_id}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                ),
             },
             {
                 field: 'problem_id',
                 filter: true,
                 headerName: 'Problem',
                 width: 105,
+                cellRenderer: (p: { data: SubmissionQueueItem }) => (
+                    <ProblemTitleSummaryTooltip
+                        problem_nm={queueProblemNm(p.data.problem_id)}
+                        title={p.data.problem__title || p.data.problem_id}
+                        preferredLanguageId={preferredLanguageId}
+                    >
+                        <Link href={queueProblemHref(p.data.problem_id)} className={referenceLinkClassName}>
+                            <ProblemIdLabel problemId={p.data.problem_id} />
+                        </Link>
+                    </ProblemTitleSummaryTooltip>
+                ),
             },
             {
-                field: 'compiler',
+                field: 'compiler_id',
                 filter: true,
                 width: 160,
                 hide: isMobile,
-                cellRenderer: (p: any) => {
-                    return (
-                        <div className="flex flex-row items-center gap-2">
-                            {devIcon(p.data.compiler_id, compilers)}
-                            {p.data.compiler_id}
-                        </div>
-                    )
-                },
+                cellClass: '!overflow-visible',
+                cellStyle: { display: 'flex', alignItems: 'center', overflow: 'visible' },
+                cellRenderer: (p: { data: SubmissionQueueItem }) => (
+                    <QueueCompilerCell
+                        compilerId={p.data.compiler_id}
+                        compilers={compilers}
+                        onReferenceInteraction={pauseQueuePolling}
+                    />
+                ),
             },
             {
                 field: 'veredict',
@@ -170,30 +258,15 @@ export default function QueueView() {
                 filter: true,
                 width: 130,
                 hide: isMobile,
+                cellStyle: { display: 'flex', alignItems: 'center' },
                 valueGetter: (p: { data?: SubmissionQueueItem }) => p.data?.veredict ?? 'Pending',
-                cellRenderer: (p: any) => {
-                    const item = p.data
-                    let emoji = '🔘'
-                    let klass = 'animate-pulse'
-                    if (item.veredict && verdicts[item.veredict]) {
-                        if ('emoji' in verdicts[item.veredict]) {
-                            emoji = verdicts[item.veredict].emoji
-                            if (item.veredict == 'AC') {
-                                klass = '' // 'motion-safe:animate-spin'
-                            } else {
-                                klass = ''
-                            }
-                        }
-                    }
-
-                    return (
-                        <div className="flex flex-row items-center gap-2">
-                            <div className={klass}>{emoji}</div>
-                            &nbsp;&nbsp;
-                            {item.veredict}
-                        </div>
-                    )
-                },
+                cellRenderer: (p: { data: SubmissionQueueItem }) => (
+                    <QueueVerdictCell
+                        veredict={p.data.veredict ?? 'Pending'}
+                        verdicts={verdicts}
+                        onReferenceInteraction={pauseQueuePolling}
+                    />
+                ),
             },
             {
                 field: 'info_mobile',
@@ -201,26 +274,28 @@ export default function QueueView() {
                 filter: true,
                 width: 100,
                 hide: !isMobile,
-                cellRenderer: (p: any) => {
-                    const item = p.data
+                cellStyle: { display: 'flex', alignItems: 'center' },
+                cellRenderer: (p: { data: SubmissionQueueItem }) => {
+                    const veredict = p.data.veredict ?? 'Pending'
                     let emoji = '🔘'
                     let klass = 'animate-pulse'
-                    if (item.veredict && verdicts[item.veredict]) {
-                        if ('emoji' in verdicts[item.veredict]) {
-                            emoji = verdicts[item.veredict].emoji
-                            if (item.veredict == 'AC') {
-                                klass = '' // 'motion-safe:animate-spin'
-                            } else {
-                                klass = ''
-                            }
-                        }
+                    const info = verdicts[veredict]
+                    if (info && 'emoji' in info) {
+                        emoji = info.emoji
+                        klass = ''
                     }
 
                     return (
-                        <div className="flex flex-row items-center gap-2">
+                        <Link
+                            href={buildSubmissionHref(p.data.problem_id, p.data.submission_id)}
+                            className={cn(referenceLinkClassName, 'flex flex-row items-center gap-2')}
+                            aria-label={`Submission ${p.data.submission_id}`}
+                        >
                             {devIcon(p.data.compiler_id, compilers)}
-                            <div className={klass}>{emoji}</div>
-                        </div>
+                            <span className={cn(klass)} aria-hidden>
+                                {emoji}
+                            </span>
+                        </Link>
                     )
                 },
             },
@@ -230,31 +305,45 @@ export default function QueueView() {
                 headerName: 'Exam',
                 filter: true,
                 width: 110,
+                cellRenderer: (p: { data: SubmissionQueueItem }) =>
+                    p.data.exam_id ? (
+                        <Link href={`/exams/${p.data.exam_id}`} className={referenceLinkClassName}>
+                            {p.data.exam_id}
+                        </Link>
+                    ) : (
+                        '—'
+                    ),
             },
-        ]
-
-        setRows(rows)
-        setColDefs(colDefs)
-    }, [view, isMobile])
+        ],
+        [compilers, isMobile, openUserProfile, pauseQueuePolling, preferredLanguageId, verdicts],
+    )
 
     useEffect(() => {
-        fetchData()
-    }, [fetchData])
-
-    useEffect(() => {
-        async function updateQueue() {
-            const ispeed = parseInt(speed)
-            setCounter(counter + 1)
-            if ((rows !== null && ispeed == 0) || counter % ispeed != 0) return
-            await fetchData()
+        let cancelled = false
+        void fetchRows().then((nextRows) => {
+            if (!cancelled) {
+                setRows(nextRows)
+            }
+        })
+        return () => {
+            cancelled = true
         }
+    }, [fetchRows])
 
-        const interval = setInterval(updateQueue, 1000)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            pollTickRef.current += 1
+            const ispeed = parseInt(speed, 10)
+            if (ispeed === 0) return
+            if (Date.now() < pausePollingUntilRef.current) return
+            if (pollTickRef.current % ispeed !== 0) return
+            void fetchRows().then(setRows)
+        }, 1000)
 
         return () => {
             clearInterval(interval)
         }
-    }, [counter, speed, rows, fetchData])
+    }, [fetchRows, speed])
 
     function resubmitIEs() {
         void adminResubmitIEs()
@@ -373,8 +462,90 @@ export default function QueueView() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <AgTableFull rowData={rows} columnDefs={colDefs} />
+            <TooltipProvider>
+                <AgTableFull
+                    rowData={rows}
+                    columnDefs={colDefs}
+                    getRowId={(params: { data: SubmissionQueueItem }) => params.data.submission_uid}
+                />
+            </TooltipProvider>
+            <ProfileDialogComponent />
         </>
+    )
+}
+
+function queueProblemNm(problem_id: string): string {
+    const parsed = parseProblemKey(problem_id)
+    if (parsed.kind === 'problem_id' || parsed.kind === 'problem_nm') {
+        return parsed.problem_nm
+    }
+    return problem_id
+}
+
+function queueProblemHref(problem_id: string): string {
+    const parsed = parseProblemKey(problem_id)
+    if (parsed.kind === 'problem_id' || parsed.kind === 'problem_nm') {
+        return `/problems/${parsed.problem_nm}`
+    }
+    return `/problems/${problem_id}`
+}
+
+function QueueCompilerCell({
+    compilerId,
+    compilers,
+    onReferenceInteraction,
+}: {
+    compilerId: string
+    compilers: Record<string, Compiler>
+    onReferenceInteraction: () => void
+}) {
+    const language = compilers[compilerId]?.language ?? 'Unknown'
+    return (
+        <div
+            className="flex min-h-0 flex-row items-center gap-2 py-px"
+            onMouseDownCapture={(event) => {
+                event.stopPropagation()
+                onReferenceInteraction()
+            }}
+        >
+            <span className="inline-flex shrink-0 items-center">
+                <DevIcon proglang={language} size={14} />
+            </span>
+            <CompilerLink compilerId={compilerId} />
+        </div>
+    )
+}
+
+function QueueVerdictCell({
+    veredict,
+    verdicts,
+    onReferenceInteraction,
+}: {
+    veredict: string
+    verdicts: Record<string, Verdict>
+    onReferenceInteraction: () => void
+}) {
+    let emoji = '🔘'
+    let klass = 'animate-pulse'
+    const info = verdicts[veredict]
+    if (info && 'emoji' in info) {
+        emoji = info.emoji
+        klass = ''
+    }
+
+    return (
+        <div
+            className="flex flex-row items-center gap-2"
+            onMouseDownCapture={(event) => {
+                event.stopPropagation()
+                onReferenceInteraction()
+            }}
+        >
+            <div className={cn(klass)} aria-hidden>
+                {emoji}
+            </div>
+            <VerdictLink verdictId={veredict} />
+        </div>
     )
 }
 
@@ -391,8 +562,10 @@ function formatTime(datetime: string | number, isMobile: boolean) {
 }
 
 function devIcon(compiler_id: string, compilers: Record<string, Compiler>) {
-    if (compiler_id in compilers) {
-        return <DevIcon proglang={compilers[compiler_id].language} size={14} />
-    }
-    return <DevIcon proglang="Unknown" size={14} />
+    const language = compiler_id in compilers ? compilers[compiler_id].language : 'Unknown'
+    return (
+        <span className="inline-flex shrink-0 items-center">
+            <DevIcon proglang={language} size={14} />
+        </span>
+    )
 }
