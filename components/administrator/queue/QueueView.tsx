@@ -28,7 +28,7 @@ import {
     fetchTablesCompilers,
     fetchTablesVerdicts,
 } from '@/lib/administrator/client'
-import { Compiler, SubmissionQueueItems } from '@/lib/jutge_api_client'
+import { Compiler, SubmissionQueueItem, SubmissionQueueItems } from '@/lib/jutge_api_client'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -165,10 +165,12 @@ export default function QueueView() {
                 },
             },
             {
-                field: 'verdict',
+                field: 'veredict',
+                headerName: 'Verdict',
                 filter: true,
                 width: 130,
                 hide: isMobile,
+                valueGetter: (p: { data?: SubmissionQueueItem }) => p.data?.veredict ?? 'Pending',
                 cellRenderer: (p: any) => {
                     const item = p.data
                     let emoji = '🔘'
