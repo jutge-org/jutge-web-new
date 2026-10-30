@@ -421,6 +421,58 @@
     margin: 0.75em 0;
 }
 
+/* Problem HTML lists (Pandoc). Tailwind preflight removes list markers on ul/ol. */
+.statement-section :is(ul, ol) {
+    margin: 0.75em 0;
+    padding-left: 1.5em;
+}
+
+.statement-section ul {
+    list-style-type: disc;
+}
+
+.statement-section ol {
+    list-style-type: decimal;
+}
+
+.statement-section li {
+    display: list-item;
+}
+
+.statement-section li > p {
+    margin: 0.35em 0;
+}
+
+/* LaTeX itemize: div.itemize / div.itemize* with one paragraph per item. */
+.statement-section div.itemize,
+.statement-section div[class='itemize*'] {
+    margin: 0.75em 0;
+    padding-left: 1.5em;
+}
+
+.statement-section div.itemize > p,
+.statement-section div[class='itemize*'] > p {
+    display: list-item;
+    list-style-type: disc;
+    list-style-position: outside;
+    margin: 0.35em 0;
+}
+
+/* LaTeX enumerate: div.enumerate / div.enumerate* with one paragraph per item. */
+.statement-section div.enumerate,
+.statement-section div[class='enumerate*'] {
+    margin: 0.75em 0;
+    padding-left: 1.5em;
+}
+
+.statement-section div.enumerate > p,
+.statement-section div[class='enumerate*'] > p {
+    display: list-item;
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin: 0.35em 0;
+}
+
 .statement-section table {
     margin-top: 0.75em;
     margin-bottom: 0.75em;
