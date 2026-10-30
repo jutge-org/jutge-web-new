@@ -1,5 +1,6 @@
 import { getCurrentClient, getProblemsApiClient, isAuthenticated } from '@/lib/data/auth'
 import type { AbstractProblem, JutgeApiClient } from '@/lib/jutge_api_client'
+import { rewriteStatementHtmlForDisplay } from '@/lib/statementHtml'
 
 async function withAuthenticatedClient<T>(fn: (client: JutgeApiClient) => Promise<T>): Promise<T> {
     if (!isAuthenticated()) {
@@ -38,7 +39,8 @@ export async function fetchProblemSearchPdfStatement(problem_id: string) {
 }
 
 export async function fetchProblemSearchHtmlStatement(problem_id: string) {
-    return withAuthenticatedClient((c) => c.problems.getHtmlStatement(problem_id))
+    const html = await withAuthenticatedClient((c) => c.problems.getHtmlStatement(problem_id))
+    return rewriteStatementHtmlForDisplay(html)
 }
 
 export async function fetchProblemSearchMarkdownStatement(problem_id: string) {

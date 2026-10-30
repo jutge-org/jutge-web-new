@@ -2,6 +2,7 @@ import jutge from '@/lib/jutge'
 import type { JutgeApiClient } from '@/lib/jutge_api_client'
 import { problemIconUrl } from '@/lib/problems'
 import { mapmap } from '@/lib/instructor/utils'
+import { rewriteStatementHtmlForDisplay } from '@/lib/statementHtml'
 
 export async function withInstructorClient<T>(fn: (client: JutgeApiClient) => Promise<T>): Promise<T> {
     if (!jutge.meta?.token) {
@@ -322,7 +323,8 @@ export async function fetchPdfStatement(problem_id: string) {
 }
 
 export async function fetchHtmlStatement(problem_id: string) {
-    return withInstructorClient((c) => c.problems.getHtmlStatement(problem_id))
+    const html = await withInstructorClient((c) => c.problems.getHtmlStatement(problem_id))
+    return rewriteStatementHtmlForDisplay(html)
 }
 
 export async function fetchMarkdownStatement(problem_id: string) {

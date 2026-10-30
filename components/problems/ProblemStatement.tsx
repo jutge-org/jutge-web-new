@@ -29,6 +29,7 @@ import {
     STATEMENT_FONT_TIMES_NEW_ROMAN,
     type StatementEtBookPreference,
 } from '@/lib/statementEtBook'
+import { rewriteStatementHtmlForDisplay } from '@/lib/statementHtml'
 import { cn } from '@/lib/utils'
 
 type ProblemStatementProps = {
@@ -101,6 +102,8 @@ export function ProblemStatement({ problemId, shortHtmlStatement, templates }: P
             toast.error('Download failed.')
         }
     }
+
+    shortHtmlStatement = rewriteStatementHtmlForDisplay(shortHtmlStatement)
 
     // hack to get correct HTML statement for games, because they contain <html> and <body> tags
     shortHtmlStatement = shortHtmlStatement.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1] ?? shortHtmlStatement
