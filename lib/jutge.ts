@@ -1,8 +1,22 @@
 'use client'
 
-import { JutgeApiClient } from './jutge_api_client'
+import { dispatchSessionExpired } from './sessionExpiry'
+import { JutgeApiClient, UnauthorizedError } from './jutge_api_client'
 
 const jutge = new JutgeApiClient()
+
+const AUTH_API_FUNCS = new Set(['auth.login', 'auth.loginExam', 'auth.logout'])
+const originalExecute = jutge.execute.bind(jutge)
+jutge.execute = async (func: string, input: unknown, ifiles: File[] = []) => {
+    try {
+        return await originalExecute(func, input, ifiles)
+    } catch (error) {
+        if (error instanceof UnauthorizedError && jutge.meta?.token && !AUTH_API_FUNCS.has(func)) {
+            dispatchSessionExpired()
+        }
+        throw error
+    }
+}
 jutge.userAgent = 'web-new'
 jutge.logApiCalls = true
 
