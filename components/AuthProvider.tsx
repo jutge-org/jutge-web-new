@@ -1,12 +1,9 @@
 'use client'
 
-import dayjs from 'dayjs'
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
-import { SessionExpiredDialog } from '@/components/SessionExpiredDialog'
 import jutge, { invalidateCachedCall } from '@/lib/jutge'
 import type { CredentialsIn, Profile } from '@/lib/jutge_api_client'
-import { dispatchSessionExpired, isStoredSessionExpired, SESSION_EXPIRED_EVENT } from '@/lib/sessionExpiry'
 import { profileToSessionUser, type SessionUser } from '@/lib/session'
 import { clearUtilityEditorState } from '@/lib/utilityEditor'
 
@@ -42,31 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<SessionUser | null>(null)
     const [profile, setProfile] = useState<Profile | null>(null)
     const [loading, setLoading] = useState(true)
-    const [sessionExpired, setSessionExpired] = useState(false)
-
-    const handleSessionExpired = useCallback(() => {
-        setSessionExpired((already) => {
-            if (already) return already
-            jutge.meta = null
-            localStorage.removeItem('token')
-            localStorage.removeItem('expiration')
-            localStorage.removeItem('user_uid')
-            setUser(null)
-            setProfile(null)
-            jutge.clearCache()
-            return true
-        })
-    }, [])
 
     const restoreSession = useCallback(async () => {
         try {
             const token = localStorage.getItem('token')
-            const expiration = localStorage.getItem('expiration')
-            if (!token || !expiration) return false
-
-            const now = dayjs()
-            const expirationDate = dayjs(expiration)
-            if (now.isAfter(expirationDate)) return false
+            if (!token) return false
 
             jutge.meta = { token, user_uid: localStorage.getItem('user_uid') ?? '' }
             warmAbstractProblemsCache()
@@ -86,46 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         restoreSession().finally(() => setLoading(false))
     }, [restoreSession])
-
-    useEffect(() => {
-        function onSessionExpired() {
-            handleSessionExpired()
-        }
-        window.addEventListener(SESSION_EXPIRED_EVENT, onSessionExpired)
-        return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onSessionExpired)
-    }, [handleSessionExpired])
-
-    useEffect(() => {
-        if (!user) return
-
-        function fireIfExpired() {
-            if (isStoredSessionExpired()) {
-                dispatchSessionExpired()
-            }
-        }
-
-        fireIfExpired()
-
-        const expiration = localStorage.getItem('expiration')
-        if (!expiration) return
-
-        const delayMs = dayjs(expiration).diff(dayjs()) + 500
-        const timeoutId = delayMs > 0 ? window.setTimeout(fireIfExpired, delayMs) : undefined
-
-        function onVisibilityChange() {
-            if (document.visibilityState === 'visible') {
-                fireIfExpired()
-            }
-        }
-        document.addEventListener('visibilitychange', onVisibilityChange)
-
-        return () => {
-            if (timeoutId !== undefined) {
-                window.clearTimeout(timeoutId)
-            }
-            document.removeEventListener('visibilitychange', onVisibilityChange)
-        }
-    }, [user?.id])
 
     async function login(credentialsIn: CredentialsIn) {
         const previousMeta = jutge.meta
@@ -189,7 +126,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return (
         <AuthContext.Provider value={{ user, profile, loading, login, logout, refreshProfile }}>
             {children}
-            <SessionExpiredDialog open={sessionExpired} />
         </AuthContext.Provider>
     )
 }
