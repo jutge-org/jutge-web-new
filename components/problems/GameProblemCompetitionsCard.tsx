@@ -1,4 +1,4 @@
-import { Gamepad2Icon } from 'lucide-react'
+import { Gamepad2Icon, SwordIcon, SwordsIcon } from 'lucide-react'
 
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -27,6 +27,7 @@ export function GameProblemCompetitionsCard() {
                     </div>
                     <SmoothButton asChild className="w-fit gap-2" color="blue" size="sm" variant="candy">
                         <Link target="_blank" href="https://games.jutge.org">
+                            <SwordsIcon className="size-4" />
                             games.jutge.org
                         </Link>
                     </SmoothButton>
