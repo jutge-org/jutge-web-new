@@ -1,9 +1,9 @@
-import { Gamepad2Icon, SquareArrowOutUpRightIcon } from 'lucide-react'
+import { Gamepad2Icon } from 'lucide-react'
 
-import { ExternalLink } from '@/components/ExternalLink'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 export function GameProblemCompetitionsCard() {
     return (
@@ -18,20 +18,18 @@ export function GameProblemCompetitionsCard() {
                 >
                     <Gamepad2Icon className="size-7 shrink-0" />
                 </span>
-                <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <div className="flex min-w-0 flex-1 flex-col gap-3 items-center">
                     <div className="flex flex-col gap-1">
-                        <h2 className="text-lg font-semibold tracking-tight text-foreground">Competitions</h2>
                         <p className="text-sm leading-relaxed text-muted-foreground">
-                            This is a game problem. Submit players and dispute competitions on the dedicated games
+                            This is a game problem. Submit players, perform combats and dispute competitions on the dedicated games
                             platform.
                         </p>
                     </div>
-                    <Button asChild className="w-fit gap-2">
-                        <ExternalLink href="https://games.jutge.org">
-                            <SquareArrowOutUpRightIcon aria-hidden />
+                    <SmoothButton asChild className="w-fit gap-2" color="blue" size="sm" variant="candy">
+                        <Link target="_blank" href="https://games.jutge.org">
                             games.jutge.org
-                        </ExternalLink>
-                    </Button>
+                        </Link>
+                    </SmoothButton>
                 </div>
             </CardContent>
         </Card>
