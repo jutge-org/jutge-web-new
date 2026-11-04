@@ -356,7 +356,7 @@ export async function fetchMiscHexColors() {
 }
 
 export async function fetchInstructorApiUrl() {
-    return process.env.JUTGE_API_URL ?? 'https://api.jutge.org/api'
+    return process.env.NEXT_PUBLIC_JUTGE_API_URL ?? 'https://api.jutge.org/api'
 }
 
 export async function fetchInstructorProblemTableRows() {

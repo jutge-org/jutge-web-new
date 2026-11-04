@@ -1450,7 +1450,7 @@ export class JutgeApiClient {
     private cache: Map<string, CacheEntry> = new Map()
 
     /** URL to talk with the API */
-    JUTGE_API_URL = process.env.JUTGE_API_URL || "https://api.jutge.org/api"
+    JUTGE_API_URL = process.env.NEXT_PUBLIC_JUTGE_API_URL || "https://api.jutge.org/api"
 
     /** Headers to include in the API requests */
     headers: Record<string, string> = {
