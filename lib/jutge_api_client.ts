@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-10-21T11:03:33.222Z
+ * This file has been automatically generated at 2026-11-17T10:26:22.709Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -1160,6 +1160,13 @@ export type CreateImageInput = {
     size: string // Size (e.g. 1024x1024) or aspect ratio (e.g. 16:9).
 }
 
+export type ModelTokenPrices = {
+    input: number // USD per 1M input tokens.
+    output: number // USD per 1M output tokens.
+}
+
+export type ModelPrices = Record<string, ModelTokenPrices>
+
 export type SubmitMatchUserPlayer = {
     name: string
     user_uid: string
@@ -1450,7 +1457,7 @@ export class JutgeApiClient {
     private cache: Map<string, CacheEntry> = new Map()
 
     /** URL to talk with the API */
-    JUTGE_API_URL = process.env.NEXT_PUBLIC_JUTGE_API_URL || "https://api.jutge.org/api"
+    JUTGE_API_URL = process.env.JUTGE_API_URL || "https://api.jutge.org/api"
 
     /** Headers to include in the API requests */
     headers: Record<string, string> = {
@@ -1689,7 +1696,7 @@ class Module_clients {
     /**
      * Get Python client.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async python(): Promise<Download> {
@@ -1700,7 +1707,7 @@ class Module_clients {
     /**
      * Get TypeScript client.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async typescript(): Promise<Download> {
@@ -1711,7 +1718,7 @@ class Module_clients {
     /**
      * Get JavaScript client.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async javascript(): Promise<Download> {
@@ -1722,7 +1729,7 @@ class Module_clients {
     /**
      * Get Java client.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async java(): Promise<Download> {
@@ -1733,7 +1740,7 @@ class Module_clients {
     /**
      * Get Cpp client.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async cpp(): Promise<Download> {
@@ -1744,7 +1751,7 @@ class Module_clients {
     /**
      * Get PHP client.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async php(): Promise<Download> {
@@ -1937,7 +1944,7 @@ class Module_misc {
     /**
      * Get version information of the API.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getApiVersion(): Promise<ApiVersion> {
@@ -1948,7 +1955,7 @@ class Module_misc {
     /**
      * Get requestion information.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getRequestInformation(): Promise<RequestInformation> {
@@ -1959,7 +1966,7 @@ class Module_misc {
     /**
      * Get a fortune message.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getFortune(): Promise<string> {
@@ -1970,7 +1977,7 @@ class Module_misc {
     /**
      * Get server time.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getTime(): Promise<Time> {
@@ -1981,7 +1988,7 @@ class Module_misc {
     /**
      * Get homepage stats.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getHomepageStats(): Promise<HomepageStats> {
@@ -1992,7 +1999,7 @@ class Module_misc {
     /**
      * Get Jutge.org logo as a PNG file.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getLogo(): Promise<Download> {
@@ -2005,7 +2012,7 @@ class Module_misc {
      *
      * Avatars are used in exams and contests to identify students or participants.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getAvatarPacks(): Promise<string[]> {
@@ -2018,7 +2025,7 @@ class Module_misc {
      *
      * Exam icon are used in exams and contests to identify problems.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getExamIcons(): Promise<TagsDict> {
@@ -2031,7 +2038,7 @@ class Module_misc {
      *
      * Color mappings may be used to colorize keys in the frontends. Color names are as defined in https://github.com/timoxley/colornames
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getColors(): Promise<ColorMapping> {
@@ -2044,7 +2051,7 @@ class Module_misc {
      *
      * Color mappings may be used to colorize keys in the frontends.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getHexColors(): Promise<ColorMapping> {
@@ -2055,7 +2062,7 @@ class Module_misc {
     /**
      * Returns code demos for a given compiler as a dictionary of base64 codes indexed by problem_nm.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getDemosForCompiler(compiler_id: string): Promise<Record<string, string>> {
@@ -2068,7 +2075,7 @@ class Module_misc {
      *
      * Source and target languages are ISO 639-1 codes. Use "auto" as the source language to detect it.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async translate(data: TranslationIn): Promise<TranslationOut> {
@@ -2094,7 +2101,7 @@ class Module_tables {
      *
      * Returns all compilers, countries, drivers, languages, proglangs, and verdicts in a single request. This data does not change often, so you should only request it once per session.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async get(): Promise<AllTables> {
@@ -2107,7 +2114,7 @@ class Module_tables {
      *
      * Returns all languages as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getLanguages(): Promise<Record<string, Language>> {
@@ -2120,7 +2127,7 @@ class Module_tables {
      *
      * Returns all countries as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getCountries(): Promise<Record<string, Country>> {
@@ -2133,7 +2140,7 @@ class Module_tables {
      *
      * Returns all compilers as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getCompilers(): Promise<Record<string, Compiler>> {
@@ -2146,7 +2153,7 @@ class Module_tables {
      *
      * Returns all drivers as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getDrivers(): Promise<Record<string, Driver>> {
@@ -2159,7 +2166,7 @@ class Module_tables {
      *
      * Returns all verdicts as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getVerdicts(): Promise<Record<string, Verdict>> {
@@ -2172,7 +2179,7 @@ class Module_tables {
      *
      * Returns all proglangs (porgramming languages) as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getProglangs(): Promise<Record<string, Proglang>> {
@@ -2185,7 +2192,7 @@ class Module_tables {
      *
      * Returns all timezones as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async getTimezones(): Promise<Record<string, Timezone>> {
@@ -2211,7 +2218,7 @@ class Module_courses {
      *
      * Returns all courses marked as public, indexed by course key (`username:course_nm`).
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: any
      */
     async indexPublic(): Promise<PublicCourses> {
@@ -2530,7 +2537,7 @@ class Module_problems {
      *
      * Permission is granted to admins, the problem owner, or any instructor if solutions are shared.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructorOrAdmin
      */
     async getSolutions(problem_id: string): Promise<string[]> {
@@ -2543,7 +2550,7 @@ class Module_problems {
      *
      * Permission is granted to admins, the problem owner, or any instructor if solutions are shared.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructorOrAdmin
      */
     async getSolutionAsB64(data: {
@@ -2559,7 +2566,7 @@ class Module_problems {
      *
      * Permission is granted to admins, the problem owner, or any instructor if solutions are shared.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructorOrAdmin
      */
     async getSolutionAsFile(data: {
@@ -2575,7 +2582,7 @@ class Module_problems {
      *
      * Permission is granted to admins, the problem owner, or any instructor if testcases are shared.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructorOrAdmin
      */
     async getTestcases(problem_id: string): Promise<string[]> {
@@ -2588,7 +2595,7 @@ class Module_problems {
      *
      * Permission is granted to admins, the problem owner, or any instructor if testcases are shared.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructorOrAdmin
      */
     async getTestcase(data: {
@@ -2604,7 +2611,7 @@ class Module_problems {
      *
      * Permission is granted to admins, the problem owner, or any instructor if testcases are shared.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructorOrAdmin
      */
     async getAllTestcases(problem_id: string): Promise<Testcase[]> {
@@ -2718,7 +2725,7 @@ class Module_student_keys {
     /**
      * Get enrolled course keys.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async getEnrolledCourses(): Promise<string[]> {
@@ -2729,7 +2736,7 @@ class Module_student_keys {
     /**
      * Get available course keys.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async getAvailableCourses(): Promise<string[]> {
@@ -2740,7 +2747,7 @@ class Module_student_keys {
     /**
      * Get list keys.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async getLists(): Promise<string[]> {
@@ -2764,9 +2771,7 @@ class Module_student_profile {
     /**
      * Get the profile.
      *
-     * In case of exams, some fields are not nullified to avoid cheating.
-     *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async get(): Promise<Profile> {
@@ -2777,7 +2782,7 @@ class Module_student_profile {
     /**
      * Returns the avatar as a PNG file.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async getAvatar(): Promise<Download> {
@@ -3420,7 +3425,7 @@ class Module_student_passcodes {
      *
      * Fails if the problem does not exist, has no passcode, or the given passcode does not match.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async add(data: Passcode): Promise<void> {
@@ -3431,7 +3436,7 @@ class Module_student_passcodes {
     /**
      * Remove the stored problem passcode of a problem.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async remove(problem_nm: string): Promise<void> {
@@ -3442,7 +3447,7 @@ class Module_student_passcodes {
     /**
      * Get all problem passcodes stored, sorted by problem name.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async getAll(): Promise<Passcode[]> {
@@ -3663,7 +3668,7 @@ class Module_student_settings {
     /**
      * Get all user settings.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async getAll(): Promise<Settings> {
@@ -3674,7 +3679,7 @@ class Module_student_settings {
     /**
      * Get a user setting by key.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async get(key: string): Promise<any> {
@@ -3685,7 +3690,7 @@ class Module_student_settings {
     /**
      * Set a user setting.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: user
      */
     async set(data: Setting): Promise<void> {
@@ -3765,7 +3770,7 @@ class Module_tutor_examctl {
      *
      * Returns waiting, started, or finished, plus the start time and the latest end time among students who have not finished.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async getStatus(): Promise<{
@@ -3782,7 +3787,7 @@ class Module_tutor_examctl {
      *
      * Returns each student with first login, computed end time, entry, finish, ban, and invite flags, and distinct submission and login IPs.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async liveRoster(): Promise<
@@ -3808,7 +3813,7 @@ class Module_tutor_examctl {
      *
      * Returns the most recent submissions, up to the given limit, with email, problem, verdict, and compiler.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async latestSubmissions(data: {
@@ -3833,7 +3838,7 @@ class Module_tutor_examctl {
      *
      * Returns each student with more than one distinct login IP, and the time of each login.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async multipleIPs(): Promise<
@@ -3855,7 +3860,7 @@ class Module_tutor_examctl {
      *
      * Returns verdict, status, compiler, and language counts by problem, plus submission counts bucketed over time.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async getStatistics(): Promise<ExamStatistics> {
@@ -3868,7 +3873,7 @@ class Module_tutor_examctl {
      *
      * Under development.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async getRanking(): Promise<Ranking> {
@@ -3881,7 +3886,7 @@ class Module_tutor_examctl {
      *
      * Starts an exam, saving who has started it and its start time.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async start(): Promise<void> {
@@ -3894,7 +3899,7 @@ class Module_tutor_examctl {
      *
      * Sets the student as finished, ending access to the exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async finish(data: { email: string /* Email of the student */ }): Promise<void> {
@@ -3907,7 +3912,7 @@ class Module_tutor_examctl {
      *
      * Clears the finished flag and reopens access to the exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async unfinish(data: { email: string /* Email of the student */ }): Promise<void> {
@@ -3920,7 +3925,7 @@ class Module_tutor_examctl {
      *
      * Sets the student as banned and stores the reason, ending their access to the exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async ban(data: {
@@ -3936,7 +3941,7 @@ class Module_tutor_examctl {
      *
      * Clears the banned flag and the ban reason, restoring access to the exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async unban(data: { email: string /* Email of the student */ }): Promise<void> {
@@ -3949,7 +3954,7 @@ class Module_tutor_examctl {
      *
      * Marks the student as invited, leaving the student out of the ranking. Only available when the exam is a contest.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async invite(data: { email: string /* Email of the student */ }): Promise<void> {
@@ -3962,7 +3967,7 @@ class Module_tutor_examctl {
      *
      * Clears the invited flag so the student is included in the ranking. Only available when the exam is a contest.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async uninvite(data: { email: string /* Email of the student */ }): Promise<void> {
@@ -3975,7 +3980,7 @@ class Module_tutor_examctl {
      *
      * Adds minutes for every student. Negative values remove time. The reason is appended, separated by "; ".
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async addMinutes(data: {
@@ -3991,7 +3996,7 @@ class Module_tutor_examctl {
      *
      * Adds minutes for one student. Negative values remove time. The reason is appended, separated by "; ".
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
     async addStudentMinutes(data: {
@@ -4401,7 +4406,7 @@ class Module_instructor_documents {
     /**
      * Get index of all documents.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async index(): Promise<Record<string, Document>> {
@@ -4414,7 +4419,7 @@ class Module_instructor_documents {
      *
      * The file content is not included in the response.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async get(document_nm: string): Promise<Document> {
@@ -4425,7 +4430,7 @@ class Module_instructor_documents {
     /**
      * Get PDF of a document.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getPdf(document_nm: string): Promise<Download> {
@@ -4436,7 +4441,7 @@ class Module_instructor_documents {
     /**
      * Get ZIP of a document.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getZip(document_nm: string): Promise<Download> {
@@ -4447,7 +4452,7 @@ class Module_instructor_documents {
     /**
      * Create a new document.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async create(data: DocumentCreation, ifile: File): Promise<void> {
@@ -4458,7 +4463,7 @@ class Module_instructor_documents {
     /**
      * Update a document.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async update(data: DocumentCreation, ifile: File): Promise<void> {
@@ -4469,7 +4474,7 @@ class Module_instructor_documents {
     /**
      * Remove a document.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async remove(document_nm: string): Promise<void> {
@@ -4493,7 +4498,7 @@ class Module_instructor_lists {
     /**
      * Get index of all lists.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async index(): Promise<Record<string, InstructorBriefList>> {
@@ -4504,7 +4509,7 @@ class Module_instructor_lists {
     /**
      * Get a list.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async get(list_nm: string): Promise<InstructorList> {
@@ -4515,7 +4520,7 @@ class Module_instructor_lists {
     /**
      * Create a new list.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async create(data: InstructorListCreation): Promise<void> {
@@ -4526,7 +4531,7 @@ class Module_instructor_lists {
     /**
      * Update an existing list.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async update(data: InstructorListCreation): Promise<void> {
@@ -4537,7 +4542,7 @@ class Module_instructor_lists {
     /**
      * Delete an existing list.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async remove(list_nm: string): Promise<void> {
@@ -4550,7 +4555,7 @@ class Module_instructor_lists {
      *
      * At some point, endpoints related to archiving lists should change as the archive bit will be an attribute of each list.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getArchived(): Promise<string[]> {
@@ -4561,7 +4566,7 @@ class Module_instructor_lists {
     /**
      * Archive a list.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async archive(list_nm: string): Promise<void> {
@@ -4572,7 +4577,7 @@ class Module_instructor_lists {
     /**
      * Unarchive a list.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async unarchive(list_nm: string): Promise<void> {
@@ -4606,7 +4611,7 @@ class Module_instructor_courses {
     /**
      * Get index of all courses.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async index(): Promise<Record<string, InstructorBriefCourse>> {
@@ -4617,7 +4622,7 @@ class Module_instructor_courses {
     /**
      * Get a course.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async get(course_nm: string): Promise<InstructorCourse> {
@@ -4630,7 +4635,7 @@ class Module_instructor_courses {
      *
      * Only invited students and tutors are taken into account. Enrolled and pending students and tutors are ignored, as these are managed by the system.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async create(data: InstructorCourseCreation): Promise<void> {
@@ -4643,7 +4648,7 @@ class Module_instructor_courses {
      *
      * Only invited students and tutors are taken into account. Enrolled and pending students and tutors are ignored, as these are managed by the system.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async update(data: InstructorCourseUpdate): Promise<void> {
@@ -4656,7 +4661,7 @@ class Module_instructor_courses {
      *
      * A course should not be deleted. Ask a system administrator to remove it if you really need it.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async remove(course_nm: string): Promise<void> {
@@ -4669,7 +4674,7 @@ class Module_instructor_courses {
      *
      * Please do not abuse.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async sendInviteToStudents(course_nm: string): Promise<void> {
@@ -4682,7 +4687,7 @@ class Module_instructor_courses {
      *
      * Please do not abuse.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async sendInviteToTutors(course_nm: string): Promise<void> {
@@ -4693,7 +4698,7 @@ class Module_instructor_courses {
     /**
      * Get the profiles of the students enrolled in the course.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getStudentProfiles(course_nm: string): Promise<Record<string, StudentProfile>> {
@@ -4704,7 +4709,7 @@ class Module_instructor_courses {
     /**
      * Get the profiles of the tutors enrolled in the course.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getTutorProfiles(course_nm: string): Promise<Record<string, StudentProfile>> {
@@ -4717,7 +4722,7 @@ class Module_instructor_courses {
      *
      * At some point, endpoints related to archiving courses should change as the archive bit will be an attribute of each course.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getArchived(): Promise<string[]> {
@@ -4728,7 +4733,7 @@ class Module_instructor_courses {
     /**
      * Archive a course.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async archive(course_nm: string): Promise<void> {
@@ -4739,7 +4744,7 @@ class Module_instructor_courses {
     /**
      * Unarchive a course.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async unarchive(course_nm: string): Promise<void> {
@@ -4768,7 +4773,7 @@ class Module_instructor_exams {
     /**
      * Get index of all exams.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async index(): Promise<Record<string, InstructorBriefExam>> {
@@ -4779,7 +4784,7 @@ class Module_instructor_exams {
     /**
      * Get an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async get(exam_nm: string): Promise<InstructorExam> {
@@ -4790,7 +4795,7 @@ class Module_instructor_exams {
     /**
      * Get documents of an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getDocuments(exam_nm: string): Promise<InstructorExamDocument[]> {
@@ -4801,7 +4806,7 @@ class Module_instructor_exams {
     /**
      * Get problems of an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getProblems(exam_nm: string): Promise<InstructorExamProblem[]> {
@@ -4812,7 +4817,7 @@ class Module_instructor_exams {
     /**
      * Get students of an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getStudents(exam_nm: string): Promise<InstructorExamStudent[]> {
@@ -4823,7 +4828,7 @@ class Module_instructor_exams {
     /**
      * Get an student of an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getStudent(data: {
@@ -4839,7 +4844,7 @@ class Module_instructor_exams {
      *
      * Meant for real-time streaming of submissions, most instructors will possibly prefer getSubmissionsPack.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getSubmissions(data: {
@@ -4855,7 +4860,7 @@ class Module_instructor_exams {
      *
      * This endpoint will prepare the pack in the background and return a link to download it later. Packs take some time to be prepared, and are deleted after 24 hours. This is the preferred endpoint for most instructors, as it is simpler to use than getSubmissions.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getSubmissionsPack(data: {
@@ -4869,7 +4874,7 @@ class Module_instructor_exams {
     /**
      * Get statistics of an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getStatistics(exam_nm: string): Promise<ExamStatistics> {
@@ -4880,7 +4885,7 @@ class Module_instructor_exams {
     /**
      * Create a new exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async create(data: InstructorExamCreation): Promise<void> {
@@ -4891,7 +4896,7 @@ class Module_instructor_exams {
     /**
      * Update an existing exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async update(data: InstructorExamUpdate): Promise<void> {
@@ -4902,7 +4907,7 @@ class Module_instructor_exams {
     /**
      * Update documents of an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async updateDocuments(data: {
@@ -4916,7 +4921,7 @@ class Module_instructor_exams {
     /**
      * Update compilers of an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async updateCompilers(data: {
@@ -4930,7 +4935,7 @@ class Module_instructor_exams {
     /**
      * Update problems of an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async updateProblems(data: {
@@ -4944,7 +4949,7 @@ class Module_instructor_exams {
     /**
      * Update students of an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async updateStudents(data: {
@@ -4958,7 +4963,7 @@ class Module_instructor_exams {
     /**
      * Add students to an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async addStudents(data: {
@@ -4972,7 +4977,7 @@ class Module_instructor_exams {
     /**
      * Remove students from an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async removeStudents(data: { exam_nm: string /* Exam name */; emails: string[] /* emails */ }): Promise<void> {
@@ -4985,7 +4990,7 @@ class Module_instructor_exams {
      *
      * Note: An exam can only be deleted if it has not started.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async remove(exam_nm: string): Promise<void> {
@@ -4998,7 +5003,7 @@ class Module_instructor_exams {
      *
      * At some point, endpoints related to archiving exams should change as the archive bit will be an attribute of each exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getArchived(): Promise<string[]> {
@@ -5009,7 +5014,7 @@ class Module_instructor_exams {
     /**
      * Archive an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async archive(exam_nm: string): Promise<void> {
@@ -5020,7 +5025,7 @@ class Module_instructor_exams {
     /**
      * Unarchive an exam.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async unarchive(exam_nm: string): Promise<void> {
@@ -5033,7 +5038,7 @@ class Module_instructor_exams {
      *
      * Under development.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getRanking(exam_nm: string): Promise<Ranking> {
@@ -5057,7 +5062,7 @@ class Module_instructor_problems {
     /**
      * Get the list of own problems.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getOwnProblems(): Promise<string[]> {
@@ -5074,7 +5079,7 @@ class Module_instructor_problems {
      *        With shared solutions, the solutions are shared with instructors.
      *
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async setSharingSettings(data: SharingSettings): Promise<void> {
@@ -5085,7 +5090,7 @@ class Module_instructor_problems {
     /**
      * Get the sharing settings of a problem.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getSharingSettings(problem_nm: string): Promise<SharingSettings> {
@@ -5096,7 +5101,7 @@ class Module_instructor_problems {
     /**
      * Get the sharing settings of all problems.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getAllSharingSettings(): Promise<SharingSettings[]> {
@@ -5107,7 +5112,7 @@ class Module_instructor_problems {
     /**
      * Get alerts for one problem.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getAlerts(problem_nm: string): Promise<ProblemAlerts> {
@@ -5118,7 +5123,7 @@ class Module_instructor_problems {
     /**
      * Get alerts for all problems.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getAllAlerts(): Promise<ProblemAlerts[]> {
@@ -5129,7 +5134,7 @@ class Module_instructor_problems {
     /**
      * Share a problem with users.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async shareWith(data: ShareWithInp): Promise<void> {
@@ -5142,7 +5147,7 @@ class Module_instructor_problems {
      *
      * If the reason is null or empty, the problem is undeprecated.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async setDeprecation(data: Deprecation): Promise<void> {
@@ -5155,7 +5160,7 @@ class Module_instructor_problems {
      *
      * The buckets are sorted by the number of problems in each bucket by total number of submissions. The data is refreshed every hour.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getProblemPopularityBuckets(): Promise<ProblemPopularityBucketEntry[]> {
@@ -5168,7 +5173,7 @@ class Module_instructor_problems {
      *
      * This function is useful to produce statistics about the submissions for an abstract problem. The user ids are anonymized using a nonce.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getAnonymousSubmissions(problem_nm: string): Promise<ProblemAnonymousSubmission[]> {
@@ -5179,7 +5184,7 @@ class Module_instructor_problems {
     /**
      * Download a problem as a ZIP file.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async download(problem_nm: string): Promise<Download> {
@@ -5192,7 +5197,7 @@ class Module_instructor_problems {
      *
      * This endpoint uses terminal web streaming: It returns an id from which the problem feedback is streamed over <URL>/api/webstreams/<id>.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async create(passcode: string, ifile: File): Promise<WebStream> {
@@ -5205,7 +5210,7 @@ class Module_instructor_problems {
      *
      * This endpoint uses terminal web streaming: It returns an id from which the problem feedback is streamed over <URL>/api/webstreams/<id>.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async update(problem_nm: string, ifile: File): Promise<WebStream> {
@@ -5218,7 +5223,7 @@ class Module_instructor_problems {
      *
      * A problem can only be removed if it has few submissions.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async remove(problem_nm: string): Promise<void> {
@@ -5244,7 +5249,7 @@ class Module_instructor_queries {
      *
      * Returns a list of submissions for a given problem for all students of a given course. Each submission includes the email, time, problem name, problem id, verdict, and IP address. The list is ordered by email and time. Known as ricard01 in the past.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getCourseProblemSubmissions(data: { course_nm: string; problem_nm: string }): Promise<SubmissionsQuery> {
@@ -5257,7 +5262,7 @@ class Module_instructor_queries {
      *
      * Returns a list of submissions for all problems in a given list for all students of a given course. Each submission includes the email, time, problem name, problem id, verdict, and IP address. The list is ordered by email, problem id and time. Known as ricard02 in the past.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getCourseListSubmissions(data: { course_nm: string; list_nm: string }): Promise<SubmissionsQuery> {
@@ -5281,7 +5286,7 @@ class Module_instructor_tags {
     /**
      * Get list of all tags.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async index(): Promise<string[]> {
@@ -5292,7 +5297,7 @@ class Module_instructor_tags {
     /**
      * Get all tags with their problems.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getDict(): Promise<TagsDict> {
@@ -5303,7 +5308,7 @@ class Module_instructor_tags {
     /**
      * Get all problems with a given tag.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async get(tag: string): Promise<string[]> {
@@ -5327,7 +5332,7 @@ class Module_instructor_jutgeai {
     /**
      * Get the list of supported models.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async supportedModels(): Promise<string[]> {
@@ -5338,7 +5343,7 @@ class Module_instructor_jutgeai {
     /**
      * Get the list of supported image models.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async supportedImageModels(): Promise<string[]> {
@@ -5347,11 +5352,24 @@ class Module_instructor_jutgeai {
     }
 
     /**
+     * Get USD prices per 1M tokens for supported text models.
+     *
+     * Prices are fetched live from OpenRouter for models in `supportedModels` and historical `formerModels` (for usage accounting).
+     *
+     * 🗂️ Domains: jutge
+     * 🔐 Authentication: instructor
+     */
+    async getPrices(): Promise<ModelPrices> {
+        const [output, ofiles] = await this.root.execute("instructor.jutgeai.getPrices", null)
+        return output
+    }
+
+    /**
      * Chat with an AI model using a list of messages.
      *
      * Send a conversation (list of system|user|assistant messages) and get the next assistant reply. Models are listed in the `supportedModels` endpoint. This endpoint uses terminal web streaming: It returns an id from which the chat is streamed over <URL>/api/webstreams/<id>. If `addUsage` is true, the usage of the model will be added at the end of the response as a JSON object between `---USAGE_JSON_START---` and `---USAGE_JSON_END---`.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async chat(data: ChatPrompt): Promise<WebStream> {
@@ -5364,7 +5382,7 @@ class Module_instructor_jutgeai {
      *
      * Some models only accept certain sizes and aspect ratios.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async createImage(data: CreateImageInput): Promise<Download> {
@@ -5375,7 +5393,7 @@ class Module_instructor_jutgeai {
     /**
      * Get audit usage of LLM models.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: instructor
      */
     async getLlmUsage(): Promise<LlmUsageEntry[]> {
@@ -5399,7 +5417,7 @@ class Module_games {
     /**
      * Get list of problems that are games.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: competitions
      */
     async getGames(): Promise<string[]> {
@@ -5410,7 +5428,7 @@ class Module_games {
     /**
      * Get dummy player for a game.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: competitions
      */
     async getDummy(problem_id: string): Promise<string> {
@@ -5421,7 +5439,7 @@ class Module_games {
     /**
      * Get a ZIP file with the viewer for a game.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: competitions
      */
     async getViewer(problem_id: string): Promise<Download> {
@@ -5432,7 +5450,7 @@ class Module_games {
     /**
      * Submit a match for a game (combat or competition match).
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: competitions
      */
     async submitMatch(data: SubmitMatchIn): Promise<NewSubmissionOut> {
@@ -5486,7 +5504,7 @@ class Module_admin_instructors {
     /**
      * Get instructors.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async get(): Promise<InstructorEntries> {
@@ -5497,7 +5515,7 @@ class Module_admin_instructors {
     /**
      * Add an instructor.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async add(data: { email: string; username: string }): Promise<void> {
@@ -5508,7 +5526,7 @@ class Module_admin_instructors {
     /**
      * Remove an instructor.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async remove(email: string): Promise<void> {
@@ -5532,7 +5550,7 @@ class Module_admin_courses {
     /**
      * Get all courses from all instructors.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getAll(): Promise<AdminCourses> {
@@ -5543,7 +5561,7 @@ class Module_admin_courses {
     /**
      * Set the public and official fields of a course.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async setPublicAndOfficial(data: AdminCourseSetPublicAndOfficial): Promise<void> {
@@ -5567,7 +5585,7 @@ class Module_admin_users {
     /**
      * Count users
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async count(): Promise<number> {
@@ -5578,7 +5596,7 @@ class Module_admin_users {
     /**
      * Create a user
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async create(data: UserCreation): Promise<void> {
@@ -5589,7 +5607,7 @@ class Module_admin_users {
     /**
      * Remove a user
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async remove(email: string): Promise<void> {
@@ -5600,7 +5618,7 @@ class Module_admin_users {
     /**
      * Set a password for a user
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async setPassword(data: { email: string; password: string; message: string }): Promise<void> {
@@ -5611,7 +5629,7 @@ class Module_admin_users {
     /**
      * Get all profiles of users whose email or name contains a specific string
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getProfiles(data: string): Promise<ProfileForAdmin[]> {
@@ -5622,7 +5640,7 @@ class Module_admin_users {
     /**
      * Get all users (well, just email and name) whose email contains a specific string
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getAllWithEmail(data: string): Promise<UsersEmailsAndNames> {
@@ -5633,7 +5651,7 @@ class Module_admin_users {
     /**
      * Get a list of emails of spam users
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getSpamUsers(): Promise<string[]> {
@@ -5644,7 +5662,7 @@ class Module_admin_users {
     /**
      * Remove spam users
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async removeSpamUsers(data: string[]): Promise<void> {
@@ -5668,7 +5686,7 @@ class Module_admin_dashboard {
     /**
      * Get all admin dashboard items.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getAll(): Promise<AdminDashboard> {
@@ -5679,7 +5697,7 @@ class Module_admin_dashboard {
     /**
      * Get database info.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDatabasesInfo(): Promise<DatabasesInfo> {
@@ -5690,7 +5708,7 @@ class Module_admin_dashboard {
     /**
      * Get free disk space.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getFreeDiskSpace(): Promise<FreeDiskSpace> {
@@ -5701,7 +5719,7 @@ class Module_admin_dashboard {
     /**
      * Get recent connected users.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getRecentConnectedUsers(): Promise<RecentConnectedUsers> {
@@ -5712,7 +5730,7 @@ class Module_admin_dashboard {
     /**
      * Get recent load averages.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getRecentLoadAverages(): Promise<RecentLoadAverages> {
@@ -5723,7 +5741,7 @@ class Module_admin_dashboard {
     /**
      * Get recent submissions.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getRecentSubmissions(): Promise<RecentSubmissions> {
@@ -5734,7 +5752,7 @@ class Module_admin_dashboard {
     /**
      * Get submissions histograms.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getSubmissionsHistograms(): Promise<SubmissionsHistograms> {
@@ -5745,7 +5763,7 @@ class Module_admin_dashboard {
     /**
      * Get zombies.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getZombies(): Promise<Zombies> {
@@ -5756,7 +5774,7 @@ class Module_admin_dashboard {
     /**
      * Get upcoming exams
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getUpcomingExams(data: { daysBefore: number; daysAfter: number }): Promise<UpcomingExams> {
@@ -5769,7 +5787,7 @@ class Module_admin_dashboard {
      *
      * This endpoint retrieves the status of PM2 processes as reported by `pm2 jlist`.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getPM2Status(): Promise<any> {
@@ -5782,7 +5800,7 @@ class Module_admin_dashboard {
      *
      * This endpoint retrieves the status of docker processes as reported by `docker ps --all`.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDockerStatus(): Promise<any> {
@@ -5808,7 +5826,7 @@ class Module_admin_queue {
      *
      * The `limit` parameter tells the number of submissions to retrieve. The `verdicts` parameter is an array of verdicts to filter the submissions. If no verdicts are provided, all submissions will be retrieved.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getQueue(data: QueueQuery): Promise<SubmissionQueueItems> {
@@ -5834,7 +5852,7 @@ class Module_admin_tasks {
      *
      * Purge expired access tokens (call it from time to time, it does not hurt)
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async purgeAuthTokens(): Promise<void> {
@@ -5845,7 +5863,7 @@ class Module_admin_tasks {
     /**
      * Clear all memoization caches.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async clearCaches(): Promise<void> {
@@ -5856,7 +5874,7 @@ class Module_admin_tasks {
     /**
      * Fatalize IE submissions.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async fatalizeIEs(): Promise<void> {
@@ -5867,7 +5885,7 @@ class Module_admin_tasks {
     /**
      * Fatalize pending submissions.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async fatalizePendings(): Promise<void> {
@@ -5878,7 +5896,7 @@ class Module_admin_tasks {
     /**
      * Resubmit IE submissions.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async resubmitIEs(): Promise<void> {
@@ -5889,7 +5907,7 @@ class Module_admin_tasks {
     /**
      * Resubmit pending submissions.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async resubmitPendings(): Promise<void> {
@@ -5900,7 +5918,7 @@ class Module_admin_tasks {
     /**
      * Get full text search database status.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getFullTextSearchDatabase(): Promise<Download> {
@@ -5911,7 +5929,7 @@ class Module_admin_tasks {
     /**
      * Update semantic search database.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async updateSemanticSearchDatabase(data: string, ifile: File): Promise<void> {
@@ -5935,7 +5953,7 @@ class Module_admin_stats {
     /**
      * Get counters.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getCounters(): Promise<Record<string, number>> {
@@ -5946,7 +5964,7 @@ class Module_admin_stats {
     /**
      * Get distribution of verdicts.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfVerdicts(): Promise<Record<string, number>> {
@@ -5957,7 +5975,7 @@ class Module_admin_stats {
     /**
      * Get distribution of verdicts by year.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfVerdictsByYear(): Promise<Record<string, number>[]> {
@@ -5968,7 +5986,7 @@ class Module_admin_stats {
     /**
      * Get distribution of compilers.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfCompilers(): Promise<Record<string, number>> {
@@ -5979,7 +5997,7 @@ class Module_admin_stats {
     /**
      * Get distribution of proglangs.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfProglangs(): Promise<Record<string, number>> {
@@ -5990,7 +6008,7 @@ class Module_admin_stats {
     /**
      * Get distribution of registered users by year.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfUsersByYear(): Promise<Record<string, number>> {
@@ -6001,7 +6019,7 @@ class Module_admin_stats {
     /**
      * Get distribution of registered users by country.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfUsersByCountry(): Promise<Record<string, number>> {
@@ -6012,7 +6030,7 @@ class Module_admin_stats {
     /**
      * Get distribution of registered users by submissions using a custom bucket size.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfUsersBySubmissions(data: number): Promise<Record<string, number>> {
@@ -6023,7 +6041,7 @@ class Module_admin_stats {
     /**
      * Get ranking of users.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      * ‼️ Warning: Input type is not correct
      */
@@ -6035,7 +6053,7 @@ class Module_admin_stats {
     /**
      * Get distribution of submissions by hour.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfSubmissionsByHour(): Promise<Record<string, number>> {
@@ -6046,7 +6064,7 @@ class Module_admin_stats {
     /**
      * Get distribution of submissions by proglang.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfSubmissionsByProglang(): Promise<Record<string, number>> {
@@ -6057,7 +6075,7 @@ class Module_admin_stats {
     /**
      * Get distribution of submissions by compiler.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfSubmissionsByCompiler(): Promise<Record<string, number>> {
@@ -6068,7 +6086,7 @@ class Module_admin_stats {
     /**
      * Get distribution of submissions by weekday.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfSubmissionsByWeekday(): Promise<Record<string, number>> {
@@ -6079,7 +6097,7 @@ class Module_admin_stats {
     /**
      * Get distribution of submissions by year.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfSubmissionsByYear(): Promise<Record<string, number>> {
@@ -6090,7 +6108,7 @@ class Module_admin_stats {
     /**
      * Get distribution of submissions by year for a proglang.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfSubmissionsByYearForProglang(proglang: string): Promise<Record<string, number>> {
@@ -6104,7 +6122,7 @@ class Module_admin_stats {
     /**
      * Get distribution of submissions by day.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfSubmissionsByDay(): Promise<Record<string, number>> {
@@ -6115,7 +6133,7 @@ class Module_admin_stats {
     /**
      * Get heatmap calendar of submissions.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getHeatmapCalendarOfSubmissions(data: DateRange): Promise<any> {
@@ -6126,7 +6144,7 @@ class Module_admin_stats {
     /**
      * Get distribution of domains of users' emails.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getDistributionOfDomains(): Promise<Record<string, number>> {
@@ -6150,7 +6168,7 @@ class Module_admin_problems {
     /**
      * Get summary for a problem.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getProblemSummary(problem_id: string): Promise<ProblemSummary | null> {
@@ -6161,7 +6179,7 @@ class Module_admin_problems {
     /**
      * Get list of problems with summary.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getProblemsWithSummary(): Promise<string[]> {
@@ -6172,7 +6190,7 @@ class Module_admin_problems {
     /**
      * Get list of problems without summary.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getProblemsWithoutSummary(): Promise<string[]> {
@@ -6183,7 +6201,7 @@ class Module_admin_problems {
     /**
      * Get solution tags for an abstract problem.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getAbstractProblemSolutionTags(data: { problem_nm: string }): Promise<SolutionTags | null> {
@@ -6194,7 +6212,7 @@ class Module_admin_problems {
     /**
      * Get list of abstract problems with solution tags.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getAbstractProblemsWithSolutionTags(): Promise<string[]> {
@@ -6205,7 +6223,7 @@ class Module_admin_problems {
     /**
      * Get list of abstract problems without solution tags.
      *
-     * 🗂️ Domains: jutge, exam, contest
+     * 🗂️ Domains: jutge
      * 🔐 Authentication: admin
      */
     async getAbstractProblemsWithoutSolutionTags(): Promise<string[]> {
