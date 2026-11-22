@@ -6,9 +6,12 @@ export type SiteResolution = {
     apiUrl: string | null
 }
 
-export const NORMAL_API_URL = 'https://api.jutge.org/api'
-export const EXAM_API_URL = 'https://exam.api.jutge.org/api'
-export const CONTEST_API_URL = 'https://contest.api.jutge.org/api'
+export const NORMAL_API_URL =
+    process.env.NEXT_PUBLIC_JUTGE_API_URL?.trim() || 'https://api.jutge.org/api'
+export const EXAM_API_URL =
+    process.env.NEXT_PUBLIC_JUTGE_EXAM_API_URL?.trim() || 'https://exam.api.jutge.org/api'
+export const CONTEST_API_URL =
+    process.env.NEXT_PUBLIC_JUTGE_CONTEST_API_URL?.trim() || 'https://contest.api.jutge.org/api'
 
 const NORMAL_HOSTS = new Set([
     'www.jutge.net',

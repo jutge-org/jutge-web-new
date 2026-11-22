@@ -1,65 +1,114 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type ReactNode,
+} from 'react'
 
 import { AuthContext } from '@/components/authContext'
+import { useSiteMode } from '@/components/SiteModeProvider'
 import jutge from '@/lib/jutge'
 import {
+    fetchReadyExamsUnauthenticated,
+    LIVE_SESSION_STORAGE,
+    loginLiveExam,
+    validateLiveSessionToken,
+    type LiveAuthPhase,
+} from '@/lib/data/liveAuth'
+import {
+    filterReadyExams,
     isLiveAuthFailure,
     liveErrorMessage,
     probeLiveRole,
     type LiveTutorStatus,
 } from '@/lib/data/liveExam'
-import type { RunningExam } from '@/lib/jutge_api_client'
-
-const LIVE_EMAIL_KEY = 'live_email'
+import type { CredentialsOut, ReadyExam, RunningExam } from '@/lib/jutge_api_client'
+import { applyLiveApiClient } from '@/lib/siteMode'
 
 export type LiveRole = 'student' | 'tutor'
 
+type SignInResult = { ok: true } | { ok: false; error: string }
+
+type ContinueSignInResult = { ok: true; exams: ReadyExam[] } | { ok: false; error: string }
+
 export type LiveSessionValue = {
     loading: boolean
+    phase: LiveAuthPhase
     authenticated: boolean
     role: LiveRole | null
     email: string | null
+    readyExams: ReadyExam[] | null
     exam: RunningExam | null
     tutorStatus: LiveTutorStatus | null
     error: string | null
     refresh(): Promise<void>
-    login(input: {
-        email: string
-        password: string
-        exam: string
-        exam_password: string
-    }): Promise<{ ok: true } | { ok: false; error: string }>
+    continueSignIn(credentials: { email: string; password: string }, contest: boolean): Promise<ContinueSignInResult>
+    reloadReadyExams(contest: boolean): Promise<ContinueSignInResult>
+    enterExam(input: { exam: string; exam_password: string }): Promise<SignInResult>
+    cancelPreExam(): void
     logout(): Promise<void>
 }
 
 const LiveSessionContext = createContext<LiveSessionValue | null>(null)
 
 function readStoredSession(): { token: string; userUid: string; email: string | null } | null {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem(LIVE_SESSION_STORAGE.token)
     if (!token) return null
     return {
         token,
-        userUid: localStorage.getItem('user_uid') ?? '',
-        email: localStorage.getItem(LIVE_EMAIL_KEY),
+        userUid: localStorage.getItem(LIVE_SESSION_STORAGE.userUid) ?? '',
+        email: localStorage.getItem(LIVE_SESSION_STORAGE.email),
     }
 }
 
 function clearStoredSession() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('expiration')
-    localStorage.removeItem('user_uid')
-    localStorage.removeItem(LIVE_EMAIL_KEY)
+    localStorage.removeItem(LIVE_SESSION_STORAGE.token)
+    localStorage.removeItem(LIVE_SESSION_STORAGE.expiration)
+    localStorage.removeItem(LIVE_SESSION_STORAGE.userUid)
+    localStorage.removeItem(LIVE_SESSION_STORAGE.email)
+}
+
+function persistSignedInExam(credentials: CredentialsOut, email: string) {
+    localStorage.setItem(LIVE_SESSION_STORAGE.token, credentials.token)
+    localStorage.setItem(LIVE_SESSION_STORAGE.expiration, String(credentials.expiration))
+    localStorage.setItem(LIVE_SESSION_STORAGE.userUid, credentials.user_uid)
+    localStorage.setItem(LIVE_SESSION_STORAGE.email, email)
 }
 
 export function LiveSessionProvider({ children }: { children: ReactNode }) {
+    const site = useSiteMode()
     const [loading, setLoading] = useState(true)
+    const [phase, setPhase] = useState<LiveAuthPhase>('signed-out')
     const [role, setRole] = useState<LiveRole | null>(null)
     const [email, setEmail] = useState<string | null>(null)
+    const [readyExams, setReadyExams] = useState<ReadyExam[] | null>(null)
     const [exam, setExam] = useState<RunningExam | null>(null)
     const [tutorStatus, setTutorStatus] = useState<LiveTutorStatus | null>(null)
     const [error, setError] = useState<string | null>(null)
+
+    const preExamCredentialsRef = useRef<{ email: string; password: string } | null>(null)
+
+    useEffect(() => {
+        applyLiveApiClient(jutge, site)
+    }, [site])
+
+    const clearLiveRoleState = useCallback(() => {
+        setRole(null)
+        setExam(null)
+        setTutorStatus(null)
+    }, [])
+
+    const clearPreExam = useCallback(() => {
+        preExamCredentialsRef.current = null
+        setReadyExams(null)
+        setPhase('signed-out')
+    }, [])
 
     const applyProbe = useCallback(async () => {
         const probed = await probeLiveRole()
@@ -72,6 +121,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             setExam(probed.exam)
             setTutorStatus(null)
         }
+        setPhase('signed-in-exam')
         setError(null)
     }, [])
 
@@ -83,31 +133,34 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             if (isLiveAuthFailure(probeError)) {
                 clearStoredSession()
                 jutge.meta = null
-                setRole(null)
-                setExam(null)
-                setTutorStatus(null)
+                clearLiveRoleState()
                 setEmail(null)
+                clearPreExam()
             }
             setError(liveErrorMessage(probeError, 'Could not refresh the session.'))
         }
-    }, [applyProbe])
+    }, [applyProbe, clearLiveRoleState, clearPreExam])
 
     useEffect(() => {
         let cancelled = false
         async function restore() {
             try {
                 const stored = readStoredSession()
-                if (!stored) return
+                if (!stored) {
+                    setPhase('signed-out')
+                    return
+                }
                 jutge.meta = { token: stored.token, user_uid: stored.userUid }
                 if (!cancelled) setEmail(stored.email)
+                await validateLiveSessionToken()
                 await applyProbe()
             } catch (probeError) {
                 if (cancelled) return
                 clearStoredSession()
                 jutge.meta = null
-                setRole(null)
-                setExam(null)
-                setTutorStatus(null)
+                clearLiveRoleState()
+                setEmail(null)
+                setPhase('signed-out')
                 setError(
                     isLiveAuthFailure(probeError)
                         ? null
@@ -121,35 +174,81 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         return () => {
             cancelled = true
         }
-    }, [applyProbe])
+    }, [applyProbe, clearLiveRoleState])
 
-    const login = useCallback(
-        async (input: { email: string; password: string; exam: string; exam_password: string }) => {
+    const continueSignIn = useCallback(
+        async (
+            credentials: { email: string; password: string },
+            contest: boolean,
+        ): Promise<ContinueSignInResult> => {
+            const trimmedEmail = credentials.email.trim()
             try {
-                const credentials = await jutge.loginExam(input)
-                if (!credentials.token) {
-                    jutge.meta = null
-                    return { ok: false as const, error: 'Sign in failed.' }
+                const ready = await fetchReadyExamsUnauthenticated(trimmedEmail, credentials.password)
+                const filtered = filterReadyExams(ready, contest)
+                if (filtered.length === 0) {
+                    return {
+                        ok: false,
+                        error: contest
+                            ? 'No contest is ready for this account.'
+                            : 'No exam is ready for this account.',
+                    }
                 }
+                preExamCredentialsRef.current = { email: trimmedEmail, password: credentials.password }
+                setEmail(trimmedEmail)
+                setReadyExams(filtered)
+                setPhase('pre-exam')
+                setError(null)
+                return { ok: true, exams: filtered }
+            } catch (loadError) {
+                return { ok: false, error: liveErrorMessage(loadError, 'Could not look up exams.') }
+            }
+        },
+        [],
+    )
+
+    const reloadReadyExams = useCallback(
+        async (contest: boolean): Promise<ContinueSignInResult> => {
+            const cached = preExamCredentialsRef.current
+            if (!cached) {
+                return { ok: false, error: 'Sign in again to reload the list.' }
+            }
+            return continueSignIn(cached, contest)
+        },
+        [continueSignIn],
+    )
+
+    const enterExam = useCallback(
+        async (input: { exam: string; exam_password: string }): Promise<SignInResult> => {
+            const cached = preExamCredentialsRef.current
+            if (!cached) {
+                return { ok: false, error: 'Sign in again before entering the exam.' }
+            }
+            try {
+                const credentials = await loginLiveExam({
+                    email: cached.email,
+                    password: cached.password,
+                    exam: input.exam,
+                    exam_password: input.exam_password,
+                })
+                preExamCredentialsRef.current = null
+                setReadyExams(null)
                 jutge.clearCache()
-                localStorage.setItem('token', credentials.token)
-                localStorage.setItem('expiration', String(credentials.expiration))
-                localStorage.setItem('user_uid', credentials.user_uid)
-                localStorage.setItem(LIVE_EMAIL_KEY, input.email.trim())
-                setEmail(input.email.trim())
+                persistSignedInExam(credentials, cached.email)
+                setEmail(cached.email)
                 await applyProbe()
-                return { ok: true as const }
+                return { ok: true }
             } catch (loginError) {
                 jutge.meta = null
-                clearStoredSession()
-                setRole(null)
-                setExam(null)
-                setTutorStatus(null)
-                return { ok: false as const, error: liveErrorMessage(loginError, 'Sign in failed.') }
+                return { ok: false, error: liveErrorMessage(loginError, 'Sign in failed.') }
             }
         },
         [applyProbe],
     )
+
+    const cancelPreExam = useCallback(() => {
+        clearPreExam()
+        setError(null)
+    }, [clearPreExam])
 
     const logout = useCallback(async () => {
         try {
@@ -160,28 +259,47 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             clearStoredSession()
             jutge.meta = null
             jutge.clearCache()
-            setRole(null)
+            clearLiveRoleState()
             setEmail(null)
-            setExam(null)
-            setTutorStatus(null)
+            clearPreExam()
             setError(null)
         }
-    }, [])
+    }, [clearLiveRoleState, clearPreExam])
 
     const value = useMemo<LiveSessionValue>(
         () => ({
             loading,
+            phase,
             authenticated: role !== null,
             role,
             email,
+            readyExams,
             exam,
             tutorStatus,
             error,
             refresh,
-            login,
+            continueSignIn,
+            reloadReadyExams,
+            enterExam,
+            cancelPreExam,
             logout,
         }),
-        [loading, role, email, exam, tutorStatus, error, refresh, login, logout],
+        [
+            loading,
+            phase,
+            role,
+            email,
+            readyExams,
+            exam,
+            tutorStatus,
+            error,
+            refresh,
+            continueSignIn,
+            reloadReadyExams,
+            enterExam,
+            cancelPreExam,
+            logout,
+        ],
     )
 
     const authValue = useMemo(

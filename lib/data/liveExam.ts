@@ -56,9 +56,7 @@ export function filterReadyExams(exams: ReadyExam[], contest: boolean): ReadyExa
     return exams.filter((exam) => exam.contest === contest)
 }
 
-export async function fetchReadyExams(email: string, password: string): Promise<ReadyExam[]> {
-    return jutge.auth.getReadyExams({ email, password })
-}
+export { fetchReadyExamsUnauthenticated as fetchReadyExams } from '@/lib/data/liveAuth'
 
 export async function probeLiveRole(): Promise<
     { role: 'tutor'; status: LiveTutorStatus } | { role: 'student'; exam: RunningExam }
