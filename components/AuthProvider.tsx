@@ -1,21 +1,16 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
+import { AuthContext } from '@/components/authContext'
+import { LiveSessionProvider } from '@/components/live/LiveSessionProvider'
+import { useSiteMode } from '@/components/SiteModeProvider'
 import jutge, { invalidateCachedCall } from '@/lib/jutge'
 import type { CredentialsIn, Profile } from '@/lib/jutge_api_client'
 import { profileToSessionUser, type SessionUser } from '@/lib/session'
 import { clearUtilityEditorState } from '@/lib/utilityEditor'
 
-export type AuthContextValue = {
-    user: SessionUser | null
-    profile: Profile | null
-    loading: boolean
-    login(credentials: CredentialsIn): Promise<{ ok: true; userName: string } | { ok: false; error: string }>
-    logout(): Promise<void>
-    /** Re-read student.profile.get after a write. router.refresh() does not rerun this client fetch. */
-    refreshProfile(): Promise<void>
-}
+export type { AuthContextValue } from '@/components/authContext'
 
 function warmAbstractProblemsCache() {
     void jutge.problems.getAllAbstractProblems().catch(() => {})
@@ -26,16 +21,7 @@ function restoreStorageItem(key: string, value: string | null) {
     else localStorage.setItem(key, value)
 }
 
-const AuthContext = createContext<AuthContextValue>({
-    user: null,
-    profile: null,
-    loading: true,
-    login: async () => ({ ok: false, error: 'Auth not initialized' }),
-    logout: async () => {},
-    refreshProfile: async () => {},
-})
-
-export function AuthProvider({ children }: { children: ReactNode }) {
+function NormalAuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<SessionUser | null>(null)
     const [profile, setProfile] = useState<Profile | null>(null)
     const [loading, setLoading] = useState(true)
@@ -128,6 +114,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             {children}
         </AuthContext.Provider>
     )
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const site = useSiteMode()
+    if (site.kind !== 'normal') {
+        return <LiveSessionProvider>{children}</LiveSessionProvider>
+    }
+    return <NormalAuthProvider>{children}</NormalAuthProvider>
 }
 
 export function useAuth() {

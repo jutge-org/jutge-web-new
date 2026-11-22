@@ -1,6 +1,8 @@
 'use client'
 
 import { AuthToolbar } from '@/components/AuthToolbar'
+import { LiveAppShell } from '@/components/live/LiveAppShell'
+import { useSiteMode } from '@/components/SiteModeProvider'
 import { CommandPalette } from '@/components/CommandPalette'
 import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
@@ -94,5 +96,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+    const site = useSiteMode()
+    if (site.kind !== 'normal') return <LiveAppShell>{children}</LiveAppShell>
     return <AppShellInner>{children}</AppShellInner>
 }

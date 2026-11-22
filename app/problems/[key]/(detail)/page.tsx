@@ -1,8 +1,10 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { notFound, useParams } from 'next/navigation'
 
 import { useAuth } from '@/components/AuthProvider'
+import { useSiteMode } from '@/components/SiteModeProvider'
 import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
 import { PageTitle } from '@/components/general/PageTitle'
 import { ProblemDetail } from '@/components/problems/ProblemDetail'
@@ -12,7 +14,15 @@ import { useProblemShell } from '@/hooks/useProblemShell'
 import { isQuizProblem } from '@/lib/problems'
 import { problemBaseBreadcrumbs, problemLoadedBreadcrumbs } from '@/lib/problemBreadcrumbs'
 
+const LiveProblemPage = dynamic(() => import('@/components/live/LiveProblemPage').then((mod) => mod.LiveProblemPage))
+
 export default function ProblemPage() {
+    const site = useSiteMode()
+    if (site.kind !== 'normal') return <LiveProblemPage />
+    return <NormalProblemPage />
+}
+
+function NormalProblemPage() {
     const { user, loading: authLoading } = useAuth()
     const params = useParams<{ key: string }>()
     const key = params.key

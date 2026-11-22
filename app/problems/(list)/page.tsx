@@ -1,8 +1,10 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
 
 import { AuthedGate } from '@/components/ClientGates'
+import { useSiteMode } from '@/components/SiteModeProvider'
 import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
 import { PageTitle } from '@/components/general/PageTitle'
 import { ProblemsList } from '@/components/problems/ProblemsList'
@@ -17,7 +19,17 @@ import {
 import type { Language } from '@/lib/jutge_api_client'
 import type { AbstractStatus } from '@/lib/jutge_api_client'
 
+const LiveProblemsPage = dynamic(() =>
+    import('@/components/live/LiveProblemsPage').then((mod) => mod.LiveProblemsPage),
+)
+
 export default function ProblemsPage() {
+    const site = useSiteMode()
+    if (site.kind !== 'normal') return <LiveProblemsPage />
+    return <NormalProblemsPage />
+}
+
+function NormalProblemsPage() {
     return (
         <AuthedGate>
             <ProblemsPageContent />

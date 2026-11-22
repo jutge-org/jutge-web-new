@@ -1,8 +1,13 @@
 'use client'
 
+import { applyLiveApiClient, resolveSiteMode } from './siteMode'
 import { JutgeApiClient } from './jutge_api_client'
 
 const jutge = new JutgeApiClient()
+
+if (typeof window !== 'undefined') {
+    applyLiveApiClient(jutge, resolveSiteMode(window.location.hostname))
+}
 
 jutge.userAgent = 'web-new'
 jutge.logApiCalls = true
