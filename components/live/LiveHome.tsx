@@ -1,6 +1,7 @@
 'use client'
 
 import { EyeIcon, SwordsIcon } from 'lucide-react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -9,12 +10,14 @@ import { LiveNotice, LivePage, LiveSpinner, liveFieldClassName } from '@/compone
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import AnimatedTabs from '@/components/smoothui/animated-tabs'
 import SmoothButton from '@/components/smoothui/smooth-button'
+import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import { useSiteMode } from '@/components/SiteModeProvider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { fetchReadyExams, filterReadyExams, liveErrorMessage } from '@/lib/data/liveExam'
+import { isMotionReduced } from '@/lib/reducedMotion'
 import type { ReadyExam } from '@/lib/jutge_api_client'
 import { siteBrand } from '@/lib/siteMode'
 import { cn } from '@/lib/utils'
@@ -53,9 +56,21 @@ export function LiveHome() {
 
 function ContestHome() {
     const [tab, setTab] = useState<ContestTabId>('arena')
+    const { reducedMotion } = useAppearancePreferences()
+    const motionReduced = isMotionReduced(reducedMotion)
 
     return (
-        <LivePage title={siteBrand('contest')}>
+        <LivePage>
+            <div className="flex justify-center">
+                <Image
+                    alt="Contest on Jutge.org"
+                    className={cn('h-auto w-96 max-w-full', !motionReduced && 'hover:animate-pulse')}
+                    height={384}
+                    priority
+                    src="/jutge/contest.png"
+                    width={384}
+                />
+            </div>
             <AnimatedTabs
                 activeTab={tab}
                 className="flex w-full"
@@ -74,9 +89,6 @@ function ContestHome() {
                 <Card className="w-full border border-border shadow-sm ring-0">
                     <CardContent className="flex justify-center p-5">
                         <div className="flex w-full max-w-md flex-col gap-4">
-                            <p className="text-center text-muted-foreground">
-                                Sign in with your Jutge account to participate in a contest.
-                            </p>
                             <LiveSignIn contest className="w-full text-left" />
                         </div>
                     </CardContent>

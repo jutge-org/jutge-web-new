@@ -21,10 +21,10 @@ export function LiveNotice({ children }: { children: ReactNode }) {
     )
 }
 
-export function LivePage({ title, children }: { title: string; children: ReactNode }) {
+export function LivePage({ title, children }: { title?: string; children: ReactNode }) {
     return (
         <div className="flex flex-col gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+            {title ? <h1 className="text-2xl font-semibold tracking-tight">{title}</h1> : null}
             {children}
         </div>
     )
