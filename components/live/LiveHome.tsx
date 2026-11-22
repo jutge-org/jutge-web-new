@@ -1,31 +1,38 @@
 'use client'
 
+import { EyeIcon, SwordsIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { ContestWatchForm } from '@/components/live/ContestWatchForm'
 import { LiveNotice, LivePage, LiveSpinner, liveFieldClassName } from '@/components/live/LiveChrome'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
+import AnimatedTabs from '@/components/smoothui/animated-tabs'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { useSiteMode } from '@/components/SiteModeProvider'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { fetchReadyExams, filterReadyExams, liveErrorMessage } from '@/lib/data/liveExam'
 import type { ReadyExam } from '@/lib/jutge_api_client'
 import { siteBrand } from '@/lib/siteMode'
+import { cn } from '@/lib/utils'
+
+const CONTEST_TABS_LAYOUT_ID = 'contest-home-tabs'
+
+const CONTEST_TABS = [
+    { id: 'arena', label: 'Player arena', icon: <SwordsIcon aria-hidden className="size-4" /> },
+    { id: 'lounge', label: 'Spectator lounge', icon: <EyeIcon aria-hidden className="size-4" /> },
+]
+
+type ContestTabId = 'arena' | 'lounge'
 
 export function LiveHome() {
     const site = useSiteMode()
     const session = useLiveSession()
     const router = useRouter()
     const contest = site.kind === 'contest'
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [exams, setExams] = useState<ReadyExam[] | null>(null)
-    const [examKey, setExamKey] = useState('')
-    const [examPassword, setExamPassword] = useState('')
-    const [watchKey, setWatchKey] = useState('')
-    const [error, setError] = useState<string | null>(null)
-    const [pending, setPending] = useState(false)
 
     useEffect(() => {
         if (!session.loading && session.authenticated) {
@@ -34,6 +41,74 @@ export function LiveHome() {
     }, [session.loading, session.authenticated, router])
 
     if (session.loading || session.authenticated) return <LiveSpinner />
+    if (contest) return <ContestHome />
+
+    return (
+        <LivePage title={siteBrand('exam')}>
+            <p className="text-muted-foreground">Sign in with your Jutge account to enter an exam.</p>
+            <LiveSignIn contest={false} />
+        </LivePage>
+    )
+}
+
+function ContestHome() {
+    const [tab, setTab] = useState<ContestTabId>('arena')
+
+    return (
+        <LivePage title={siteBrand('contest')}>
+            <AnimatedTabs
+                activeTab={tab}
+                className="flex w-full"
+                layoutId={CONTEST_TABS_LAYOUT_ID}
+                onChange={(tabId) => setTab(tabId as ContestTabId)}
+                tabs={CONTEST_TABS}
+                variant="segment"
+            />
+            <div
+                aria-labelledby={`${CONTEST_TABS_LAYOUT_ID}-tab-arena`}
+                className="w-full"
+                hidden={tab !== 'arena'}
+                id={`${CONTEST_TABS_LAYOUT_ID}-panel-arena`}
+                role="tabpanel"
+            >
+                <Card className="w-full border border-border shadow-sm ring-0">
+                    <CardContent className="flex justify-center p-5">
+                        <div className="flex w-full max-w-md flex-col gap-4">
+                            <p className="text-center text-muted-foreground">
+                                Sign in with your Jutge account to participate in a contest.
+                            </p>
+                            <LiveSignIn contest className="w-full text-left" />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+            <div
+                aria-labelledby={`${CONTEST_TABS_LAYOUT_ID}-tab-lounge`}
+                className="w-full"
+                hidden={tab !== 'lounge'}
+                id={`${CONTEST_TABS_LAYOUT_ID}-panel-lounge`}
+                role="tabpanel"
+            >
+                <Card className="w-full border border-border shadow-sm ring-0">
+                    <CardContent className="flex justify-center p-5">
+                        <ContestWatchForm className="w-full max-w-md" />
+                    </CardContent>
+                </Card>
+            </div>
+        </LivePage>
+    )
+}
+
+function LiveSignIn({ contest, className }: { contest: boolean; className?: string }) {
+    const session = useLiveSession()
+    const router = useRouter()
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [exams, setExams] = useState<ReadyExam[] | null>(null)
+    const [examKey, setExamKey] = useState('')
+    const [examPassword, setExamPassword] = useState('')
+    const [error, setError] = useState<string | null>(null)
+    const [pending, setPending] = useState(false)
 
     async function continueToExams() {
         setError(null)
@@ -73,16 +148,11 @@ export function LiveHome() {
     }
 
     return (
-        <LivePage title={siteBrand(site.kind)}>
-            <p className="text-muted-foreground">
-                {contest
-                    ? 'Sign in to take part, or watch a public ranking.'
-                    : 'Sign in with your Jutge account to enter an exam.'}
-            </p>
+        <>
             {error ? <LiveNotice>{error}</LiveNotice> : null}
             {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
             <form
-                className="flex max-w-md flex-col gap-4"
+                className={cn('flex flex-col gap-4', className)}
                 onSubmit={(event) => {
                     event.preventDefault()
                     if (exams) void enterExam()
@@ -142,53 +212,59 @@ export function LiveHome() {
                         </div>
                     </>
                 ) : null}
-                <div className="flex gap-2">
-                    <Button type="submit" disabled={pending}>
-                        {pending ? 'Please wait…' : exams ? 'Enter' : 'Continue'}
-                    </Button>
-                    {exams ? (
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                                setExams(null)
-                                setExamPassword('')
-                                setError(null)
-                            }}
+                <div
+                    className={cn(
+                        'flex gap-2',
+                        contest && 'mt-2',
+                        contest && !exams ? 'w-full' : 'justify-center',
+                    )}
+                >
+                    {contest ? (
+                        <SmoothButton
+                            className={exams ? undefined : 'w-full'}
+                            color="blue"
+                            loading={pending}
+                            type="submit"
+                            variant="candy"
                         >
-                            Back
+                            {exams ? 'Enter' : 'Continue'}
+                        </SmoothButton>
+                    ) : (
+                        <Button type="submit" disabled={pending}>
+                            {pending ? 'Please wait…' : exams ? 'Enter' : 'Continue'}
                         </Button>
+                    )}
+                    {exams ? (
+                        contest ? (
+                            <SmoothButton
+                                color="blue"
+                                disabled={pending}
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setExams(null)
+                                    setExamPassword('')
+                                    setError(null)
+                                }}
+                            >
+                                Back
+                            </SmoothButton>
+                        ) : (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setExams(null)
+                                    setExamPassword('')
+                                    setError(null)
+                                }}
+                            >
+                                Back
+                            </Button>
+                        )
                     ) : null}
                 </div>
             </form>
-            {contest ? (
-                <form
-                    className="flex max-w-md flex-col gap-4 border-t border-border pt-6"
-                    onSubmit={(event) => {
-                        event.preventDefault()
-                        const key = watchKey.trim()
-                        if (!key) return
-                        router.push(`/watch/${key}`)
-                    }}
-                >
-                    <h2 className="text-lg font-medium">Watch a contest</h2>
-                    <p className="text-sm text-muted-foreground">
-                        Enter the contest key (username:exam name). A public ranking list is not available yet.
-                    </p>
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="watch-key">Contest key</Label>
-                        <Input
-                            id="watch-key"
-                            value={watchKey}
-                            onChange={(event) => setWatchKey(event.target.value)}
-                            required
-                        />
-                    </div>
-                    <Button type="submit" variant="outline">
-                        Watch
-                    </Button>
-                </form>
-            ) : null}
-        </LivePage>
+        </>
     )
 }

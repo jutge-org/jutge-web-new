@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-11-22T12:08:33.139Z
+ * This file has been automatically generated at 2026-11-22T13:28:25.026Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -635,6 +635,7 @@ export type RunningExam = {
     instructions: string
     time_start: Iso8601Date | null
     exp_time_start: Iso8601Date
+    extra_minutes: number
     running_time: number
     contest: number
     problems: RunningExamProblem[]
@@ -1187,6 +1188,21 @@ export type SubmitMatchIn = {
     players: SubmitMatchPlayer[]
 }
 
+export type ArenaContest = {
+    title: string // Title of the contest
+    exp_time_start: Iso8601Date // Expected start time
+    running_time: number // Running time in minutes
+    username: string // Username of the contest owner
+    exam_nm: string // Exam name of the contest
+}
+
+export type ArenaContests = ArenaContest[]
+
+export type ArenaRankingIn = {
+    username: string // Username of the contest owner
+    exam_nm: string // Exam name of the contest
+}
+
 export type InstructorEntry = {
     username: string
     name: string
@@ -1648,6 +1664,7 @@ export class JutgeApiClient {
     readonly tutor: Module_tutor
     readonly instructor: Module_instructor
     readonly games: Module_games
+    readonly arena: Module_arena
     readonly admin: Module_admin
 
     constructor() {
@@ -1661,6 +1678,7 @@ export class JutgeApiClient {
         this.tutor = new Module_tutor(this)
         this.instructor = new Module_instructor(this)
         this.games = new Module_games(this)
+        this.arena = new Module_arena(this)
         this.admin = new Module_admin(this)
 
         this.clientTTLs.set("misc.getAvatarPacks", 3600)
@@ -1944,7 +1962,7 @@ class Module_misc {
     /**
      * Get version information of the API.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getApiVersion(): Promise<ApiVersion> {
@@ -1955,7 +1973,7 @@ class Module_misc {
     /**
      * Get requestion information.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getRequestInformation(): Promise<RequestInformation> {
@@ -1966,7 +1984,7 @@ class Module_misc {
     /**
      * Get a fortune message.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getFortune(): Promise<string> {
@@ -1977,7 +1995,7 @@ class Module_misc {
     /**
      * Get server time.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getTime(): Promise<Time> {
@@ -1988,7 +2006,7 @@ class Module_misc {
     /**
      * Get homepage stats.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getHomepageStats(): Promise<HomepageStats> {
@@ -1999,7 +2017,7 @@ class Module_misc {
     /**
      * Get Jutge.org logo as a PNG file.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getLogo(): Promise<Download> {
@@ -2012,7 +2030,7 @@ class Module_misc {
      *
      * Avatars are used in exams and contests to identify students or participants.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getAvatarPacks(): Promise<string[]> {
@@ -2025,7 +2043,7 @@ class Module_misc {
      *
      * Exam icon are used in exams and contests to identify problems.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getExamIcons(): Promise<TagsDict> {
@@ -2038,7 +2056,7 @@ class Module_misc {
      *
      * Color mappings may be used to colorize keys in the frontends. Color names are as defined in https://github.com/timoxley/colornames
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getColors(): Promise<ColorMapping> {
@@ -2051,7 +2069,7 @@ class Module_misc {
      *
      * Color mappings may be used to colorize keys in the frontends.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getHexColors(): Promise<ColorMapping> {
@@ -2062,7 +2080,7 @@ class Module_misc {
     /**
      * Returns code demos for a given compiler as a dictionary of base64 codes indexed by problem_nm.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getDemosForCompiler(compiler_id: string): Promise<Record<string, string>> {
@@ -2075,8 +2093,8 @@ class Module_misc {
      *
      * Source and target languages are ISO 639-1 codes. Use "auto" as the source language to detect it.
      *
-     * 🗂️ Domains: jutge
-     * 🔐 Authentication: user
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: any
      */
     async translate(data: TranslationIn): Promise<TranslationOut> {
         const [output, ofiles] = await this.root.execute("misc.translate", data)
@@ -2101,7 +2119,7 @@ class Module_tables {
      *
      * Returns all compilers, countries, drivers, languages, proglangs, and verdicts in a single request. This data does not change often, so you should only request it once per session.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async get(): Promise<AllTables> {
@@ -2114,7 +2132,7 @@ class Module_tables {
      *
      * Returns all languages as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getLanguages(): Promise<Record<string, Language>> {
@@ -2127,7 +2145,7 @@ class Module_tables {
      *
      * Returns all countries as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getCountries(): Promise<Record<string, Country>> {
@@ -2140,7 +2158,7 @@ class Module_tables {
      *
      * Returns all compilers as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getCompilers(): Promise<Record<string, Compiler>> {
@@ -2153,7 +2171,7 @@ class Module_tables {
      *
      * Returns all drivers as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getDrivers(): Promise<Record<string, Driver>> {
@@ -2166,7 +2184,7 @@ class Module_tables {
      *
      * Returns all verdicts as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getVerdicts(): Promise<Record<string, Verdict>> {
@@ -2179,7 +2197,7 @@ class Module_tables {
      *
      * Returns all proglangs (porgramming languages) as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getProglangs(): Promise<Record<string, Proglang>> {
@@ -2192,7 +2210,7 @@ class Module_tables {
      *
      * Returns all timezones as a dictionary of objects, indexed by id.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
     async getTimezones(): Promise<Record<string, Timezone>> {
@@ -2771,7 +2789,7 @@ class Module_student_profile {
     /**
      * Get the profile.
      *
-     * 🗂️ Domains: jutge
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: user
      */
     async get(): Promise<Profile> {
@@ -5455,6 +5473,48 @@ class Module_games {
      */
     async submitMatch(data: SubmitMatchIn): Promise<NewSubmissionOut> {
         const [output, ofiles] = await this.root.execute("games.submitMatch", data)
+        return output
+    }
+}
+
+/**
+ *
+ *
+Public contest arena. A contest is an exam with contest set to 1.
+These operations are available to any user, including guests, on every domain.
+
+ *
+ */
+class Module_arena {
+    private readonly root: JutgeApiClient
+
+    constructor(root: JutgeApiClient) {
+        this.root = root
+    }
+
+    /**
+     * List all available contests.
+     *
+     * Returns every contest, with its title, expected start time, running time, owner username and exam name. Contests are sorted by the absolute distance between the expected start time and the current time, then by title and exam name.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: any
+     */
+    async getContests(): Promise<ArenaContests> {
+        const [output, ofiles] = await this.root.execute("arena.getContests", null)
+        return output
+    }
+
+    /**
+     * Get the ranking of a contest.
+     *
+     * Returns the ranking of the contest owned by the given username with the given exam name. The ranking is not available before the contest has started.
+     *
+     * 🗂️ Domains: jutge, exam, contest
+     * 🔐 Authentication: any
+     */
+    async getRanking(data: ArenaRankingIn): Promise<Ranking> {
+        const [output, ofiles] = await this.root.execute("arena.getRanking", data)
         return output
     }
 }

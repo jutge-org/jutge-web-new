@@ -1,5 +1,6 @@
 'use client'
 
+import { ExamRankingTable } from '@/components/exams/ExamRankingTable'
 import {
     fetchInstructorExam,
     fetchInstructorExamProblems,
@@ -8,18 +9,10 @@ import {
 } from '@/lib/instructor/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import type {
-    ColorMapping,
-    InstructorBriefExam,
-    InstructorExamProblem,
-    Ranking,
-    RankingResult,
-} from '@/lib/jutge_api_client'
+import type { ColorMapping, InstructorBriefExam, InstructorExamProblem, Ranking } from '@/lib/jutge_api_client'
 import { PauseIcon, RabbitIcon, SnailIcon } from 'lucide-react'
-import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
-import Link from 'next/link'
 
 export function ExamRankingView() {
     const { exam_nm } = useParams<{ exam_nm: string }>()
@@ -103,137 +96,13 @@ export function ExamRankingView() {
                     Blur names
                 </label>
             </div>
-            <div className="text-sm flex justify-center items-center">
-                <table>
-                    <tbody>
-                        {examProblems.length > 0 && examProblems[0].icon && (
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                {exam.avatars && <td></td>}
-                                {examProblems.map((problem, index) => (
-                                    <td
-                                        key={index}
-                                        className="bg-muted border-2 border-background rounded-lg h-12 w-12"
-                                    >
-                                        <div className="flex flex-col justify-center items-center">
-                                            <Image
-                                                src={`https://jutge.org/img/examicons/${problem.icon}.svg`}
-                                                alt={problem.icon || 'icon'}
-                                                width={32}
-                                                height={32}
-                                            />
-                                        </div>
-                                    </td>
-                                ))}
-                                <td></td>
-                            </tr>
-                        )}
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            {exam.avatars && <td></td>}
-                            <td className="bg-muted border-2 border-background rounded-lg h-12 px-4 text-center font-bold">
-                                Score
-                            </td>
-                            {examProblems.map((problem, index) => (
-                                <td
-                                    key={index}
-                                    className="bg-muted border-2 border-background rounded-lg w-40 h-12 px-4 text-center "
-                                >
-                                    <Link
-                                        href={`/problems/${problem.problem_nm}`}
-                                        title={problem.problem_nm}
-                                        className="font-bold text-primary"
-                                    >
-                                        {problem.caption || `P${index + 1}`}
-                                    </Link>
-                                    {problem.weight !== null && (
-                                        <>
-                                            <br />
-                                            {problem.weight}
-                                        </>
-                                    )}
-                                </td>
-                            ))}
-                            <td className="bg-muted border-2 border-background rounded-lg px-4 text-center font-bold">
-                                Score
-                            </td>
-                        </tr>
-
-                        {ranking.map((row, index) => (
-                            <tr key={index}>
-                                <td className="bg-muted border-2 border-background rounded-lg px-2 text-right">
-                                    {row.position}
-                                </td>
-                                <td
-                                    className={`bg-muted border-2 border-background rounded-lg px-2 truncate${blurNames ? ' blur-sm select-none' : ''}`}
-                                >
-                                    {row.name}
-                                </td>
-                                {exam.avatars && (
-                                    <td className="bg-muted border-2 border-background rounded-lg px-2 h-12 w-12">
-                                        <Image
-                                            src={`https://jutge.org/avatars/${exam.avatars}/${row.avatar}`}
-                                            alt={row.avatar || 'Avatar'}
-                                            width={32}
-                                            height={32}
-                                        />
-                                    </td>
-                                )}
-
-                                <td className="bg-muted border-2 border-background rounded-lg px-4">
-                                    <div className="flex flex-col gap-0 items-center">
-                                        <div className="font-bold">{row.score}</div>
-                                        <div className="text-xs">{Math.floor(row.time)}</div>
-                                    </div>
-                                </td>
-
-                                {row.rankingResults.map((result, index) => (
-                                    <td
-                                        key={index}
-                                        className="bg-muted border-2 border-background rounded-lg w-40 px-2 text-center"
-                                    >
-                                        <Score result={result} colors={colors} />
-                                    </td>
-                                ))}
-
-                                <td className="bg-muted border-2 border-background rounded-lg px-4">
-                                    <div className="flex flex-col gap-0 items-center">
-                                        <div className="font-bold">{row.score}</div>
-                                        <div className="text-xs">{Math.floor(row.time)}</div>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    )
-}
-
-function Score({ result, colors }: { result: RankingResult; colors: ColorMapping }) {
-    if (result.verdict === null) return null
-
-    // API EE blue is too dark on muted dark backgrounds.
-    const darkColorClass = result.verdict === 'EE' ? 'dark:!text-[#6ea8fe]' : undefined
-
-    if (result.verdict === 'AC')
-        return (
-            <div style={{ color: colors.verdicts.AC }}>
-                {Math.floor(result.time)}
-                {result.wrongs !== 0 && <span className="text-xs">&nbsp;({result.wrongs})</span>}
-            </div>
-        )
-
-    return (
-        <div className={darkColorClass} style={{ color: colors.verdicts[result.verdict] }}>
-            {Math.floor(result.time)}
-            {result.wrongs !== 0 && <span className="text-xs">&nbsp;({result.wrongs})</span>}
-            <br />
-            <span>{result.verdict}</span>
+            <ExamRankingTable
+                ranking={ranking}
+                examProblems={examProblems}
+                colors={colors}
+                avatarPack={exam.avatars}
+                blurNames={blurNames}
+            />
         </div>
     )
 }
