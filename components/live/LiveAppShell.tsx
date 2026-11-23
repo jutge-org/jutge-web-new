@@ -30,7 +30,7 @@ type LiveNavItem = {
 function liveNavItems(kind: SiteKind, role: 'student' | 'tutor' | null, started: boolean): LiveNavItem[] {
     if (role === 'tutor') {
         return [
-            { href: '/dashboard', label: 'Dashboard' },
+            { href: '/', label: 'Home' },
             { href: '/problems', label: 'Problems' },
             { href: '/students', label: 'Students' },
             { href: '/submissions', label: 'Submissions' },
@@ -43,7 +43,7 @@ function liveNavItems(kind: SiteKind, role: 'student' | 'tutor' | null, started:
     }
     if (role === 'student') {
         const items: LiveNavItem[] = [
-            { href: '/dashboard', label: 'Dashboard' },
+            { href: '/', label: 'Home' },
             { href: '/problems', label: 'Problems' },
             { href: '/submissions', label: 'Submissions' },
         ]

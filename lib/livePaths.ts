@@ -2,7 +2,6 @@ import type { SiteKind } from '@/lib/siteMode'
 
 const EXACT_PATHS = new Set([
     '/',
-    '/dashboard',
     '/problems',
     '/submissions',
     '/finish',

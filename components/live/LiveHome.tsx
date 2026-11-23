@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { LiveDashboard } from '@/components/live/LiveDashboard'
 import { ApiStatusCard } from '@/components/live/ApiStatusCard'
 import { ContestWatchForm } from '@/components/live/ContestWatchForm'
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
@@ -37,13 +38,8 @@ export function LiveHome() {
     const router = useRouter()
     const contest = site.kind === 'contest'
 
-    useEffect(() => {
-        if (!session.loading && session.authenticated) {
-            router.replace('/dashboard')
-        }
-    }, [session.loading, session.authenticated, router])
-
-    if (session.loading || session.authenticated) return <LiveSpinner />
+    if (session.loading) return <LiveSpinner />
+    if (session.authenticated) return <LiveDashboard />
     if (contest) return <ContestHome />
 
     return <ExamHome />
@@ -190,7 +186,7 @@ function LiveSignIn({
             setError(result.error)
             return
         }
-        router.replace('/dashboard')
+        router.replace('/')
     }
 
     async function reloadExams() {
