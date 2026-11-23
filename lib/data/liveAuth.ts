@@ -10,6 +10,7 @@ export const LIVE_SESSION_STORAGE = {
     expiration: 'expiration',
     userUid: 'user_uid',
     email: 'live_email',
+    examKey: 'live_exam_key',
 } as const
 
 export type AuthReadyExamsOut = {

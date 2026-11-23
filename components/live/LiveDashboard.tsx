@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
+import { LivePreStartCard } from '@/components/live/LivePreStartCard'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,6 +15,7 @@ import {
     liveErrorMessage,
 } from '@/lib/data/liveExam'
 import jutge from '@/lib/jutge'
+import type { RunningExam } from '@/lib/jutge_api_client'
 
 function useNow(enabled: boolean): number {
     const [now, setNow] = useState(() => Date.now())
@@ -101,14 +103,38 @@ export function LiveDashboard() {
         clock = formatClock(endMs - now)
     }
 
+    if (!started) {
+        return (
+            <LivePage className="min-h-0 flex-1">
+                {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
+                <LivePreStartCard exam={exam} examKey={session.examKey} />
+            </LivePage>
+        )
+    }
+
     return (
         <LivePage title={exam.title}>
             {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
-            <p className="whitespace-pre-wrap text-muted-foreground">{exam.description}</p>
             <p role="timer" aria-live="polite">
                 {clockLabel}: <strong>{clock}</strong>
             </p>
             {exam.instructions ? <p className="whitespace-pre-wrap">{exam.instructions}</p> : null}
+            <StudentExamSections exam={exam} docError={docError} setDocError={setDocError} />
+        </LivePage>
+    )
+}
+
+function StudentExamSections({
+    exam,
+    docError,
+    setDocError,
+}: {
+    exam: RunningExam
+    docError: string | null
+    setDocError: (value: string | null) => void
+}) {
+    return (
+        <>
             <section className="flex flex-col gap-2" aria-labelledby="live-problems-heading">
                 <h2 id="live-problems-heading" className="text-lg font-medium">
                     Problems
@@ -150,6 +176,6 @@ export function LiveDashboard() {
                     </ul>
                 </section>
             ) : null}
-        </LivePage>
+        </>
     )
 }

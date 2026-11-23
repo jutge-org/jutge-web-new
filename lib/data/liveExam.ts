@@ -1,3 +1,7 @@
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
 import jutge from '@/lib/jutge'
 import { decodeSubmissionCodeBase64 } from '@/lib/makePro2SourceCode'
 import { saveFileWithDialog } from '@/lib/saveFileWithDialog'
@@ -9,10 +13,14 @@ import type {
     Ranking,
     ReadyExam,
     RunningExam,
+    StudentExamCourse,
     Submission,
     SubmissionAnalysis,
 } from '@/lib/jutge_api_client'
 import { NotFoundError, UnauthorizedError } from '@/lib/jutge_api_client'
+
+dayjs.extend(duration)
+dayjs.extend(relativeTime)
 
 export type LiveTutorStatus = {
     status: string
@@ -318,4 +326,39 @@ export function formatInstant(value: string | null): string {
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) return value
     return date.toLocaleString()
+}
+
+export function formatLiveDateTime(value: string | number): string {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return String(value)
+    return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+}
+
+export function formatRunningTimeHuman(minutes: number): string {
+    const rounded = Math.max(0, Math.round(minutes))
+    return dayjs.duration(rounded, 'minutes').humanize()
+}
+
+type RunningExamWithCourse = RunningExam & { course?: StudentExamCourse }
+
+export function runningExamCourseTitle(exam: RunningExam): string | null {
+    const title = (exam as RunningExamWithCourse).course?.title?.trim()
+    return title || null
+}
+
+export async function resolveLiveExamCourseTitle(
+    exam: RunningExam,
+    examKey: string | null | undefined,
+): Promise<string | null> {
+    const inline = runningExamCourseTitle(exam)
+    if (inline) return inline
+    const key = examKey?.trim()
+    if (!key) return null
+    try {
+        const detail = await jutge.student.exams.get(key)
+        const title = detail.course?.title?.trim()
+        return title || null
+    } catch {
+        return null
+    }
 }

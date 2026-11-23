@@ -49,6 +49,7 @@ export type LiveSessionValue = {
     administrator: boolean
     readyExams: ReadyExam[] | null
     exam: RunningExam | null
+    examKey: string | null
     tutorStatus: LiveTutorStatus | null
     error: string | null
     refresh(): Promise<void>
@@ -76,13 +77,15 @@ function clearStoredSession() {
     localStorage.removeItem(LIVE_SESSION_STORAGE.expiration)
     localStorage.removeItem(LIVE_SESSION_STORAGE.userUid)
     localStorage.removeItem(LIVE_SESSION_STORAGE.email)
+    localStorage.removeItem(LIVE_SESSION_STORAGE.examKey)
 }
 
-function persistSignedInExam(credentials: CredentialsOut, email: string) {
+function persistSignedInExam(credentials: CredentialsOut, email: string, examKey: string) {
     localStorage.setItem(LIVE_SESSION_STORAGE.token, credentials.token)
     localStorage.setItem(LIVE_SESSION_STORAGE.expiration, String(credentials.expiration))
     localStorage.setItem(LIVE_SESSION_STORAGE.userUid, credentials.user_uid)
     localStorage.setItem(LIVE_SESSION_STORAGE.email, email)
+    localStorage.setItem(LIVE_SESSION_STORAGE.examKey, examKey)
 }
 
 export function LiveSessionProvider({ children }: { children: ReactNode }) {
@@ -97,6 +100,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     const [administrator, setAdministrator] = useState(false)
     const [readyExams, setReadyExams] = useState<ReadyExam[] | null>(null)
     const [exam, setExam] = useState<RunningExam | null>(null)
+    const [examKey, setExamKey] = useState<string | null>(() =>
+        typeof window !== 'undefined' ? localStorage.getItem(LIVE_SESSION_STORAGE.examKey) : null,
+    )
     const [tutorStatus, setTutorStatus] = useState<LiveTutorStatus | null>(null)
     const [error, setError] = useState<string | null>(null)
 
@@ -109,6 +115,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     const clearLiveRoleState = useCallback(() => {
         setRole(null)
         setExam(null)
+        setExamKey(null)
         setTutorStatus(null)
     }, [])
 
@@ -255,7 +262,8 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
                 preExamCredentialsRef.current = null
                 setReadyExams(null)
                 jutge.clearCache()
-                persistSignedInExam(credentials, cached.email)
+                persistSignedInExam(credentials, cached.email, input.exam)
+                setExamKey(input.exam.trim() || null)
                 setEmail(cached.email)
                 await applyProbe()
                 return { ok: true }
@@ -310,6 +318,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             administrator,
             readyExams,
             exam,
+            examKey,
             tutorStatus,
             error,
             refresh,
@@ -329,6 +338,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             administrator,
             readyExams,
             exam,
+            examKey,
             tutorStatus,
             error,
             refresh,
