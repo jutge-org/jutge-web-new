@@ -11,41 +11,56 @@ import { useSiteMode } from '@/components/SiteModeProvider'
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { finishLiveExam, liveErrorMessage } from '@/lib/data/liveExam'
 
+export type LiveStudentDialogIntent = 'sign-out' | 'finish'
+
 export function LiveSignOutDialog({
     open,
     onOpenChange,
+    intent,
 }: {
     open: boolean
     onOpenChange: (open: boolean) => void
+    intent: LiveStudentDialogIntent
 }) {
     const site = useSiteMode()
     const session = useLiveSession()
     const noun = site.kind === 'contest' ? 'contest' : 'exam'
-    const [confirmFinish, setConfirmFinish] = useState(false)
+    const [confirmed, setConfirmed] = useState(false)
     const [signOutPending, setSignOutPending] = useState(false)
     const [finishPending, setFinishPending] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const pending = signOutPending || finishPending
+    const finish = intent === 'finish'
 
     useEffect(() => {
         if (!open) {
-            setConfirmFinish(false)
+            setConfirmed(false)
             setSignOutPending(false)
             setFinishPending(false)
             setError(null)
         }
     }, [open])
 
+    useEffect(() => {
+        setConfirmed(false)
+        setError(null)
+    }, [intent])
+
     function handleOpenChange(next: boolean) {
         if (pending) return
         onOpenChange(next)
         if (!next) {
-            setConfirmFinish(false)
+            setConfirmed(false)
             setError(null)
         }
     }
 
     async function handleSignOut() {
+        if (!confirmed) {
+            setConfirmed(true)
+            setError(null)
+            return
+        }
         setSignOutPending(true)
         setError(null)
         onOpenChange(false)
@@ -54,12 +69,13 @@ export function LiveSignOutDialog({
         } catch (signOutError: unknown) {
             setError(liveErrorMessage(signOutError, 'Could not sign out.'))
             setSignOutPending(false)
+            onOpenChange(true)
         }
     }
 
     async function handleFinish() {
-        if (!confirmFinish) {
-            setConfirmFinish(true)
+        if (!confirmed) {
+            setConfirmed(true)
             setError(null)
             return
         }
@@ -73,52 +89,61 @@ export function LiveSignOutDialog({
             return
         }
         toast.success(`You have finished the ${noun}. You cannot sign in again.`)
-        setConfirmFinish(false)
+        setConfirmed(false)
         setFinishPending(false)
         onOpenChange(false)
         await session.refresh()
     }
 
-    const finishLabel = finishPending ? 'Finishing…' : confirmFinish ? `Yes, finish ${noun}` : `Finish ${noun}`
+    const title = finish ? `Finish ${noun}` : 'Sign out'
+    const description = finish
+        ? `Finishing closes your access to this ${noun}. You cannot sign in to this ${noun} again.`
+        : 'Signing out ends this session only. You can sign in again later.'
+
+    const actionLabel = finish
+        ? finishPending
+            ? 'Finishing…'
+            : confirmed
+              ? `Yes, finish ${noun}`
+              : `Finish ${noun}`
+        : signOutPending
+          ? 'Signing out…'
+          : confirmed
+            ? 'Yes, sign out'
+            : 'Sign out'
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <SmoothDialogContent className="gap-6 rounded-xl p-6 sm:max-w-sm">
-                <DialogHeader className="gap-3">
-                    <DialogTitle>Sign out</DialogTitle>
-                    <DialogDescription>
-                        Sign out only ends this session. You can sign in again. Finish {noun} closes your access, so
-                        you cannot sign in to this {noun} again.
-                    </DialogDescription>
+            <SmoothDialogContent className="flex flex-col gap-10 rounded-xl p-8 sm:max-w-sm">
+                <DialogHeader className="gap-4 space-y-0">
+                    <DialogTitle>{title}</DialogTitle>
+                    <DialogDescription>{description}</DialogDescription>
                 </DialogHeader>
                 {error ? (
                     <p role="alert" className="text-sm text-destructive">
                         {error}
                     </p>
                 ) : null}
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-6">
                     <SmoothButton
                         type="button"
-                        color="blue"
-                        variant="candy"
-                        className="w-full"
-                        disabled={pending}
-                        onClick={() => void handleSignOut()}
-                    >
-                        <LogOutIcon aria-hidden />
-                        {signOutPending ? 'Signing out…' : 'Sign out'}
-                    </SmoothButton>
-                    <SmoothButton
-                        type="button"
-                        color="destructive"
+                        color={finish ? 'destructive' : 'blue'}
                         variant="candy"
                         className="w-full"
                         disabled={pending}
                         aria-live="polite"
-                        onClick={() => void handleFinish()}
+                        onClick={() => void (finish ? handleFinish() : handleSignOut())}
                     >
-                        {confirmFinish ? <CircleCheckIcon aria-hidden /> : <FlagIcon aria-hidden />}
-                        {finishLabel}
+                        {finish ? (
+                            confirmed ? (
+                                <CircleCheckIcon aria-hidden />
+                            ) : (
+                                <FlagIcon aria-hidden />
+                            )
+                        ) : (
+                            <LogOutIcon aria-hidden />
+                        )}
+                        {actionLabel}
                     </SmoothButton>
                 </div>
             </SmoothDialogContent>

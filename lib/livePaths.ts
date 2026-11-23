@@ -9,6 +9,7 @@ const EXACT_PATHS = new Set([
     '/students',
     '/logins',
     '/statistics',
+    '/profile',
 ])
 
 function isProblemPath(pathname: string): boolean {

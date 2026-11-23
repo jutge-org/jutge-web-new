@@ -11,6 +11,8 @@ type ProfilePageShellProps = {
     titleSection?: PageTitleSection
     titleDescription?: string
     titleHidden?: boolean
+    /** Exam/contest: hide section nav and show profile as view-only. */
+    liveBasic?: boolean
 }
 
 export function ProfilePageShell({
@@ -20,6 +22,7 @@ export function ProfilePageShell({
     titleSection = '/profile',
     titleDescription,
     titleHidden,
+    liveBasic = false,
 }: ProfilePageShellProps) {
     const breadcrumbs = subpage
         ? [
@@ -34,10 +37,13 @@ export function ProfilePageShell({
             <PageTitle
                 section={titleSection}
                 authenticated
-                description={titleDescription}
+                description={
+                    titleDescription ??
+                    (liveBasic ? 'Your account details for this session.' : undefined)
+                }
                 hidden={titleHidden}
             />
-            <ProfileNav activeTab={activeTab} />
+            {liveBasic ? null : <ProfileNav activeTab={activeTab} />}
             {children}
         </div>
     )

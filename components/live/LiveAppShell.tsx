@@ -1,13 +1,11 @@
 'use client'
 
-import { LogOutIcon, Settings2Icon } from 'lucide-react'
+import { Settings2Icon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
 
 import { LiveBreadcrumbsInLayout } from '@/app/LiveBreadcrumbsInLayout'
 import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
-import { useLiveSession } from '@/components/live/LiveSessionProvider'
-import { LiveSignOutDialog } from '@/components/live/LiveSignOutDialog'
+import { LiveAuthToolbar } from '@/components/live/LiveAuthToolbar'
 import { LiveUnavailable } from '@/components/live/LiveChrome'
 import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
 import { LayoutWidthContainer } from '@/components/layout/LayoutWidthContainer'
@@ -24,15 +22,6 @@ import type { ReactNode } from 'react'
 export function LiveAppShell({ children }: { children: ReactNode }) {
     const site = useSiteMode()
     const pathname = usePathname() ?? '/'
-    const session = useLiveSession()
-    const [signOutOpen, setSignOutOpen] = useState(false)
-    const showStudentSignOutDialog = session.authenticated && session.role === 'student'
-
-    useEffect(() => {
-        if (!showStudentSignOutDialog) {
-            setSignOutOpen(false)
-        }
-    }, [showStudentSignOutDialog])
 
     const allowed = isLivePath(pathname, site.kind)
 
@@ -60,31 +49,8 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
                                         </TooltipTrigger>
                                         <TooltipContent>Settings</TooltipContent>
                                     </Tooltip>
-                                    {session.authenticated ? (
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <SmoothButton
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="icon-sm"
-                                                    className={headerToolbarIconButtonClassName}
-                                                    aria-label="Sign out"
-                                                    aria-haspopup={session.role === 'student' ? 'dialog' : undefined}
-                                                    onClick={() => {
-                                                        if (session.role === 'student') {
-                                                            setSignOutOpen(true)
-                                                            return
-                                                        }
-                                                        void session.logout()
-                                                    }}
-                                                >
-                                                    <LogOutIcon aria-hidden />
-                                                </SmoothButton>
-                                            </TooltipTrigger>
-                                            <TooltipContent>Sign out</TooltipContent>
-                                        </Tooltip>
-                                    ) : null}
                                 </TooltipProvider>
+                                <LiveAuthToolbar />
                             </div>
                         </LayoutWidthContainer>
                         <SubNavInLayout />
@@ -99,9 +65,6 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
                 )}
             </RootShell>
             <AppearanceSettingsDialog />
-            {showStudentSignOutDialog ? (
-                <LiveSignOutDialog open={signOutOpen} onOpenChange={setSignOutOpen} />
-            ) : null}
         </>
     )
 }
