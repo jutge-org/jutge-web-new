@@ -1,11 +1,9 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
 import { notFound, useParams } from 'next/navigation'
 
 import { AuthedGate } from '@/components/ClientGates'
-import { useSiteMode } from '@/components/SiteModeProvider'
 import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
 import { ProblemDetail } from '@/components/problems/ProblemDetail'
 import { SubmissionsList } from '@/components/submissions/SubmissionsList'
@@ -16,17 +14,7 @@ import { problemLoadedBreadcrumbs, problemNmFromKey, problemTrailBreadcrumbs } f
 import { fetchProblemSubmissionsData } from '@/lib/data/submissions'
 import type { ProblemSubmissionRow } from '@/lib/submissions'
 
-const LiveProblemSubmissionsPage = dynamic(() =>
-    import('@/components/live/LiveSubmissionsPage').then((mod) => mod.LiveProblemSubmissionsPage),
-)
-
 export default function ProblemSubmissionsPage() {
-    const site = useSiteMode()
-    if (site.kind !== 'normal') return <LiveProblemSubmissionsPage />
-    return <NormalProblemSubmissionsPage />
-}
-
-function NormalProblemSubmissionsPage() {
     return <AuthedGate>{(user) => <ProblemSubmissionsPageContent isAdministrator={user.administrator} />}</AuthedGate>
 }
 

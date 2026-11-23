@@ -12,11 +12,7 @@ const EXACT_PATHS = new Set([
 ])
 
 function isProblemPath(pathname: string): boolean {
-    const parts = pathname.split('/').filter(Boolean)
-    if (parts[0] !== 'problems') return false
-    if (parts.length === 1 || parts.length === 2) return true
-    if (parts[2] !== 'submissions') return false
-    return parts.length === 3 || parts.length === 4
+    return pathname === '/problems' || pathname.startsWith('/problems/')
 }
 
 /** Routes the live shell is allowed to mount. Anything else is not rendered, so it does not call the API. */

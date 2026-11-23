@@ -29,6 +29,7 @@ type ProblemsListToolbarProps = {
     visibleCount?: number
     totalCount?: number
     showHelp?: boolean
+    showPasscodes?: boolean
 }
 
 const TOGGLEABLE_COLUMNS: ProblemsColumnField[] = ['problem_nm', 'title', 'author', 'language_ids', 'driver_id']
@@ -43,8 +44,10 @@ export function ProblemsListToolbar({
     visibleCount,
     totalCount,
     showHelp = false,
+    showPasscodes,
 }: ProblemsListToolbarProps) {
     const { user } = useAuth()
+    const passcodesVisible = showPasscodes ?? user !== null
     const columns = showStatusColumn ? (['status', ...TOGGLEABLE_COLUMNS] as ProblemsColumnField[]) : TOGGLEABLE_COLUMNS
     const showCountBadge = visibleCount !== undefined && totalCount !== undefined
     const trimmedSearchQuery = searchQuery.trim()
@@ -137,7 +140,7 @@ export function ProblemsListToolbar({
                         </Tooltip>
                     </ButtonGroup>
                 ) : null}
-                {user ? (
+                {passcodesVisible ? (
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button asChild variant="outline" size="icon">

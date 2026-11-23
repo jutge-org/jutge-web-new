@@ -1,10 +1,8 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
 
 import { AuthedGate } from '@/components/ClientGates'
-import { useSiteMode } from '@/components/SiteModeProvider'
 import MainBreadcrumbs from '@/components/general/MainBreadcrumbs'
 import { PageTitle } from '@/components/general/PageTitle'
 import { SubmissionsList } from '@/components/submissions/SubmissionsList'
@@ -12,17 +10,7 @@ import jutge from '@/lib/jutge'
 import { fetchSubmissionsData } from '@/lib/data/submissions'
 import type { SubmissionRow } from '@/lib/submissions'
 
-const LiveSubmissionsPage = dynamic(() =>
-    import('@/components/live/LiveSubmissionsPage').then((mod) => mod.LiveSubmissionsPage),
-)
-
 export default function SubmissionsPage() {
-    const site = useSiteMode()
-    if (site.kind !== 'normal') return <LiveSubmissionsPage />
-    return <NormalSubmissionsPage />
-}
-
-function NormalSubmissionsPage() {
     return (
         <AuthedGate>
             <SubmissionsPageContent />

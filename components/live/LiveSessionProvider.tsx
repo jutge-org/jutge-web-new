@@ -29,7 +29,8 @@ import {
     probeLiveRole,
     type LiveTutorStatus,
 } from '@/lib/data/liveExam'
-import type { CredentialsOut, ReadyExam, RunningExam } from '@/lib/jutge_api_client'
+import type { CredentialsOut, Profile, ReadyExam, RunningExam } from '@/lib/jutge_api_client'
+import { profileToSessionUser } from '@/lib/session'
 import { applyLiveApiClient } from '@/lib/siteMode'
 
 export type LiveRole = 'student' | 'tutor'
@@ -104,6 +105,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         typeof window !== 'undefined' ? localStorage.getItem(LIVE_SESSION_STORAGE.examKey) : null,
     )
     const [tutorStatus, setTutorStatus] = useState<LiveTutorStatus | null>(null)
+    const [profile, setProfile] = useState<Profile | null>(null)
     const [error, setError] = useState<string | null>(null)
 
     const preExamCredentialsRef = useRef<{ email: string; password: string } | null>(null)
@@ -117,6 +119,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         setExam(null)
         setExamKey(null)
         setTutorStatus(null)
+        setProfile(null)
     }, [])
 
     const clearPreExam = useCallback(() => {
@@ -175,6 +178,8 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
                 if (!cancelled) setEmail(stored.email)
                 await validateLiveSessionToken()
                 await applyProbe()
+                if (cancelled) return
+                setProfile(await jutge.student.profile.get())
             } catch (probeError) {
                 if (cancelled) return
                 clearStoredSession()
@@ -266,13 +271,15 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
                 setExamKey(input.exam.trim() || null)
                 setEmail(cached.email)
                 await applyProbe()
+                setProfile(await jutge.student.profile.get())
                 return { ok: true }
             } catch (loginError) {
                 jutge.meta = null
+                clearLiveRoleState()
                 return { ok: false, error: liveErrorMessage(loginError, 'Sign in failed.') }
             }
         },
-        [applyProbe],
+        [applyProbe, clearLiveRoleState],
     )
 
     const cancelPreExam = useCallback(() => {
@@ -350,16 +357,21 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         ],
     )
 
+    const refreshProfile = useCallback(async () => {
+        const fetched = await jutge.student.profile.get()
+        setProfile(fetched)
+    }, [])
+
     const authValue = useMemo(
         () => ({
-            user: null,
-            profile: null,
+            user: profile ? profileToSessionUser(profile) : null,
+            profile,
             loading,
             login: async () => ({ ok: false as const, error: 'Sign in from the exam or contest home page.' }),
             logout,
-            refreshProfile: async () => {},
+            refreshProfile,
         }),
-        [loading, logout],
+        [loading, logout, profile, refreshProfile],
     )
 
     return (

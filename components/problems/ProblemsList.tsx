@@ -29,6 +29,7 @@ type ProblemsListProps = {
     statuses?: Record<string, AbstractStatus>
     showAdvancedSearch?: boolean
     showHelp?: boolean
+    showPasscodes?: boolean
     preferredLanguageId?: string | null
     loading?: boolean
 }
@@ -39,6 +40,7 @@ export function ProblemsList({
     statuses,
     showAdvancedSearch = false,
     showHelp = false,
+    showPasscodes,
     preferredLanguageId = null,
     loading = false,
 }: ProblemsListProps) {
@@ -192,6 +194,7 @@ export function ProblemsList({
                     showStatusColumn={statuses !== undefined}
                     showAdvancedSearch={showAdvancedSearch}
                     showHelp={showHelp}
+                    showPasscodes={showPasscodes}
                 />
                 <div
                     aria-busy="true"
@@ -214,6 +217,7 @@ export function ProblemsList({
                 showStatusColumn={statuses !== undefined}
                 showAdvancedSearch={showAdvancedSearch}
                 showHelp={showHelp}
+                showPasscodes={showPasscodes}
                 visibleCount={visibleProblems.length}
                 totalCount={problems.length}
             />
