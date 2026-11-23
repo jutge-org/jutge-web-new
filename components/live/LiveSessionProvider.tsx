@@ -44,6 +44,9 @@ export type LiveSessionValue = {
     authenticated: boolean
     role: LiveRole | null
     email: string | null
+    name: string | null
+    instructor: boolean
+    administrator: boolean
     readyExams: ReadyExam[] | null
     exam: RunningExam | null
     tutorStatus: LiveTutorStatus | null
@@ -89,6 +92,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     const [phase, setPhase] = useState<LiveAuthPhase>('signed-out')
     const [role, setRole] = useState<LiveRole | null>(null)
     const [email, setEmail] = useState<string | null>(null)
+    const [name, setName] = useState<string | null>(null)
+    const [instructor, setInstructor] = useState(false)
+    const [administrator, setAdministrator] = useState(false)
     const [readyExams, setReadyExams] = useState<ReadyExam[] | null>(null)
     const [exam, setExam] = useState<RunningExam | null>(null)
     const [tutorStatus, setTutorStatus] = useState<LiveTutorStatus | null>(null)
@@ -109,6 +115,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     const clearPreExam = useCallback(() => {
         preExamCredentialsRef.current = null
         setReadyExams(null)
+        setName(null)
+        setInstructor(false)
+        setAdministrator(false)
         setPhase('signed-out')
     }, [])
 
@@ -137,6 +146,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
                 jutge.meta = null
                 clearLiveRoleState()
                 setEmail(null)
+                setName(null)
+                setInstructor(false)
+                setAdministrator(false)
                 clearPreExam()
             }
             setError(liveErrorMessage(probeError, 'Could not refresh the session.'))
@@ -185,7 +197,12 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         ): Promise<ContinueSignInResult> => {
             const trimmedEmail = credentials.email.trim()
             try {
-                const ready = await fetchReadyExamsUnauthenticated(trimmedEmail, credentials.password)
+                const {
+                    exams: ready,
+                    name: userName,
+                    instructor: isInstructor,
+                    administrator: isAdministrator,
+                } = await fetchReadyExamsUnauthenticated(trimmedEmail, credentials.password)
                 const filtered = filterReadyExams(ready, contest)
                 if (filtered.length === 0) {
                     return {
@@ -197,6 +214,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
                 }
                 preExamCredentialsRef.current = { email: trimmedEmail, password: credentials.password }
                 setEmail(trimmedEmail)
+                setName(userName.trim() || null)
+                setInstructor(isInstructor)
+                setAdministrator(isAdministrator)
                 setReadyExams(filtered)
                 setPhase('pre-exam')
                 setError(null)
@@ -261,6 +281,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         jutge.clearCache()
         clearLiveRoleState()
         setEmail(null)
+        setName(null)
         clearPreExam()
         setError(null)
 
@@ -284,6 +305,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             authenticated: role !== null,
             role,
             email,
+            name,
+            instructor,
+            administrator,
             readyExams,
             exam,
             tutorStatus,
@@ -300,6 +324,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             phase,
             role,
             email,
+            name,
+            instructor,
+            administrator,
             readyExams,
             exam,
             tutorStatus,

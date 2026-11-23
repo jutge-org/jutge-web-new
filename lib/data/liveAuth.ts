@@ -12,11 +12,19 @@ export const LIVE_SESSION_STORAGE = {
     email: 'live_email',
 } as const
 
+export type AuthReadyExamsOut = {
+    exams: ReadyExam[]
+    name: string
+    administrator: boolean
+    instructor: boolean
+    username: string | null
+}
+
 /** Step B — credentials only, no session token (`auth.getReadyExams`). */
 export async function fetchReadyExamsUnauthenticated(
     email: string,
     password: string,
-): Promise<ReadyExam[]> {
+): Promise<AuthReadyExamsOut> {
     jutge.meta = null
     return jutge.auth.getReadyExams({ email, password })
 }

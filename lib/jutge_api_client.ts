@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-11-22T13:28:25.026Z
+ * This file has been automatically generated at 2026-11-23T15:05:49.194Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -1837,7 +1837,15 @@ class Module_auth {
      * 🗂️ Domains: exam, contest
      * 🔐 Authentication: any
      */
-    async getReadyExams(data: CredentialsIn): Promise<ReadyExam[]> {
+    async getReadyExams(
+        data: CredentialsIn,
+    ): Promise<{
+        exams: ReadyExam[]
+        name: string
+        administrator: boolean
+        instructor: boolean
+        username: string | null
+    }> {
         const [output, ofiles] = await this.root.execute("auth.getReadyExams", data)
         return output
     }
@@ -3484,19 +3492,6 @@ class Module_student_exam {
 
     constructor(root: JutgeApiClient) {
         this.root = root
-    }
-
-    /**
-     * Get list of ready exams.
-     *
-     * An exam is ready if the current time is between its expected start time minus two days and its expected end time plus two days. Exams are sorted by their distance to the current time and by title order in case of ties.
-     *
-     * 🗂️ Domains: jutge
-     * 🔐 Authentication: user
-     */
-    async getReadyExams(): Promise<ReadyExam[]> {
-        const [output, ofiles] = await this.root.execute("student.exam.getReadyExams", null)
-        return output
     }
 
     /**

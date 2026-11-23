@@ -1,6 +1,14 @@
 'use client'
 
-import { EyeIcon, LogInIcon, LogOutIcon, RefreshCwIcon, SwordsIcon } from 'lucide-react'
+import {
+    CrownIcon,
+    EyeIcon,
+    GraduationCapIcon,
+    LogInIcon,
+    LogOutIcon,
+    RefreshCwIcon,
+    SwordsIcon,
+} from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -220,16 +228,31 @@ function LiveSignIn({
                 }}
             >
                 <div className="flex flex-col gap-2">
-                    <Label htmlFor="live-email">Email</Label>
-                    <Input
-                        id="live-email"
-                        type="email"
-                        autoComplete="username"
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        required
-                        disabled={inPreExam || pending}
-                    />
+                    {inPreExam ? (
+                        <p className="text-sm" id="live-greeting">
+                            Hello {session.name ?? email}{' '}
+                            <span className="inline-flex items-center gap-0.5 text-muted-foreground">
+                                ({email})
+                                <LiveAccountRoleIcons
+                                    administrator={session.administrator}
+                                    instructor={session.instructor}
+                                />
+                            </span>
+                        </p>
+                    ) : (
+                        <>
+                            <Label htmlFor="live-email">Email</Label>
+                            <Input
+                                id="live-email"
+                                type="email"
+                                autoComplete="username"
+                                value={email}
+                                onChange={(event) => setEmail(event.target.value)}
+                                required
+                                disabled={pending}
+                            />
+                        </>
+                    )}
                 </div>
                 {!inPreExam ? (
                     <div className="flex flex-col gap-2">
@@ -361,6 +384,53 @@ function LiveSignIn({
                 </div>
             </form>
         </>
+    )
+}
+
+function LiveAccountRoleIcons({
+    instructor,
+    administrator,
+}: {
+    instructor: boolean
+    administrator: boolean
+}) {
+    if (!instructor && !administrator) return null
+
+    return (
+        <TooltipProvider>
+            <span className="ml-0.5 inline-flex items-center gap-0.5">
+                {instructor ? (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <span
+                                className="inline-flex text-foreground"
+                                role="img"
+                                aria-label="Instructor"
+                                tabIndex={0}
+                            >
+                                <GraduationCapIcon aria-hidden className="size-3.5" />
+                            </span>
+                        </TooltipTrigger>
+                        <TooltipContent>Instructor</TooltipContent>
+                    </Tooltip>
+                ) : null}
+                {administrator ? (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <span
+                                className="inline-flex text-foreground"
+                                role="img"
+                                aria-label="Administrator"
+                                tabIndex={0}
+                            >
+                                <CrownIcon aria-hidden className="size-3.5" />
+                            </span>
+                        </TooltipTrigger>
+                        <TooltipContent>Administrator</TooltipContent>
+                    </Tooltip>
+                ) : null}
+            </span>
+        </TooltipProvider>
     )
 }
 
