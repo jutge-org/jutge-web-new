@@ -6,24 +6,16 @@ export type SiteResolution = {
     apiUrl: string | null
 }
 
-export const NORMAL_API_URL =
-    process.env.NEXT_PUBLIC_JUTGE_API_URL?.trim() || 'https://api.jutge.org/api'
-export const EXAM_API_URL =
-    process.env.NEXT_PUBLIC_JUTGE_EXAM_API_URL?.trim() || 'https://exam.api.jutge.org/api'
+export const NORMAL_API_URL = process.env.NEXT_PUBLIC_JUTGE_API_URL?.trim() || 'https://api.jutge.org/api'
+export const EXAM_API_URL = process.env.NEXT_PUBLIC_JUTGE_EXAM_API_URL?.trim() || 'https://exam.api.jutge.org/api'
 export const CONTEST_API_URL =
     process.env.NEXT_PUBLIC_JUTGE_CONTEST_API_URL?.trim() || 'https://contest.api.jutge.org/api'
 
-const NORMAL_HOSTS = new Set([
-    'www.jutge.net',
-    'jutge.net',
-    'www.jutge.org',
-    'jutge.org',
-    'new.jutge.org',
-])
+const NORMAL_HOSTS = new Set(['www.jutge.net', 'jutge.net', 'www.jutge.org', 'jutge.org', 'new.jutge.org'])
 
-const EXAM_HOSTS = new Set(['exam.jutge.net', 'exam.jutge.org'])
+const EXAM_HOSTS = new Set(['exam.jutge.net', 'exam.jutge.org', 'exambach.jutge.net'])
 
-const CONTEST_HOSTS = new Set(['contest.jutge.net', 'contest.jutge.org'])
+const CONTEST_HOSTS = new Set(['contest.jutge.net', 'contest.jutge.org', 'contestbach.jutge.net'])
 
 const API_URL_BY_KIND: Record<SiteKind, string | null> = {
     normal: null,
@@ -96,10 +88,7 @@ export function isExplicitNormalHost(hostname: string): boolean {
  * through to the first x-forwarded-host value. The browser client does not
  * send that header to the API.
  */
-export function resolveSiteModeFromRequest(
-    hostHeader: string | null,
-    forwardedHost: string | null,
-): SiteResolution {
+export function resolveSiteModeFromRequest(hostHeader: string | null, forwardedHost: string | null): SiteResolution {
     const host = hostnameOf(hostHeader)
     const fromHost = resolveSiteMode(host)
     if (fromHost.kind !== 'normal' || isExplicitNormalHost(host)) return fromHost

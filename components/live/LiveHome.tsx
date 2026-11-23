@@ -1,12 +1,13 @@
 'use client'
 
-import { EyeIcon, RefreshCwIcon, SwordsIcon } from 'lucide-react'
+import { EyeIcon, LogInIcon, LogOutIcon, RefreshCwIcon, SwordsIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 
+import { ApiStatusCard } from '@/components/live/ApiStatusCard'
 import { ContestWatchForm } from '@/components/live/ContestWatchForm'
-import { LiveNotice, LivePage, LiveSpinner, liveFieldClassName } from '@/components/live/LiveChrome'
+import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import AnimatedTabs from '@/components/smoothui/animated-tabs'
 import SmoothButton from '@/components/smoothui/smooth-button'
@@ -16,7 +17,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { isMotionReduced } from '@/lib/reducedMotion'
 import { cn } from '@/lib/utils'
 
@@ -48,15 +50,12 @@ export function LiveHome() {
 }
 
 function ExamHome() {
-    const { reducedMotion } = useAppearancePreferences()
-    const motionReduced = isMotionReduced(reducedMotion)
-
     return (
-        <LivePage>
+        <LivePage className="min-h-0 flex-1">
             <div className="flex justify-center">
                 <Image
                     alt="Exam on Jutge.org"
-                    className={cn('h-auto w-96 max-w-full', !motionReduced && 'hover:animate-pulse')}
+                    className="h-auto w-96 max-w-full"
                     height={384}
                     priority
                     src="/jutge/exam.png"
@@ -70,6 +69,7 @@ function ExamHome() {
                     </div>
                 </CardContent>
             </Card>
+            <ApiStatusCard className="mt-auto shrink-0" />
         </LivePage>
     )
 }
@@ -80,7 +80,7 @@ function ContestHome() {
     const motionReduced = isMotionReduced(reducedMotion)
 
     return (
-        <LivePage>
+        <LivePage className="min-h-0 flex-1">
             <div className="flex justify-center">
                 <Image
                     alt="Contest on Jutge.org"
@@ -127,6 +127,7 @@ function ContestHome() {
                     </CardContent>
                 </Card>
             </div>
+            <ApiStatusCard className="mt-auto shrink-0" />
         </LivePage>
     )
 }
@@ -251,42 +252,30 @@ function LiveSignIn({
                 {inPreExam && readyExams ? (
                     <>
                         <div className="flex flex-col gap-2">
-                            <ExamPickerHeader className="flex items-center justify-between gap-2">
-                                <Label htmlFor="live-exam" className="mb-0">
+                            <div className="relative pr-8">
+                                <Label htmlFor="live-exam">
                                     {contest ? 'Contest' : 'Exam'}
                                 </Label>
-                                <ReloadReadyExamsButton
-                                    contest={contest}
-                                    disabled={pending}
-                                    onReload={() => void reloadExams()}
-                                />
-                            </ExamPickerHeader>
-                            <select
-                                id="live-exam"
-                                className={liveFieldClassName}
-                                value={examKey}
-                                onChange={(event) => setExamKey(event.target.value)}
-                                required
-                            >
-                                {readyExams.map((exam) => (
-                                    <option key={exam.exam_key} value={exam.exam_key}>
-                                        {exam.title}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="live-exam-key-manual">
-                                {contest ? 'Contest' : 'Exam'} key (optional)
-                            </Label>
-                            <Input
-                                id="live-exam-key-manual"
-                                type="text"
-                                autoComplete="off"
-                                value={examKey}
-                                onChange={(event) => setExamKey(event.target.value)}
-                                placeholder="Use a custom key if needed"
-                            />
+                                <div className="absolute top-1/2 right-0 -translate-y-1/2">
+                                    <ReloadReadyExamsButton
+                                        contest={contest}
+                                        disabled={pending}
+                                        onReload={() => void reloadExams()}
+                                    />
+                                </div>
+                            </div>
+                            <Select value={examKey} onValueChange={setExamKey} disabled={pending}>
+                                <SelectTrigger className="w-full" id="live-exam">
+                                    <SelectValue placeholder={`Choose a ${contest ? 'contest' : 'exam'}`} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {readyExams.map((exam) => (
+                                        <SelectItem key={exam.exam_key} value={exam.exam_key}>
+                                            {exam.title}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="live-exam-password">
@@ -294,7 +283,7 @@ function LiveSignIn({
                             </Label>
                             <Input
                                 id="live-exam-password"
-                                type="password"
+                                type="text"
                                 autoComplete="off"
                                 value={examPassword}
                                 onChange={(event) => setExamPassword(event.target.value)}
@@ -305,46 +294,71 @@ function LiveSignIn({
                 ) : null}
                 <div
                     className={cn(
-                        'flex gap-2',
+                        inPreExam ? 'flex w-full flex-col gap-2' : 'flex gap-2',
                         arenaStyle && 'mt-2',
-                        arenaStyle && !inPreExam ? 'w-full' : 'justify-center',
+                        !inPreExam && arenaStyle && 'w-full',
+                        !inPreExam && !arenaStyle && 'justify-center',
                     )}
                 >
                     {arenaStyle ? (
                         <SmoothButton
-                            className={inPreExam ? undefined : 'w-full'}
+                            className="w-full"
                             color="blue"
                             loading={pending}
                             type="submit"
                             variant="candy"
                         >
-                            {inPreExam ? (contest ? 'Enter contest' : 'Enter exam') : 'Continue'}
+                            {inPreExam ? (
+                                <>
+                                    <LogInIcon aria-hidden className="size-4" />
+                                    {contest ? 'Enter contest' : 'Enter exam'}
+                                </>
+                            ) : (
+                                <>
+                                    <LogInIcon aria-hidden className="size-4" />
+                                    Sign in
+                                </>
+                            )}
                         </SmoothButton>
                     ) : (
-                        <Button type="submit" disabled={pending}>
-                            {pending
-                                ? 'Please wait…'
-                                : inPreExam
-                                  ? contest
-                                      ? 'Enter contest'
-                                      : 'Enter exam'
-                                  : 'Continue'}
+                        <Button className={inPreExam ? 'w-full' : undefined} type="submit" disabled={pending}>
+                            {pending ? (
+                                'Please wait…'
+                            ) : inPreExam ? (
+                                <>
+                                    <LogInIcon aria-hidden className="size-4" />
+                                    {contest ? 'Enter contest' : 'Enter exam'}
+                                </>
+                            ) : (
+                                <>
+                                    <LogInIcon aria-hidden className="size-4" />
+                                    Sign in
+                                </>
+                            )}
                         </Button>
                     )}
                     {inPreExam ? (
                         arenaStyle ? (
                             <SmoothButton
-                                color="blue"
+                                className="w-full"
                                 disabled={pending}
                                 type="button"
-                                variant="outline"
+                                variant="destructive"
                                 onClick={handleBack}
                             >
-                                Cancel
+                                <LogOutIcon aria-hidden className="size-4" />
+                                Sign out
                             </SmoothButton>
                         ) : (
-                            <Button type="button" variant="outline" disabled={pending} onClick={handleBack}>
-                                Cancel
+                            <Button
+                                className="w-full"
+                                type="button"
+                                variant="destructive"
+                                disabled={pending}
+                                onClick={handleBack}
+                            >
+                                <LogOutIcon aria-hidden className="size-4" />
+                                Sign out
                             </Button>
                         )
                     ) : null}
@@ -352,10 +366,6 @@ function LiveSignIn({
             </form>
         </>
     )
-}
-
-function ExamPickerHeader({ className, children }: { className?: string; children: ReactNode }) {
-    return <div className={className}>{children}</div>
 }
 
 function ReloadReadyExamsButton({
@@ -368,20 +378,23 @@ function ReloadReadyExamsButton({
     onReload: () => void
 }) {
     return (
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    disabled={disabled}
-                    aria-label={`Reload ${contest ? 'contests' : 'exams'}`}
-                    onClick={onReload}
-                >
-                    <RefreshCwIcon aria-hidden className="size-4" />
-                </Button>
-            </TooltipTrigger>
-            <TooltipContent>Reload list</TooltipContent>
-        </Tooltip>
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        className="text-muted-foreground"
+                        disabled={disabled}
+                        aria-label={`Reload ${contest ? 'contests' : 'exams'}`}
+                        onClick={onReload}
+                    >
+                        <RefreshCwIcon aria-hidden className="size-3" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>Reload list</TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     )
 }

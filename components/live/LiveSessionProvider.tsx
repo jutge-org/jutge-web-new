@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import {
     createContext,
     useCallback,
@@ -82,6 +83,7 @@ function persistSignedInExam(credentials: CredentialsOut, email: string) {
 }
 
 export function LiveSessionProvider({ children }: { children: ReactNode }) {
+    const router = useRouter()
     const site = useSiteMode()
     const [loading, setLoading] = useState(true)
     const [phase, setPhase] = useState<LiveAuthPhase>('signed-out')
@@ -251,20 +253,29 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     }, [clearPreExam])
 
     const logout = useCallback(async () => {
+        const token = jutge.meta?.token
+        const userUid = jutge.meta?.user_uid ?? ''
+
+        clearStoredSession()
+        jutge.meta = null
+        jutge.clearCache()
+        clearLiveRoleState()
+        setEmail(null)
+        clearPreExam()
+        setError(null)
+
         try {
-            if (jutge.meta?.token) await jutge.logout()
+            if (token) {
+                jutge.meta = { token, user_uid: userUid }
+                await jutge.logout()
+            }
         } catch {
             jutge.meta = null
         } finally {
-            clearStoredSession()
             jutge.meta = null
-            jutge.clearCache()
-            clearLiveRoleState()
-            setEmail(null)
-            clearPreExam()
-            setError(null)
+            router.replace('/')
         }
-    }, [clearLiveRoleState, clearPreExam])
+    }, [clearLiveRoleState, clearPreExam, router])
 
     const value = useMemo<LiveSessionValue>(
         () => ({

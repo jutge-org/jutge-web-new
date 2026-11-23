@@ -21,9 +21,17 @@ export function LiveNotice({ children }: { children: ReactNode }) {
     )
 }
 
-export function LivePage({ title, children }: { title?: string; children: ReactNode }) {
+export function LivePage({
+    title,
+    children,
+    className,
+}: {
+    title?: string
+    children: ReactNode
+    className?: string
+}) {
     return (
-        <div className="flex flex-col gap-6">
+        <div className={cn('flex flex-col gap-6', className)}>
             {title ? <h1 className="text-2xl font-semibold tracking-tight">{title}</h1> : null}
             {children}
         </div>
