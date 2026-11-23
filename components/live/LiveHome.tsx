@@ -360,9 +360,10 @@ function LiveSignIn({
                         arenaStyle ? (
                             <SmoothButton
                                 className="w-full"
+                                color="blue"
                                 disabled={pending}
                                 type="button"
-                                variant="destructive"
+                                variant="candy"
                                 onClick={handleBack}
                             >
                                 <LogOutIcon aria-hidden className="size-4" />

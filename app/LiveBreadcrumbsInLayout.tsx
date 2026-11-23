@@ -24,8 +24,11 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { ExternalLink } from '@/components/ExternalLink'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { useSiteMode } from '@/components/SiteModeProvider'
+import { aboutNavItems } from '@/lib/about'
+import { documentationNavItems } from '@/lib/documentation'
 import {
     liveFallbackBreadcrumbs,
     liveNavItemsForSession,
@@ -39,28 +42,41 @@ import { pathsHrefEqual } from '@/lib/siteNavLinks'
 import { useMainBreadcrumbs } from '@/store/MainBreadcrumbs'
 import { cn } from '@/lib/utils'
 import {
+    AccessibilityIcon,
     ActivityIcon,
+    BookMarkedIcon,
     BookText,
+    CameraIcon,
     ChartPieIcon,
+    ClockIcon,
+    Code2Icon,
     EyeIcon,
     FileBracesCornerIcon,
+    FileCodeIcon,
+    FileTextIcon,
+    FolderGit2Icon,
+    GavelIcon,
+    HelpCircleIcon,
     House,
     Info,
+    LanguagesIcon,
+    LineSquiggleIcon,
+    MegaphoneIcon,
     MenuIcon,
     MonitorOffIcon,
     PocketKnifeIcon,
     ScrollTextIcon,
     SendIcon,
+    ServerCogIcon,
+    ShieldIcon,
+    ShoppingBagIcon,
     SquareTerminalIcon,
     SquareTextIcon,
     TerminalIcon,
     TrophyIcon,
     TurtleIcon,
     UsersIcon,
-    FileCodeIcon,
-    LanguagesIcon,
-    LineSquiggleIcon,
-    ClockIcon,
+    WrenchIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -69,6 +85,7 @@ import { Fragment, useEffect, useMemo, useRef, type ComponentType } from 'react'
 type LiveNavSubmenuItem = {
     href: string
     label: string
+    external?: boolean
 }
 
 const interpretersSubmenuItems: readonly LiveNavSubmenuItem[] = interpretersNavItems
@@ -78,6 +95,14 @@ const interpretersSubmenuItems: readonly LiveNavSubmenuItem[] = interpretersNavI
 const utilitiesSubmenuItems: readonly LiveNavSubmenuItem[] = utilitiesNavItems
     .filter((item) => item.tab !== 'index')
     .map(({ href, label }) => ({ href, label }))
+
+const documentationSubmenuItems: readonly LiveNavSubmenuItem[] = documentationNavItems
+    .filter((item) => item.tab !== 'index')
+    .map(({ href, label, external }) => ({ href, label, external }))
+
+const aboutSubmenuItems: readonly LiveNavSubmenuItem[] = aboutNavItems
+    .filter((item) => item.tab !== 'index')
+    .map(({ href, label, external }) => ({ href, label, external }))
 
 function navSubItemIsCurrent(pathname: string, href: string, indexHref: string): boolean {
     if (href === indexHref) return pathname === indexHref
@@ -109,6 +134,50 @@ function LiveNavUtilitiesSubItemIcon({ href }: { href: string }) {
             return <MonitorOffIcon aria-hidden />
         case '/utilities/clock':
             return <ClockIcon aria-hidden />
+        default:
+            return null
+    }
+}
+
+function LiveNavDocumentationSubItemIcon({ href }: { href: string }) {
+    switch (href) {
+        case '/documentation/faq':
+            return <HelpCircleIcon aria-hidden />
+        case '/documentation/compilers':
+            return <Code2Icon aria-hidden />
+        case '/documentation/verdicts':
+            return <GavelIcon aria-hidden />
+        case 'https://github.com/jutge-org/jutge-toolkit':
+            return <WrenchIcon aria-hidden />
+        case 'https://api.jutge.org':
+            return <ServerCogIcon aria-hidden />
+        case '/documentation/references':
+            return <BookMarkedIcon aria-hidden />
+        case 'https://github.com/jutge-org/':
+            return <FolderGit2Icon aria-hidden />
+        default:
+            return null
+    }
+}
+
+function LiveNavAboutSubItemIcon({ href }: { href: string }) {
+    switch (href) {
+        case 'https://t.me/jutge':
+            return <SendIcon aria-hidden />
+        case '/about/terms-of-service':
+            return <MegaphoneIcon aria-hidden />
+        case '/about/honor-code':
+            return <ShieldIcon aria-hidden />
+        case '/about/accessibility':
+            return <AccessibilityIcon aria-hidden />
+        case '/about/gallery':
+            return <CameraIcon aria-hidden />
+        case '/about/publications':
+            return <FileTextIcon aria-hidden />
+        case '/about/merchandising':
+            return <ShoppingBagIcon aria-hidden />
+        case '/about/credits':
+            return <UsersIcon aria-hidden />
         default:
             return null
     }
@@ -151,20 +220,29 @@ function LiveNavSubmenu({
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    {items.map((item) => (
-                        <DropdownMenuItem asChild key={item.href}>
-                            <Link
-                                href={item.href}
-                                className={cn(
-                                    navSubItemIsCurrent(pathname, item.href, indexHref) &&
-                                        'font-semibold text-foreground',
-                                )}
-                            >
-                                <SubItemIcon href={item.href} />
-                                {item.label}
-                            </Link>
-                        </DropdownMenuItem>
-                    ))}
+                    {items.map((item) =>
+                        item.external ? (
+                            <DropdownMenuItem asChild key={item.href}>
+                                <ExternalLink href={item.href} icon={false}>
+                                    <SubItemIcon href={item.href} />
+                                    {item.label}
+                                </ExternalLink>
+                            </DropdownMenuItem>
+                        ) : (
+                            <DropdownMenuItem asChild key={item.href}>
+                                <Link
+                                    href={item.href}
+                                    className={cn(
+                                        navSubItemIsCurrent(pathname, item.href, indexHref) &&
+                                            'font-semibold text-foreground',
+                                    )}
+                                >
+                                    <SubItemIcon href={item.href} />
+                                    {item.label}
+                                </Link>
+                            </DropdownMenuItem>
+                        ),
+                    )}
                 </SmoothDropdownMenuSubContent>
             </DropdownMenuPortal>
         </DropdownMenuSub>
@@ -289,6 +367,26 @@ export function LiveBreadcrumbsInLayout() {
                                         pathname={pathname}
                                         isCurrentSection={linkIsCurrent(item)}
                                         subItemIcon={LiveNavUtilitiesSubItemIcon}
+                                    />
+                                ) : item.href === '/documentation' ? (
+                                    <LiveNavSubmenu
+                                        href={item.href}
+                                        label={item.label}
+                                        indexHref="/documentation"
+                                        items={documentationSubmenuItems}
+                                        pathname={pathname}
+                                        isCurrentSection={linkIsCurrent(item)}
+                                        subItemIcon={LiveNavDocumentationSubItemIcon}
+                                    />
+                                ) : item.href === '/about' ? (
+                                    <LiveNavSubmenu
+                                        href={item.href}
+                                        label={item.label}
+                                        indexHref="/about"
+                                        items={aboutSubmenuItems}
+                                        pathname={pathname}
+                                        isCurrentSection={linkIsCurrent(item)}
+                                        subItemIcon={LiveNavAboutSubItemIcon}
                                     />
                                 ) : (
                                     <DropdownMenuItem asChild>
