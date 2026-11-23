@@ -59,8 +59,8 @@ export function isLiveKind(kind: SiteKind): kind is 'exam' | 'contest' {
 }
 
 export function siteBrand(kind: SiteKind): string {
-    if (kind === 'exam') return 'exam.Jutge.org'
-    if (kind === 'contest') return 'contest.Jutge.org'
+    if (kind === 'exam') return 'Jutge.org: Exam'
+    if (kind === 'contest') return 'Jutge.org: Contest'
     return 'Jutge.org'
 }
 

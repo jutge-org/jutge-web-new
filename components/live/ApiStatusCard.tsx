@@ -7,10 +7,18 @@ import { CONTEST_API_URL, EXAM_API_URL, NORMAL_API_URL } from '@/lib/siteMode'
 import { cn } from '@/lib/utils'
 
 const JUTGE_API_ENDPOINTS = [
-    { name: 'api.jutge.org', baseUrl: NORMAL_API_URL },
-    { name: 'exam.jutge.org', baseUrl: EXAM_API_URL },
-    { name: 'contest.jutge.org', baseUrl: CONTEST_API_URL },
+    { baseUrl: NORMAL_API_URL },
+    { baseUrl: EXAM_API_URL },
+    { baseUrl: CONTEST_API_URL },
 ] as const
+
+function apiEndpointHostname(baseUrl: string): string {
+    try {
+        return new URL(baseUrl).hostname
+    } catch {
+        return baseUrl
+    }
+}
 
 type ConnectionStatus = 'pending' | 'ok' | 'error'
 
@@ -29,7 +37,9 @@ async function probeApiConnection(apiBaseUrl: string, signal: AbortSignal): Prom
 
 export function ApiStatusCard({ className }: { className?: string }) {
     const [statusByName, setStatusByName] = useState<Record<string, ConnectionStatus>>(() =>
-        Object.fromEntries(JUTGE_API_ENDPOINTS.map(({ name }) => [name, 'pending'])),
+        Object.fromEntries(
+            JUTGE_API_ENDPOINTS.map(({ baseUrl }) => [apiEndpointHostname(baseUrl), 'pending']),
+        ),
     )
 
     useEffect(() => {
@@ -37,7 +47,8 @@ export function ApiStatusCard({ className }: { className?: string }) {
 
         void (async () => {
             const results = await Promise.all(
-                JUTGE_API_ENDPOINTS.map(async ({ name, baseUrl }) => {
+                JUTGE_API_ENDPOINTS.map(async ({ baseUrl }) => {
+                    const name = apiEndpointHostname(baseUrl)
                     const ok = await probeApiConnection(baseUrl, controller.signal)
                     return [name, ok ? 'ok' : 'error'] as const
                 }),
@@ -54,7 +65,8 @@ export function ApiStatusCard({ className }: { className?: string }) {
             <CardContent className="px-4 py-2">
                 <div className="flex items-center gap-3">
                     <ul className="flex min-w-0 flex-1 flex-nowrap items-center justify-evenly gap-3 overflow-x-auto text-sm">
-                        {JUTGE_API_ENDPOINTS.map(({ name }) => {
+                        {JUTGE_API_ENDPOINTS.map(({ baseUrl }) => {
+                            const name = apiEndpointHostname(baseUrl)
                             const status = statusByName[name] ?? 'pending'
                             const indicator =
                                 status === 'ok' ? '🟢' : status === 'error' ? '🔴' : '⚪'

@@ -18,7 +18,14 @@ function isProblemPath(pathname: string): boolean {
 /** Routes the live shell is allowed to mount. Anything else is not rendered, so it does not call the API. */
 export function isLivePath(pathname: string, kind: SiteKind): boolean {
     if (EXACT_PATHS.has(pathname)) return true
-    if (pathname.startsWith('/documentation') || pathname.startsWith('/about')) return true
+    if (
+        pathname.startsWith('/documentation') ||
+        pathname.startsWith('/about') ||
+        pathname.startsWith('/interpreters') ||
+        pathname.startsWith('/utilities')
+    ) {
+        return true
+    }
     if (pathname.startsWith('/students/')) return true
     if (kind === 'contest' && (pathname === '/watch' || pathname.startsWith('/watch/'))) return true
     return isProblemPath(pathname)

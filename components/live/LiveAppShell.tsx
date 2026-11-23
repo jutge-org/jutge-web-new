@@ -1,10 +1,10 @@
 'use client'
 
 import { LogOutIcon, Settings2Icon } from 'lucide-react'
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { LiveBreadcrumbsInLayout } from '@/app/LiveBreadcrumbsInLayout'
 import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { LiveSignOutDialog } from '@/components/live/LiveSignOutDialog'
@@ -19,56 +19,7 @@ import { useSiteMode } from '@/components/SiteModeProvider'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { dispatchOpenAppearanceSettings } from '@/lib/appearanceSettings'
 import { isLivePath } from '@/lib/livePaths'
-import { examHasStarted } from '@/lib/data/liveExam'
-import { siteBrand, type SiteKind } from '@/lib/siteMode'
-import { cn } from '@/lib/utils'
 import type { ReactNode } from 'react'
-
-type LiveNavItem = {
-    href: string
-    label: string
-}
-
-function liveNavItems(kind: SiteKind, role: 'student' | 'tutor' | null, started: boolean): LiveNavItem[] {
-    if (role === 'tutor') {
-        return [
-            { href: '/', label: 'Home' },
-            { href: '/problems', label: 'Problems' },
-            { href: '/students', label: 'Students' },
-            { href: '/submissions', label: 'Submissions' },
-            { href: '/ranking', label: 'Ranking' },
-            { href: '/statistics', label: 'Statistics' },
-            { href: '/logins', label: 'Logins' },
-            { href: '/documentation', label: 'Documentation' },
-            { href: '/about', label: 'About' },
-        ]
-    }
-    if (role === 'student') {
-        const items: LiveNavItem[] = [
-            { href: '/', label: 'Home' },
-            { href: '/problems', label: 'Problems' },
-            { href: '/submissions', label: 'Submissions' },
-        ]
-        if (kind === 'contest' && started) items.push({ href: '/ranking', label: 'Ranking' })
-        items.push(
-            { href: '/documentation', label: 'Documentation' },
-            { href: '/about', label: 'About' },
-        )
-        return items
-    }
-    const items: LiveNavItem[] = [
-        { href: '/', label: 'Home' },
-        { href: '/documentation', label: 'Documentation' },
-        { href: '/about', label: 'About' },
-    ]
-    if (kind === 'contest') items.push({ href: '/watch', label: 'Watch' })
-    return items
-}
-
-function navIsCurrent(pathname: string, href: string): boolean {
-    if (href === '/') return pathname === '/'
-    return pathname === href || pathname.startsWith(`${href}/`)
-}
 
 export function LiveAppShell({ children }: { children: ReactNode }) {
     const site = useSiteMode()
@@ -83,8 +34,6 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
         }
     }, [showStudentSignOutDialog])
 
-    const brand = siteBrand(site.kind)
-    const items = liveNavItems(site.kind, session.role, examHasStarted(session.exam))
     const allowed = isLivePath(pathname, site.kind)
 
     return (
@@ -93,34 +42,7 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
                 header={
                     <header className="sticky top-0 z-50 border-b border-border bg-background">
                         <LayoutWidthContainer className="flex h-11 items-center justify-between gap-4 px-4 sm:px-6">
-                            <div className="flex min-w-0 items-center gap-4">
-                                <Link href="/" className="shrink-0 text-sm font-semibold">
-                                    {brand}
-                                </Link>
-                                <nav aria-label="Exam" className="min-w-0 overflow-x-auto">
-                                    <ul className="flex items-center gap-1">
-                                        {items.map((item) => {
-                                            const current = navIsCurrent(pathname, item.href)
-                                            return (
-                                                <li key={item.href}>
-                                                    <Link
-                                                        href={item.href}
-                                                        aria-current={current ? 'page' : undefined}
-                                                        className={cn(
-                                                            'inline-flex h-8 items-center rounded-md px-2 text-sm whitespace-nowrap',
-                                                            current
-                                                                ? 'bg-muted text-foreground'
-                                                                : 'text-muted-foreground hover:text-foreground',
-                                                        )}
-                                                    >
-                                                        {item.label}
-                                                    </Link>
-                                                </li>
-                                            )
-                                        })}
-                                    </ul>
-                                </nav>
-                            </div>
+                            <LiveBreadcrumbsInLayout />
                             <div className="flex shrink-0 items-center gap-1">
                                 <TooltipProvider>
                                     <Tooltip>

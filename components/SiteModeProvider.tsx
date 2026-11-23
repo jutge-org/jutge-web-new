@@ -1,15 +1,22 @@
 'use client'
 
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
-import type { SiteResolution } from '@/lib/siteMode'
+import { resolveSiteMode, type SiteResolution } from '@/lib/siteMode'
 
 const NORMAL_SITE: SiteResolution = { kind: 'normal', apiUrl: null }
 
 const SiteModeContext = createContext<SiteResolution>(NORMAL_SITE)
 
 export function SiteModeProvider({ value, children }: { value: SiteResolution; children: ReactNode }) {
-    return <SiteModeContext.Provider value={value}>{children}</SiteModeContext.Provider>
+    const [site, setSite] = useState(value)
+
+    // Match the API client (`lib/jutge.ts`): hostname is authoritative in the browser.
+    useEffect(() => {
+        setSite(resolveSiteMode(window.location.hostname))
+    }, [value])
+
+    return <SiteModeContext.Provider value={site}>{children}</SiteModeContext.Provider>
 }
 
 export function useSiteMode(): SiteResolution {
