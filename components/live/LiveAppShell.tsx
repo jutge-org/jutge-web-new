@@ -3,9 +3,11 @@
 import { LogOutIcon, Settings2Icon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
+import { LiveSignOutDialog } from '@/components/live/LiveSignOutDialog'
 import { LiveUnavailable } from '@/components/live/LiveChrome'
 import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
 import { LayoutWidthContainer } from '@/components/layout/LayoutWidthContainer'
@@ -49,7 +51,6 @@ function liveNavItems(kind: SiteKind, role: 'student' | 'tutor' | null, started:
         ]
         if (kind === 'contest' && started) items.push({ href: '/ranking', label: 'Ranking' })
         items.push(
-            { href: '/finish', label: 'Finish' },
             { href: '/documentation', label: 'Documentation' },
             { href: '/about', label: 'About' },
         )
@@ -73,6 +74,15 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
     const site = useSiteMode()
     const pathname = usePathname() ?? '/'
     const session = useLiveSession()
+    const [signOutOpen, setSignOutOpen] = useState(false)
+    const showStudentSignOutDialog = session.authenticated && session.role === 'student'
+
+    useEffect(() => {
+        if (!showStudentSignOutDialog) {
+            setSignOutOpen(false)
+        }
+    }, [showStudentSignOutDialog])
+
     const brand = siteBrand(site.kind)
     const items = liveNavItems(site.kind, session.role, examHasStarted(session.exam))
     const allowed = isLivePath(pathname, site.kind)
@@ -137,7 +147,14 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
                                                     size="icon-sm"
                                                     className={headerToolbarIconButtonClassName}
                                                     aria-label="Sign out"
-                                                    onClick={() => void session.logout()}
+                                                    aria-haspopup={session.role === 'student' ? 'dialog' : undefined}
+                                                    onClick={() => {
+                                                        if (session.role === 'student') {
+                                                            setSignOutOpen(true)
+                                                            return
+                                                        }
+                                                        void session.logout()
+                                                    }}
                                                 >
                                                     <LogOutIcon aria-hidden />
                                                 </SmoothButton>
@@ -160,6 +177,9 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
                 )}
             </RootShell>
             <AppearanceSettingsDialog />
+            {showStudentSignOutDialog ? (
+                <LiveSignOutDialog open={signOutOpen} onOpenChange={setSignOutOpen} />
+            ) : null}
         </>
     )
 }
