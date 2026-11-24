@@ -2,6 +2,7 @@
 
 import {
     CrownIcon,
+    DoorOpenIcon,
     EyeIcon,
     GraduationCapIcon,
     LogInIcon,
@@ -11,7 +12,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 
 import { LiveDashboard } from '@/components/live/LiveDashboard'
 import { ApiStatusCard } from '@/components/live/ApiStatusCard'
@@ -23,7 +24,7 @@ import SmoothButton from '@/components/smoothui/smooth-button'
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import { useSiteMode } from '@/components/SiteModeProvider'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -54,25 +55,15 @@ export function LiveHome() {
 }
 
 function ExamHome() {
+    const session = useLiveSession()
+    const inPreExam = session.phase === 'pre-exam'
+
     return (
-        <LivePage className="min-h-0 flex-1">
-            <div className="flex justify-center">
-                <Image
-                    alt="Exam on Jutge.org"
-                    className="h-auto w-96 max-w-full"
-                    height={384}
-                    priority
-                    src="/jutge/exam.png"
-                    width={384}
-                />
-            </div>
-            <Card className="w-full border border-border shadow-sm ring-0">
-                <CardContent className="flex justify-center p-5">
-                    <div className="flex w-full max-w-md flex-col gap-4">
-                        <LiveSignIn contest={false} polished className="w-full text-left" />
-                    </div>
-                </CardContent>
-            </Card>
+        <LivePage className={cn('min-h-0 flex-1', inPreExam && 'pt-24')}>
+            {inPreExam ? null : <LiveArenaHeroImage contest={false} />}
+            <LiveSignInCardShell contest={false} inPreExam={inPreExam}>
+                <LiveSignIn contest={false} polished className="w-full text-left" />
+            </LiveSignInCardShell>
             <ApiStatusCard className="mt-auto shrink-0" />
         </LivePage>
     )
@@ -80,21 +71,14 @@ function ExamHome() {
 
 function ContestHome() {
     const [tab, setTab] = useState<ContestTabId>('arena')
+    const session = useLiveSession()
+    const inPreExam = session.phase === 'pre-exam'
     const { reducedMotion } = useAppearancePreferences()
     const motionReduced = isMotionReduced(reducedMotion)
 
     return (
-        <LivePage className="min-h-0 flex-1">
-            <div className="flex justify-center">
-                <Image
-                    alt="Contest on Jutge.org"
-                    className={cn('h-auto w-96 max-w-full', !motionReduced && 'hover:animate-pulse')}
-                    height={384}
-                    priority
-                    src="/jutge/contest.png"
-                    width={384}
-                />
-            </div>
+        <LivePage className={cn('min-h-0 flex-1', inPreExam && 'pt-10')}>
+            {inPreExam ? null : <LiveArenaHeroImage contest motionReduced={motionReduced} />}
             <AnimatedTabs
                 activeTab={tab}
                 className="flex w-full"
@@ -110,13 +94,9 @@ function ContestHome() {
                 id={`${CONTEST_TABS_LAYOUT_ID}-panel-arena`}
                 role="tabpanel"
             >
-                <Card className="w-full border border-border shadow-sm ring-0">
-                    <CardContent className="flex justify-center p-5">
-                        <div className="flex w-full max-w-md flex-col gap-4">
-                            <LiveSignIn contest className="w-full text-left" />
-                        </div>
-                    </CardContent>
-                </Card>
+                <LiveSignInCardShell contest inPreExam={inPreExam}>
+                    <LiveSignIn contest className="w-full text-left" />
+                </LiveSignInCardShell>
             </div>
             <div
                 aria-labelledby={`${CONTEST_TABS_LAYOUT_ID}-tab-lounge`}
@@ -136,6 +116,73 @@ function ContestHome() {
     )
 }
 
+function LiveArenaHeroImage({
+    contest,
+    motionReduced = false,
+}: {
+    contest: boolean
+    motionReduced?: boolean
+}) {
+    return (
+        <div className="flex justify-center">
+            <Image
+                alt={contest ? 'Contest on Jutge.org' : 'Exam on Jutge.org'}
+                className={cn(
+                    'h-auto w-96 max-w-full',
+                    contest && !motionReduced && 'hover:animate-pulse',
+                )}
+                height={384}
+                priority
+                src={contest ? '/jutge/contest.png' : '/jutge/exam.png'}
+                width={384}
+            />
+        </div>
+    )
+}
+
+function LiveSignInCardShell({
+    contest,
+    inPreExam,
+    children,
+}: {
+    contest: boolean
+    inPreExam: boolean
+    children: ReactNode
+}) {
+    const card = (
+        <Card className="w-full border border-border shadow-sm ring-0">
+            {inPreExam ? (
+                <CardHeader className="border-b">
+                    <CardTitle className="w-full justify-center text-center">
+                        {contest ? 'Select contest' : 'Select exam'}
+                    </CardTitle>
+                </CardHeader>
+            ) : null}
+            <CardContent className="flex justify-center p-5">
+                <div className="flex w-full max-w-md flex-col gap-4">{children}</div>
+            </CardContent>
+        </Card>
+    )
+
+    if (!inPreExam) return card
+
+    return (
+        <div className="flex w-full flex-col items-center gap-6 md:flex-row md:items-start md:justify-center">
+            <div className="flex shrink-0 justify-center">
+                <Image
+                    alt="Select an exam or contest on Jutge.org"
+                    className="h-auto w-96 max-w-full"
+                    height={384}
+                    priority
+                    src="/jutge/select-exam.png"
+                    width={384}
+                />
+            </div>
+            <div className="w-full md:max-w-md">{card}</div>
+        </div>
+    )
+}
+
 function LiveSignIn({
     contest,
     polished = false,
@@ -146,6 +193,7 @@ function LiveSignIn({
     className?: string
 }) {
     const arenaStyle = contest || polished
+    const enterLabel = contest ? 'Enter contest' : 'Enter exam'
     const session = useLiveSession()
     const router = useRouter()
     const inPreExam = session.phase === 'pre-exam'
@@ -229,16 +277,21 @@ function LiveSignIn({
             >
                 <div className="flex flex-col gap-2">
                     {inPreExam ? (
-                        <p className="text-sm" id="live-greeting">
-                            Hello {session.name ?? email}{' '}
-                            <span className="inline-flex items-center gap-0.5 text-muted-foreground">
-                                ({email})
-                                <LiveAccountRoleIcons
-                                    administrator={session.administrator}
-                                    instructor={session.instructor}
-                                />
-                            </span>
-                        </p>
+                        <>
+                            <p className="text-sm" id="live-greeting">
+                                Welcome&nbsp;
+                                <span className="font-bold">{session.name ?? email}</span>.
+                                <span className="inline-flex items-center gap-0.5 text-muted-foreground">
+                                    <LiveAccountRoleIcons
+                                        administrator={session.administrator}
+                                        instructor={session.instructor}
+                                    />
+                                </span>
+                            </p>
+                            <p className="text-sm" id="live-greeting">
+                                Select your exam and enter its password.
+                            </p>
+                        </>
                     ) : (
                         <>
                             <Label htmlFor="live-email">Email</Label>
@@ -270,7 +323,7 @@ function LiveSignIn({
                 ) : null}
                 {inPreExam && readyExams ? (
                     <>
-                        <div className="flex flex-col gap-2">
+                        <div className="mt-2 flex flex-col gap-2">
                             <div className="relative pr-8">
                                 <Label htmlFor="live-exam">
                                     {contest ? 'Contest' : 'Exam'}
@@ -321,7 +374,8 @@ function LiveSignIn({
                 >
                     {arenaStyle ? (
                         <SmoothButton
-                            className="w-full"
+                            aria-label={inPreExam ? enterLabel : 'Sign in'}
+                            className="w-full mt-2 mb-2"
                             color="blue"
                             loading={pending}
                             type="submit"
@@ -329,8 +383,8 @@ function LiveSignIn({
                         >
                             {inPreExam ? (
                                 <>
-                                    <LogInIcon aria-hidden className="size-4" />
-                                    {contest ? 'Enter contest' : 'Enter exam'}
+                                    <DoorOpenIcon aria-hidden className="size-5" />
+                                    {enterLabel}
                                 </>
                             ) : (
                                 <>
@@ -340,14 +394,16 @@ function LiveSignIn({
                             )}
                         </SmoothButton>
                     ) : (
-                        <Button className={inPreExam ? 'w-full' : undefined} type="submit" disabled={pending}>
+                        <Button
+                            aria-label={inPreExam ? enterLabel : undefined}
+                            className={inPreExam ? 'w-full' : undefined}
+                            type="submit"
+                            disabled={pending}
+                        >
                             {pending ? (
                                 'Please wait…'
                             ) : inPreExam ? (
-                                <>
-                                    <LogInIcon aria-hidden className="size-4" />
-                                    {contest ? 'Enter contest' : 'Enter exam'}
-                                </>
+                                <DoorOpenIcon aria-hidden className="size-5" />
                             ) : (
                                 <>
                                     <LogInIcon aria-hidden className="size-4" />
@@ -359,8 +415,8 @@ function LiveSignIn({
                     {inPreExam ? (
                         arenaStyle ? (
                             <SmoothButton
-                                className="w-full"
-                                color="blue"
+                                className="w-full mb-2"
+                                color="destructive"
                                 disabled={pending}
                                 type="button"
                                 variant="candy"
