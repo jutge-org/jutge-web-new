@@ -9,7 +9,7 @@ import { SmoothDialogContent } from '@/components/smoothui/dialog/animated-conte
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { useSiteMode } from '@/components/SiteModeProvider'
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { finishLiveExam, liveErrorMessage } from '@/lib/data/liveExam'
+import { liveErrorMessage } from '@/lib/data/liveExam'
 
 export type LiveStudentDialogIntent = 'sign-out' | 'finish'
 
@@ -82,7 +82,7 @@ export function LiveSignOutDialog({
         setFinishPending(true)
         setError(null)
         try {
-            await finishLiveExam()
+            await session.finishExamAndSignOut()
         } catch (finishError: unknown) {
             setError(liveErrorMessage(finishError, `Could not finish the ${noun}.`))
             setFinishPending(false)
@@ -92,7 +92,6 @@ export function LiveSignOutDialog({
         setConfirmed(false)
         setFinishPending(false)
         onOpenChange(false)
-        await session.refresh()
     }
 
     const title = finish ? `Finish ${noun}` : 'Sign out'

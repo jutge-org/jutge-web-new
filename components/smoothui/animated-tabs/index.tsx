@@ -1,8 +1,9 @@
 'use client'
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { motion, useReducedMotion } from 'motion/react'
-import { type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 
 export interface AnimatedTabsProps {
     activeTab?: string
@@ -11,6 +12,7 @@ export interface AnimatedTabsProps {
     layoutId?: string
     onChange?: (tabId: string) => void
     tabs: { id: string; label: string; icon?: ReactNode }[]
+    hideLabels?: boolean
     variant?: 'underline' | 'pill' | 'segment'
 }
 
@@ -35,6 +37,7 @@ export default function AnimatedTabs({
     variant = 'underline',
     layoutId: customLayoutId,
     className,
+    hideLabels = false,
 }: AnimatedTabsProps) {
     const shouldReduceMotion = useReducedMotion()
     const generatedId = useId()
@@ -140,7 +143,8 @@ export default function AnimatedTabs({
                 isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             ],
             variant === 'segment' && [
-                'flex-1 gap-2 rounded-md px-4 py-2.5 text-center',
+                'flex-1 rounded-md text-center',
+                hideLabels ? 'gap-0 px-2 py-2' : 'gap-2 px-4 py-2.5',
                 isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             ],
         )
@@ -181,12 +185,12 @@ export default function AnimatedTabs({
             {tabs.map((tab, index) => {
                 const isActive = activeTab === tab.id
 
-                return (
+                const tabButton = (
                     <button
+                        aria-label={tab.label}
                         aria-selected={isActive}
                         className={getTabStyles(isActive)}
                         id={`${layoutId}-tab-${tab.id}`}
-                        key={tab.id}
                         onClick={() => handleTabChange(tab.id)}
                         onKeyDown={(e) => handleKeyDown(e, index)}
                         ref={(el) => {
@@ -197,9 +201,20 @@ export default function AnimatedTabs({
                         type="button"
                     >
                         {tab.icon}
-                        {tab.label}
+                        {hideLabels ? <span className="sr-only">{tab.label}</span> : tab.label}
                     </button>
                 )
+
+                if (hideLabels) {
+                    return (
+                        <Tooltip key={tab.id}>
+                            <TooltipTrigger asChild>{tabButton}</TooltipTrigger>
+                            <TooltipContent side="top">{tab.label}</TooltipContent>
+                        </Tooltip>
+                    )
+                }
+
+                return <Fragment key={tab.id}>{tabButton}</Fragment>
             })}
         </div>
     )

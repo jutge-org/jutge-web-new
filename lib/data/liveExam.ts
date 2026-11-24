@@ -4,7 +4,9 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 
 import jutge from '@/lib/jutge'
 import { saveFileWithDialog } from '@/lib/saveFileWithDialog'
-import type { Ranking, ReadyExam, RunningExam, StudentExamCourse } from '@/lib/jutge_api_client'
+import { fetchSubmissionsInRange } from '@/lib/data/submissions'
+import type { SubmissionRow } from '@/lib/submissions'
+import type { JutgeApiClient, Ranking, ReadyExam, RunningExam, StudentExamCourse } from '@/lib/jutge_api_client'
 import { NotFoundError, UnauthorizedError } from '@/lib/jutge_api_client'
 
 dayjs.extend(duration)
@@ -59,6 +61,14 @@ export async function probeLiveRole(): Promise<
 
 export async function refreshStudentExam(): Promise<RunningExam> {
     return jutge.student.exam.get()
+}
+
+export async function fetchLiveExamSubmissions(client: JutgeApiClient, exam: RunningExam): Promise<SubmissionRow[]> {
+    const start = exam.time_start ? new Date(exam.time_start) : new Date(exam.exp_time_start)
+    const end = new Date()
+    const problemNms = new Set(exam.problems.map((problem) => problem.problem_nm))
+    const rows = await fetchSubmissionsInRange(client, start, end)
+    return rows.filter((row) => problemNms.has(row.problem_nm)).sort((a, b) => b.time_inMs - a.time_inMs)
 }
 
 export async function refreshTutorStatus(): Promise<LiveTutorStatus> {
@@ -120,6 +130,12 @@ export function formatLiveDateTime(value: string | number): string {
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) return String(value)
     return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+}
+
+export function formatLiveTime24(value: string | number): string {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return String(value)
+    return dayjs(date).format('HH:mm:ss')
 }
 
 export function formatRunningTimeHuman(minutes: number): string {

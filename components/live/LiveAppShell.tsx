@@ -7,6 +7,7 @@ import { LiveBreadcrumbsInLayout } from '@/app/LiveBreadcrumbsInLayout'
 import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
 import { LiveAuthToolbar } from '@/components/live/LiveAuthToolbar'
 import { LiveExamWidgetToolbarButton } from '@/components/live/LiveExamWidgetToolbarButton'
+import { ExamFloatingWidgetNavHost } from '@/components/live/ExamFloatingWidgetNavHost'
 import { LiveUnavailable } from '@/components/live/LiveChrome'
 import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
 import { LayoutWidthContainer } from '@/components/layout/LayoutWidthContainer'
@@ -28,6 +29,7 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
 
     return (
         <>
+            <ExamFloatingWidgetNavHost />
             <RootShell
                 header={
                     <header className="sticky top-0 z-50 border-b border-border bg-background">

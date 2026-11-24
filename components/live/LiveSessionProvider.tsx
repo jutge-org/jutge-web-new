@@ -24,6 +24,7 @@ import {
 } from '@/lib/data/liveAuth'
 import {
     filterReadyExams,
+    finishLiveExam,
     isLiveAuthFailure,
     liveErrorMessage,
     probeLiveRole,
@@ -31,6 +32,7 @@ import {
 } from '@/lib/data/liveExam'
 import type { CredentialsOut, Profile, ReadyExam, RunningExam } from '@/lib/jutge_api_client'
 import { profileToSessionUser } from '@/lib/session'
+import { closeExamFloatingWidget } from '@/lib/openExamFloatingWidget'
 import { applyLiveApiClient } from '@/lib/siteMode'
 
 export type LiveRole = 'student' | 'tutor'
@@ -59,6 +61,7 @@ export type LiveSessionValue = {
     enterExam(input: { exam: string; exam_password: string }): Promise<SignInResult>
     cancelPreExam(): void
     logout(): Promise<void>
+    finishExamAndSignOut(): Promise<void>
 }
 
 const LiveSessionContext = createContext<LiveSessionValue | null>(null)
@@ -291,6 +294,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         const token = jutge.meta?.token
         const userUid = jutge.meta?.user_uid ?? ''
 
+        closeExamFloatingWidget()
         clearStoredSession()
         jutge.meta = null
         jutge.clearCache()
@@ -313,6 +317,11 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         }
     }, [clearLiveRoleState, clearPreExam, router])
 
+    const finishExamAndSignOut = useCallback(async () => {
+        await finishLiveExam()
+        await logout()
+    }, [logout])
+
     const value = useMemo<LiveSessionValue>(
         () => ({
             loading,
@@ -334,6 +343,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             enterExam,
             cancelPreExam,
             logout,
+            finishExamAndSignOut,
         }),
         [
             loading,
@@ -354,6 +364,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             enterExam,
             cancelPreExam,
             logout,
+            finishExamAndSignOut,
         ],
     )
 

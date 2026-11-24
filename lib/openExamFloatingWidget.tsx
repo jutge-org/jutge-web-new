@@ -1,6 +1,7 @@
 'use client'
 
 import { EXAM_FLOATING_WIDGET_SIZE_PX, ExamFloatingWidget } from '@/components/live/ExamFloatingWidget'
+import { notifyExamFloatingWidgetClose } from '@/lib/examFloatingWidget'
 import { createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
@@ -82,6 +83,18 @@ function openPopupFallback(): void {
     }
 
     popupWindow = opened
+}
+
+export function closeExamFloatingWidget(): void {
+    notifyExamFloatingWidgetClose()
+    if (popupWindow && !popupWindow.closed) {
+        popupWindow.close()
+    }
+    popupWindow = null
+    if (pipWindow && !pipWindow.closed) {
+        pipWindow.close()
+    }
+    teardownPip()
 }
 
 export async function openExamFloatingWidget(): Promise<void> {

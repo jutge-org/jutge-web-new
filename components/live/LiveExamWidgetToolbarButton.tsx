@@ -11,7 +11,7 @@ import { PictureInPicture2Icon } from 'lucide-react'
 export function LiveExamWidgetToolbarButton() {
     const site = useSiteMode()
     const session = useLiveSession()
-    const label = site.kind === 'contest' ? 'Contest widget' : 'Exam widget'
+    const label = site.kind === 'contest' ? 'Contest floating widget' : 'Exam floating widget'
 
     if (!session.authenticated) return null
 

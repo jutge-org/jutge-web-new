@@ -6,13 +6,12 @@ import { useState } from 'react'
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Button } from '@/components/ui/button'
-import { finishLiveExam, liveErrorMessage } from '@/lib/data/liveExam'
+import { liveErrorMessage } from '@/lib/data/liveExam'
 
 export function LiveFinishPage() {
     const session = useLiveSession()
     const [confirmed, setConfirmed] = useState(false)
     const [pending, setPending] = useState(false)
-    const [done, setDone] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     if (session.loading) return <LiveSpinner />
@@ -25,17 +24,6 @@ export function LiveFinishPage() {
             </LivePage>
         )
     }
-    if (done) {
-        return (
-            <LivePage title="Finished">
-                <LiveNotice>You have finished. You can sign out when you are ready.</LiveNotice>
-                <Button type="button" onClick={() => void session.logout()}>
-                    Sign out
-                </Button>
-            </LivePage>
-        )
-    }
-
     return (
         <LivePage title="Finish exam">
             <p>Finishing closes your access to this exam. This cannot be undone from this page.</p>
@@ -47,8 +35,8 @@ export function LiveFinishPage() {
                     if (!confirmed) return
                     setPending(true)
                     setError(null)
-                    void finishLiveExam()
-                        .then(() => setDone(true))
+                    void session
+                        .finishExamAndSignOut()
                         .catch((finishError: unknown) => {
                             setError(liveErrorMessage(finishError, 'Could not finish the exam.'))
                             setPending(false)

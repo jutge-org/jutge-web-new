@@ -18,8 +18,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useAuth } from '@/components/AuthProvider'
 import { useSiteMode } from '@/components/SiteModeProvider'
 import { dispatchOpenAppearanceSettings } from '@/lib/appearanceSettings'
+import { openExamFloatingWidget } from '@/lib/openExamFloatingWidget'
 import Link from 'next/link'
-import { CrownIcon, FlagIcon, GraduationCapIcon, LogOut as SignOut, Settings2Icon, User } from 'lucide-react'
+import {
+    CrownIcon,
+    FlagIcon,
+    GraduationCapIcon,
+    LogOut as SignOut,
+    PictureInPicture2Icon,
+    Settings2Icon,
+    User,
+} from 'lucide-react'
 
 export function LiveAuthToolbar() {
     const site = useSiteMode()
@@ -28,6 +37,7 @@ export function LiveAuthToolbar() {
     const [dialogOpen, setDialogOpen] = useState(false)
     const [dialogIntent, setDialogIntent] = useState<LiveStudentDialogIntent>('sign-out')
     const noun = site.kind === 'contest' ? 'contest' : 'exam'
+    const floatingWidgetLabel = ' Floating widget'
     const isStudent = session.role === 'student'
 
     if (!session.authenticated) return null
@@ -91,6 +101,14 @@ export function LiveAuthToolbar() {
                             <User aria-hidden />
                             Profile
                         </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => {
+                            void openExamFloatingWidget()
+                        }}
+                    >
+                        <PictureInPicture2Icon aria-hidden />
+                        {floatingWidgetLabel}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={dispatchOpenAppearanceSettings}>
                         <Settings2Icon aria-hidden />
