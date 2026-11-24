@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
+import { ExamSubmissionsTable } from '@/components/exams/ExamSubmissionsTable'
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { LiveExamDocumentsGrid } from '@/components/live/LiveExamDocumentsGrid'
 import { LiveExamProblemsCards } from '@/components/live/LiveExamProblemsGrid'
@@ -10,8 +11,10 @@ import { LivePreStartCard } from '@/components/live/LivePreStartCard'
 import { LiveStudentExamYamlCard } from '@/components/live/LiveStudentExamYamlCard'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Button } from '@/components/ui/button'
-import { examHasStarted, formatClock, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
+import { Card, CardContent } from '@/components/ui/card'
+import { examHasStarted, fetchLiveExamSubmissions, formatClock, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
 import jutge from '@/lib/jutge'
+import type { SubmissionRow } from '@/lib/submissions'
 import type { RunningExam } from '@/lib/jutge_api_client'
 
 function useNow(enabled: boolean): number {
@@ -132,10 +135,30 @@ function StudentExamSections({
     docError: string | null
     setDocError: (value: string | null) => void
 }) {
+    const [submissions, setSubmissions] = useState<SubmissionRow[] | undefined>(undefined)
     const documents = useMemo(
         () => [...exam.documents].sort((a, b) => a.title.localeCompare(b.title)),
         [exam.documents],
     )
+
+    useEffect(() => {
+        let cancelled = false
+
+        async function loadSubmissions() {
+            const rows = await fetchLiveExamSubmissions(jutge, exam)
+            if (!cancelled) setSubmissions(rows)
+        }
+
+        void loadSubmissions()
+        const timer = window.setInterval(() => {
+            void loadSubmissions()
+        }, 10_000)
+
+        return () => {
+            cancelled = true
+            window.clearInterval(timer)
+        }
+    }, [exam])
 
     return (
         <>
@@ -144,6 +167,22 @@ function StudentExamSections({
                     Problems
                 </h2>
                 <LiveExamProblemsCards exam={exam} />
+            </section>
+            <section className="flex flex-col gap-4" aria-labelledby="live-submissions-heading">
+                <h2 id="live-submissions-heading" className="text-lg font-medium">
+                    Submissions
+                </h2>
+                {submissions === undefined ? (
+                    <LiveSpinner label="Loading submissions…" />
+                ) : submissions.length > 0 ? (
+                    <Card className="gap-0 overflow-hidden pt-0 pb-0 ring-0 border border-border shadow-sm">
+                        <CardContent className="p-0">
+                            <ExamSubmissionsTable submissions={submissions} />
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <p className="text-sm text-muted-foreground">No submissions yet.</p>
+                )}
             </section>
             {documents.length > 0 ? (
                 <section className="flex flex-col gap-4" aria-labelledby="live-documents-heading">
