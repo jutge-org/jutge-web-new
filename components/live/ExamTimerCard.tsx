@@ -5,7 +5,6 @@ import { CheckIcon, ClockIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState, type ReactNode } from 'react'
 
-import { Button } from '@/components/ui/button'
 import { examElapsedProgress, examStartedAtMs, formatClock, formatRemainingHuman } from '@/lib/data/liveExam'
 import {
     DEFAULT_REDUCED_MOTION,
@@ -87,11 +86,11 @@ function PhaseTrack({ phase }: { phase: TimerPhase }) {
                         'h-1 flex-1 rounded-full',
                         index < filled
                             ? phase === 'finished'
-                                ? 'bg-blue-500'
+                                ? 'bg-destructive-ink'
                                 : phase === 'running'
-                                  ? 'bg-emerald-500'
-                                  : 'bg-foreground/40'
-                            : 'bg-foreground/10',
+                                  ? 'bg-blue'
+                                  : 'bg-smooth-600'
+                            : 'bg-smooth-300 dark:bg-smooth-400',
                     )}
                 />
             ))}
@@ -110,7 +109,7 @@ function TimerStatusPill({ phase, urgent }: { phase: TimerPhase; urgent: boolean
     }
     if (phase === 'finished') {
         return (
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2.5 py-1 text-xs font-medium text-destructive-ink">
                 <CheckIcon className="size-3.5 shrink-0" aria-hidden />
                 Finished
             </p>
@@ -121,14 +120,14 @@ function TimerStatusPill({ phase, urgent }: { phase: TimerPhase; urgent: boolean
             className={cn(
                 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
                 urgent
-                    ? 'bg-amber-500/15 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300'
-                    : 'bg-emerald-500/15 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300',
+                    ? 'bg-destructive/15 text-destructive dark:text-destructive'
+                    : 'bg-blue/15 text-blue-ink',
             )}
         >
             <span
                 className={cn(
                     'size-1.5 shrink-0 animate-pulse rounded-full',
-                    urgent ? 'bg-amber-400' : 'bg-emerald-400',
+                    urgent ? 'bg-destructive' : 'bg-blue',
                 )}
                 aria-hidden
             />
@@ -140,12 +139,12 @@ function TimerStatusPill({ phase, urgent }: { phase: TimerPhase; urgent: boolean
 function TimerRing({
     variant,
     progress = 0,
-    arcAmber = false,
+    arcUrgent = false,
     dashedPulse = false,
 }: {
     variant: 'dashed' | 'drain' | 'full'
     progress?: number
-    arcAmber?: boolean
+    arcUrgent?: boolean
     dashedPulse?: boolean
 }) {
     const center = RING_SIZE / 2
@@ -167,7 +166,7 @@ function TimerRing({
                     strokeWidth={5}
                     strokeLinecap="round"
                     strokeDasharray={`1 ${dotGap - 1}`}
-                    className={cn('text-zinc-400', dashedPulse && 'animate-pulse')}
+                    className={cn('text-smooth-600 dark:text-smooth-700', dashedPulse && 'animate-pulse')}
                 />
             ) : null}
             {variant === 'drain' ? (
@@ -187,7 +186,9 @@ function TimerRing({
                             <circle
                                 {...circle}
                                 fill="none"
-                                stroke={arcAmber ? 'var(--color-amber-400, #fbbf24)' : 'var(--color-emerald-500, #10b981)'}
+                                stroke={
+                                    arcUrgent ? 'var(--color-destructive)' : 'var(--color-blue)'
+                                }
                                 strokeWidth={RING_STROKE}
                                 strokeLinecap={elapsed > 0.985 ? 'butt' : 'round'}
                                 strokeDasharray={`${arcLength} ${RING_CIRCUMFERENCE}`}
@@ -198,7 +199,7 @@ function TimerRing({
                 </>
             ) : null}
             {variant === 'full' ? (
-                <circle {...circle} stroke="currentColor" strokeWidth={RING_STROKE} className="text-blue-500" />
+                <circle {...circle} stroke="currentColor" strokeWidth={RING_STROKE} className="text-destructive-ink" />
             ) : null}
         </svg>
     )
@@ -207,19 +208,19 @@ function TimerRing({
 function TimerFace({
     variant,
     progress,
-    arcAmber,
+    arcUrgent,
     dashedPulse,
     children,
 }: {
     variant: 'dashed' | 'drain' | 'full'
     progress?: number
-    arcAmber?: boolean
+    arcUrgent?: boolean
     dashedPulse?: boolean
     children: ReactNode
 }) {
     return (
         <div className="relative shrink-0" style={{ width: RING_SIZE, height: RING_SIZE }}>
-            <TimerRing variant={variant} progress={progress} arcAmber={arcAmber} dashedPulse={dashedPulse} />
+            <TimerRing variant={variant} progress={progress} arcUrgent={arcUrgent} dashedPulse={dashedPulse} />
             <div className="absolute inset-0 flex items-center justify-center px-3 text-center">{children}</div>
         </div>
     )
@@ -273,7 +274,7 @@ function FooterTimeMark({ label, value, showsDate }: { label: string; value: str
 
 function ViewConfirmationControl({ action }: { action: ExamTimerAction }) {
     const className =
-        'text-sm font-medium text-blue-600 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-blue-400'
+        'text-sm font-medium text-blue-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
     if ('href' in action) {
         return (
             <Link href={action.href} className={className}>
@@ -315,7 +316,7 @@ export function ExamTimerCard({
     const remainingMs = Math.max(0, finishMs - now)
     const urgent = phase === 'running' && remainingMs <= HURRY_REMAINING_MS
     const elapsedProgress = examElapsedProgress(exam, finishMs, now)
-    const ringArcAmber = phase === 'running' && remainingMs <= HUMAN_REMAINING_MS
+    const ringArcUrgent = phase === 'running' && remainingMs <= HUMAN_REMAINING_MS
     const proofMs = submittedAtMs ?? finishMs
     const proofLabel = formatInstantMark(proofMs, now)
     const proofShowsDate = instantMarkShowsDate(proofMs, now)
@@ -362,13 +363,13 @@ export function ExamTimerCard({
                     </TimerFace>
                 ) : null}
                 {phase === 'running' ? (
-                    <TimerFace variant="drain" progress={elapsedProgress} arcAmber={ringArcAmber}>
+                    <TimerFace variant="drain" progress={elapsedProgress} arcUrgent={ringArcUrgent}>
                         <TimeReadout
                             value={runningDisplay}
                             spoken={runningSpoken}
                             caption={urgent ? 'left, hurry up' : 'remaining'}
                             captionClassName={
-                                urgent ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'
+                                urgent ? 'text-destructive' : 'text-muted-foreground'
                             }
                             valueClassName={showHumanRemaining ? 'max-w-[7.5rem] text-lg' : undefined}
                         />
@@ -377,7 +378,7 @@ export function ExamTimerCard({
                 {phase === 'finished' ? (
                     <TimerFace variant="full">
                         <div className="flex flex-col items-center gap-1">
-                            <CheckIcon className="size-7 text-blue-500" strokeWidth={2.25} aria-hidden />
+                            <CheckIcon className="size-7 text-destructive-ink" strokeWidth={2.25} aria-hidden />
                             <p className="sr-only">Submitted at {proofLabel}</p>
                             <p
                                 className={cn(
