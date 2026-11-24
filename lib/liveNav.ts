@@ -1,4 +1,5 @@
-import { examHasStarted } from '@/lib/data/liveExam'
+import { examStatus } from '@/lib/data/liveExam'
+import type { RunningExam } from '@/lib/jutge_api_client'
 import { siteBrand, type SiteKind } from '@/lib/siteMode'
 import type { MainBreadcrumbSegment } from '@/store/MainBreadcrumbs'
 
@@ -74,9 +75,9 @@ export function liveFallbackBreadcrumbs(
 export function liveNavItemsForSession(
     kind: SiteKind,
     role: 'student' | 'tutor' | null,
-    exam: Parameters<typeof examHasStarted>[0],
+    exam: RunningExam | null,
 ): LiveNavItem[] {
-    return liveNavItems(kind, role, examHasStarted(exam))
+    return liveNavItems(kind, role, examStatus(exam) !== 'waiting')
 }
 
 export function liveSiteBrand(kind: SiteKind): string {

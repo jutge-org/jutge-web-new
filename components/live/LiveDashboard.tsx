@@ -13,8 +13,7 @@ import { LiveStudentExamYamlCard } from '@/components/live/LiveStudentExamYamlCa
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { examTimerFinished, finishTimeMs } from '@/hooks/useExamFloatingWidgetSession'
-import { examHasStarted, fetchLiveExamSubmissions, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
+import { examStatus, fetchLiveExamSubmissions, finishTimeMs, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
 import jutge from '@/lib/jutge'
 import type { SubmissionRow } from '@/lib/submissions'
 import type { RunningExam } from '@/lib/jutge_api_client'
@@ -36,10 +35,11 @@ export function LiveDashboard() {
     const [starting, setStarting] = useState(false)
     const [submissions, setSubmissions] = useState<SubmissionRow[] | undefined>(undefined)
     const studentExam = session.role === 'student' ? session.exam : null
-    const started = examHasStarted(studentExam)
+    const status = studentExam ? examStatus(studentExam, now) : 'waiting'
+    const started = status !== 'waiting'
 
     useEffect(() => {
-        if (!session.authenticated || session.role !== 'student' || examHasStarted(session.exam)) return
+        if (!session.authenticated || session.role !== 'student' || examStatus(session.exam) !== 'waiting') return
         const timer = window.setInterval(() => {
             void session.refresh()
         }, 10_000)
@@ -116,7 +116,7 @@ export function LiveDashboard() {
     if (!exam) return <LiveSpinner label="Loading exam…" />
 
     const finishMs = finishTimeMs(exam, null)
-    const finished = examTimerFinished(exam, null, now)
+    const finished = examStatus(exam, now) === 'finished'
     const submittedAtMs = submissions?.[0]?.time_inMs ?? null
 
     return (

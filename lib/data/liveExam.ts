@@ -7,8 +7,10 @@ import { saveFileWithDialog } from '@/lib/saveFileWithDialog'
 import { fetchSubmissionsInRange } from '@/lib/data/submissions'
 import type { SubmissionRow } from '@/lib/submissions'
 import { isDocumentZip } from '@/lib/instructor/documents'
+import { getExamStatus } from '@/lib/exams'
 import type {
     Download,
+    Exam,
     JutgeApiClient,
     Ranking,
     ReadyExam,
@@ -144,8 +146,26 @@ export async function fetchExamStatistics() {
     return jutge.tutor.examctl.getStatistics()
 }
 
-export function examHasStarted(exam: RunningExam | null): boolean {
-    return exam?.time_start != null
+export type LiveExamStatus = 'waiting' | 'running' | 'finished'
+
+export function finishTimeMs(exam: RunningExam, meta: Exam | null): number {
+    if (meta?.time_end) {
+        return new Date(meta.time_end).getTime()
+    }
+    const startMs = exam.time_start ? new Date(exam.time_start).getTime() : new Date(exam.exp_time_start).getTime()
+    return startMs + (exam.running_time + exam.extra_minutes) * 60_000
+}
+
+export function examStatus(
+    exam: RunningExam | null,
+    now: number = Date.now(),
+    meta: Exam | null = null,
+): LiveExamStatus {
+    if (!exam) return 'waiting'
+    if (meta && getExamStatus(meta).tone === 'finished') return 'finished'
+    if (exam.time_start == null) return 'waiting'
+    if (finishTimeMs(exam, meta) <= now) return 'finished'
+    return 'running'
 }
 
 export function examStartedAtMs(exam: RunningExam): number {

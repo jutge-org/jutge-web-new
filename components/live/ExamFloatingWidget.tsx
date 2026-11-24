@@ -9,8 +9,8 @@ import { ProblemStatusIcon } from '@/components/problems/ProblemStatusIcon'
 import { CompactClock } from '@/components/utilities/CompactClock'
 import { ExamTimerCard } from '@/components/live/ExamTimerCard'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { examTimerFinished, finishTimeMs, useExamFloatingWidgetSession } from '@/hooks/useExamFloatingWidgetSession'
-import { downloadExamDocument, examHasStarted, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
+import { useExamFloatingWidgetSession } from '@/hooks/useExamFloatingWidgetSession'
+import { downloadExamDocument, examStatus, finishTimeMs, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
 import { documentTypeLabel, getDocumentFileIcon } from '@/lib/instructor/documents'
 import { requestExamFloatingWidgetNavigation } from '@/lib/examFloatingWidget'
 import type { SubmissionRow } from '@/lib/submissions'
@@ -381,11 +381,10 @@ export function ExamFloatingWidget() {
     const [tab, setTab] = useState<TabId>('timer')
     const session = useExamFloatingWidgetSession()
     const now = useNow(!session.loading)
-    const started = session.exam ? examHasStarted(session.exam) : false
+    const liveStatus = session.exam ? examStatus(session.exam, now, session.examMeta) : 'waiting'
+    const started = liveStatus !== 'waiting'
     const finishMs = session.exam ? finishTimeMs(session.exam, session.examMeta) : 0
-    const finished = session.exam
-        ? session.examFinished || examTimerFinished(session.exam, session.examMeta, now)
-        : false
+    const finished = liveStatus === 'finished' || session.examFinished
 
     let panel: ReactNode = null
     if (session.loading) {

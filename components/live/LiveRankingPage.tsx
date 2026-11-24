@@ -8,7 +8,7 @@ import { LiveRankingTable } from '@/components/live/LiveRankingTable'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { useSiteMode } from '@/components/SiteModeProvider'
 import { Button } from '@/components/ui/button'
-import { examHasStarted, fetchStudentRanking, fetchTutorRanking, liveErrorMessage } from '@/lib/data/liveExam'
+import { examStatus, fetchStudentRanking, fetchTutorRanking, liveErrorMessage } from '@/lib/data/liveExam'
 import type { Ranking } from '@/lib/jutge_api_client'
 
 export function LiveRankingPage() {
@@ -19,7 +19,8 @@ export function LiveRankingPage() {
     const [loading, setLoading] = useState(false)
 
     const canLoad =
-        session.role === 'tutor' || (site.kind === 'contest' && session.role === 'student' && examHasStarted(session.exam))
+        session.role === 'tutor' ||
+        (site.kind === 'contest' && session.role === 'student' && examStatus(session.exam) !== 'waiting')
 
     useEffect(() => {
         if (!canLoad) return
@@ -58,7 +59,7 @@ export function LiveRankingPage() {
             </LivePage>
         )
     }
-    if (session.role === 'student' && !examHasStarted(session.exam)) {
+    if (session.role === 'student' && examStatus(session.exam) === 'waiting') {
         return (
             <LivePage title="Ranking">
                 <LiveNotice>The ranking is not available yet.</LiveNotice>

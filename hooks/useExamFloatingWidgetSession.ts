@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 import { EXAM_FLOATING_WIDGET_CLOSE_CHANNEL } from '@/lib/examFloatingWidget'
 import {
-    examHasStarted,
+    examStatus,
     fetchLiveExamSubmissions,
     isLiveAuthFailure,
     probeLiveRole,
@@ -14,7 +14,6 @@ import {
 } from '@/lib/data/liveExam'
 import { LIVE_SESSION_STORAGE, validateLiveSessionToken } from '@/lib/data/liveAuth'
 import { fetchStudentProblemStatuses } from '@/lib/data/problems'
-import { getExamStatus } from '@/lib/exams'
 import jutge from '@/lib/jutge'
 import type { SubmissionRow } from '@/lib/submissions'
 import type { AbstractStatus, Exam, PublicProfile, RunningExam } from '@/lib/jutge_api_client'
@@ -109,7 +108,7 @@ export function useExamFloatingWidgetSession(): ExamFloatingWidgetSession {
                     const title = detail.course?.title?.trim()
                     if (title) setCourseTitle(title)
                 }
-                setExamFinished(getExamStatus(detail).tone === 'finished')
+                setExamFinished(examStatus(studentExam, Date.now(), detail) === 'finished')
             } catch {
                 if (!cancelled) setExamMeta(null)
             }
@@ -192,20 +191,4 @@ export function useExamFloatingWidgetSession(): ExamFloatingWidgetSession {
         problemStatuses,
         submissions,
     }
-}
-
-export function finishTimeMs(exam: RunningExam, meta: Exam | null): number {
-    if (meta?.time_end) {
-        return new Date(meta.time_end).getTime()
-    }
-    const startMs = exam.time_start ? new Date(exam.time_start).getTime() : new Date(exam.exp_time_start).getTime()
-    return startMs + (exam.running_time + exam.extra_minutes) * 60_000
-}
-
-export function examTimerFinished(exam: RunningExam, meta: Exam | null, now: number): boolean {
-    if (meta) {
-        return getExamStatus(meta).tone === 'finished'
-    }
-    if (!examHasStarted(exam)) return false
-    return finishTimeMs(exam, meta) <= now
 }
