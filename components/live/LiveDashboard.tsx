@@ -243,22 +243,6 @@ function StudentExamSections({
                 </LiveSectionHeading>
                 <LiveExamProblemsCards exam={exam} />
             </section>
-            <section className="flex flex-col gap-4" aria-labelledby="live-submissions-heading">
-                <LiveSectionHeading id="live-submissions-heading" href="/submissions">
-                    Submissions
-                </LiveSectionHeading>
-                {submissions === undefined ? (
-                    <LiveSpinner label="Loading submissions…" />
-                ) : submissions.length > 0 ? (
-                    <Card className="gap-0 overflow-x-auto border border-border pt-0 pb-0 shadow-sm ring-0">
-                        <CardContent className="p-0">
-                            <ExamSubmissionsTable submissions={submissions} />
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <p className="text-sm text-muted-foreground">No submissions yet.</p>
-                )}
-            </section>
             {documents.length > 0 ? (
                 <section className="flex flex-col gap-4" aria-labelledby="live-documents-heading">
                     <LiveSectionHeading id="live-documents-heading" href="/documents">
@@ -266,6 +250,18 @@ function StudentExamSections({
                     </LiveSectionHeading>
                     {docError ? <LiveNotice>{docError}</LiveNotice> : null}
                     <LiveExamDocumentsGrid documents={documents} onError={setDocError} />
+                </section>
+            ) : null}
+            {submissions && submissions.length > 0 ? (
+                <section className="flex flex-col gap-4" aria-labelledby="live-submissions-heading">
+                    <LiveSectionHeading id="live-submissions-heading" href="/submissions">
+                        Submissions
+                    </LiveSectionHeading>
+                    <Card className="gap-0 overflow-x-auto border border-border pt-0 pb-0 shadow-sm ring-0">
+                        <CardContent className="p-0">
+                            <ExamSubmissionsTable submissions={submissions} />
+                        </CardContent>
+                    </Card>
                 </section>
             ) : null}
         </>
