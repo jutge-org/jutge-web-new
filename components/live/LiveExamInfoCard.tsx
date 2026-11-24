@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { MarkdownText } from '@/components/general/MarkdownText'
 import SmoothButton from '@/components/smoothui/smooth-button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import {
     type LiveExamStatus,
@@ -115,21 +115,26 @@ export function LiveExamInfoCard({
 
     return (
         <Card className={cn('w-full overflow-hidden rounded-2xl border border-border py-0 shadow-sm ring-0', className)}>
-            <CardHeader className="border-b border-border bg-muted/60 px-4 py-3 sm:px-5">
-                <CardTitle
-                    id={headingId}
-                    className="text-lg font-semibold tracking-tight text-foreground"
-                >
-                    {exam.title}
-                </CardTitle>
-                {courseTitle ? (
-                    <p className="mt-0.5 text-sm font-medium text-muted-foreground">{courseTitle}</p>
-                ) : null}
-            </CardHeader>
             <CardContent className="px-4 py-4 sm:px-5 sm:py-5">
                 <table className="w-full border-collapse [&_td]:py-1.5 [&_th]:py-1.5">
                     <caption className="sr-only">Exam details</caption>
                     <tbody>
+                        <tr>
+                            <th scope="row" className={LABEL_CLASS} aria-hidden />
+                            <td className={VALUE_CLASS}>
+                                <h2
+                                    id={headingId}
+                                    className="text-lg font-semibold tracking-tight text-foreground"
+                                >
+                                    {exam.title}
+                                </h2>
+                                {courseTitle ? (
+                                    <p className="mt-0.5 text-sm font-medium text-muted-foreground">
+                                        {courseTitle}
+                                    </p>
+                                ) : null}
+                            </td>
+                        </tr>
                         {rows.map((row) => (
                             <DataRow key={row.label} label={row.label} value={row.value} live={row.live} />
                         ))}

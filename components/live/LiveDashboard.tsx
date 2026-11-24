@@ -8,7 +8,7 @@ import { ExamTimerCard } from '@/components/live/ExamTimerCard'
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { LiveExamDocumentsSection } from '@/components/live/LiveExamDocumentsSection'
 import { LiveExamProblemsCards } from '@/components/live/LiveExamProblemsSection'
-import { LiveExamInfoCard } from '@/components/live/LivePreStartCard'
+import { LiveExamInfoCard } from '@/components/live/LiveExamInfoCard'
 import { LiveSectionHeading } from '@/components/live/LiveSectionHeading'
 import {
     SmoothCollapsible,
