@@ -61,14 +61,19 @@ function speakDuration(ms: number): string {
     return parts.join(' ')
 }
 
+function instantMarkShowsDate(ms: number, now: number): boolean {
+    if (!Number.isFinite(ms)) return false
+    return !dayjs(ms).isSame(dayjs(now), 'day')
+}
+
 /** Wall-clock labels: date iff not today; seconds iff within five minutes of `now`. */
 function formatInstantMark(ms: number, now: number): string {
     if (!Number.isFinite(ms)) return '—'
     const date = dayjs(ms)
     const nearNow = Math.abs(ms - now) < HURRY_REMAINING_MS
     const time = date.format(nearNow ? 'HH:mm:ss' : 'HH:mm')
-    if (date.isSame(dayjs(now), 'day')) return time
-    return `${date.format('YYYY-MM-DD')}, ${time}`
+    if (!instantMarkShowsDate(ms, now)) return time
+    return `${date.format('YYYY-MM-DD')} ${time}`
 }
 
 function PhaseTrack({ phase }: { phase: TimerPhase }) {
@@ -250,11 +255,18 @@ function TimeReadout({
     )
 }
 
-function FooterTimeMark({ label, value }: { label: string; value: string }) {
+function FooterTimeMark({ label, value, showsDate }: { label: string; value: string; showsDate: boolean }) {
     return (
         <div className="flex min-w-0 flex-col items-center gap-0.5 text-center">
             <span className="text-xs font-medium text-muted-foreground">{label}</span>
-            <span className="text-xs font-medium whitespace-nowrap tabular-nums text-foreground sm:text-sm">{value}</span>
+            <span
+                className={cn(
+                    'font-medium tabular-nums text-foreground',
+                    showsDate ? 'text-[10px] leading-tight whitespace-nowrap' : 'text-xs whitespace-nowrap sm:text-sm',
+                )}
+            >
+                {value}
+            </span>
         </div>
     )
 }
@@ -306,7 +318,9 @@ export function ExamTimerCard({
     const ringArcAmber = phase === 'running' && remainingMs <= HUMAN_REMAINING_MS
     const proofMs = submittedAtMs ?? finishMs
     const proofLabel = formatInstantMark(proofMs, now)
+    const proofShowsDate = instantMarkShowsDate(proofMs, now)
     const expectedStartLabel = formatInstantMark(opensAtMs, now)
+    const expectedStartShowsDate = instantMarkShowsDate(opensAtMs, now)
     const startDelayed = phase === 'waiting' && now > opensAtMs
     const motionReduced = useTimerReducedMotion()
     const waitingDotsPulse = phase === 'waiting' && !motionReduced
@@ -315,7 +329,9 @@ export function ExamTimerCard({
     const runningSpoken = showHumanRemaining ? `${runningDisplay} remaining` : speakDuration(remainingMs)
     const startedAtMs = examStartedAtMs(exam)
     const runningStartLabel = formatInstantMark(startedAtMs, now)
+    const runningStartShowsDate = instantMarkShowsDate(startedAtMs, now)
     const runningEndLabel = formatInstantMark(finishMs, now)
+    const runningEndShowsDate = instantMarkShowsDate(finishMs, now)
 
     return (
         <div className={cn('flex min-h-0 flex-1 flex-col', className)}>
@@ -365,8 +381,8 @@ export function ExamTimerCard({
                             <p className="sr-only">Submitted at {proofLabel}</p>
                             <p
                                 className={cn(
-                                    'font-bold leading-none tracking-tight text-foreground tabular-nums',
-                                    proofLabel.length > 5 ? 'text-sm' : 'text-xl',
+                                    'max-w-[7.25rem] font-bold leading-tight tracking-tight text-foreground tabular-nums',
+                                    proofShowsDate ? 'text-[10px]' : 'text-xl',
                                 )}
                                 aria-hidden
                             >
@@ -387,7 +403,11 @@ export function ExamTimerCard({
             >
                 {phase === 'waiting' ? (
                     <div className="flex w-full justify-center" aria-label={`Expected start time ${expectedStartLabel}`}>
-                        <FooterTimeMark label="Expected start time" value={expectedStartLabel} />
+                        <FooterTimeMark
+                            label="Expected start time"
+                            showsDate={expectedStartShowsDate}
+                            value={expectedStartLabel}
+                        />
                     </div>
                 ) : null}
                 {phase === 'running' ? (
@@ -396,8 +416,8 @@ export function ExamTimerCard({
                         role="group"
                         aria-label={`Start time ${runningStartLabel}, end time ${runningEndLabel}`}
                     >
-                        <FooterTimeMark label="Start time" value={runningStartLabel} />
-                        <FooterTimeMark label="End time" value={runningEndLabel} />
+                        <FooterTimeMark label="Start time" showsDate={runningStartShowsDate} value={runningStartLabel} />
+                        <FooterTimeMark label="End time" showsDate={runningEndShowsDate} value={runningEndLabel} />
                     </div>
                 ) : null}
                 {phase === 'finished' ? <ViewConfirmationControl action={viewConfirmation} /> : null}

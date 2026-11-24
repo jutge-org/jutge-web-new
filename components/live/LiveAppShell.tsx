@@ -8,6 +8,7 @@ import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
 import { LiveAuthToolbar } from '@/components/live/LiveAuthToolbar'
 import { LiveExamWidgetToolbarButton } from '@/components/live/LiveExamWidgetToolbarButton'
 import { LiveHeaderClock } from '@/components/live/LiveHeaderClock'
+import { LiveWallClockProvider } from '@/hooks/use-live-wall-clock'
 import { ExamFloatingWidgetNavHost } from '@/components/live/ExamFloatingWidgetNavHost'
 import { LiveUnavailable } from '@/components/live/LiveChrome'
 import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
@@ -29,7 +30,7 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
     const allowed = isLivePath(pathname, site.kind)
 
     return (
-        <>
+        <LiveWallClockProvider>
             <ExamFloatingWidgetNavHost />
             <RootShell
                 header={
@@ -71,6 +72,6 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
                 )}
             </RootShell>
             <AppearanceSettingsDialog />
-        </>
+        </LiveWallClockProvider>
     )
 }

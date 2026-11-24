@@ -117,17 +117,20 @@ export function AgTable({ wrapperBorder = true, themeParams, ...props }: GridPro
 }
 
 export function AgTableAutoHeight({ wrapperBorder = true, themeParams, rowData, ...props }: GridProps) {
-    const theme = useAgTheme(wrapperBorder, themeParams)
-
     // AG Grid's autoHeight layout floors the body at 150px so the "no rows" overlay has room to
     // render. With rows present that floor just pads short tables, so drop it.
     const hasRows = (rowData?.length ?? 0) > 0
+    const resolvedThemeParams = {
+        ...themeParams,
+        ...(hasRows ? { autoHeightMinBodyHeight: 0 } : {}),
+    }
+    const theme = useAgTheme(wrapperBorder, resolvedThemeParams)
 
     return (
         <div
             className={cn(
                 AG_TABLE_CLASS,
-                hasRows && '[&_.ag-center-cols-container]:min-h-0! [&_.ag-center-cols-viewport]:min-h-0!',
+                hasRows && '[&_.ag-grid-scrolling-rows]:min-h-0!',
             )}
         >
             <AgGridReact

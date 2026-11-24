@@ -213,7 +213,7 @@ export function ProblemsList({
                     />
                 ) : null}
                 {layout === 'cards' ? (
-                    <LiveExamProblemsGrid problems={[]} languages={{}} loading />
+                    <LiveExamProblemsGrid problems={[]} loading />
                 ) : (
                     <div
                         aria-busy="true"
@@ -257,7 +257,6 @@ export function ProblemsList({
             ) : layout === 'cards' ? (
                 <LiveExamProblemsGrid
                     problems={visibleProblems}
-                    languages={languages}
                     statuses={statuses}
                     examProblemsByNm={examProblemsByNm}
                     columnVisibility={columnVisibility}

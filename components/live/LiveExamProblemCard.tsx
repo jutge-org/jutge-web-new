@@ -4,10 +4,9 @@ import Link from 'next/link'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { ProblemStatusIcon } from '@/components/problems/ProblemStatusIcon'
 import { ProblemTypeIcon } from '@/components/problems/ProblemTypeIcon'
-import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { ProblemRow } from '@/lib/data/problems'
-import type { AbstractStatus, Language, RunningExamProblem } from '@/lib/jutge_api_client'
+import type { AbstractStatus, RunningExamProblem } from '@/lib/jutge_api_client'
 import type { ProblemsColumnVisibility } from '@/lib/problems'
 import { cn } from '@/lib/utils'
 
@@ -55,7 +54,6 @@ function LiveExamProblemCardIcons({
 type LiveExamProblemCardProps = {
     problem: ProblemRow
     examProblem?: RunningExamProblem
-    languages: Record<string, Language>
     status?: AbstractStatus
     columnVisibility: ProblemsColumnVisibility
 }
@@ -63,7 +61,6 @@ type LiveExamProblemCardProps = {
 export function LiveExamProblemCard({
     problem,
     examProblem,
-    languages,
     status,
     columnVisibility,
 }: LiveExamProblemCardProps) {
@@ -73,7 +70,7 @@ export function LiveExamProblemCard({
         status &&
         columnVisibility.status &&
         (status.status === 'accepted' || status.status === 'rejected' || status.status === 'scored')
-    const showTitleBar = columnVisibility.title || columnVisibility.problem_nm || Boolean(examLabel)
+    const showTitleBar = columnVisibility.title || Boolean(examLabel)
 
     return (
         <article className="group relative min-w-0">
@@ -100,40 +97,31 @@ export function LiveExamProblemCard({
                             examLabel={examLabel}
                         />
                         <div className="min-w-0 flex-1 space-y-0.5">
+                            {examLabel ? (
+                                <p className="text-sm font-semibold leading-snug tracking-tight text-foreground">
+                                    {examLabel}
+                                </p>
+                            ) : null}
                             {columnVisibility.title ? (
-                                <h2 className="text-base font-semibold leading-snug tracking-tight text-foreground">
+                                <h2
+                                    className={cn(
+                                        'leading-snug tracking-tight',
+                                        examLabel
+                                            ? 'text-sm font-medium text-muted-foreground'
+                                            : 'text-base font-semibold text-foreground',
+                                    )}
+                                >
                                     {problem.title}
                                 </h2>
                             ) : null}
-                            {examLabel ? (
-                                <p className="text-sm font-medium leading-snug text-muted-foreground">{examLabel}</p>
-                            ) : columnVisibility.problem_nm ? (
-                                <p className="text-sm font-medium tabular-nums text-muted-foreground">{problem.problem_nm}</p>
-                            ) : null}
                         </div>
-                        {(columnVisibility.status || columnVisibility.driver_id) && (
-                            <div className="flex shrink-0 flex-col items-end gap-1.5">
-                                {statusVisible ? (
-                                    <ProblemStatusIcon status={status} className="size-4 shrink-0" />
-                                ) : null}
-                                {columnVisibility.driver_id && problem.driver_id ? (
-                                    <ProblemTypeIcon
-                                        type={problem.driver_id}
-                                        className="size-4 shrink-0 text-muted-foreground"
-                                    />
-                                ) : null}
-                            </div>
-                        )}
+                        {columnVisibility.status && statusVisible ? (
+                            <ProblemStatusIcon status={status} className="size-7 shrink-0" />
+                        ) : null}
                     </header>
                 ) : null}
 
-                <div className="flex flex-col gap-2 px-4 py-3">
-                    {columnVisibility.problem_nm && examLabel ? (
-                        <p className="text-sm font-medium tabular-nums text-foreground">{problem.problem_nm}</p>
-                    ) : null}
-
-                    <CardMetaFooter problem={problem} languages={languages} columnVisibility={columnVisibility} />
-                </div>
+                <CardMetaFooter problem={problem} columnVisibility={columnVisibility} />
             </Link>
         </article>
     )
@@ -141,38 +129,40 @@ export function LiveExamProblemCard({
 
 function CardMetaFooter({
     problem,
-    languages,
     columnVisibility,
 }: {
     problem: ProblemRow
-    languages: Record<string, Language>
     columnVisibility: ProblemsColumnVisibility
 }) {
+    const showProblemNm = columnVisibility.problem_nm
     const showAuthor = columnVisibility.author
-    const showLanguages = columnVisibility.language_ids
-    if (!showAuthor && !showLanguages) return null
+    const showType = columnVisibility.driver_id && Boolean(problem.driver_id)
+    if (!showProblemNm && !showAuthor && !showType) return null
 
     return (
-        <footer className="mt-auto flex flex-col gap-2">
+        <footer className="mt-auto flex min-w-0 items-center gap-2 px-4 py-3 text-xs text-muted-foreground">
+            {showProblemNm ? (
+                <span className="shrink-0 font-medium tabular-nums text-foreground">{problem.problem_nm}</span>
+            ) : null}
             {showAuthor ? (
-                <p className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+                    {showProblemNm ? <span aria-hidden className="shrink-0 text-border">·</span> : null}
                     <SignatureIcon className="size-3.5 shrink-0" aria-hidden />
                     <span className="truncate">{problem.author ?? '—'}</span>
-                </p>
+                </span>
             ) : null}
-            {showLanguages ? (
-                <nav aria-label="Languages" className="flex flex-wrap gap-1">
-                    {problem.language_ids.map((languageId) => (
-                        <Tooltip key={languageId}>
-                            <TooltipTrigger asChild>
-                                <Badge variant="outline" className="text-[11px]">
-                                    {languageId}
-                                </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent side="top">{languages[languageId]?.eng_name ?? languageId}</TooltipContent>
-                        </Tooltip>
-                    ))}
-                </nav>
+            {showType && problem.driver_id ? (
+                <>
+                    {showProblemNm || showAuthor ? (
+                        <span aria-hidden className="shrink-0 text-border">
+                            ·
+                        </span>
+                    ) : null}
+                    <ProblemTypeIcon
+                        type={problem.driver_id}
+                        className="size-4 shrink-0 text-muted-foreground"
+                    />
+                </>
             ) : null}
         </footer>
     )

@@ -105,12 +105,16 @@ export async function downloadExamDocument(document: Pick<RunningExamDocument, '
 }
 
 export async function downloadExamDocumentPdf(documentNm: string): Promise<void> {
-    return downloadExamDocumentFile(
-        documentNm,
-        (document_nm) => jutge.student.exam.getDocumentPdf(document_nm),
-        '.pdf',
-        'application/pdf',
-    )
+    const file = await jutge.student.exam.getDocumentPdf(documentNm)
+    const blob = new Blob([new Uint8Array(file.data)], { type: file.type || 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const opened = window.open(url, '_blank', 'noopener,noreferrer')
+    if (opened) {
+        window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
+        return
+    }
+    URL.revokeObjectURL(url)
+    await saveFileWithDialog({ blob, suggestedName: file.name || `${documentNm}.pdf` })
 }
 
 export async function downloadExamDocumentZip(documentNm: string): Promise<void> {
@@ -206,6 +210,16 @@ export function formatLiveDateTime(value: string | number): string {
     return `${d.format('YYYY-MM-DD')} ${time}`
 }
 
+/** Wall clock for live exam info (hours and minutes only). */
+export function formatLiveWallClock(value: string | number): string {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return String(value)
+    const d = dayjs(date)
+    const time = d.format('HH:mm')
+    if (d.isSame(dayjs(), 'day')) return time
+    return `${d.format('YYYY-MM-DD')} ${time}`
+}
+
 export function formatLiveDateTimeWithRelative(value: string | number, nowMs: number): string {
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) return String(value)
@@ -223,9 +237,51 @@ export function formatRunningTimeHuman(minutes: number): string {
     return dayjs.duration(rounded, 'minutes').humanize()
 }
 
+function pluralUnit(value: number, singular: string, plural: string): string {
+    return `${value} ${value === 1 ? singular : plural}`
+}
+
+/** Whole minutes as an exact phrase (e.g. "2 hours 30 minutes"). */
+export function formatRunningTimeHumanExact(minutes: number): string {
+    const rounded = Math.max(0, Math.round(minutes))
+    const duration = dayjs.duration(rounded, 'minutes')
+    const hours = Math.floor(duration.asHours())
+    const mins = duration.minutes()
+    const parts: string[] = []
+    if (hours > 0) parts.push(pluralUnit(hours, 'hour', 'hours'))
+    if (mins > 0 || hours === 0) parts.push(pluralUnit(mins, 'minute', 'minutes'))
+    return parts.join(' ')
+}
+
 export function formatRemainingHuman(ms: number): string {
     const totalSeconds = Math.max(0, Math.floor(ms / 1000))
     return dayjs.duration(totalSeconds, 'seconds').humanize()
+}
+
+const REMAINING_EXACT_SECONDS_THRESHOLD_MS = 5 * 60 * 1000
+
+export function formatRemainingHumanExact(ms: number): string {
+    const clampedMs = Math.max(0, ms)
+    const totalSeconds = Math.floor(clampedMs / 1000)
+    const duration = dayjs.duration(totalSeconds, 'seconds')
+    const hours = Math.floor(duration.asHours())
+    const minutes = duration.minutes()
+    const seconds = duration.seconds()
+    const parts: string[] = []
+    if (hours > 0) parts.push(pluralUnit(hours, 'hour', 'hours'))
+    if (minutes > 0 || hours > 0) parts.push(pluralUnit(minutes, 'minute', 'minutes'))
+    const includeSeconds = clampedMs <= REMAINING_EXACT_SECONDS_THRESHOLD_MS
+    if (includeSeconds && (seconds > 0 || parts.length === 0)) {
+        parts.push(pluralUnit(seconds, 'second', 'seconds'))
+    }
+    if (!includeSeconds && parts.length === 0) {
+        parts.push(pluralUnit(0, 'minute', 'minutes'))
+    }
+    return parts.join(' ')
+}
+
+export function runningExamDurationMinutes(exam: RunningExam): number {
+    return Math.max(0, Math.round(exam.running_time + exam.extra_minutes))
 }
 
 type RunningExamWithCourse = RunningExam & { course?: StudentExamCourse }

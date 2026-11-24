@@ -7,12 +7,11 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { getPreferredLanguageId } from '@/lib/data/auth'
 import {
     fetchAllAbstractProblems,
-    fetchLanguages,
     fetchStudentProblemStatuses,
     type ProblemRow,
 } from '@/lib/data/problems'
 import jutge from '@/lib/jutge'
-import type { AbstractStatus, Language, RunningExam, RunningExamProblem } from '@/lib/jutge_api_client'
+import type { AbstractStatus, RunningExam, RunningExamProblem } from '@/lib/jutge_api_client'
 import { DEFAULT_PROBLEMS_COLUMN_VISIBILITY, type ProblemsColumnVisibility } from '@/lib/problems'
 
 export function orderProblemsForExam(problems: ProblemRow[], problemOrder: readonly string[]): ProblemRow[] {
@@ -28,7 +27,6 @@ export function orderProblemsForExam(problems: ProblemRow[], problemOrder: reado
 
 type LiveExamProblemsGridProps = {
     problems: ProblemRow[]
-    languages: Record<string, Language>
     statuses?: Record<string, AbstractStatus>
     examProblemsByNm?: ReadonlyMap<string, RunningExamProblem>
     columnVisibility?: ProblemsColumnVisibility
@@ -37,7 +35,6 @@ type LiveExamProblemsGridProps = {
 
 export function LiveExamProblemsGrid({
     problems,
-    languages,
     statuses,
     examProblemsByNm,
     columnVisibility = DEFAULT_PROBLEMS_COLUMN_VISIBILITY,
@@ -65,7 +62,6 @@ export function LiveExamProblemsGrid({
                         <LiveExamProblemCard
                             problem={problem}
                             examProblem={examProblemsByNm?.get(problem.problem_nm)}
-                            languages={languages}
                             status={statuses?.[problem.problem_nm]}
                             columnVisibility={columnVisibility}
                         />
@@ -78,7 +74,6 @@ export function LiveExamProblemsGrid({
 
 export function LiveExamProblemsCards({ exam }: { exam: RunningExam }) {
     const [problems, setProblems] = useState<ProblemRow[] | null>(null)
-    const [languages, setLanguages] = useState<Record<string, Language>>({})
     const [statuses, setStatuses] = useState<Record<string, AbstractStatus> | undefined>(undefined)
     const [preferredLanguageId, setPreferredLanguageId] = useState<string | null>(null)
 
@@ -95,7 +90,6 @@ export function LiveExamProblemsCards({ exam }: { exam: RunningExam }) {
 
     useEffect(() => {
         void getPreferredLanguageId().then(setPreferredLanguageId)
-        void fetchLanguages().then(setLanguages)
         void fetchStudentProblemStatuses(jutge).then(setStatuses)
     }, [])
 
@@ -109,7 +103,6 @@ export function LiveExamProblemsCards({ exam }: { exam: RunningExam }) {
     return (
         <LiveExamProblemsGrid
             problems={problems ?? []}
-            languages={languages}
             statuses={statuses}
             examProblemsByNm={examProblemsByNm}
             loading={problems === null}

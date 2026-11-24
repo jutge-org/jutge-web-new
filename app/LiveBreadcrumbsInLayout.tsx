@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ExternalLink } from '@/components/ExternalLink'
+import { LiveNavMenuItemIcon } from '@/components/live/LiveNavMenuItemIcon'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { useSiteMode } from '@/components/SiteModeProvider'
 import { aboutNavItems } from '@/lib/about'
@@ -43,37 +44,26 @@ import { useMainBreadcrumbs } from '@/store/MainBreadcrumbs'
 import { cn } from '@/lib/utils'
 import {
     AccessibilityIcon,
-    ActivityIcon,
     BookMarkedIcon,
-    BookText,
     CameraIcon,
-    ChartPieIcon,
     ClockIcon,
     Code2Icon,
-    EyeIcon,
-    FileBracesCornerIcon,
     FileCodeIcon,
     FileTextIcon,
     FolderGit2Icon,
     GavelIcon,
     HelpCircleIcon,
-    House,
-    Info,
     LanguagesIcon,
     LineSquiggleIcon,
     MegaphoneIcon,
     MenuIcon,
     MonitorOffIcon,
-    PocketKnifeIcon,
-    ScrollTextIcon,
     SendIcon,
     ServerCogIcon,
     ShieldIcon,
     ShoppingBagIcon,
-    SquareTerminalIcon,
     SquareTextIcon,
     TerminalIcon,
-    TrophyIcon,
     TurtleIcon,
     UsersIcon,
     WrenchIcon,
@@ -247,39 +237,6 @@ function LiveNavSubmenu({
             </DropdownMenuPortal>
         </DropdownMenuSub>
     )
-}
-
-function LiveNavMenuItemIcon({ href }: { href: string }) {
-    switch (href) {
-        case '/':
-            return <House aria-hidden />
-        case '/problems':
-            return <FileBracesCornerIcon aria-hidden />
-        case '/submissions':
-            return <SendIcon aria-hidden />
-        case '/documents':
-            return <FileTextIcon aria-hidden />
-        case '/ranking':
-            return <TrophyIcon aria-hidden />
-        case '/students':
-            return <UsersIcon aria-hidden />
-        case '/statistics':
-            return <ChartPieIcon aria-hidden />
-        case '/logins':
-            return <ActivityIcon aria-hidden />
-        case '/watch':
-            return <EyeIcon aria-hidden />
-        case '/interpreters':
-            return <SquareTerminalIcon aria-hidden />
-        case '/utilities':
-            return <PocketKnifeIcon aria-hidden />
-        case '/documentation':
-            return <BookText aria-hidden />
-        case '/about':
-            return <Info aria-hidden />
-        default:
-            return <ScrollTextIcon aria-hidden />
-    }
 }
 
 function menuSeparatorBefore(href: string): boolean {

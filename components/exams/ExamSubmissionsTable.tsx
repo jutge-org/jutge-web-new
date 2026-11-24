@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import Link from 'next/link'
 
 import { AgTableAutoHeight } from '@/components/administrator/AgTable'
+import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { SubmissionRow } from '@/lib/submissions'
@@ -16,7 +17,24 @@ type ExamSubmissionsTableProps = {
     submissions: SubmissionRow[]
 }
 
-const ROW_HEIGHT = 36
+const ROW_HEIGHT = 32
+const HEADER_HEIGHT = 32
+
+const defaultColDef = {
+    sortable: true,
+    filter: false,
+    suppressHeaderMenuButton: true,
+    resizable: false,
+}
+
+const verdictEmojiCellStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
+    paddingLeft: 8,
+    paddingRight: 4,
+}
 
 export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps) {
     const colDefs = useMemo(
@@ -24,12 +42,20 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
             {
                 field: 'verdictEmoji',
                 headerName: '',
-                width: 48,
+                width: 52,
                 sortable: false,
                 filter: false,
+                cellStyle: verdictEmojiCellStyle,
                 cellRenderer: (params: { data: SubmissionRow }) =>
                     params.data.verdictEmoji ? (
-                        <span aria-hidden className={params.data.verdict === 'Pending' ? 'animate-pulse' : undefined}>
+                        <span
+                            aria-hidden
+                            className={
+                                params.data.verdict === 'Pending'
+                                    ? 'inline-flex text-base leading-none animate-pulse'
+                                    : 'inline-flex text-base leading-none'
+                            }
+                        >
                             {params.data.verdictEmoji}
                         </span>
                     ) : (
@@ -39,13 +65,22 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
             {
                 field: 'problem_id',
                 headerName: 'Problem',
-                width: 112,
-                sortable: true,
-                filter: true,
+                width: 140,
+                cellStyle: { display: 'flex', alignItems: 'center' },
                 cellRenderer: (params: { data: SubmissionRow }) => (
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Link href={params.data.problemHref} className="text-sm hover:text-primary hover:underline">
+                            <Link
+                                href={params.data.problemHref}
+                                className="inline-flex min-w-0 items-center gap-1.5 text-sm hover:text-primary hover:underline"
+                            >
+                                {params.data.iconUrl ? (
+                                    <ProblemIconImage
+                                        iconUrl={params.data.iconUrl}
+                                        size="2xs"
+                                        className="shrink-0"
+                                    />
+                                ) : null}
                                 <ProblemIdLabel problemId={params.data.problem_id} />
                             </Link>
                         </TooltipTrigger>
@@ -57,9 +92,7 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
             {
                 field: 'submission_id',
                 headerName: 'Submission',
-                width: 112,
-                sortable: true,
-                filter: true,
+                width: 132,
                 cellRenderer: (params: { data: SubmissionRow }) => (
                     <Link href={params.data.submissionHref} className="text-sm hover:text-primary hover:underline">
                         {params.data.submission_id}
@@ -69,9 +102,8 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
             {
                 field: 'verdict',
                 headerName: 'Verdict',
-                width: 96,
-                sortable: true,
-                filter: true,
+                width: 100,
+                cellStyle: { display: 'flex', alignItems: 'center' },
                 cellRenderer: (params: { data: SubmissionRow }) => (
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -85,9 +117,8 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
             {
                 field: 'compiler_id',
                 headerName: 'Compiler',
-                width: 112,
-                sortable: true,
-                filter: true,
+                width: 120,
+                cellStyle: { display: 'flex', alignItems: 'center' },
                 cellRenderer: (params: { data: SubmissionRow }) => (
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -101,9 +132,7 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
             {
                 field: 'time_inMs',
                 headerName: 'Time',
-                width: 176,
-                sortable: true,
-                filter: true,
+                width: 152,
                 sort: 'desc',
                 cellRenderer: (params: { data: SubmissionRow }) => (
                     <Tooltip>
@@ -119,8 +148,7 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
                 field: 'annotation',
                 headerName: 'Annotation',
                 flex: 1,
-                sortable: true,
-                filter: true,
+                minWidth: 100,
                 cellRenderer: (params: { data: SubmissionRow }) =>
                     params.data.annotation ? (
                         <span className="text-muted-foreground">{params.data.annotation}</span>
@@ -133,12 +161,14 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
 
     return (
         <TooltipProvider>
+            <div className="min-w-0 overflow-x-auto px-1 pb-px [&_.ag-cell]:overflow-visible">
             <AgTableAutoHeight
                 rowData={submissions}
                 columnDefs={colDefs}
+                defaultColDef={defaultColDef}
                 domLayout="autoHeight"
                 rowHeight={ROW_HEIGHT}
-                headerHeight={ROW_HEIGHT}
+                headerHeight={HEADER_HEIGHT}
                 wrapperBorder={false}
                 themeParams={{
                     backgroundColor: 'var(--card)',
@@ -146,6 +176,7 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
                     chromeBackgroundColor: 'var(--card)',
                 }}
             />
+            </div>
         </TooltipProvider>
     )
 }
