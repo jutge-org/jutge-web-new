@@ -96,7 +96,13 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname() ?? ''
     const site = useSiteMode()
+
+    if (pathname === '/exam-floating-widget') {
+        return <>{children}</>
+    }
+
     if (site.kind !== 'normal') return <LiveAppShell>{children}</LiveAppShell>
     return <AppShellInner>{children}</AppShellInner>
 }

@@ -10,6 +10,7 @@ const EXACT_PATHS = new Set([
     '/logins',
     '/statistics',
     '/profile',
+    '/exam-floating-widget',
 ])
 
 function isProblemPath(pathname: string): boolean {

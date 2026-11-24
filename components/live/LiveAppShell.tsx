@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { LiveBreadcrumbsInLayout } from '@/app/LiveBreadcrumbsInLayout'
 import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
 import { LiveAuthToolbar } from '@/components/live/LiveAuthToolbar'
+import { LiveExamWidgetToolbarButton } from '@/components/live/LiveExamWidgetToolbarButton'
 import { LiveUnavailable } from '@/components/live/LiveChrome'
 import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
 import { LayoutWidthContainer } from '@/components/layout/LayoutWidthContainer'
@@ -33,6 +34,7 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
                         <LayoutWidthContainer className="flex h-11 items-center justify-between gap-4 px-4 sm:px-6">
                             <LiveBreadcrumbsInLayout />
                             <div className="flex shrink-0 items-center gap-1">
+                                <LiveExamWidgetToolbarButton />
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
