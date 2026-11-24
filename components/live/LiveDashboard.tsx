@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
+import { LiveExamProblemsCards } from '@/components/live/LiveExamProblemsGrid'
 import { LivePreStartCard } from '@/components/live/LivePreStartCard'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Button } from '@/components/ui/button'
@@ -135,19 +136,11 @@ function StudentExamSections({
 }) {
     return (
         <>
-            <section className="flex flex-col gap-2" aria-labelledby="live-problems-heading">
+            <section className="flex flex-col gap-4" aria-labelledby="live-problems-heading">
                 <h2 id="live-problems-heading" className="text-lg font-medium">
                     Problems
                 </h2>
-                <ul className="flex flex-col gap-1">
-                    {exam.problems.map((problem) => (
-                        <li key={problem.problem_nm}>
-                            <Link href={`/problems/${problem.problem_nm}`} className="underline">
-                                {problem.caption || problem.problem_nm}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
+                <LiveExamProblemsCards exam={exam} />
             </section>
             {exam.documents.length > 0 ? (
                 <section className="flex flex-col gap-2" aria-labelledby="live-documents-heading">

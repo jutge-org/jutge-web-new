@@ -5,6 +5,7 @@ import { SearchIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { AgTableFull } from '@/components/administrator/AgTable'
+import { LiveExamProblemsGrid, orderProblemsForExam } from '@/components/live/LiveExamProblemsGrid'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { ProblemStatusIcon } from '@/components/problems/ProblemStatusIcon'
 import { ProblemTitleSummaryTooltip } from '@/components/problems/ProblemTitleSummaryTooltip'
@@ -20,7 +21,7 @@ import {
     type ProblemsColumnField,
     type ProblemsColumnVisibility,
 } from '@/lib/problems'
-import type { AbstractStatus, Language } from '@/lib/jutge_api_client'
+import type { AbstractStatus, Language, RunningExamProblem } from '@/lib/jutge_api_client'
 import type { ProblemRow } from '@/lib/data/problems'
 
 type ProblemsListProps = {
@@ -32,6 +33,9 @@ type ProblemsListProps = {
     showPasscodes?: boolean
     preferredLanguageId?: string | null
     loading?: boolean
+    layout?: 'table' | 'cards'
+    examProblemsByNm?: ReadonlyMap<string, RunningExamProblem>
+    problemOrder?: readonly string[]
 }
 
 export function ProblemsList({
@@ -43,13 +47,21 @@ export function ProblemsList({
     showPasscodes,
     preferredLanguageId = null,
     loading = false,
+    layout = 'table',
+    examProblemsByNm,
+    problemOrder,
 }: ProblemsListProps) {
     const [searchQuery, setSearchQuery] = useState('')
     const [columnVisibility, setColumnVisibility] = useState<ProblemsColumnVisibility>(
         DEFAULT_PROBLEMS_COLUMN_VISIBILITY,
     )
 
-    const visibleProblems = useMemo(() => filterProblems(problems, searchQuery), [problems, searchQuery])
+    const filteredProblems = useMemo(() => filterProblems(problems, searchQuery), [problems, searchQuery])
+
+    const visibleProblems = useMemo(
+        () => orderProblemsForExam(filteredProblems, problemOrder ?? []),
+        [filteredProblems, problemOrder],
+    )
 
     function handleColumnVisibilityChange(field: ProblemsColumnField, visible: boolean) {
         setColumnVisibility((current) => ({ ...current, [field]: visible }))
@@ -183,9 +195,41 @@ export function ProblemsList({
         [columnVisibility, languages, preferredLanguageId, statuses],
     )
 
+    const showToolbar = layout !== 'cards'
+
     if (loading) {
         return (
             <div className="flex flex-col gap-4">
+                {showToolbar ? (
+                    <ProblemsListToolbar
+                        searchQuery={searchQuery}
+                        onSearchQueryChange={setSearchQuery}
+                        columnVisibility={columnVisibility}
+                        onColumnVisibilityChange={handleColumnVisibilityChange}
+                        showStatusColumn={statuses !== undefined}
+                        showAdvancedSearch={showAdvancedSearch}
+                        showHelp={showHelp}
+                        showPasscodes={showPasscodes}
+                    />
+                ) : null}
+                {layout === 'cards' ? (
+                    <LiveExamProblemsGrid problems={[]} languages={{}} loading />
+                ) : (
+                    <div
+                        aria-busy="true"
+                        aria-label="Loading problems"
+                        className="flex min-h-64 items-center justify-center border border-dashed border-border bg-muted/20"
+                    >
+                        <Spinner className="size-8 text-muted-foreground" />
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    return (
+        <div className="flex flex-col gap-4">
+            {showToolbar ? (
                 <ProblemsListToolbar
                     searchQuery={searchQuery}
                     onSearchQueryChange={setSearchQuery}
@@ -195,32 +239,10 @@ export function ProblemsList({
                     showAdvancedSearch={showAdvancedSearch}
                     showHelp={showHelp}
                     showPasscodes={showPasscodes}
+                    visibleCount={visibleProblems.length}
+                    totalCount={problems.length}
                 />
-                <div
-                    aria-busy="true"
-                    aria-label="Loading problems"
-                    className="flex min-h-64 items-center justify-center border border-dashed border-border bg-muted/20"
-                >
-                    <Spinner className="size-8 text-muted-foreground" />
-                </div>
-            </div>
-        )
-    }
-
-    return (
-        <div className="flex flex-col gap-4">
-            <ProblemsListToolbar
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
-                columnVisibility={columnVisibility}
-                onColumnVisibilityChange={handleColumnVisibilityChange}
-                showStatusColumn={statuses !== undefined}
-                showAdvancedSearch={showAdvancedSearch}
-                showHelp={showHelp}
-                showPasscodes={showPasscodes}
-                visibleCount={visibleProblems.length}
-                totalCount={problems.length}
-            />
+            ) : null}
 
             {visibleProblems.length === 0 ? (
                 <Empty className="border border-dashed border-border bg-muted/20 py-12">
@@ -232,6 +254,14 @@ export function ProblemsList({
                         <EmptyDescription>Try a different search term or clear the search box.</EmptyDescription>
                     </EmptyHeader>
                 </Empty>
+            ) : layout === 'cards' ? (
+                <LiveExamProblemsGrid
+                    problems={visibleProblems}
+                    languages={languages}
+                    statuses={statuses}
+                    examProblemsByNm={examProblemsByNm}
+                    columnVisibility={columnVisibility}
+                />
             ) : (
                 <TooltipProvider>
                     <div className="[&_.ag-problem-column-header_.ag-header-cell-label]:justify-center">

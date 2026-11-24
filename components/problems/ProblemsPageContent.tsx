@@ -13,7 +13,7 @@ import {
     fetchStudentProblemStatuses,
     type ProblemRow,
 } from '@/lib/data/problems'
-import type { AbstractStatus, Language } from '@/lib/jutge_api_client'
+import type { AbstractStatus, Language, RunningExamProblem } from '@/lib/jutge_api_client'
 
 const PROBLEMS_BREADCRUMBS = [{ title: 'Problems', url: '/problems' }] as const
 
@@ -27,7 +27,18 @@ function ProblemsPageChrome({ children }: { children: ReactNode }) {
     )
 }
 
-export function ProblemsPageLoading({ showPasscodes }: { showPasscodes?: boolean }) {
+type ProblemsListLayoutOptions = {
+    layout?: 'table' | 'cards'
+    examProblemsByNm?: ReadonlyMap<string, RunningExamProblem>
+    problemOrder?: readonly string[]
+}
+
+export function ProblemsPageLoading({
+    showPasscodes,
+    layout,
+}: {
+    showPasscodes?: boolean
+} & ProblemsListLayoutOptions) {
     return (
         <ProblemsPageChrome>
             <ProblemsList
@@ -37,6 +48,7 @@ export function ProblemsPageLoading({ showPasscodes }: { showPasscodes?: boolean
                 showHelp
                 showPasscodes={showPasscodes}
                 loading
+                layout={layout}
             />
         </ProblemsPageChrome>
     )
@@ -44,9 +56,14 @@ export function ProblemsPageLoading({ showPasscodes }: { showPasscodes?: boolean
 
 type ProblemsPageContentProps = {
     showPasscodes?: boolean
-}
+} & ProblemsListLayoutOptions
 
-export function ProblemsPageContent({ showPasscodes }: ProblemsPageContentProps) {
+export function ProblemsPageContent({
+    showPasscodes,
+    layout = 'table',
+    examProblemsByNm,
+    problemOrder,
+}: ProblemsPageContentProps) {
     const [problems, setProblems] = useState<ProblemRow[] | null>(null)
     const [languages, setLanguages] = useState<Record<string, Language>>({})
     const [statuses, setStatuses] = useState<Record<string, AbstractStatus> | undefined>(undefined)
@@ -74,6 +91,9 @@ export function ProblemsPageContent({ showPasscodes }: ProblemsPageContentProps)
                     showHelp
                     showPasscodes={showPasscodes}
                     loading
+                    layout={layout}
+                    examProblemsByNm={examProblemsByNm}
+                    problemOrder={problemOrder}
                 />
             ) : problems.length === 0 ? (
                 <p className="text-muted-foreground">Could not load problems. Please try again later.</p>
@@ -86,6 +106,9 @@ export function ProblemsPageContent({ showPasscodes }: ProblemsPageContentProps)
                     showHelp
                     showPasscodes={showPasscodes}
                     preferredLanguageId={preferredLanguageId}
+                    layout={layout}
+                    examProblemsByNm={examProblemsByNm}
+                    problemOrder={problemOrder}
                 />
             )}
         </ProblemsPageChrome>
