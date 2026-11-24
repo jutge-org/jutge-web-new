@@ -13,7 +13,7 @@ import {
     finishTimeMs,
     useExamFloatingWidgetSession,
 } from '@/hooks/useExamFloatingWidgetSession'
-import { downloadExamDocument, examHasStarted, formatInstant, formatLiveTime24, liveErrorMessage } from '@/lib/data/liveExam'
+import { downloadExamDocument, examHasStarted, formatInstant, formatLiveDateTime, liveErrorMessage } from '@/lib/data/liveExam'
 import { documentTypeLabel, getDocumentFileIcon } from '@/lib/instructor/documents'
 import { requestExamFloatingWidgetNavigation } from '@/lib/examFloatingWidget'
 import type { SubmissionRow } from '@/lib/submissions'
@@ -404,7 +404,7 @@ function ExamFloatingWidgetTimer({
             <div className="flex min-h-0 flex-1 flex-col">
                 <div className="flex flex-1 flex-col items-center justify-center gap-1 px-3 text-center">
                     <p className="text-lg font-semibold text-foreground">Exam finished</p>
-                    <p className="text-sm tabular-nums text-muted-foreground">{formatLiveTime24(finishMs)}</p>
+                    <p className="text-sm tabular-nums text-muted-foreground">{formatLiveDateTime(finishMs)}</p>
                 </div>
             </div>
         )
@@ -413,16 +413,16 @@ function ExamFloatingWidgetTimer({
     if (started) {
         return (
             <div className="flex min-h-0 flex-1 flex-col justify-center divide-y divide-border">
-                <TimerRow title="Current time" value={formatLiveTime24(now)} live />
-                <TimerRow title="Finish time" value={formatLiveTime24(finishMs)} />
+                <TimerRow title="Current time" value={formatLiveDateTime(now)} live />
+                <TimerRow title="Finish time" value={formatLiveDateTime(finishMs)} />
             </div>
         )
     }
 
     return (
         <div className="flex min-h-0 flex-1 flex-col justify-center divide-y divide-border">
-            <TimerRow title="Expected start" value={formatLiveTime24(exam.exp_time_start)} />
-            <TimerRow title="Finish time" value={formatLiveTime24(finishMs)} />
+            <TimerRow title="Expected start" value={formatLiveDateTime(exam.exp_time_start)} />
+            <TimerRow title="Finish time" value={formatLiveDateTime(finishMs)} />
         </div>
     )
 }

@@ -6,6 +6,7 @@ import { MarkdownText } from '@/components/general/MarkdownText'
 import { Card, CardContent } from '@/components/ui/card'
 import {
     formatLiveDateTime,
+    formatLiveDateTimeWithRelative,
     formatRunningTimeHuman,
     resolveLiveExamCourseTitle,
     runningExamCourseTitle,
@@ -51,7 +52,7 @@ export function LivePreStartCard({ exam, examKey, className }: LivePreStartCardP
     }, [exam, examKey])
 
     const rows = [
-        { label: 'Expected start time', value: formatLiveDateTime(exam.exp_time_start) },
+        { label: 'Expected start time', value: formatLiveDateTimeWithRelative(exam.exp_time_start, now) },
         { label: 'Current time', value: formatLiveDateTime(now), live: true },
         { label: 'Running time', value: formatRunningTimeHuman(exam.running_time) },
         { label: 'Status', value: 'Not yet started' },

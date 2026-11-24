@@ -170,7 +170,16 @@ export function formatInstant(value: string | null): string {
 export function formatLiveDateTime(value: string | number): string {
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) return String(value)
-    return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+    const d = dayjs(date)
+    const time = d.format('HH:mm:ss')
+    if (d.isSame(dayjs(), 'day')) return time
+    return `${d.format('YYYY-MM-DD')} ${time}`
+}
+
+export function formatLiveDateTimeWithRelative(value: string | number, nowMs: number): string {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return String(value)
+    return `${formatLiveDateTime(value)} (${dayjs(date).from(dayjs(nowMs))})`
 }
 
 export function formatLiveTime24(value: string | number): string {
