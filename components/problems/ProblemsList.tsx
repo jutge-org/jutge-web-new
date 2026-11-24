@@ -2,19 +2,12 @@
 
 import { useMemo, useState } from 'react'
 import { SearchIcon } from 'lucide-react'
-import Link from 'next/link'
 
-import { AgTableFull } from '@/components/administrator/AgTable'
 import { LiveExamProblemsGrid, orderProblemsForExam } from '@/components/live/LiveExamProblemsGrid'
-import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
-import { ProblemStatusIcon } from '@/components/problems/ProblemStatusIcon'
-import { ProblemTitleSummaryTooltip } from '@/components/problems/ProblemTitleSummaryTooltip'
-import { ProblemTypeIcon } from '@/components/problems/ProblemTypeIcon'
+import { ProblemsListTable } from '@/components/problems/ProblemsListTable'
 import { ProblemsListToolbar } from '@/components/problems/ProblemsListToolbar'
-import { Badge } from '@/components/ui/badge'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { Spinner } from '@/components/ui/spinner'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
     DEFAULT_PROBLEMS_COLUMN_VISIBILITY,
     filterProblems,
@@ -66,134 +59,6 @@ export function ProblemsList({
     function handleColumnVisibilityChange(field: ProblemsColumnField, visible: boolean) {
         setColumnVisibility((current) => ({ ...current, [field]: visible }))
     }
-
-    const colDefs = useMemo(
-        () => [
-            ...(statuses
-                ? [
-                      {
-                          field: 'status',
-                          headerName: 'Status',
-                          width: 100,
-                          sortable: true,
-                          filter: true,
-                          hide: !columnVisibility.status,
-                          cellRenderer: (params: { data: ProblemRow }) => {
-                              const data = statuses[params.data.problem_nm]
-                              if (
-                                  data?.status === 'accepted' ||
-                                  data?.status === 'rejected' ||
-                                  data?.status === 'scored'
-                              ) {
-                                  return <ProblemStatusIcon status={data} className="size-4 shrink-0 translate-y-1" />
-                              }
-                              return ''
-                          },
-                          valueGetter: (params: { data: ProblemRow }) => statuses[params.data.problem_nm]?.status ?? '',
-                      },
-                  ]
-                : []),
-
-            {
-                field: 'problem_nm',
-                headerName: 'Id',
-                width: 112,
-                sortable: true,
-                filter: true,
-                hide: !columnVisibility.problem_nm,
-                //headerClass: 'ag-problem-column-header',
-                cellStyle: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
-                cellRenderer: (params: { data: ProblemRow }) => (
-                    <ProblemTitleSummaryTooltip
-                        problem_nm={params.data.problem_nm}
-                        title={params.data.title}
-                        preferredLanguageId={preferredLanguageId}
-                    >
-                        <Link href={`/problems/${params.data.problem_nm}`} className="tabular-nums text-sm">
-                            <span className="flex flex-row items-center gap-3">
-                                {params.data.iconUrl ? (
-                                    <ProblemIconImage
-                                        iconUrl={params.data.iconUrl}
-                                        size="xs"
-                                        className="translate-y-px"
-                                    />
-                                ) : null}
-                                {params.data.problem_nm}
-                            </span>
-                        </Link>
-                    </ProblemTitleSummaryTooltip>
-                ),
-                valueGetter: (params: { data: ProblemRow }) => params.data.problem_nm,
-            },
-            {
-                field: 'title',
-                flex: 1,
-                sortable: true,
-                filter: true,
-                hide: !columnVisibility.title,
-                cellRenderer: (params: { data: ProblemRow }) => (
-                    <ProblemTitleSummaryTooltip
-                        problem_nm={params.data.problem_nm}
-                        title={params.data.title}
-                        preferredLanguageId={preferredLanguageId}
-                    >
-                        <span className="inline-flex items-center gap-1.5">{params.data.title}</span>
-                    </ProblemTitleSummaryTooltip>
-                ),
-            },
-            {
-                field: 'author',
-                headerName: 'Author',
-                width: 170,
-                sortable: true,
-                filter: true,
-                hide: !columnVisibility.author,
-                valueGetter: (params: { data: ProblemRow }) => params.data.author ?? '',
-                cellRenderer: (params: { data: ProblemRow }) => params.data.author ?? '—',
-            },
-            {
-                field: 'language_ids',
-                headerName: 'Languages',
-                width: 200,
-                sortable: true,
-                filter: true,
-                hide: !columnVisibility.language_ids,
-                cellRenderer: (params: { data: ProblemRow }) => (
-                    <div className="flex flex-wrap gap-1">
-                        {params.data.language_ids.map((languageId) => (
-                            <Tooltip key={languageId}>
-                                <TooltipTrigger asChild>
-                                    <Badge className="mt-2.5" variant="outline">
-                                        {languageId}
-                                    </Badge>
-                                </TooltipTrigger>
-                                <TooltipContent side="left">
-                                    {languages[languageId]?.eng_name ?? languageId}
-                                </TooltipContent>
-                            </Tooltip>
-                        ))}
-                    </div>
-                ),
-                valueGetter: (params: { data: ProblemRow }) => params.data.language_ids.join(', '),
-            },
-            {
-                field: 'driver_id',
-                headerName: 'Type',
-                width: 90,
-                sortable: true,
-                filter: true,
-                hide: !columnVisibility.driver_id,
-                cellRenderer: (params: { data: ProblemRow }) =>
-                    params.data.driver_id ? (
-                        <ProblemTypeIcon type={params.data.driver_id} className="text-muted-foreground translate-y-1" />
-                    ) : (
-                        '—'
-                    ),
-                valueGetter: (params: { data: ProblemRow }) => params.data.driver_id ?? '',
-            },
-        ],
-        [columnVisibility, languages, preferredLanguageId, statuses],
-    )
 
     const showToolbar = layout !== 'cards'
 
@@ -262,11 +127,13 @@ export function ProblemsList({
                     columnVisibility={columnVisibility}
                 />
             ) : (
-                <TooltipProvider>
-                    <div className="[&_.ag-problem-column-header_.ag-header-cell-label]:justify-center">
-                        <AgTableFull rowData={visibleProblems} columnDefs={colDefs} />
-                    </div>
-                </TooltipProvider>
+                <ProblemsListTable
+                    problems={visibleProblems}
+                    languages={languages}
+                    statuses={statuses}
+                    preferredLanguageId={preferredLanguageId}
+                    columnVisibility={columnVisibility}
+                />
             )}
         </div>
     )

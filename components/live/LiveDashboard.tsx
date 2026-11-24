@@ -6,8 +6,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { ExamSubmissionsTable } from '@/components/exams/ExamSubmissionsTable'
 import { ExamTimerCard } from '@/components/live/ExamTimerCard'
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
-import { LiveExamDocumentsGrid } from '@/components/live/LiveExamDocumentsGrid'
-import { LiveExamProblemsCards } from '@/components/live/LiveExamProblemsGrid'
+import { LiveExamDocumentsSection } from '@/components/live/LiveExamDocumentsSection'
+import { LiveExamProblemsCards } from '@/components/live/LiveExamProblemsSection'
 import { LiveExamInfoCard } from '@/components/live/LivePreStartCard'
 import { LiveSectionHeading } from '@/components/live/LiveSectionHeading'
 import {
@@ -238,18 +238,15 @@ function StudentExamSections({
     return (
         <>
             <section className="flex flex-col gap-4" aria-labelledby="live-problems-heading">
-                <LiveSectionHeading id="live-problems-heading" href="/problems">
-                    Problems
-                </LiveSectionHeading>
                 <LiveExamProblemsCards exam={exam} />
             </section>
             {documents.length > 0 ? (
                 <section className="flex flex-col gap-4" aria-labelledby="live-documents-heading">
-                    <LiveSectionHeading id="live-documents-heading" href="/documents">
-                        Documents
-                    </LiveSectionHeading>
-                    {docError ? <LiveNotice>{docError}</LiveNotice> : null}
-                    <LiveExamDocumentsGrid documents={documents} onError={setDocError} />
+                    <LiveExamDocumentsSection
+                        documents={documents}
+                        docError={docError}
+                        onError={setDocError}
+                    />
                 </section>
             ) : null}
             {submissions && submissions.length > 0 ? (

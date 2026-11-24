@@ -1,17 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-
 import { LiveExamProblemCard } from '@/components/live/LiveExamProblemCard'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { getPreferredLanguageId } from '@/lib/data/auth'
-import {
-    fetchAllAbstractProblems,
-    fetchStudentProblemStatuses,
-    type ProblemRow,
-} from '@/lib/data/problems'
-import jutge from '@/lib/jutge'
-import type { AbstractStatus, RunningExam, RunningExamProblem } from '@/lib/jutge_api_client'
+import type { ProblemRow } from '@/lib/data/problems'
+import type { AbstractStatus, RunningExamProblem } from '@/lib/jutge_api_client'
 import { DEFAULT_PROBLEMS_COLUMN_VISIBILITY, type ProblemsColumnVisibility } from '@/lib/problems'
 
 export function orderProblemsForExam(problems: ProblemRow[], problemOrder: readonly string[]): ProblemRow[] {
@@ -69,43 +61,5 @@ export function LiveExamProblemsGrid({
                 ))}
             </ul>
         </TooltipProvider>
-    )
-}
-
-export function LiveExamProblemsCards({ exam }: { exam: RunningExam }) {
-    const [problems, setProblems] = useState<ProblemRow[] | null>(null)
-    const [statuses, setStatuses] = useState<Record<string, AbstractStatus> | undefined>(undefined)
-    const [preferredLanguageId, setPreferredLanguageId] = useState<string | null>(null)
-
-    const examProblemsByNm = useMemo(() => {
-        const map = new Map<string, RunningExamProblem>()
-        for (const problem of exam.problems) {
-            map.set(problem.problem_nm, problem)
-        }
-        return map
-    }, [exam.problems])
-
-    const problemOrder = useMemo(() => exam.problems.map((problem) => problem.problem_nm), [exam.problems])
-    const problemNms = useMemo(() => new Set(problemOrder), [problemOrder])
-
-    useEffect(() => {
-        void getPreferredLanguageId().then(setPreferredLanguageId)
-        void fetchStudentProblemStatuses(jutge).then(setStatuses)
-    }, [])
-
-    useEffect(() => {
-        void fetchAllAbstractProblems(preferredLanguageId).then((rows) => {
-            const examRows = rows.filter((row) => problemNms.has(row.problem_nm))
-            setProblems(orderProblemsForExam(examRows, problemOrder))
-        })
-    }, [preferredLanguageId, problemNms, problemOrder])
-
-    return (
-        <LiveExamProblemsGrid
-            problems={problems ?? []}
-            statuses={statuses}
-            examProblemsByNm={examProblemsByNm}
-            loading={problems === null}
-        />
     )
 }
