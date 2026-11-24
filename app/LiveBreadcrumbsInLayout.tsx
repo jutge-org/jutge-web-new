@@ -234,7 +234,7 @@ function LiveNavSubmenu({
                                     href={item.href}
                                     className={cn(
                                         navSubItemIsCurrent(pathname, item.href, indexHref) &&
-                                            'font-semibold text-foreground',
+                                        'font-semibold text-foreground',
                                     )}
                                 >
                                     <SubItemIcon href={item.href} />
