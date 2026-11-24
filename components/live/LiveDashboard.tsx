@@ -8,7 +8,7 @@ import { ExamTimerCard } from '@/components/live/ExamTimerCard'
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { LiveExamDocumentsGrid } from '@/components/live/LiveExamDocumentsGrid'
 import { LiveExamProblemsCards } from '@/components/live/LiveExamProblemsGrid'
-import { LivePreStartCard } from '@/components/live/LivePreStartCard'
+import { LiveExamInfoCard, useLiveExamCourseTitle } from '@/components/live/LivePreStartCard'
 import { LiveStudentExamYamlCard } from '@/components/live/LiveStudentExamYamlCard'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,7 @@ import { examStatus, fetchLiveExamSubmissions, finishTimeMs, formatInstant, live
 import jutge from '@/lib/jutge'
 import type { SubmissionRow } from '@/lib/submissions'
 import type { RunningExam } from '@/lib/jutge_api_client'
+import { cn } from '@/lib/utils'
 
 function useNow(enabled: boolean): number {
     const [now, setNow] = useState(() => Date.now())
@@ -36,7 +37,7 @@ export function LiveDashboard() {
     const [submissions, setSubmissions] = useState<SubmissionRow[] | undefined>(undefined)
     const studentExam = session.role === 'student' ? session.exam : null
     const status = studentExam ? examStatus(studentExam, now) : 'waiting'
-    const started = status !== 'waiting'
+    const isRunning = status === 'running'
 
     useEffect(() => {
         if (!session.authenticated || session.role !== 'student' || examStatus(session.exam) !== 'waiting') return
@@ -47,7 +48,7 @@ export function LiveDashboard() {
     }, [session])
 
     useEffect(() => {
-        if (!studentExam || !started) return
+        if (!studentExam || !isRunning) return
         const exam = studentExam
         let cancelled = false
 
@@ -65,7 +66,7 @@ export function LiveDashboard() {
             cancelled = true
             window.clearInterval(timer)
         }
-    }, [studentExam, started])
+    }, [studentExam, isRunning])
 
     if (session.loading) return <LiveSpinner />
     if (!session.authenticated) {
@@ -82,16 +83,16 @@ export function LiveDashboard() {
     }
 
     if (session.role === 'tutor') {
-        const status = session.tutorStatus
+        const tutorStatus = session.tutorStatus
         return (
             <LivePage title="Dashboard">
                 {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
                 <p>
-                    Status: <strong>{status?.status ?? 'unknown'}</strong>
+                    Status: <strong>{tutorStatus?.status ?? 'unknown'}</strong>
                 </p>
-                <p>Start: {formatInstant(status?.time_start ?? null)}</p>
-                <p>Latest end: {formatInstant(status?.time_end ?? null)}</p>
-                {status?.status === 'waiting' ? (
+                <p>Start: {formatInstant(tutorStatus?.time_start ?? null)}</p>
+                <p>Latest end: {formatInstant(tutorStatus?.time_end ?? null)}</p>
+                {tutorStatus?.status === 'waiting' ? (
                     <Button
                         type="button"
                         disabled={starting}
@@ -116,40 +117,86 @@ export function LiveDashboard() {
     if (!exam) return <LiveSpinner label="Loading exam…" />
 
     const finishMs = finishTimeMs(exam, null)
-    const finished = examStatus(exam, now) === 'finished'
+    const finished = status === 'finished'
     const submittedAtMs = submissions?.[0]?.time_inMs ?? null
 
     return (
-        <LivePage className={started ? undefined : 'min-h-0 flex-1'}>
-            <div className="flex h-[280px] w-full max-w-[300px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-                <ExamTimerCard
-                    exam={exam}
-                    now={now}
-                    started={started}
-                    finished={finished}
-                    finishMs={finishMs}
-                    submittedAtMs={submittedAtMs}
-                    continueExam={{ href: '/problems' }}
-                    viewConfirmation={{ href: '/submissions' }}
-                />
-            </div>
+        <LivePage className={status === 'waiting' ? 'min-h-0 flex-1' : undefined}>
             {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
-            {started ? (
-                <>
-                    <h1 className="text-2xl font-semibold tracking-tight">{exam.title}</h1>
-                    {exam.instructions ? <p className="whitespace-pre-wrap">{exam.instructions}</p> : null}
-                    <StudentExamSections
-                        exam={exam}
-                        submissions={submissions}
-                        docError={docError}
-                        setDocError={setDocError}
-                    />
-                </>
-            ) : (
-                <LivePreStartCard exam={exam} examKey={session.examKey} />
-            )}
-            <LiveStudentExamYamlCard className={started ? undefined : 'mt-auto shrink-0'} exam={exam} />
+            <LiveExamInformationSection
+                exam={exam}
+                examKey={session.examKey}
+                status={status}
+                now={now}
+                finished={finished}
+                finishMs={finishMs}
+                submittedAtMs={submittedAtMs}
+            />
+            {isRunning ? (
+                <StudentExamSections
+                    exam={exam}
+                    submissions={submissions}
+                    docError={docError}
+                    setDocError={setDocError}
+                />
+            ) : null}
+            <section
+                aria-labelledby="live-dev-heading"
+                className={cn('flex flex-col gap-4', status !== 'running' && 'mt-auto shrink-0')}
+            >
+                <h2 id="live-dev-heading" className="text-lg font-medium">
+                    Dev
+                </h2>
+                <LiveStudentExamYamlCard exam={exam} />
+            </section>
         </LivePage>
+    )
+}
+
+function LiveExamInformationSection({
+    exam,
+    examKey,
+    status,
+    now,
+    finished,
+    finishMs,
+    submittedAtMs,
+}: {
+    exam: RunningExam
+    examKey?: string | null
+    status: ReturnType<typeof examStatus>
+    now: number
+    finished: boolean
+    finishMs: number
+    submittedAtMs: number | null
+}) {
+    const courseTitle = useLiveExamCourseTitle(exam, examKey)
+    const started = status !== 'waiting'
+
+    return (
+        <section aria-labelledby="live-exam-info-heading" className="flex flex-col gap-4">
+            <div>
+                <h1 id="live-exam-info-heading" className="text-2xl font-semibold tracking-tight">
+                    {exam.title}
+                </h1>
+                {courseTitle ? <p className="mt-0.5 text-sm font-medium text-muted-foreground">{courseTitle}</p> : null}
+            </div>
+            <div className="flex flex-col items-center gap-4 lg:flex-row lg:items-stretch lg:justify-between">
+                <LiveExamInfoCard className="min-w-0 flex-1 self-stretch" exam={exam} status={status} now={now} />
+                <div className="flex h-[280px] w-64 shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                    <ExamTimerCard
+                        exam={exam}
+                        now={now}
+                        started={started}
+                        finished={finished}
+                        finishMs={finishMs}
+                        submittedAtMs={submittedAtMs}
+                        continueExam={{ href: '/problems' }}
+                        viewConfirmation={{ href: '/submissions' }}
+                    />
+                </div>
+            </div>
+        </section>
     )
 }
 
@@ -184,7 +231,7 @@ function StudentExamSections({
                 {submissions === undefined ? (
                     <LiveSpinner label="Loading submissions…" />
                 ) : submissions.length > 0 ? (
-                    <Card className="gap-0 overflow-hidden pt-0 pb-0 ring-0 border border-border shadow-sm">
+                    <Card className="gap-0 overflow-hidden border border-border pt-0 pb-0 shadow-sm ring-0">
                         <CardContent className="p-0">
                             <ExamSubmissionsTable submissions={submissions} />
                         </CardContent>

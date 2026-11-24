@@ -31,24 +31,18 @@ export function LiveStudentExamYamlCard({ exam, className }: { exam: RunningExam
     return (
         <Card className={cn('w-full border border-border py-0 shadow-sm ring-0', className)}>
             <CardContent className="px-4 py-2">
-                <div className="flex items-start gap-3">
-                    <div
-                        className="submission-source-code min-w-0 flex-1 overflow-hidden rounded-lg border border-border"
-                        data-theme={usesAutoTheme ? theme : undefined}
-                        data-hljs-theme={usesAutoTheme ? undefined : highlightTheme}
-                        suppressHydrationWarning
+                <div
+                    className="submission-source-code overflow-hidden rounded-lg"
+                    data-theme={usesAutoTheme ? theme : undefined}
+                    data-hljs-theme={usesAutoTheme ? undefined : highlightTheme}
+                    suppressHydrationWarning
+                >
+                    <pre
+                        className="max-h-64 overflow-auto p-4 font-mono text-xs leading-relaxed whitespace-pre text-foreground"
+                        aria-label="student.exam.get"
                     >
-                        <pre
-                            className="max-h-64 overflow-auto p-4 font-mono text-xs leading-relaxed whitespace-pre text-foreground"
-                            aria-label="student.exam.get"
-                        >
-                            <code
-                                className="hljs language-yaml"
-                                dangerouslySetInnerHTML={{ __html: highlightedYaml }}
-                            />
-                        </pre>
-                    </div>
-                    <span className="shrink-0 text-sm text-muted-foreground">Dev</span>
+                        <code className="hljs language-yaml" dangerouslySetInnerHTML={{ __html: highlightedYaml }} />
+                    </pre>
                 </div>
             </CardContent>
         </Card>
