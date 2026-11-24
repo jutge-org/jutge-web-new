@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ExamSubmissionsTable } from '@/components/exams/ExamSubmissionsTable'
+import { ExamTimerCard } from '@/components/live/ExamTimerCard'
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { LiveExamDocumentsGrid } from '@/components/live/LiveExamDocumentsGrid'
 import { LiveExamProblemsCards } from '@/components/live/LiveExamProblemsGrid'
@@ -12,7 +13,8 @@ import { LiveStudentExamYamlCard } from '@/components/live/LiveStudentExamYamlCa
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { examHasStarted, fetchLiveExamSubmissions, formatClock, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
+import { examTimerFinished, finishTimeMs } from '@/hooks/useExamFloatingWidgetSession'
+import { examHasStarted, fetchLiveExamSubmissions, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
 import jutge from '@/lib/jutge'
 import type { SubmissionRow } from '@/lib/submissions'
 import type { RunningExam } from '@/lib/jutge_api_client'
@@ -32,6 +34,9 @@ export function LiveDashboard() {
     const now = useNow(!session.loading && session.authenticated)
     const [docError, setDocError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
+    const [submissions, setSubmissions] = useState<SubmissionRow[] | undefined>(undefined)
+    const studentExam = session.role === 'student' ? session.exam : null
+    const started = examHasStarted(studentExam)
 
     useEffect(() => {
         if (!session.authenticated || session.role !== 'student' || examHasStarted(session.exam)) return
@@ -40,6 +45,27 @@ export function LiveDashboard() {
         }, 10_000)
         return () => window.clearInterval(timer)
     }, [session])
+
+    useEffect(() => {
+        if (!studentExam || !started) return
+        const exam = studentExam
+        let cancelled = false
+
+        async function loadSubmissions() {
+            const rows = await fetchLiveExamSubmissions(jutge, exam)
+            if (!cancelled) setSubmissions(rows)
+        }
+
+        void loadSubmissions()
+        const timer = window.setInterval(() => {
+            void loadSubmissions()
+        }, 10_000)
+
+        return () => {
+            cancelled = true
+            window.clearInterval(timer)
+        }
+    }, [studentExam, started])
 
     if (session.loading) return <LiveSpinner />
     if (!session.authenticated) {
@@ -89,76 +115,59 @@ export function LiveDashboard() {
     const exam = session.exam
     if (!exam) return <LiveSpinner label="Loading exam…" />
 
-    const started = examHasStarted(exam)
-    const startMs = exam.time_start ? new Date(exam.time_start).getTime() : null
-    const expectedMs = new Date(exam.exp_time_start).getTime()
-    const endMs = startMs === null ? null : startMs + exam.running_time * 60_000
-    let clockLabel = 'Waiting to start'
-    let clock = '—'
-    if (!started) {
-        clockLabel = 'Starts in'
-        clock = formatClock(expectedMs - now)
-    } else if (endMs !== null) {
-        clockLabel = 'Time left'
-        clock = formatClock(endMs - now)
-    }
-
-    if (!started) {
-        return (
-            <LivePage className="min-h-0 flex-1">
-                {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
-                <LivePreStartCard exam={exam} examKey={session.examKey} />
-                <LiveStudentExamYamlCard className="mt-auto shrink-0" exam={exam} />
-            </LivePage>
-        )
-    }
+    const finishMs = finishTimeMs(exam, null)
+    const finished = examTimerFinished(exam, null, now)
+    const submittedAtMs = submissions?.[0]?.time_inMs ?? null
 
     return (
-        <LivePage title={exam.title}>
+        <LivePage className={started ? undefined : 'min-h-0 flex-1'}>
+            <div className="flex h-[280px] w-full max-w-[300px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                <ExamTimerCard
+                    exam={exam}
+                    now={now}
+                    started={started}
+                    finished={finished}
+                    finishMs={finishMs}
+                    submittedAtMs={submittedAtMs}
+                    continueExam={{ href: '/problems' }}
+                    viewConfirmation={{ href: '/submissions' }}
+                />
+            </div>
             {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
-            <p role="timer" aria-live="polite">
-                {clockLabel}: <strong>{clock}</strong>
-            </p>
-            {exam.instructions ? <p className="whitespace-pre-wrap">{exam.instructions}</p> : null}
-            <StudentExamSections exam={exam} docError={docError} setDocError={setDocError} />
-            <LiveStudentExamYamlCard exam={exam} />
+            {started ? (
+                <>
+                    <h1 className="text-2xl font-semibold tracking-tight">{exam.title}</h1>
+                    {exam.instructions ? <p className="whitespace-pre-wrap">{exam.instructions}</p> : null}
+                    <StudentExamSections
+                        exam={exam}
+                        submissions={submissions}
+                        docError={docError}
+                        setDocError={setDocError}
+                    />
+                </>
+            ) : (
+                <LivePreStartCard exam={exam} examKey={session.examKey} />
+            )}
+            <LiveStudentExamYamlCard className={started ? undefined : 'mt-auto shrink-0'} exam={exam} />
         </LivePage>
     )
 }
 
 function StudentExamSections({
     exam,
+    submissions,
     docError,
     setDocError,
 }: {
     exam: RunningExam
+    submissions: SubmissionRow[] | undefined
     docError: string | null
     setDocError: (value: string | null) => void
 }) {
-    const [submissions, setSubmissions] = useState<SubmissionRow[] | undefined>(undefined)
     const documents = useMemo(
         () => [...exam.documents].sort((a, b) => a.title.localeCompare(b.title)),
         [exam.documents],
     )
-
-    useEffect(() => {
-        let cancelled = false
-
-        async function loadSubmissions() {
-            const rows = await fetchLiveExamSubmissions(jutge, exam)
-            if (!cancelled) setSubmissions(rows)
-        }
-
-        void loadSubmissions()
-        const timer = window.setInterval(() => {
-            void loadSubmissions()
-        }, 10_000)
-
-        return () => {
-            cancelled = true
-            window.clearInterval(timer)
-        }
-    }, [exam])
 
     return (
         <>

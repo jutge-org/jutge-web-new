@@ -198,10 +198,8 @@ export function finishTimeMs(exam: RunningExam, meta: Exam | null): number {
     if (meta?.time_end) {
         return new Date(meta.time_end).getTime()
     }
-    const startMs = exam.time_start
-        ? new Date(exam.time_start).getTime()
-        : new Date(exam.exp_time_start).getTime()
-    return startMs + exam.running_time * 60_000
+    const startMs = exam.time_start ? new Date(exam.time_start).getTime() : new Date(exam.exp_time_start).getTime()
+    return startMs + (exam.running_time + exam.extra_minutes) * 60_000
 }
 
 export function examTimerFinished(exam: RunningExam, meta: Exam | null, now: number): boolean {

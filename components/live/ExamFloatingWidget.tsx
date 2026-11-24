@@ -7,20 +7,26 @@ import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
 import { ProblemStatusIcon } from '@/components/problems/ProblemStatusIcon'
 import { CompactClock } from '@/components/utilities/CompactClock'
+import { ExamTimerCard } from '@/components/live/ExamTimerCard'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import {
-    examTimerFinished,
-    finishTimeMs,
-    useExamFloatingWidgetSession,
-} from '@/hooks/useExamFloatingWidgetSession'
-import { downloadExamDocument, examHasStarted, formatInstant, formatLiveDateTime, liveErrorMessage } from '@/lib/data/liveExam'
+import { examTimerFinished, finishTimeMs, useExamFloatingWidgetSession } from '@/hooks/useExamFloatingWidgetSession'
+import { downloadExamDocument, examHasStarted, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
 import { documentTypeLabel, getDocumentFileIcon } from '@/lib/instructor/documents'
 import { requestExamFloatingWidgetNavigation } from '@/lib/examFloatingWidget'
 import type { SubmissionRow } from '@/lib/submissions'
 import { cn } from '@/lib/utils'
-import { ClockIcon, DownloadIcon, FileBracesCornerIcon, FileTextIcon, InfoIcon, Loader2Icon, SendIcon, TimerIcon } from 'lucide-react'
+import {
+    ClockIcon,
+    DownloadIcon,
+    FileBracesCornerIcon,
+    FileTextIcon,
+    InfoIcon,
+    Loader2Icon,
+    SendIcon,
+    TimerIcon,
+} from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { AbstractStatus, RunningExam, RunningExamDocument, RunningExamProblem } from '@/lib/jutge_api_client'
+import type { AbstractStatus, RunningExamDocument, RunningExamProblem } from '@/lib/jutge_api_client'
 
 export const EXAM_FLOATING_WIDGET_SIZE_PX = 300
 
@@ -195,10 +201,7 @@ function ExamFloatingWidgetDocuments({ documents }: { documents: RunningExamDocu
     const [downloadingNm, setDownloadingNm] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
 
-    const sorted = useMemo(
-        () => [...documents].sort((a, b) => a.title.localeCompare(b.title)),
-        [documents],
-    )
+    const sorted = useMemo(() => [...documents].sort((a, b) => a.title.localeCompare(b.title)), [documents])
 
     async function runDownload(document: RunningExamDocument) {
         if (downloadingNm) return
@@ -310,7 +313,9 @@ function ExamFloatingWidgetProblems({
                         >
                             <span className="min-w-0 flex-1">
                                 <span className="block truncate text-sm font-medium text-foreground">{label}</span>
-                                <span className="block truncate text-[11px] text-muted-foreground">{problem.problem_nm}</span>
+                                <span className="block truncate text-[11px] text-muted-foreground">
+                                    {problem.problem_nm}
+                                </span>
                             </span>
                             <span className="flex w-14 shrink-0 items-center justify-end">
                                 <ExamFloatingWidgetProblemStatus status={status} />
@@ -331,20 +336,6 @@ function useNow(enabled: boolean): number {
         return () => window.clearInterval(id)
     }, [enabled])
     return now
-}
-
-function TimerRow({ title, value, live }: { title: string; value: string; live?: boolean }) {
-    return (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-0.5 px-3 text-center">
-            <p className="text-[11px] font-medium tracking-wide text-muted-foreground">{title}</p>
-            <p
-                className="text-[clamp(1.125rem,5vw,1.5rem)] font-semibold tabular-nums tracking-tight text-foreground"
-                {...(live ? { role: 'timer', 'aria-live': 'polite' as const, 'aria-atomic': true as const } : {})}
-            >
-                {value}
-            </p>
-        </div>
-    )
 }
 
 function WidgetSpinner() {
@@ -382,47 +373,6 @@ function ExamFloatingWidgetInfo({
                     <p className="text-sm font-medium text-foreground">{instructorName}</p>
                 </div>
             ) : null}
-        </div>
-    )
-}
-
-function ExamFloatingWidgetTimer({
-    started,
-    finished,
-    now,
-    exam,
-    finishMs,
-}: {
-    started: boolean
-    finished: boolean
-    now: number
-    exam: RunningExam
-    finishMs: number
-}) {
-    if (finished) {
-        return (
-            <div className="flex min-h-0 flex-1 flex-col">
-                <div className="flex flex-1 flex-col items-center justify-center gap-1 px-3 text-center">
-                    <p className="text-lg font-semibold text-foreground">Exam finished</p>
-                    <p className="text-sm tabular-nums text-muted-foreground">{formatLiveDateTime(finishMs)}</p>
-                </div>
-            </div>
-        )
-    }
-
-    if (started) {
-        return (
-            <div className="flex min-h-0 flex-1 flex-col justify-center divide-y divide-border">
-                <TimerRow title="Current time" value={formatLiveDateTime(now)} live />
-                <TimerRow title="Finish time" value={formatLiveDateTime(finishMs)} />
-            </div>
-        )
-    }
-
-    return (
-        <div className="flex min-h-0 flex-1 flex-col justify-center divide-y divide-border">
-            <TimerRow title="Expected start" value={formatLiveDateTime(exam.exp_time_start)} />
-            <TimerRow title="Finish time" value={formatLiveDateTime(finishMs)} />
         </div>
     )
 }
@@ -470,23 +420,22 @@ export function ExamFloatingWidget() {
             </div>
         )
     } else if (tab === 'problems') {
-        panel = (
-            <ExamFloatingWidgetProblems problems={session.exam.problems} statuses={session.problemStatuses} />
-        )
+        panel = <ExamFloatingWidgetProblems problems={session.exam.problems} statuses={session.problemStatuses} />
     } else if (tab === 'documents') {
         panel = <ExamFloatingWidgetDocuments documents={session.exam.documents} />
     } else if (tab === 'submissions') {
-        panel = (
-            <ExamFloatingWidgetSubmissions submissions={session.submissions} examProblems={session.exam.problems} />
-        )
+        panel = <ExamFloatingWidgetSubmissions submissions={session.submissions} examProblems={session.exam.problems} />
     } else {
         panel = (
-            <ExamFloatingWidgetTimer
+            <ExamTimerCard
                 started={started}
                 finished={finished}
                 now={now}
                 exam={session.exam}
                 finishMs={finishMs}
+                submittedAtMs={session.submissions[0]?.time_inMs ?? null}
+                continueExam={{ onClick: () => requestExamFloatingWidgetNavigation('/problems') }}
+                viewConfirmation={{ onClick: () => requestExamFloatingWidgetNavigation('/submissions') }}
             />
         )
     }

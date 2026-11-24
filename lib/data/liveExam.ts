@@ -95,9 +95,7 @@ async function downloadExamDocumentFile(
     await saveFileWithDialog({ blob, suggestedName: file.name || `${documentNm}${fallbackExt}` })
 }
 
-export async function downloadExamDocument(
-    document: Pick<RunningExamDocument, 'document_nm' | 'type'>,
-): Promise<void> {
+export async function downloadExamDocument(document: Pick<RunningExamDocument, 'document_nm' | 'type'>): Promise<void> {
     if (isDocumentZip(document)) {
         return downloadExamDocumentZip(document.document_nm)
     }
@@ -150,6 +148,18 @@ export function examHasStarted(exam: RunningExam | null): boolean {
     return exam?.time_start != null
 }
 
+export function examStartedAtMs(exam: RunningExam): number {
+    return exam.time_start ? new Date(exam.time_start).getTime() : new Date(exam.exp_time_start).getTime()
+}
+
+/** Elapsed fraction from official start to finish (0–1). */
+export function examElapsedProgress(exam: RunningExam, finishMs: number, now: number): number {
+    const startedAtMs = examStartedAtMs(exam)
+    const totalMs = Math.max(finishMs - startedAtMs, 1)
+    const spentMs = Math.max(0, Math.min(totalMs, now - startedAtMs))
+    return spentMs / totalMs
+}
+
 export function formatClock(ms: number): string {
     const total = Math.max(0, Math.floor(ms / 1000))
     const hours = Math.floor(total / 3600)
@@ -191,6 +201,11 @@ export function formatLiveTime24(value: string | number): string {
 export function formatRunningTimeHuman(minutes: number): string {
     const rounded = Math.max(0, Math.round(minutes))
     return dayjs.duration(rounded, 'minutes').humanize()
+}
+
+export function formatRemainingHuman(ms: number): string {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000))
+    return dayjs.duration(totalSeconds, 'seconds').humanize()
 }
 
 type RunningExamWithCourse = RunningExam & { course?: StudentExamCourse }

@@ -8,24 +8,108 @@ import { createRoot, type Root } from 'react-dom/client'
 const POPUP_WINDOW_NAME = 'jutgeExamFloatingWidget'
 const POPUP_ROUTE = '/exam-floating-widget'
 
+type DocumentPictureInPictureAPI = {
+    requestWindow: (options: { width: number; height: number }) => Promise<Window>
+}
+
+function getDocumentPictureInPictureAPI(): DocumentPictureInPictureAPI | undefined {
+    return (window as Window & { documentPictureInPicture?: DocumentPictureInPictureAPI }).documentPictureInPicture
+}
+
 let pipRoot: Root | null = null
 let pipWindow: Window | null = null
 let popupWindow: Window | null = null
+let pipStyleSyncCleanup: (() => void) | null = null
 
-function copyStyleSheets(sourceDocument: Document, targetDocument: Document) {
-    for (const node of sourceDocument.head.querySelectorAll('style, link[rel="stylesheet"]')) {
+function styleElementKey(style: HTMLStyleElement): string {
+    return (
+        style.getAttribute('data-nextjs-href') ??
+        style.getAttribute('data-n-href') ??
+        style.getAttribute('data-precedence') ??
+        `inline-${style.textContent?.length ?? 0}`
+    )
+}
+
+function syncPictureInPictureStyles(sourceDocument: Document, targetDocument: Document) {
+    for (const node of sourceDocument.head.querySelectorAll('link[rel="stylesheet"]')) {
+        if (!(node instanceof HTMLLinkElement) || !node.href) continue
+        const href = node.href
+        if (targetDocument.head.querySelector(`link[rel="stylesheet"][href="${CSS.escape(href)}"]`)) continue
         targetDocument.head.appendChild(node.cloneNode(true))
+    }
+
+    for (const node of sourceDocument.head.querySelectorAll('style')) {
+        const key = styleElementKey(node)
+        const selector = `style[data-jutge-pip-style="${CSS.escape(key)}"]`
+        let target = targetDocument.head.querySelector(selector)
+        if (!(target instanceof HTMLStyleElement)) {
+            target = targetDocument.createElement('style')
+            target.setAttribute('data-jutge-pip-style', key)
+            targetDocument.head.appendChild(target)
+        }
+        if (target.textContent !== node.textContent) {
+            target.textContent = node.textContent
+        }
+    }
+}
+
+function mirrorPictureInPictureChrome(sourceDocument: Document, targetDocument: Document) {
+    const sourceHtml = sourceDocument.documentElement
+    const targetHtml = targetDocument.documentElement
+    targetHtml.className = sourceHtml.className
+    if (sourceHtml.style.cssText) {
+        targetHtml.style.cssText = sourceHtml.style.cssText
+    } else {
+        targetHtml.style.removeProperty('height')
+        targetHtml.style.height = '100%'
+    }
+
+    const sourceBody = sourceDocument.body
+    const targetBody = targetDocument.body
+    targetBody.className = sourceBody.className
+    targetBody.style.margin = '0'
+    targetBody.style.height = '100%'
+    targetBody.style.overflow = 'hidden'
+}
+
+function startPictureInPictureStyleSync(sourceDocument: Document, targetDocument: Document): () => void {
+    const sync = () => {
+        syncPictureInPictureStyles(sourceDocument, targetDocument)
+        mirrorPictureInPictureChrome(sourceDocument, targetDocument)
+    }
+
+    sync()
+
+    const headObserver = new MutationObserver(sync)
+    headObserver.observe(sourceDocument.head, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+    })
+
+    const rootObserver = new MutationObserver(sync)
+    rootObserver.observe(sourceDocument.documentElement, { attributes: true, attributeFilter: ['class', 'style'] })
+    if (sourceDocument.body) {
+        rootObserver.observe(sourceDocument.body, { attributes: true, attributeFilter: ['class', 'style'] })
+    }
+
+    return () => {
+        headObserver.disconnect()
+        rootObserver.disconnect()
     }
 }
 
 function teardownPip() {
+    pipStyleSyncCleanup?.()
+    pipStyleSyncCleanup = null
     pipRoot?.unmount()
     pipRoot = null
     pipWindow = null
 }
 
 async function openDocumentPictureInPicture(): Promise<boolean> {
-    if (!('documentPictureInPicture' in window) || !window.documentPictureInPicture) {
+    const docPip = getDocumentPictureInPictureAPI()
+    if (!docPip) {
         return false
     }
 
@@ -36,22 +120,13 @@ async function openDocumentPictureInPicture(): Promise<boolean> {
 
     teardownPip()
 
-    const pip = await window.documentPictureInPicture.requestWindow({
+    const pip = await docPip.requestWindow({
         width: EXAM_FLOATING_WIDGET_SIZE_PX,
         height: EXAM_FLOATING_WIDGET_SIZE_PX,
     })
 
     pipWindow = pip
-    copyStyleSheets(document, pip.document)
-
-    const html = pip.document.documentElement
-    html.className = document.documentElement.className
-    html.style.height = '100%'
-
-    pip.document.body.className = document.body.className
-    pip.document.body.style.margin = '0'
-    pip.document.body.style.height = '100%'
-    pip.document.body.style.overflow = 'hidden'
+    pipStyleSyncCleanup = startPictureInPictureStyleSync(document, pip.document)
 
     const mount = pip.document.createElement('div')
     pip.document.body.appendChild(mount)

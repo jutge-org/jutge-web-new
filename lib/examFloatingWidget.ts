@@ -6,7 +6,10 @@ export type ExamFloatingWidgetNavMessage = {
     path: string
 }
 
+const EXAM_WIDGET_EXACT_PATHS = new Set(['/problems', '/submissions'])
+
 export function isExamFloatingWidgetNavPath(path: string): boolean {
+    if (EXAM_WIDGET_EXACT_PATHS.has(path)) return true
     return path.startsWith('/problems/') && !path.includes('//')
 }
 
