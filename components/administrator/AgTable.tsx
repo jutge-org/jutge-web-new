@@ -9,9 +9,11 @@ import { cn } from '@/lib/utils'
 
 ModuleRegistry.registerModules([AllCommunityModule])
 
+type AgThemeParams = Record<string, string | number | boolean>
+
 type GridProps = {
     wrapperBorder?: boolean
-    themeParams?: Record<string, string>
+    themeParams?: AgThemeParams
     rowData?: any[]
     columnDefs?: any[]
     [key: string]: any
@@ -28,7 +30,7 @@ const myThemeDark = themeQuartz.withPart(colorSchemeDark).withParams({
     backgroundColor: '#0b0a0b',
 })
 
-function useAgTheme(wrapperBorder = true, themeParams?: Record<string, string>) {
+function useAgTheme(wrapperBorder = true, themeParams?: AgThemeParams) {
     const { resolvedTheme } = useTheme()
     const baseTheme = resolvedTheme === 'dark' ? myThemeDark : myThemeLight
     const params = {
