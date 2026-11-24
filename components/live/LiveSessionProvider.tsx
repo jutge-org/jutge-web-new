@@ -32,7 +32,7 @@ import {
 } from '@/lib/data/liveExam'
 import type { CredentialsOut, Profile, ReadyExam, RunningExam } from '@/lib/jutge_api_client'
 import { profileToSessionUser } from '@/lib/session'
-import { closeExamFloatingWidget } from '@/lib/openExamFloatingWidget'
+import { closeExamFloatingWidget, openExamFloatingWidget } from '@/lib/openExamFloatingWidget'
 import { applyLiveApiClient } from '@/lib/siteMode'
 
 export type LiveRole = 'student' | 'tutor'
@@ -275,6 +275,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
                 setEmail(cached.email)
                 await applyProbe()
                 setProfile(await jutge.student.profile.get())
+                void openExamFloatingWidget()
                 return { ok: true }
             } catch (loginError) {
                 jutge.meta = null
