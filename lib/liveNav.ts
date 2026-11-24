@@ -40,6 +40,7 @@ export function liveNavItems(
             { href: '/', label: 'Home' },
             { href: '/problems', label: 'Problems' },
             { href: '/submissions', label: 'Submissions' },
+            { href: '/documents', label: 'Documents' },
         ]
         if (kind === 'contest' && started) items.push({ href: '/ranking', label: 'Ranking' })
         return appendLiveMetaNav(items)

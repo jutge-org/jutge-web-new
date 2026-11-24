@@ -1,20 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
+import { LiveExamDocumentsGrid } from '@/components/live/LiveExamDocumentsGrid'
 import { LiveExamProblemsCards } from '@/components/live/LiveExamProblemsGrid'
 import { LivePreStartCard } from '@/components/live/LivePreStartCard'
+import { LiveStudentExamYamlCard } from '@/components/live/LiveStudentExamYamlCard'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Button } from '@/components/ui/button'
-import {
-    downloadExamDocument,
-    examHasStarted,
-    formatClock,
-    formatInstant,
-    liveErrorMessage,
-} from '@/lib/data/liveExam'
+import { examHasStarted, formatClock, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
 import jutge from '@/lib/jutge'
 import type { RunningExam } from '@/lib/jutge_api_client'
 
@@ -109,6 +105,7 @@ export function LiveDashboard() {
             <LivePage className="min-h-0 flex-1">
                 {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
                 <LivePreStartCard exam={exam} examKey={session.examKey} />
+                <LiveStudentExamYamlCard className="mt-auto shrink-0" exam={exam} />
             </LivePage>
         )
     }
@@ -121,6 +118,7 @@ export function LiveDashboard() {
             </p>
             {exam.instructions ? <p className="whitespace-pre-wrap">{exam.instructions}</p> : null}
             <StudentExamSections exam={exam} docError={docError} setDocError={setDocError} />
+            <LiveStudentExamYamlCard exam={exam} />
         </LivePage>
     )
 }
@@ -134,6 +132,11 @@ function StudentExamSections({
     docError: string | null
     setDocError: (value: string | null) => void
 }) {
+    const documents = useMemo(
+        () => [...exam.documents].sort((a, b) => a.title.localeCompare(b.title)),
+        [exam.documents],
+    )
+
     return (
         <>
             <section className="flex flex-col gap-4" aria-labelledby="live-problems-heading">
@@ -142,31 +145,13 @@ function StudentExamSections({
                 </h2>
                 <LiveExamProblemsCards exam={exam} />
             </section>
-            {exam.documents.length > 0 ? (
-                <section className="flex flex-col gap-2" aria-labelledby="live-documents-heading">
+            {documents.length > 0 ? (
+                <section className="flex flex-col gap-4" aria-labelledby="live-documents-heading">
                     <h2 id="live-documents-heading" className="text-lg font-medium">
                         Documents
                     </h2>
                     {docError ? <LiveNotice>{docError}</LiveNotice> : null}
-                    <ul className="flex flex-col gap-2">
-                        {exam.documents.map((document) => (
-                            <li key={document.document_nm} className="flex flex-wrap items-center gap-3">
-                                <span>{document.title}</span>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => {
-                                        setDocError(null)
-                                        void downloadExamDocument(document.document_nm).catch((error: unknown) => {
-                                            setDocError(liveErrorMessage(error, 'Could not download the document.'))
-                                        })
-                                    }}
-                                >
-                                    Download PDF
-                                </Button>
-                            </li>
-                        ))}
-                    </ul>
+                    <LiveExamDocumentsGrid documents={documents} onError={setDocError} />
                 </section>
             ) : null}
         </>

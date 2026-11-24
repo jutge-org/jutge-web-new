@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-11-23T15:05:49.194Z
+ * This file has been automatically generated at 2026-11-24T09:09:05.351Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -627,6 +627,7 @@ export type RunningExamDocument = {
     document_nm: string
     title: string
     description: string
+    type: string // The type of the document: pdf|zip
 }
 
 export type RunningExam = {
@@ -3524,6 +3525,17 @@ class Module_student_exam {
      */
     async getDocumentPdf(document_nm: string): Promise<Download> {
         const [output, ofiles] = await this.root.execute("student.exam.getDocumentPdf", document_nm)
+        return ofiles[0]
+    }
+
+    /**
+     * Get ZIP of a document in an exam.
+     *
+     * 🗂️ Domains: exam, contest
+     * 🔐 Authentication: exam
+     */
+    async getDocumentZip(document_nm: string): Promise<Download> {
+        const [output, ofiles] = await this.root.execute("student.exam.getDocumentZip", document_nm)
         return ofiles[0]
     }
 

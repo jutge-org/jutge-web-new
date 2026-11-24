@@ -257,6 +257,8 @@ function LiveNavMenuItemIcon({ href }: { href: string }) {
             return <FileBracesCornerIcon aria-hidden />
         case '/submissions':
             return <SendIcon aria-hidden />
+        case '/documents':
+            return <FileTextIcon aria-hidden />
         case '/ranking':
             return <TrophyIcon aria-hidden />
         case '/students':

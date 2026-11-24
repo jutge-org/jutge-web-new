@@ -13,22 +13,24 @@ import {
     finishTimeMs,
     useExamFloatingWidgetSession,
 } from '@/hooks/useExamFloatingWidgetSession'
-import { examHasStarted, formatInstant, formatLiveTime24 } from '@/lib/data/liveExam'
+import { downloadExamDocument, examHasStarted, formatInstant, formatLiveTime24, liveErrorMessage } from '@/lib/data/liveExam'
+import { documentTypeLabel, getDocumentFileIcon } from '@/lib/instructor/documents'
 import { requestExamFloatingWidgetNavigation } from '@/lib/examFloatingWidget'
 import type { SubmissionRow } from '@/lib/submissions'
 import { cn } from '@/lib/utils'
-import { ClockIcon, FileBracesCornerIcon, InfoIcon, SendIcon, TimerIcon } from 'lucide-react'
+import { ClockIcon, DownloadIcon, FileBracesCornerIcon, FileTextIcon, InfoIcon, Loader2Icon, SendIcon, TimerIcon } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { AbstractStatus, RunningExam, RunningExamProblem } from '@/lib/jutge_api_client'
+import type { AbstractStatus, RunningExam, RunningExamDocument, RunningExamProblem } from '@/lib/jutge_api_client'
 
 export const EXAM_FLOATING_WIDGET_SIZE_PX = 300
 
-type TabId = 'info' | 'clock' | 'timer' | 'problems' | 'submissions'
+type TabId = 'info' | 'clock' | 'timer' | 'problems' | 'documents' | 'submissions'
 
 const TABS: { id: TabId; label: string; icon: ReactNode }[] = [
     { id: 'info', label: 'Info', icon: <InfoIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'problems', label: 'Problems', icon: <FileBracesCornerIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'submissions', label: 'Submissions', icon: <SendIcon className="size-4 shrink-0" aria-hidden /> },
+    { id: 'documents', label: 'Documents', icon: <FileTextIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'clock', label: 'Clock', icon: <ClockIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'timer', label: 'Timer', icon: <TimerIcon className="size-4 shrink-0" aria-hidden /> },
 ]
@@ -187,6 +189,95 @@ function ExamFloatingWidgetProblemStatus({ status }: { status?: AbstractStatus }
     if (icon) return icon
 
     return <span className="text-xs font-medium text-muted-foreground">{formatProblemStatusLabel(status)}</span>
+}
+
+function ExamFloatingWidgetDocuments({ documents }: { documents: RunningExamDocument[] }) {
+    const [downloadingNm, setDownloadingNm] = useState<string | null>(null)
+    const [error, setError] = useState<string | null>(null)
+
+    const sorted = useMemo(
+        () => [...documents].sort((a, b) => a.title.localeCompare(b.title)),
+        [documents],
+    )
+
+    async function runDownload(document: RunningExamDocument) {
+        if (downloadingNm) return
+        setDownloadingNm(document.document_nm)
+        setError(null)
+        try {
+            await downloadExamDocument(document)
+        } catch (err: unknown) {
+            setError(liveErrorMessage(err, 'Could not download the document.'))
+        } finally {
+            setDownloadingNm(null)
+        }
+    }
+
+    if (sorted.length === 0) {
+        return (
+            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-sm text-muted-foreground">
+                No documents
+            </div>
+        )
+    }
+
+    return (
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            {error ? (
+                <p className="shrink-0 border-b border-destructive/30 bg-destructive/10 px-2 py-1 text-[10px] leading-tight text-destructive">
+                    {error}
+                </p>
+            ) : null}
+            <ul className="min-h-0 flex-1 list-none overflow-y-auto overscroll-contain p-1" aria-label="Exam documents">
+                {sorted.map((document) => {
+                    const FileIcon = getDocumentFileIcon(document.type)
+                    const typeLabel = documentTypeLabel(document)
+                    const downloading = downloadingNm === document.document_nm
+                    return (
+                        <li key={document.document_nm} className="border-b border-border last:border-b-0">
+                            <div className="flex w-full items-center gap-1.5 rounded-md px-1.5 py-1.5">
+                                <FileIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                                <span className="min-w-0 flex-1">
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="block truncate text-sm font-medium text-foreground">
+                                                {document.title}
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top">{document.title}</TooltipContent>
+                                    </Tooltip>
+                                </span>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <button
+                                            type="button"
+                                            className="flex size-7 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted/60 hover:text-foreground disabled:opacity-50"
+                                            disabled={downloading || downloadingNm !== null}
+                                            aria-label={
+                                                downloading
+                                                    ? `Downloading ${document.title}`
+                                                    : `Download ${document.title} (${typeLabel})`
+                                            }
+                                            onClick={() => void runDownload(document)}
+                                        >
+                                            {downloading ? (
+                                                <Loader2Icon className="size-3.5 animate-spin" aria-hidden />
+                                            ) : (
+                                                <DownloadIcon className="size-3.5" aria-hidden />
+                                            )}
+                                        </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">
+                                        {downloading ? 'Downloading…' : `Download ${typeLabel}`}
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
+                        </li>
+                    )
+                })}
+            </ul>
+        </div>
+    )
 }
 
 function ExamFloatingWidgetProblems({
@@ -382,6 +473,8 @@ export function ExamFloatingWidget() {
         panel = (
             <ExamFloatingWidgetProblems problems={session.exam.problems} statuses={session.problemStatuses} />
         )
+    } else if (tab === 'documents') {
+        panel = <ExamFloatingWidgetDocuments documents={session.exam.documents} />
     } else if (tab === 'submissions') {
         panel = (
             <ExamFloatingWidgetSubmissions submissions={session.submissions} examProblems={session.exam.problems} />

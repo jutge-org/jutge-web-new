@@ -6,7 +6,16 @@ import jutge from '@/lib/jutge'
 import { saveFileWithDialog } from '@/lib/saveFileWithDialog'
 import { fetchSubmissionsInRange } from '@/lib/data/submissions'
 import type { SubmissionRow } from '@/lib/submissions'
-import type { JutgeApiClient, Ranking, ReadyExam, RunningExam, StudentExamCourse } from '@/lib/jutge_api_client'
+import { isDocumentZip } from '@/lib/instructor/documents'
+import type {
+    Download,
+    JutgeApiClient,
+    Ranking,
+    ReadyExam,
+    RunningExam,
+    RunningExamDocument,
+    StudentExamCourse,
+} from '@/lib/jutge_api_client'
 import { NotFoundError, UnauthorizedError } from '@/lib/jutge_api_client'
 
 dayjs.extend(duration)
@@ -75,10 +84,42 @@ export async function refreshTutorStatus(): Promise<LiveTutorStatus> {
     return jutge.tutor.examctl.getStatus()
 }
 
-export async function downloadExamDocument(documentNm: string): Promise<void> {
-    const file = await jutge.student.exam.getDocumentPdf(documentNm)
-    const blob = new Blob([new Uint8Array(file.data)], { type: file.type || 'application/pdf' })
-    await saveFileWithDialog({ blob, suggestedName: file.name || `${documentNm}.pdf` })
+async function downloadExamDocumentFile(
+    documentNm: string,
+    fetchFile: (document_nm: string) => Promise<Download>,
+    fallbackExt: string,
+    fallbackType: string,
+): Promise<void> {
+    const file = await fetchFile(documentNm)
+    const blob = new Blob([new Uint8Array(file.data)], { type: file.type || fallbackType })
+    await saveFileWithDialog({ blob, suggestedName: file.name || `${documentNm}${fallbackExt}` })
+}
+
+export async function downloadExamDocument(
+    document: Pick<RunningExamDocument, 'document_nm' | 'type'>,
+): Promise<void> {
+    if (isDocumentZip(document)) {
+        return downloadExamDocumentZip(document.document_nm)
+    }
+    return downloadExamDocumentPdf(document.document_nm)
+}
+
+export async function downloadExamDocumentPdf(documentNm: string): Promise<void> {
+    return downloadExamDocumentFile(
+        documentNm,
+        (document_nm) => jutge.student.exam.getDocumentPdf(document_nm),
+        '.pdf',
+        'application/pdf',
+    )
+}
+
+export async function downloadExamDocumentZip(documentNm: string): Promise<void> {
+    return downloadExamDocumentFile(
+        documentNm,
+        (document_nm) => jutge.student.exam.getDocumentZip(document_nm),
+        '.zip',
+        'application/zip',
+    )
 }
 
 export async function finishLiveExam(): Promise<void> {

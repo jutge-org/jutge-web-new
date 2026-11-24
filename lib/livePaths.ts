@@ -4,6 +4,7 @@ const EXACT_PATHS = new Set([
     '/',
     '/problems',
     '/submissions',
+    '/documents',
     '/finish',
     '/ranking',
     '/students',
