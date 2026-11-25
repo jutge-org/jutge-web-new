@@ -55,6 +55,10 @@ function buildExamInfoRows(
         label: 'Start time',
         value: exam.time_start ? formatLiveDateTime(exam.time_start) : '—',
     })
+    rows.push({
+        label: 'End time',
+        value: finishMs > 0 ? formatLiveDateTime(finishMs) : '—',
+    })
 
     if (status === 'finished') {
         rows.push({ label: 'Remaining time', value: 'Exam finished' })
@@ -118,8 +122,8 @@ export function LiveExamInfoCard({
 
     return (
         <Card className={cn('w-full overflow-hidden rounded-2xl border border-border py-0 shadow-sm ring-0', className)}>
-            <CardContent className="px-4 py-4 sm:px-5 sm:py-5">
-                <table className="w-full border-collapse [&_td]:py-1.5 [&_th]:py-1.5">
+            <CardContent className="px-4 py-3 sm:px-5 sm:py-4">
+                <table className="w-full border-collapse [&_td]:py-0.5 [&_th]:py-0.5">
                     <caption className="sr-only">Exam details</caption>
                     <tbody>
                         <tr>
@@ -155,7 +159,7 @@ export function LiveExamInfoCard({
                         <tr>
                             <th scope="row" className={LABEL_CLASS} aria-hidden />
                             <td className={VALUE_CLASS}>
-                                <div className="mt-4 flex flex-wrap gap-4">
+                                <div className="mt-2 flex flex-wrap gap-4">
                                     <LiveExamMarkdownDialog
                                         buttonLabel="Description"
                                         dialogTitle="Description"
