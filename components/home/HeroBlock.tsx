@@ -6,6 +6,7 @@ import { useRef } from 'react'
 
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
 import { TiltFrame } from '@/components/home/TiltFrame'
+import FocusBlurResolve from '@/components/smoothui/focus-blur-resolve'
 import MaskRevealUp from '@/components/smoothui/mask-reveal-up'
 import { isMotionReduced } from '@/lib/reducedMotion'
 import { isSoundEffectsEnabled } from '@/lib/soundEffects'
@@ -171,7 +172,15 @@ function HeroLogo() {
     )
 }
 
+const HERO_TAGLINE = 'The Virtual Learning Environment for Computer Programming'
+
+const taglineClassName =
+    'mx-auto max-w-3xl text-muted-foreground lg:text-2xl dark:font-thin'
+
 export function HeroBlock() {
+    const { reducedMotion } = useAppearancePreferences()
+    const motionReduced = isMotionReduced(reducedMotion)
+
     return (
         <section id="home-hero" className="scroll-mt-14" aria-label="Jutge.org">
             <div className="flex flex-col items-center gap-6 text-center">
@@ -184,13 +193,13 @@ export function HeroBlock() {
                     >
                         Jutge.org
                     </MaskRevealUp>
-                    <MaskRevealUp
-                        as="p"
-                        className="mx-auto max-w-3xl text-muted-foreground lg:text-2xl dark:font-thin"
-                        delay={180}
-                    >
-                        The Virtual Learning Environment for Computer Programming
-                    </MaskRevealUp>
+                    {motionReduced ? (
+                        <p className={taglineClassName}>{HERO_TAGLINE}</p>
+                    ) : (
+                        <FocusBlurResolve className={taglineClassName} delay={180}>
+                            {HERO_TAGLINE}
+                        </FocusBlurResolve>
+                    )}
                 </div>
             </div>
         </section>
