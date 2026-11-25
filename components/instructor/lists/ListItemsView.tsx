@@ -4,7 +4,7 @@ import { fetchAllAbstractProblems, fetchInstructorList, instructorListUpdate } f
 import { AgTable, AgTableFull } from '@/components/administrator/AgTable'
 import { ProblemNmLink, iconUrlFromAbstractProblems } from '@/components/instructor/ProblemNmLink'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -155,16 +155,16 @@ export function ListItemsView({ profile }: ListItemsViewProps) {
     return (
         <>
             <div className="mb-4 flex flex-row-reverse gap-2">
-                <Button className="w-28 justify-start" onClick={saveAction}>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={saveAction}>
                     <SaveIcon className={changes ? 'animate-pulse' : ''} />
                     Save
-                </Button>
-                <Button className="w-28 justify-start" onClick={deleteAction}>
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={deleteAction}>
                     <CircleMinusIcon /> Remove
-                </Button>
-                <Button className="w-28 justify-start" onClick={() => setIsAddDialogOpen(true)}>
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={() => setIsAddDialogOpen(true)}>
                     <PlusCircleIcon /> Add
-                </Button>
+                </SmoothButton>
             </div>
             <div className="h-[calc(100vh-200px)] w-full">
                 <AgTableFull
@@ -278,10 +278,10 @@ function DialogToAddProblems({
                                     onGridReady={onGridReady}
                                 />
                             </div>
-                            <Button onClick={addProblemsCallback} className="w-full mt-2">
+                            <SmoothButton color="blue" variant="candy" size="xs" onClick={addProblemsCallback} className="w-full mt-2">
                                 <PlusCircleIcon />
                                 Add problems
-                            </Button>
+                            </SmoothButton>
                         </TabsContent>
 
                         <TabsContent value="separator">
@@ -296,10 +296,10 @@ function DialogToAddProblems({
                                     />
                                 </div>
                             </div>
-                            <Button onClick={addSeparatorCallback} className="w-full mt-2">
+                            <SmoothButton color="blue" variant="candy" size="xs" onClick={addSeparatorCallback} className="w-full mt-2">
                                 <PlusCircleIcon />
                                 Add separator
-                            </Button>
+                            </SmoothButton>
                         </TabsContent>
                     </Tabs>
                 </DialogHeader>

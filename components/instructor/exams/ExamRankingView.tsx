@@ -7,8 +7,8 @@ import {
     fetchInstructorExamRanking,
     fetchMiscHexColors,
 } from '@/lib/instructor/client'
+import AnimatedToggle, { XS_BLUE_CANDY_MORPH_TOGGLE } from '@/components/smoothui/animated-toggle'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import type { ColorMapping, InstructorBriefExam, InstructorExamProblem, Ranking } from '@/lib/jutge_api_client'
 import { PauseIcon, RabbitIcon, SnailIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
@@ -86,11 +86,12 @@ export function ExamRankingView() {
                         </SelectItem>
                     </SelectContent>
                 </Select>
-                <Switch
+                <AnimatedToggle
+                    {...XS_BLUE_CANDY_MORPH_TOGGLE}
                     id="exam-ranking-blur-names"
                     checked={blurNames}
-                    onCheckedChange={setBlurNames}
-                    aria-label="Blur student names"
+                    label="Blur student names"
+                    onChange={setBlurNames}
                 />
                 <label htmlFor="exam-ranking-blur-names" className="cursor-pointer select-none">
                     Blur names

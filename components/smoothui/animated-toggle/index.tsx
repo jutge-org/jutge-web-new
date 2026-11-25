@@ -24,11 +24,34 @@ export interface AnimatedToggleProps {
   label?: string;
   /** Callback when checked state changes */
   onChange?: (checked: boolean) => void;
+  /** Track hue when checked (candy appearance) */
+  color?: "accent" | "neutral" | "destructive" | "blue" | "amber" | "green";
+  /** HTML id for label association */
+  id?: string;
   /** Size of the toggle */
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
+  /** Checked-track appearance */
+  trackAppearance?: "default" | "candy";
   /** Visual variant of the toggle */
   variant?: "default" | "morph" | "icon";
 }
+
+const COLOR_CLASSES: Record<
+  NonNullable<AnimatedToggleProps["color"]>,
+  string
+> = {
+  accent:
+    "[--btn-fg:#fff] [--btn-hover:var(--color-brand-secondary)] [--btn:var(--color-brand)]",
+  neutral:
+    "[--btn-fg:var(--color-background)] [--btn-hover:var(--color-smooth-900)] [--btn:var(--color-foreground)]",
+  destructive:
+    "[--btn-fg:#fff] [--btn-hover:color-mix(in_oklab,var(--color-destructive)_85%,black)] [--btn:var(--color-destructive)]",
+  blue: "[--btn-fg:var(--color-blue-fg)] [--btn-hover:var(--color-blue-hover)] [--btn:var(--color-blue)]",
+  amber:
+    "[--btn-fg:var(--color-amber-fg)] [--btn-hover:var(--color-amber-hover)] [--btn:var(--color-amber)]",
+  green:
+    "[--btn-fg:var(--color-green-fg)] [--btn-hover:var(--color-green-hover)] [--btn:var(--color-green)]",
+};
 
 const SPRING = {
   bounce: 0.1,
@@ -37,6 +60,12 @@ const SPRING = {
 };
 
 const SIZES = {
+  xs: {
+    icon: "size-2",
+    thumb: "size-3",
+    thumbTranslate: 12,
+    track: "w-7 h-4",
+  },
   lg: {
     icon: "size-3.5",
     thumb: "size-6",
@@ -62,9 +91,12 @@ const AnimatedToggle = ({
   defaultChecked = false,
   onChange,
   variant = "default",
+  trackAppearance = "default",
+  color = "accent",
   icons,
   size = "md",
   disabled = false,
+  id,
   label,
   className,
 }: AnimatedToggleProps) => {
@@ -98,6 +130,15 @@ const AnimatedToggle = ({
   );
 
   const sizeConfig = SIZES[size];
+  const checkedTrackClass =
+    trackAppearance === "candy" && checked
+      ? cn(
+          COLOR_CLASSES[color],
+          "border-[0.5px] border-white/25 bg-gradient-to-b from-[var(--btn,var(--color-brand))] to-[var(--btn-hover,var(--color-brand-secondary))] shadow-black/20 shadow-md ring-1 ring-[color-mix(in_oklab,var(--color-foreground)_15%,var(--btn,var(--color-brand)))]",
+        )
+      : checked
+        ? "bg-brand"
+        : "bg-muted-foreground/30";
 
   const getThumbBorderRadius = () => {
     if (variant !== "morph" || shouldReduceMotion) {
@@ -113,12 +154,13 @@ const AnimatedToggle = ({
 
   return (
     <button
+      id={id}
       aria-checked={checked}
       aria-label={label}
       className={cn(
         "relative inline-flex shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        checked ? "bg-brand" : "bg-muted-foreground/30",
+        checkedTrackClass,
         disabled && "cursor-not-allowed opacity-50",
         sizeConfig.track,
         className
@@ -183,5 +225,13 @@ const AnimatedToggle = ({
     </button>
   );
 };
+
+/** SmoothUI preset matching instructor toolbar toggles (xs · blue · candy track · morph thumb). */
+export const XS_BLUE_CANDY_MORPH_TOGGLE = {
+  color: "blue",
+  size: "xs",
+  trackAppearance: "candy",
+  variant: "morph",
+} as const satisfies Partial<AnimatedToggleProps>;
 
 export default AnimatedToggle;

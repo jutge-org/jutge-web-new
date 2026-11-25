@@ -10,7 +10,7 @@ import {
 import { AgTable, AgTableFull } from '@/components/administrator/AgTable'
 import { ProblemNmLink, iconUrlFromAbstractProblems } from '@/components/instructor/ProblemNmLink'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import {
     Dialog,
     DialogContent,
@@ -144,16 +144,16 @@ export function CourseListsView({ profile }: CourseListsViewProps) {
     return (
         <>
             <div className="mb-4 flex flex-row-reverse gap-2">
-                <Button className="w-28 justify-start" onClick={saveAction}>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={saveAction}>
                     <SaveIcon className={changes ? 'animate-pulse' : ''} />
                     Save
-                </Button>
-                <Button className="w-28 justify-start" onClick={deleteAction}>
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={deleteAction}>
                     <CircleMinusIcon /> Remove
-                </Button>
-                <Button className="w-28 justify-start" onClick={() => setIsAddDialogOpen(true)}>
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={() => setIsAddDialogOpen(true)}>
                     <PlusCircleIcon /> Add
-                </Button>
+                </SmoothButton>
             </div>
             <div className="h-[calc(100vh-200px)] w-full">
                 <AgTableFull
@@ -241,10 +241,10 @@ function DialogToAddLists({
                         />
                     </div>
                     <DialogFooter>
-                        <Button onClick={addCallback} className="w-full">
+                        <SmoothButton color="blue" variant="candy" size="xs" onClick={addCallback} className="w-full">
                             <PlusCircleIcon />
                             Add lists
-                        </Button>
+                        </SmoothButton>
                     </DialogFooter>
                 </DialogHeader>
             </DialogContent>
@@ -332,17 +332,17 @@ function DialogToShowList({
                     </div>
                     <DialogFooter className="flex flex-row gap-2">
                         <div className="w-full flex flex-col gap-2">
-                            <Button
+                            <SmoothButton color="blue" variant="candy" size="xs"
                                 onClick={() => redirect(`/instructor/lists/${listToShow}/items`)}
                                 className="w-full"
                             >
                                 <ArrowUpRightIcon />
                                 Go to list
-                            </Button>
-                            <Button onClick={() => setIsOpen(false)} className="w-full">
+                            </SmoothButton>
+                            <SmoothButton color="blue" variant="candy" size="xs" onClick={() => setIsOpen(false)} className="w-full">
                                 <XIcon />
                                 Close
-                            </Button>
+                            </SmoothButton>
                         </div>
                     </DialogFooter>
                 </DialogHeader>

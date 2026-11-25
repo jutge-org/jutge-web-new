@@ -2,8 +2,8 @@
 
 import { fetchInstructorCoursesArchived, fetchInstructorCoursesIndex } from '@/lib/instructor/client'
 import { AgTableFull } from '@/components/administrator/AgTable'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
+import AnimatedToggle, { XS_BLUE_CANDY_MORPH_TOGGLE } from '@/components/smoothui/animated-toggle'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { useIsMobile } from '@/hooks/use-mobile'
 import type { InstructorBriefCourse } from '@/lib/jutge_api_client'
 import dayjs from 'dayjs'
@@ -76,14 +76,19 @@ export function CoursesListView() {
     return (
         <>
             <div className="mb-4 flex flex-row gap-2">
-                <Switch checked={showArchived} onCheckedChange={showArchivedChange} />
+                <AnimatedToggle
+                    {...XS_BLUE_CANDY_MORPH_TOGGLE}
+                    checked={showArchived}
+                    label="Show archived courses"
+                    onChange={showArchivedChange}
+                />
                 <div className="text-sm">Archived courses</div>
                 <div className="flex-grow" />
-                <Link href="/instructor/courses/new">
-                    <Button>
+                <SmoothButton asChild color="blue" variant="candy" size="xs">
+                    <Link href="/instructor/courses/new">
                         <SquarePlusIcon /> New course
-                    </Button>
-                </Link>
+                    </Link>
+                </SmoothButton>
             </div>
             <AgTableFull rowData={rows} columnDefs={colDefs} />
         </>

@@ -11,6 +11,7 @@ import {
 import { AgTableFull } from '@/components/administrator/AgTable'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { useTextareaDialog } from '@/components/instructor/TextareaDialog'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { CommandSearchInput } from '@/components/CommandSearchInput'
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
@@ -311,26 +312,26 @@ export function ExamProblemsView({ profile }: ExamProblemsViewProps) {
                     <ClipboardPasteIcon /> Paste problems
                 </Button>
                 <div className="grow" />
-                <Button className="w-28 justify-start" onClick={add} title="Add a problem">
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={add} title="Add a problem">
                     <PlusCircleIcon /> Add
-                </Button>
-                <Button className="w-28 justify-start" onClick={edit} title="Edit selected problem">
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={edit} title="Edit selected problem">
                     <EditIcon /> Edit
-                </Button>
-                <Button className="w-28 justify-start" onClick={remove} title="Remove all selected problems">
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={remove} title="Remove all selected problems">
                     <CircleMinusIcon /> Remove
-                </Button>
-                <Button
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs"
                     className="w-28 justify-start"
                     onClick={decorate}
                     title="Add captions, wieghts and icons to all problems"
                 >
                     <PaintbrushIcon /> Decorate
-                </Button>
-                <Button className="w-28 justify-start" onClick={save} title="Save problems of the exam">
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={save} title="Save problems of the exam">
                     <SaveIcon className={changes ? 'animate-pulse' : ''} />
                     Save
-                </Button>
+                </SmoothButton>
             </div>
             <AgTableFull
                 rowData={rows}
@@ -451,10 +452,10 @@ function ProblemDialog(props: ProblemDialogProps) {
                     </div>
 
                     <DialogFooter className="pt-8">
-                        <Button onClick={acceptAction} className="w-full">
+                        <SmoothButton color="blue" variant="candy" size="xs" onClick={acceptAction} className="w-full">
                             {props.problem ? <EditIcon /> : <PlusCircleIcon />}
                             {props.problem ? 'Edit' : 'Add'} problem
-                        </Button>
+                        </SmoothButton>
                     </DialogFooter>
                 </DialogHeader>
             </DialogContent>
@@ -503,7 +504,7 @@ function ExamIcons(props: ExamIconsProps) {
                                 onClick={() => props.setValue(null)}
                                 title="Remove icon"
                                 className="text-gray-500"
-                                variant={'outline'}
+                                variant="outline"
                             >
                                 <XCircleIcon className="size-6" />
                             </Button>

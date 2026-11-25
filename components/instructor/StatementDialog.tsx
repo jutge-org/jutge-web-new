@@ -2,7 +2,7 @@
 
 import { XIcon } from 'lucide-react'
 import { JSX } from 'react'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 export default function StatementDialog({
@@ -24,10 +24,10 @@ export default function StatementDialog({
                     <DialogTitle>Statement for {problem_id}</DialogTitle>
                     <DialogDescription className="flex flex-col gap-4">
                         {content}
-                        <Button onClick={() => setIsOpen(false)}>
+                        <SmoothButton color="blue" variant="candy" size="xs" onClick={() => setIsOpen(false)}>
                             <XIcon />
                             Close
-                        </Button>
+                        </SmoothButton>
                     </DialogDescription>
                 </DialogHeader>
             </DialogContent>

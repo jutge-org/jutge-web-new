@@ -22,14 +22,14 @@ import { cn, commandFilter } from '@/lib/utils'
 import { DateTimePicker } from '@/components/instructor/DateTime'
 import { MultiSelect } from '@/components/instructor/MultiSelect'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import AnimatedToggle, { XS_BLUE_CANDY_MORPH_TOGGLE } from '@/components/smoothui/animated-toggle'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { CommandSearchInput } from '@/components/CommandSearchInput'
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import HtmlEditor from '@/components/administrator/HtmlEditor'
@@ -555,20 +555,22 @@ function JPasswordComponent(props: JPasswordComponentProps) {
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="off"
             />
-            <Button
+            <SmoothButton
                 type="button"
-                variant="outline"
-                className=""
+                color="blue"
+                variant="candy"
+                size="icon-sm"
                 onClick={() => setShowPassword((prev) => !prev)}
                 disabled={props.field.disabled}
+                title={showPassword ? 'Hide password' : 'Show password'}
             >
                 {showPassword && !props.field.disabled ? (
-                    <EyeIcon className="h-4 w-4" />
+                    <EyeIcon className="h-4 w-4" aria-hidden />
                 ) : (
-                    <EyeOffIcon className="h-4 w-4" />
+                    <EyeOffIcon className="h-4 w-4" aria-hidden />
                 )}
                 <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
-            </Button>
+            </SmoothButton>
         </div>
     )
 
@@ -704,8 +706,6 @@ interface JSwitchComponentProps {
 }
 
 function JSwitchComponent(props: JSwitchComponentProps) {
-    // the height of switch is strange, thus the pt-2
-
     function validate(value: boolean) {
         if (props.field.validator) {
             const result = props.field.validator.safeParse(value)
@@ -727,15 +727,19 @@ function JSwitchComponent(props: JSwitchComponentProps) {
     }
 
     const content = (
-        <div className="pt-2">
-            <div className="flex flex-row gap-2">
-                <Switch
-                    checked={props.field.value}
-                    onCheckedChange={(value) => change(value)}
-                    disabled={props.field.disabled}
-                />
-                <span className="text-sm">{props.field.value ? 'Yes' : 'No'}</span>
-            </div>
+        <div className="flex flex-row items-center gap-2">
+            <AnimatedToggle
+                {...XS_BLUE_CANDY_MORPH_TOGGLE}
+                checked={props.field.value}
+                disabled={props.field.disabled}
+                label={
+                    typeof props.field.label === 'string'
+                        ? props.field.label
+                        : 'Toggle field'
+                }
+                onChange={(value) => change(value)}
+            />
+            <span className="text-sm">{props.field.value ? 'Yes' : 'No'}</span>
         </div>
     )
 
@@ -809,12 +813,19 @@ function JSelectComponent(props: JSelectComponentProps) {
         <div className="">
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
+                    <SmoothButton
+                        type="button"
+                        color="blue"
+                        variant="candy"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-full justify-between font-normal"
+                        suffix={<ChevronsUpDown className="size-4 shrink-0 opacity-50" aria-hidden />}
+                    >
                         {props.field.value !== null
                             ? props.field.options.find((framework) => framework.value === props.field.value)?.label
                             : ''}
-                        <ChevronsUpDown className="opacity-50" />
-                    </Button>
+                    </SmoothButton>
                 </PopoverTrigger>
                 <PopoverContent className="w-[400px] p-0 shadow-xl">
                     <Command filter={commandFilter}>
@@ -954,10 +965,10 @@ function JButtonComponent(props: JButtonComponentProps) {
     }
 
     const content = (
-        <Button className="w-40 justify-start" onClick={() => pressAction()}>
+        <SmoothButton color="blue" variant="candy" size="xs" className="w-40 justify-start" onClick={() => pressAction()}>
             {props.field.icon}
             {props.field.text}
-        </Button>
+        </SmoothButton>
     )
 
     return <JFieldComponent label="" content={content} />
@@ -1083,9 +1094,12 @@ function DropzoneSingle(props: DropzoneSingleProps) {
                             {filesize(props.file.size, { standard: 'jedec' })}
                         </Badge>
                         <div className="flex-grow" />
-                        <Button
-                            variant="ghost"
-                            size="icon"
+                        <SmoothButton
+                            type="button"
+                            color="blue"
+                            variant="candy"
+                            size="icon-sm"
+                            title="Remove file"
                             onClick={() => {
                                 props.set(null)
                                 props.setErrors((prev) => ({
@@ -1094,8 +1108,8 @@ function DropzoneSingle(props: DropzoneSingleProps) {
                                 }))
                             }}
                         >
-                            <TrashIcon />
-                        </Button>
+                            <TrashIcon aria-hidden />
+                        </SmoothButton>
                     </div>
                 )}
             </div>

@@ -49,6 +49,7 @@ import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
 import { SearchInput } from '@/components/SearchInput'
 import { SubNav } from '@/components/general/SubNav'
 import { Badge } from '@/components/ui/badge'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -183,6 +184,7 @@ function SearchViewInner(props: SearchViewProps) {
                 setFullTextQuery={setFullTextQuery}
                 handleSemanticSearch={semanticSearch}
                 handleFullTextSearch={fullTextSearch}
+                smoothSearchActions={props.showInstructorStats}
             />
 
             {searching && <Searching />}
@@ -1185,6 +1187,7 @@ type SearchTabsComponentProps = {
     setFullTextQuery: (query: string) => void
     handleSemanticSearch: () => void
     handleFullTextSearch: () => void
+    smoothSearchActions?: boolean
 }
 
 function SearchTabsComponent(props: SearchTabsComponentProps) {
@@ -1216,7 +1219,7 @@ function SearchTabsComponent(props: SearchTabsComponentProps) {
                     <TooltipProvider>
                         {mode === 'semantic' ? (
                             <>
-                                <div className="flex gap-2">
+                                <div className="flex items-center gap-2">
                                     <SearchInput
                                         type="text"
                                         placeholder="Your query"
@@ -1227,14 +1230,28 @@ function SearchTabsComponent(props: SearchTabsComponentProps) {
                                     />
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button
-                                                onClick={props.handleSemanticSearch}
-                                                size="icon"
-                                                className="shrink-0"
-                                                aria-label="Semantic search"
-                                            >
-                                                <BotIcon className="h-4 w-4" aria-hidden />
-                                            </Button>
+                                            {props.smoothSearchActions ? (
+                                                <SmoothButton
+                                                    type="button"
+                                                    color="blue"
+                                                    variant="candy"
+                                                    size="xs"
+                                                    className="size-8 min-w-8 shrink-0 px-0"
+                                                    onClick={props.handleSemanticSearch}
+                                                    aria-label="Semantic search"
+                                                >
+                                                    <BotIcon aria-hidden />
+                                                </SmoothButton>
+                                            ) : (
+                                                <Button
+                                                    onClick={props.handleSemanticSearch}
+                                                    size="icon"
+                                                    className="shrink-0"
+                                                    aria-label="Semantic search"
+                                                >
+                                                    <BotIcon className="h-4 w-4" aria-hidden />
+                                                </Button>
+                                            )}
                                         </TooltipTrigger>
                                         <TooltipContent side="top">Semantic search</TooltipContent>
                                     </Tooltip>
@@ -1246,7 +1263,7 @@ function SearchTabsComponent(props: SearchTabsComponentProps) {
                             </>
                         ) : (
                             <>
-                                <div className="flex gap-2">
+                                <div className="flex items-center gap-2">
                                     <SearchInput
                                         type="text"
                                         placeholder="Your query"
@@ -1257,14 +1274,28 @@ function SearchTabsComponent(props: SearchTabsComponentProps) {
                                     />
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button
-                                                onClick={props.handleFullTextSearch}
-                                                size="icon"
-                                                className="shrink-0"
-                                                aria-label="Text search"
-                                            >
-                                                <SearchIcon className="h-4 w-4" aria-hidden />
-                                            </Button>
+                                            {props.smoothSearchActions ? (
+                                                <SmoothButton
+                                                    type="button"
+                                                    color="blue"
+                                                    variant="candy"
+                                                    size="xs"
+                                                    className="size-8 min-w-8 shrink-0 px-0"
+                                                    onClick={props.handleFullTextSearch}
+                                                    aria-label="Text search"
+                                                >
+                                                    <SearchIcon aria-hidden />
+                                                </SmoothButton>
+                                            ) : (
+                                                <Button
+                                                    onClick={props.handleFullTextSearch}
+                                                    size="icon"
+                                                    className="shrink-0"
+                                                    aria-label="Text search"
+                                                >
+                                                    <SearchIcon className="h-4 w-4" aria-hidden />
+                                                </Button>
+                                            )}
                                         </TooltipTrigger>
                                         <TooltipContent side="top">Text search</TooltipContent>
                                     </Tooltip>

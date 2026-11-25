@@ -3,7 +3,7 @@
 import { SendIcon } from 'lucide-react'
 import { JSX, useState } from 'react'
 import validator from 'validator'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -85,9 +85,9 @@ export const useEmailsDialog = (
                             value={value}
                             onChange={(e) => setValue(e.target.value)}
                         />
-                        <Button onClick={acceptAction}>
+                        <SmoothButton color="blue" variant="candy" size="xs" onClick={acceptAction}>
                             {config.buttonIcon} {config.buttonLabel}
-                        </Button>
+                        </SmoothButton>
                     </DialogContent>
                 </Dialog>
             </>
@@ -115,7 +115,7 @@ export function EmailsDialogDemo() {
 
     return (
         <>
-            <Button onClick={() => click()}>Click me!</Button>
+            <SmoothButton color="blue" variant="candy" size="xs" onClick={() => click()}>Click me!</SmoothButton>
             <EmailsDialogComponent />
         </>
     )

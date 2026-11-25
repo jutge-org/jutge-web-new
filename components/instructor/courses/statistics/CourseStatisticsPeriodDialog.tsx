@@ -1,6 +1,7 @@
 'use client'
 
 import FloatingToolbar from '@/components/instructor/FloatingToolbar'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -171,14 +172,13 @@ export function CourseStatisticsPeriodDialog({
         <FloatingToolbar>
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogTrigger asChild>
-                    <Button
+                    <SmoothButton color="blue" variant="candy"
                         size="icon"
-                        variant="default"
                         className="h-14 w-14 rounded-full"
                         aria-label="Open statistics period settings"
                     >
                         <FunnelIcon className="h-6 w-6" />
-                    </Button>
+                    </SmoothButton>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
                     <DialogHeader>
@@ -203,10 +203,10 @@ export function CourseStatisticsPeriodDialog({
                         />
                     </div>
                     <DialogFooter className="flex flex-col gap-0">
-                        <Button onClick={handleAccept} className="w-full">
+                        <SmoothButton color="blue" variant="candy" size="xs" onClick={handleAccept} className="w-full">
                             <CheckIcon className="h-4 w-4" />
                             Accept
-                        </Button>
+                        </SmoothButton>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

@@ -5,6 +5,7 @@ import { fetchInstructorExam, instructorExamUpdateStudents } from '@/lib/instruc
 import { AgTableFull } from '@/components/administrator/AgTable'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { useEmailsDialog } from '@/components/instructor/EmailsDialog'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { usePageChanges } from '@/hooks/use-page-changes'
 import { showError } from '@/lib/instructor/utils'
@@ -203,16 +204,16 @@ export function ExamStudentsView() {
     return (
         <>
             <div className="mb-4 flex flex-row-reverse gap-2 items-center">
-                <Button className="w-36 justify-start" onClick={saveHandle} title="Save changes">
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-36 justify-start" onClick={saveHandle} title="Save changes">
                     <SaveIcon className={changes ? 'animate-pulse' : ''} />
                     Save
-                </Button>
-                <Button className="w-36 justify-start" onClick={removeHandle} title="Remove students">
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-36 justify-start" onClick={removeHandle} title="Remove students">
                     <CircleMinusIcon /> Remove
-                </Button>
-                <Button className="w-36 justify-start" onClick={addHandle} title="Add students">
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-36 justify-start" onClick={addHandle} title="Add students">
                     <PlusCircleIcon /> Add
-                </Button>
+                </SmoothButton>
                 <div className="flex-grow" />
                 <div className="text-xs text-gray-500">{rows.length} students</div>
                 <div className="flex-grow" />

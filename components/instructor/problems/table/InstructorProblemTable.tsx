@@ -2,9 +2,10 @@
 
 import { AgTableFull } from '@/components/administrator/AgTable'
 import { ProblemNmLink } from '@/components/instructor/ProblemNmLink'
+import AnimatedToggle, { XS_BLUE_CANDY_MORPH_TOGGLE } from '@/components/smoothui/animated-toggle'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
 import { useIsMobile } from '@/hooks/use-mobile'
 import type { ICellRendererParams } from 'ag-grid-community'
 import dayjs from 'dayjs'
@@ -91,11 +92,18 @@ export default function InstructorProblemTable({ rows }: { rows: ProblemRow[] })
     return (
         <>
             <div className="flex flex-row-reverse gap-2 items-center">
-                <Link href="/instructor/problems/new">
-                    <Button className="w-36 justify-start" title="Add a new problem">
+                <SmoothButton
+                    asChild
+                    color="blue"
+                    variant="candy"
+                    size="xs"
+                    className="w-36 justify-start"
+                    title="Add a new problem"
+                >
+                    <Link href="/instructor/problems/new">
                         <SquarePlusIcon /> New problem
-                    </Button>
-                </Link>
+                    </Link>
+                </SmoothButton>
                 <Link
                     href="https://github.com/jutge-org/jutge-toolkit"
                     target="_blank"
@@ -107,7 +115,12 @@ export default function InstructorProblemTable({ rows }: { rows: ProblemRow[] })
                 </Link>
                 <div className="grow" />
                 <Label className="text-sm">
-                    <Switch checked={showDeprecated} onCheckedChange={(checked) => setShowDeprecated(checked)} />
+                    <AnimatedToggle
+                        {...XS_BLUE_CANDY_MORPH_TOGGLE}
+                        checked={showDeprecated}
+                        label="Show deprecated problems"
+                        onChange={setShowDeprecated}
+                    />
                     Show deprecated problems
                 </Label>
             </div>

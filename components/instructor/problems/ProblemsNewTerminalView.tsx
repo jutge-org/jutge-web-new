@@ -2,7 +2,7 @@
 
 import { fetchInstructorApiUrl } from '@/lib/instructor/client'
 import { useXTerm } from '@/components/instructor/XTerm'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { FitAddon } from '@xterm/addon-fit'
 import { ArrowRightIcon } from 'lucide-react'
 import Link from 'next/link'
@@ -85,12 +85,12 @@ export function ProblemsNewTerminalView() {
                 <div ref={ref} style={{ width: '100%', height: '100%' }} />
             </div>
             {!loading && problem_nm && (
-                <Link href={`/instructor/problems/${problem_nm}/properties`}>
-                    <Button className="w-full text-center">
+                <SmoothButton asChild color="blue" variant="candy" size="xs" className="w-full text-center">
+                    <Link href={`/instructor/problems/${problem_nm}/properties`}>
                         <ArrowRightIcon />
                         Go to problem {problem_nm}
-                    </Button>
-                </Link>
+                    </Link>
+                </SmoothButton>
             )}
         </div>
     )

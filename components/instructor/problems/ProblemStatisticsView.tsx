@@ -12,6 +12,8 @@ import { StatisticsChartTableView } from '@/components/instructor/statistics/Sta
 
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { CardContent, CardHeader, CardTitle, ResizableCard } from '@/components/ResizableCard'
+import AnimatedToggle, { XS_BLUE_CANDY_MORPH_TOGGLE } from '@/components/smoothui/animated-toggle'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -34,7 +36,6 @@ import FloatingToolbar from '@/components/instructor/FloatingToolbar'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Switch } from '@/components/ui/switch'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
@@ -382,14 +383,13 @@ function StatisticsSettingsDialog({
         <FloatingToolbar>
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogTrigger asChild>
-                    <Button
+                    <SmoothButton color="blue" variant="candy"
                         size="icon"
-                        variant="default"
                         className="h-14 w-14 rounded-full"
                         aria-label="Open statistics period settings"
                     >
                         <FunnelIcon className="h-6 w-6" />
-                    </Button>
+                    </SmoothButton>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
                     <DialogHeader>
@@ -403,9 +403,11 @@ function StatisticsSettingsDialog({
                                     .sort((a, b) => a.problem_id.localeCompare(b.problem_id))
                                     .map((p) => (
                                         <span key={p.problem_id} className="flex items-center gap-4">
-                                            <Switch
+                                            <AnimatedToggle
+                                                {...XS_BLUE_CANDY_MORPH_TOGGLE}
                                                 checked={draftSelectedProblemIds.has(p.problem_id)}
-                                                onCheckedChange={(checked) =>
+                                                label={`Include ${p.problem_id} in statistics`}
+                                                onChange={(checked) =>
                                                     setDraftSelectedProblemIds((prev) => {
                                                         const next = new Set(prev)
                                                         if (checked) next.add(p.problem_id)
@@ -413,7 +415,6 @@ function StatisticsSettingsDialog({
                                                         return next
                                                     })
                                                 }
-                                                aria-label={`Include ${p.problem_id} in statistics`}
                                             />
                                             <span className="font-medium text-foreground w-20">{p.problem_id}</span>
                                             <span className="max-w-[200px] truncate sm:max-w-none" title={p.title}>
@@ -447,10 +448,10 @@ function StatisticsSettingsDialog({
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button onClick={handleAccept} className="w-full">
+                        <SmoothButton color="blue" variant="candy" size="xs" onClick={handleAccept} className="w-full">
                             <CheckIcon className="h-4 w-4" />
                             Accept
-                        </Button>
+                        </SmoothButton>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

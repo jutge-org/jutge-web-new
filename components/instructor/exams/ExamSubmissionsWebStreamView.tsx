@@ -2,7 +2,7 @@
 
 import { fetchInstructorApiUrl } from '@/lib/instructor/client'
 import { useXTerm } from '@/components/instructor/XTerm'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { CloudDownloadIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -63,12 +63,12 @@ export function ExamSubmissionsWebStreamView({ webstream_id }: ExamSubmissionsWe
                 <div ref={ref} style={{ width: '100%', height: '100%' }} />
             </div>
             {!loading && packId && apiUrl && (
-                <Link href={`${apiUrl}/packs/${packId}`}>
-                    <Button className="w-full text-center">
+                <SmoothButton asChild color="blue" variant="candy" size="xs" className="w-full text-center">
+                    <Link href={`${apiUrl}/packs/${packId}`}>
                         <CloudDownloadIcon />
                         Download
-                    </Button>
-                </Link>
+                    </Link>
+                </SmoothButton>
             )}
         </div>
     )

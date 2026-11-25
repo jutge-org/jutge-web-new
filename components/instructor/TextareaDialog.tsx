@@ -1,7 +1,7 @@
 'use client'
 
 import { JSX, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -57,9 +57,9 @@ export const useTextareaDialog = (
                         <DialogDescription>{config.description}</DialogDescription>
                     </DialogHeader>
                     <Textarea value={value} onChange={(e) => setValue(e.target.value)} className="h-32" />
-                    <Button onClick={acceptAction}>
+                    <SmoothButton color="blue" variant="candy" size="xs" onClick={acceptAction}>
                         {config.buttonIcon} {config.buttonLabel}
-                    </Button>
+                    </SmoothButton>
                 </DialogContent>
             </Dialog>
         )

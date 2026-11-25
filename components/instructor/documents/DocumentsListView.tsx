@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { fetchInstructorDocumentsIndex } from '@/lib/instructor/client'
 import { AgTableFull } from '@/components/administrator/AgTable'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { documentFileExtension, getDocumentFile, getDocumentFileIcon } from '@/lib/instructor/documents'
@@ -89,11 +90,11 @@ export function DocumentsListView() {
     return (
         <>
             <div className="mb-4 flex flex-row-reverse gap-2">
-                <Link href="/instructor/documents/new">
-                    <Button>
+                <SmoothButton asChild color="blue" variant="candy" size="xs">
+                    <Link href="/instructor/documents/new">
                         <SquarePlusIcon /> New document
-                    </Button>
-                </Link>
+                    </Link>
+                </SmoothButton>
             </div>
             <AgTableFull rowData={documents} columnDefs={colDefs} />
         </>

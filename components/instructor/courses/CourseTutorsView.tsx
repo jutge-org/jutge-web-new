@@ -11,6 +11,7 @@ import { AgTableFull } from '@/components/administrator/AgTable'
 import { useConfirmDialog } from '@/components/administrator/ConfirmDialog'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { useEmailsDialog } from '@/components/instructor/EmailsDialog'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { usePageChanges } from '@/hooks/use-page-changes'
 import { emailRenderer } from '@/lib/administrator/grid-renderers'
@@ -66,6 +67,7 @@ function CourseTutorsForm(props: CourseTutorsProps) {
         acceptLabel: 'Yes, send',
         acceptIcon: <SendHorizonalIcon />,
         cancelLabel: 'No',
+        smoothActions: true,
     })
 
     const { course_nm } = useParams<{ course_nm: string }>()
@@ -232,19 +234,19 @@ function CourseTutorsForm(props: CourseTutorsProps) {
     return (
         <>
             <div className="mb-4 flex flex-row-reverse gap-2 items-center">
-                <Button className="w-28 justify-start" onClick={save} title="Save changes">
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={save} title="Save changes">
                     <SaveIcon className={changes ? 'animate-pulse' : ''} />
                     Save
-                </Button>
-                <Button className="w-28 justify-start" onClick={invite} title="Send invite to pending tutors">
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={invite} title="Send invite to pending tutors">
                     <SendHorizonalIcon /> Invite
-                </Button>
-                <Button className="w-28 justify-start" onClick={remove} title="Remove tutors">
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={remove} title="Remove tutors">
                     <CircleMinusIcon /> Remove
-                </Button>
-                <Button className="w-28 justify-start" onClick={add} title="Add tutors">
+                </SmoothButton>
+                <SmoothButton color="blue" variant="candy" size="xs" className="w-28 justify-start" onClick={add} title="Add tutors">
                     <PlusCircleIcon /> Add
-                </Button>
+                </SmoothButton>
                 <div className="flex-grow" />
                 <div className="text-xs text-gray-500">{rows.length} tutors</div>
                 <div className="flex-grow" />

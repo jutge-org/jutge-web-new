@@ -2,6 +2,7 @@
 
 import { fetchInstructorApiUrl, fetchJutgeaiSupportedModels, jutgeaiChatMessages } from '@/lib/instructor/client'
 import { MarkdownText } from '@/components/general/MarkdownText'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -177,10 +178,10 @@ export function JutgeAIChatView() {
                             ))}
                         </SelectContent>
                     </Select>
-                    <Button onClick={handleSend} disabled={loading || !input.trim() || !selectedModel} className="w-42">
+                    <SmoothButton color="blue" variant="candy" size="xs" onClick={handleSend} disabled={loading || !input.trim() || !selectedModel} className="w-42">
                         <SendHorizontalIcon className="size-4" />
                         Send
-                    </Button>
+                    </SmoothButton>
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { BanIcon, CircleCheckBigIcon } from 'lucide-react'
 import { JSX, useState } from 'react'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
@@ -11,6 +12,8 @@ export type ConfirmDialogConfig = {
     acceptLabel?: string
     cancelIcon?: React.ReactNode
     cancelLabel?: string
+    /** Blue candy accept + outline cancel (SmoothUI). */
+    smoothActions?: boolean
 }
 
 export type ConfirmDialogResult = boolean
@@ -59,14 +62,42 @@ export const useConfirmDialog = (
                         <DialogDescription>{message}</DialogDescription>
                     </DialogHeader>
                     <div className="flex w-full flex-row gap-2 pt-4">
-                        <Button className="flex-1" variant="outline" onClick={cancelAction}>
-                            {cancelIcon}
-                            {config.cancelLabel || 'Cancel'}
-                        </Button>
-                        <Button className="flex-1" onClick={acceptAction}>
-                            {acceptIcon}
-                            {config.acceptLabel || 'Accept'}
-                        </Button>
+                        {config.smoothActions ? (
+                            <>
+                                <SmoothButton
+                                    type="button"
+                                    variant="outline"
+                                    size="xs"
+                                    className="min-w-0 flex-1"
+                                    onClick={cancelAction}
+                                >
+                                    {cancelIcon}
+                                    {config.cancelLabel || 'Cancel'}
+                                </SmoothButton>
+                                <SmoothButton
+                                    type="button"
+                                    color="blue"
+                                    variant="candy"
+                                    size="xs"
+                                    className="min-w-0 flex-1"
+                                    onClick={acceptAction}
+                                >
+                                    {acceptIcon}
+                                    {config.acceptLabel || 'Accept'}
+                                </SmoothButton>
+                            </>
+                        ) : (
+                            <>
+                                <Button className="flex-1" variant="outline" onClick={cancelAction}>
+                                    {cancelIcon}
+                                    {config.cancelLabel || 'Cancel'}
+                                </Button>
+                                <Button className="flex-1" onClick={acceptAction}>
+                                    {acceptIcon}
+                                    {config.acceptLabel || 'Accept'}
+                                </Button>
+                            </>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>
