@@ -75,29 +75,6 @@ function formatInstantMark(ms: number, now: number): string {
     return `${date.format('YYYY-MM-DD')} ${time}`
 }
 
-function PhaseTrack({ phase }: { phase: TimerPhase }) {
-    const filled = phase === 'finished' ? 3 : phase === 'running' ? 2 : 1
-    return (
-        <div className="flex gap-1.5 px-4 pt-3" aria-hidden>
-            {[0, 1, 2].map((index) => (
-                <span
-                    key={index}
-                    className={cn(
-                        'h-1 flex-1 rounded-full',
-                        index < filled
-                            ? phase === 'finished'
-                                ? 'bg-destructive-ink'
-                                : phase === 'running'
-                                  ? 'bg-blue'
-                                  : 'bg-smooth-600'
-                            : 'bg-smooth-300 dark:bg-smooth-400',
-                    )}
-                />
-            ))}
-        </div>
-    )
-}
-
 function TimerStatusPill({ phase, urgent }: { phase: TimerPhase; urgent: boolean }) {
     if (phase === 'waiting') {
         return (
@@ -336,7 +313,6 @@ export function ExamTimerCard({
 
     return (
         <div className={cn('flex min-h-0 flex-1 flex-col', className)}>
-            <PhaseTrack phase={phase} />
             <div className="flex justify-center px-3 pt-3">
                 <TimerStatusPill phase={phase} urgent={urgent} />
             </div>
