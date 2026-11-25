@@ -15,30 +15,63 @@
     border: 3px solid #fff;
 }
 
+/* DB / station-clock second hand: stem split by a hollow ring (dial shows through). */
 .analog-clock .react-clock__second-hand {
     transition: transform 0.2s cubic-bezier(0.68, 0, 0.27, 1.55);
+    /* Keep --second-hand-length-pct in sync with ReactClock secondHandLength / opposite. */
+    --second-hand-length-pct: 88;
+    --second-hand-opposite-pct: 25;
+    --second-hand-tip: calc(50% - (var(--second-hand-length-pct) * 1%) / 2);
+    --second-hand-tail: calc(50% + (var(--second-hand-opposite-pct) * 1%) / 2);
+    --second-hand-ring-inset: 10%;
+    --second-hand-ring-center-clock: calc(var(--second-hand-tip) + var(--second-hand-ring-inset));
+    --second-hand-ring-center-body: calc(
+        (var(--second-hand-ring-center-clock) - var(--second-hand-tip)) * 100% /
+            (var(--second-hand-tail) - var(--second-hand-tip))
+    );
+    --second-hand-ring-y: var(--second-hand-ring-center-clock);
+    --second-hand-ring-size: 21px;
+    --second-hand-ring-stroke: 5px;
+    /* Mask only the hollow center; stem stays continuous under the ring stroke. */
+    --second-hand-ring-gap: calc(
+        (var(--second-hand-ring-size) - 2 * var(--second-hand-ring-stroke)) / 2 + 0.5px
+    );
 }
 
-.analog-clock .react-clock__second-hand__body::before,
-.analog-clock .react-clock__second-hand__body::after {
+.analog-clock .react-clock__second-hand__body {
+    mask-image: linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 calc(var(--second-hand-ring-center-body) - var(--second-hand-ring-gap)),
+        transparent calc(var(--second-hand-ring-center-body) - var(--second-hand-ring-gap)),
+        transparent calc(var(--second-hand-ring-center-body) + var(--second-hand-ring-gap)),
+        #000 calc(var(--second-hand-ring-center-body) + var(--second-hand-ring-gap)),
+        #000 100%
+    );
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 calc(var(--second-hand-ring-center-body) - var(--second-hand-ring-gap)),
+        transparent calc(var(--second-hand-ring-center-body) - var(--second-hand-ring-gap)),
+        transparent calc(var(--second-hand-ring-center-body) + var(--second-hand-ring-gap)),
+        #000 calc(var(--second-hand-ring-center-body) + var(--second-hand-ring-gap)),
+        #000 100%
+    );
+}
+
+/* Ring on the hand, not the masked body — otherwise the mask hides it. */
+.analog-clock .react-clock__second-hand::after {
     content: '';
     display: block;
     position: absolute;
     left: 50%;
+    top: var(--second-hand-ring-y);
+    width: var(--second-hand-ring-size);
+    height: var(--second-hand-ring-size);
+    border: var(--second-hand-ring-stroke) solid red;
     border-radius: 50%;
-    background-color: red;
-}
-
-.analog-clock .react-clock__second-hand__body::before {
-    bottom: 20%;
-    width: 7px;
-    height: 7px;
-    transform: translate(-50%) translateY(-50%);
-}
-
-.analog-clock .react-clock__second-hand__body::after {
-    top: 0;
-    width: 20px;
-    height: 20px;
-    transform: translate(-50%);
+    background-color: transparent;
+    box-sizing: border-box;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
 }

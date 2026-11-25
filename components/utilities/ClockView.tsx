@@ -1,5 +1,6 @@
 'use client'
 
+import { PageSpinner } from '@/components/ClientGates'
 import AnimatedTabs from '@/components/smoothui/animated-tabs'
 import AnimatedToggle from '@/components/smoothui/animated-toggle'
 import Scrubber from '@/components/smoothui/scrubber'
@@ -351,7 +352,8 @@ function ClockToolbar({ propertiesOpen, fullscreen, elevated, onPropertiesOpen, 
 
 export function ClockView() {
     const stageRef = useRef<HTMLDivElement>(null)
-    const [now, setNow] = useState(() => new Date())
+    /** null until mount — react-clock SSR would mismatch hand angles vs client. */
+    const [now, setNow] = useState<Date | null>(null)
     const [view, setView] = useState<ClockViewMode>('analog')
     const [hourCycle, setHourCycle] = useState<HourCycle>('h23')
     const [showSeconds, setShowSeconds] = useState(true)
@@ -372,7 +374,7 @@ export function ClockView() {
     propertiesOpenRef.current = propertiesOpen
     const fullscreen = useClockFullscreen((state) => state.active)
     const setFullscreen = useClockFullscreen((state) => state.setActive)
-    const pieces = clockPieces(now, hourCycle, showSeconds)
+    const pieces = now ? clockPieces(now, hourCycle, showSeconds) : []
 
     useEffect(() => {
         let timeoutId = 0
@@ -386,7 +388,7 @@ export function ClockView() {
             if (document.visibilityState === 'visible') setNow(new Date())
         }
 
-        timeoutId = window.setTimeout(tick, 1000 - (Date.now() % 1000))
+        tick()
         document.addEventListener('visibilitychange', onVisibilityChange)
         return () => {
             window.clearTimeout(timeoutId)
@@ -514,7 +516,9 @@ export function ClockView() {
                 />
                 <div className="@container flex h-full min-h-0 w-full min-w-0 flex-col items-center">
                     <div className="clock-face-slot flex min-h-0 w-full flex-1 items-center justify-center">
-                        {view === 'analog' ? (
+                        {!now ? (
+                            <PageSpinner />
+                        ) : view === 'analog' ? (
                             <ReactClock
                                 className="analog-clock"
                                 value={now}
@@ -529,9 +533,9 @@ export function ClockView() {
                                 minuteHandOppositeLength={20}
                                 minuteHandWidth={6}
                                 minuteMarksWidth={3}
-                                secondHandLength={75}
+                                secondHandLength={88}
                                 secondHandOppositeLength={25}
-                                secondHandWidth={3}
+                                secondHandWidth={4}
                             />
                         ) : (
                             <time
