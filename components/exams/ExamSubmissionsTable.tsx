@@ -2,8 +2,8 @@
 
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useMemo } from 'react'
 import Link from 'next/link'
+import { useMemo } from 'react'
 
 import { AgTableAutoHeight } from '@/components/administrator/AgTable'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
@@ -22,8 +22,7 @@ const HEADER_HEIGHT = 32
 
 const defaultColDef = {
     sortable: true,
-    filter: false,
-    suppressHeaderMenuButton: true,
+    filter: true,
     resizable: false,
 }
 
@@ -112,7 +111,10 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
                         <TooltipContent side="top">{params.data.verdictFullName}</TooltipContent>
                     </Tooltip>
                 ),
-                valueGetter: (params: { data: SubmissionRow }) => params.data.verdict,
+                valueGetter: (params: { data: SubmissionRow }) =>
+                    params.data.verdict_info
+                        ? `${params.data.verdict} ${params.data.verdict_info}`
+                        : params.data.verdict,
             },
             {
                 field: 'compiler_id',
@@ -162,20 +164,20 @@ export function ExamSubmissionsTable({ submissions }: ExamSubmissionsTableProps)
     return (
         <TooltipProvider>
             <div className="min-w-0 overflow-x-auto px-1 pb-px [&_.ag-cell]:overflow-visible">
-            <AgTableAutoHeight
-                rowData={submissions}
-                columnDefs={colDefs}
-                defaultColDef={defaultColDef}
-                domLayout="autoHeight"
-                rowHeight={ROW_HEIGHT}
-                headerHeight={HEADER_HEIGHT}
-                wrapperBorder={false}
-                themeParams={{
-                    backgroundColor: 'var(--card)',
-                    oddRowBackgroundColor: 'var(--card)',
-                    chromeBackgroundColor: 'var(--card)',
-                }}
-            />
+                <AgTableAutoHeight
+                    rowData={submissions}
+                    columnDefs={colDefs}
+                    defaultColDef={defaultColDef}
+                    domLayout="autoHeight"
+                    rowHeight={ROW_HEIGHT}
+                    headerHeight={HEADER_HEIGHT}
+                    wrapperBorder={false}
+                    themeParams={{
+                        backgroundColor: 'var(--card)',
+                        oddRowBackgroundColor: 'var(--card)',
+                        chromeBackgroundColor: 'var(--card)',
+                    }}
+                />
             </div>
         </TooltipProvider>
     )
