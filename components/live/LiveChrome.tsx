@@ -21,6 +21,14 @@ export function LiveNotice({ children }: { children: ReactNode }) {
     )
 }
 
+export function LiveErrorNotice({ children }: { children: ReactNode }) {
+    return (
+        <Alert variant="destructive" className="border-destructive/40 bg-destructive/15">
+            <AlertDescription className="text-destructive">{children}</AlertDescription>
+        </Alert>
+    )
+}
+
 export function LivePage({
     title,
     children,

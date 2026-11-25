@@ -17,7 +17,7 @@ import { type ReactNode, useEffect, useState } from 'react'
 import { LiveDashboard } from '@/components/live/LiveDashboard'
 import { ApiStatusCard } from '@/components/live/ApiStatusCard'
 import { ContestWatchForm } from '@/components/live/ContestWatchForm'
-import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
+import { LiveErrorNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import AnimatedTabs from '@/components/smoothui/animated-tabs'
 import SmoothButton from '@/components/smoothui/smooth-button'
@@ -265,8 +265,8 @@ function LiveSignIn({
 
     return (
         <>
-            {error ? <LiveNotice>{error}</LiveNotice> : null}
-            {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
+            {error ? <LiveErrorNotice>{error}</LiveErrorNotice> : null}
+            {session.error ? <LiveErrorNotice>{session.error}</LiveErrorNotice> : null}
             <form
                 className={cn('flex flex-col gap-4', className)}
                 onSubmit={(event) => {
