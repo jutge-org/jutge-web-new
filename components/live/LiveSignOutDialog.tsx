@@ -123,10 +123,10 @@ export function LiveSignOutDialog({
                         {error}
                     </p>
                 ) : null}
-                <div className="flex flex-col gap-6">
+                <div className="mt-6 flex flex-col gap-6">
                     <SmoothButton
                         type="button"
-                        color={finish ? 'destructive' : 'blue'}
+                        color={confirmed ? 'blue' : finish ? 'destructive' : 'green'}
                         variant="candy"
                         className="w-full"
                         disabled={pending}
