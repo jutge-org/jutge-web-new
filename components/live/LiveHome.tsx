@@ -202,7 +202,7 @@ function LiveSignIn({
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [examKey, setExamKey] = useState('')
-    const [examPassword, setExamPassword] = useState('')
+    const [examPassword, setExamPassword] = useState('0000')
     const [error, setError] = useState<string | null>(null)
     const [pending, setPending] = useState(false)
 
@@ -259,7 +259,7 @@ function LiveSignIn({
 
     function handleBack() {
         session.cancelPreExam()
-        setExamPassword('')
+        setExamPassword('0000')
         setError(null)
     }
 
