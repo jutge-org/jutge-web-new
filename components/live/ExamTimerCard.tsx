@@ -5,7 +5,15 @@ import { CheckIcon, ClockIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState, type ReactNode } from 'react'
 
-import { examElapsedProgress, examStartedAtMs, formatClock, formatRemainingHuman } from '@/lib/data/liveExam'
+import {
+    EXAM_RED_ZONE_FRACTION,
+    examElapsedProgress,
+    examRedZoneElapsedFraction,
+    examRedZoneRemainingMs,
+    examStartedAtMs,
+    formatClock,
+    formatRemainingHuman,
+} from '@/lib/data/liveExam'
 import {
     DEFAULT_REDUCED_MOTION,
     isMotionReduced,
@@ -19,12 +27,41 @@ import { cn } from '@/lib/utils'
 
 type TimerPhase = 'waiting' | 'running' | 'finished'
 
-const HURRY_REMAINING_MS = 5 * 60 * 1000
-const HUMAN_REMAINING_MS = 15 * 60 * 1000
+/** Show seconds on footer instants when within five minutes of now. */
+const INSTANT_MARK_NEAR_NOW_MS = 5 * 60 * 1000
 const RING_SIZE = 136
 const RING_STROKE = 8
 const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
+/** Gap at noon on each side; ring runs clockwise from right gap to left gap. */
+const RING_GAP_CLOCK_DEG = 20
+const RING_START_CLOCK_DEG = RING_GAP_CLOCK_DEG
+const RING_END_CLOCK_DEG = 360 - RING_GAP_CLOCK_DEG
+const RING_SPAN_CLOCK_DEG = RING_END_CLOCK_DEG - RING_START_CLOCK_DEG
+const RING_ARC_LENGTH = RING_CIRCUMFERENCE * (RING_SPAN_CLOCK_DEG / 360)
+
+function ringPointFromClockDeg(clockDeg: number, cx: number, cy: number, r: number) {
+    const rad = (clockDeg * Math.PI) / 180
+    return {
+        x: cx + r * Math.sin(rad),
+        y: cy - r * Math.cos(rad),
+    }
+}
+
+/** Clockwise arc along the exam ring (clock degrees: 0 = noon, increases clockwise). */
+function ringArcPath(fromClockDeg: number, toClockDeg: number, cx: number, cy: number, r: number): string {
+    if (toClockDeg <= fromClockDeg) return ''
+    const start = ringPointFromClockDeg(fromClockDeg, cx, cy, r)
+    const end = ringPointFromClockDeg(toClockDeg, cx, cy, r)
+    const delta = toClockDeg - fromClockDeg
+    const largeArc = delta > 180 ? 1 : 0
+    return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`
+}
+
+function examProgressToClockDeg(elapsedFraction: number): number {
+    const clamped = Math.max(0, Math.min(1, elapsedFraction))
+    return RING_START_CLOCK_DEG + clamped * RING_SPAN_CLOCK_DEG
+}
 
 export type ExamTimerAction = { href: string } | { onClick: () => void }
 
@@ -69,7 +106,7 @@ function instantMarkShowsDate(ms: number, now: number): boolean {
 function formatInstantMark(ms: number, now: number): string {
     if (!Number.isFinite(ms)) return '—'
     const date = dayjs(ms)
-    const nearNow = Math.abs(ms - now) < HURRY_REMAINING_MS
+    const nearNow = Math.abs(ms - now) < INSTANT_MARK_NEAR_NOW_MS
     const time = date.format(nearNow ? 'HH:mm:ss' : 'HH:mm')
     if (!instantMarkShowsDate(ms, now)) return time
     return `${date.format('YYYY-MM-DD')} ${time}`
@@ -116,17 +153,18 @@ function TimerStatusPill({ phase, urgent }: { phase: TimerPhase; urgent: boolean
 function TimerRing({
     variant,
     progress = 0,
-    arcUrgent = false,
+    redZoneStartProgress = 1 - EXAM_RED_ZONE_FRACTION,
     dashedPulse = false,
 }: {
     variant: 'dashed' | 'drain' | 'full'
     progress?: number
-    arcUrgent?: boolean
+    /** Elapsed fraction where the ring switches from blue to red (default: last tenth of the exam). */
+    redZoneStartProgress?: number
     dashedPulse?: boolean
 }) {
     const center = RING_SIZE / 2
-    const circle = { cx: center, cy: center, r: RING_RADIUS, fill: 'none' as const }
-    const dotGap = RING_CIRCUMFERENCE / 28
+    const trackPath = ringArcPath(RING_START_CLOCK_DEG, RING_END_CLOCK_DEG, center, center, RING_RADIUS)
+    const dotGap = RING_ARC_LENGTH / 28
 
     return (
         <svg
@@ -137,8 +175,9 @@ function TimerRing({
             aria-hidden
         >
             {variant === 'dashed' ? (
-                <circle
-                    {...circle}
+                <path
+                    d={trackPath}
+                    fill="none"
                     stroke="currentColor"
                     strokeWidth={5}
                     strokeLinecap="round"
@@ -148,35 +187,60 @@ function TimerRing({
             ) : null}
             {variant === 'drain' ? (
                 <>
-                    <circle
-                        {...circle}
+                    <path
+                        d={trackPath}
                         fill="none"
                         stroke="var(--border)"
-                        strokeOpacity={0.8}
+                        strokeOpacity={0.85}
                         strokeWidth={RING_STROKE}
+                        strokeLinecap="round"
                     />
                     {(() => {
                         const elapsed = Math.max(0, Math.min(1, progress))
-                        const arcLength = elapsed * RING_CIRCUMFERENCE
-                        if (arcLength <= 0) return null
+                        const threshold = Math.max(0, Math.min(1, redZoneStartProgress))
+                        const elapsedClock = examProgressToClockDeg(elapsed)
+                        const thresholdClock = examProgressToClockDeg(threshold)
+                        const blueEndClock = examProgressToClockDeg(Math.min(elapsed, threshold))
+                        const bluePath = ringArcPath(RING_START_CLOCK_DEG, blueEndClock, center, center, RING_RADIUS)
+                        const redPath =
+                            elapsed > threshold
+                                ? ringArcPath(thresholdClock, elapsedClock, center, center, RING_RADIUS)
+                                : ''
+                        const nearComplete = elapsed > 0.985
                         return (
-                            <circle
-                                {...circle}
-                                fill="none"
-                                stroke={
-                                    arcUrgent ? 'var(--color-destructive)' : 'var(--color-blue)'
-                                }
-                                strokeWidth={RING_STROKE}
-                                strokeLinecap={elapsed > 0.985 ? 'butt' : 'round'}
-                                strokeDasharray={`${arcLength} ${RING_CIRCUMFERENCE}`}
-                                transform={`rotate(-90 ${center} ${center})`}
-                            />
+                            <>
+                                {redPath ? (
+                                    <path
+                                        d={redPath}
+                                        fill="none"
+                                        stroke="var(--color-destructive)"
+                                        strokeWidth={RING_STROKE}
+                                        strokeLinecap={nearComplete ? 'butt' : 'round'}
+                                    />
+                                ) : null}
+                                {bluePath ? (
+                                    <path
+                                        d={bluePath}
+                                        fill="none"
+                                        stroke="var(--color-blue)"
+                                        strokeWidth={RING_STROKE}
+                                        strokeLinecap="round"
+                                    />
+                                ) : null}
+                            </>
                         )
                     })()}
                 </>
             ) : null}
             {variant === 'full' ? (
-                <circle {...circle} stroke="currentColor" strokeWidth={RING_STROKE} className="text-destructive-ink" />
+                <path
+                    d={trackPath}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={RING_STROKE}
+                    strokeLinecap="round"
+                    className="text-destructive-ink"
+                />
             ) : null}
         </svg>
     )
@@ -185,19 +249,24 @@ function TimerRing({
 function TimerFace({
     variant,
     progress,
-    arcUrgent,
+    redZoneStartProgress,
     dashedPulse,
     children,
 }: {
     variant: 'dashed' | 'drain' | 'full'
     progress?: number
-    arcUrgent?: boolean
+    redZoneStartProgress?: number
     dashedPulse?: boolean
     children: ReactNode
 }) {
     return (
         <div className="relative shrink-0" style={{ width: RING_SIZE, height: RING_SIZE }}>
-            <TimerRing variant={variant} progress={progress} arcUrgent={arcUrgent} dashedPulse={dashedPulse} />
+            <TimerRing
+                variant={variant}
+                progress={progress}
+                redZoneStartProgress={redZoneStartProgress}
+                dashedPulse={dashedPulse}
+            />
             <div className="absolute inset-0 flex items-center justify-center px-3 text-center">{children}</div>
         </div>
     )
@@ -291,9 +360,11 @@ export function ExamTimerCard({
     const opensAtMs = new Date(exam.exp_time_start).getTime()
     const untilStartMs = Math.max(0, opensAtMs - now)
     const remainingMs = Math.max(0, finishMs - now)
-    const urgent = phase === 'running' && remainingMs <= HURRY_REMAINING_MS
+    const redZoneRemainingMs = examRedZoneRemainingMs(exam, finishMs)
+    const inRedZone = phase === 'running' && remainingMs <= redZoneRemainingMs
+    const urgent = inRedZone
     const elapsedProgress = examElapsedProgress(exam, finishMs, now)
-    const ringArcUrgent = phase === 'running' && remainingMs <= HUMAN_REMAINING_MS
+    const redZoneStartProgress = examRedZoneElapsedFraction()
     const proofMs = submittedAtMs ?? finishMs
     const proofLabel = formatInstantMark(proofMs, now)
     const proofShowsDate = instantMarkShowsDate(proofMs, now)
@@ -302,7 +373,7 @@ export function ExamTimerCard({
     const startDelayed = phase === 'waiting' && now > opensAtMs
     const motionReduced = useTimerReducedMotion()
     const waitingDotsPulse = phase === 'waiting' && !motionReduced
-    const showHumanRemaining = phase === 'running' && remainingMs > HUMAN_REMAINING_MS
+    const showHumanRemaining = phase === 'running' && remainingMs > redZoneRemainingMs
     const runningDisplay = showHumanRemaining ? formatRemainingHuman(remainingMs) : formatClock(remainingMs)
     const runningSpoken = showHumanRemaining ? `${runningDisplay} remaining` : speakDuration(remainingMs)
     const startedAtMs = examStartedAtMs(exam)
@@ -339,11 +410,11 @@ export function ExamTimerCard({
                     </TimerFace>
                 ) : null}
                 {phase === 'running' ? (
-                    <TimerFace variant="drain" progress={elapsedProgress} arcUrgent={ringArcUrgent}>
+                    <TimerFace variant="drain" progress={elapsedProgress} redZoneStartProgress={redZoneStartProgress}>
                         <TimeReadout
                             value={runningDisplay}
                             spoken={runningSpoken}
-                            caption={urgent ? 'left, hurry up' : 'remaining'}
+                            caption={urgent ? 'hurry up' : 'remaining'}
                             captionClassName={
                                 urgent ? 'text-destructive' : 'text-muted-foreground'
                             }

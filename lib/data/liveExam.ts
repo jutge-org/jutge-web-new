@@ -176,10 +176,27 @@ export function examStartedAtMs(exam: RunningExam): number {
     return exam.time_start ? new Date(exam.time_start).getTime() : new Date(exam.exp_time_start).getTime()
 }
 
+/** Scheduled running window: start through finish (from `running_time` + `extra_minutes`). */
+export function examTotalDurationMs(exam: RunningExam, finishMs: number): number {
+    return Math.max(finishMs - examStartedAtMs(exam), 1)
+}
+
+export const EXAM_RED_ZONE_FRACTION = 0.1
+
+/** Elapsed fraction (0–1) at which the final red zone on the timer ring begins. */
+export function examRedZoneElapsedFraction(): number {
+    return 1 - EXAM_RED_ZONE_FRACTION
+}
+
+/** Remaining time at which urgent styling and the red ring arc begin (one tenth of total). */
+export function examRedZoneRemainingMs(exam: RunningExam, finishMs: number): number {
+    return examTotalDurationMs(exam, finishMs) * EXAM_RED_ZONE_FRACTION
+}
+
 /** Elapsed fraction from official start to finish (0–1). */
 export function examElapsedProgress(exam: RunningExam, finishMs: number, now: number): number {
     const startedAtMs = examStartedAtMs(exam)
-    const totalMs = Math.max(finishMs - startedAtMs, 1)
+    const totalMs = examTotalDurationMs(exam, finishMs)
     const spentMs = Math.max(0, Math.min(totalMs, now - startedAtMs))
     return spentMs / totalMs
 }
