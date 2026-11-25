@@ -17,6 +17,9 @@ export const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 /** Ease-in-out curve for moving elements — cubic-bezier(0.645, 0.045, 0.355, 1) */
 export const EASE_IN_OUT = [0.645, 0.045, 0.355, 1] as const;
 
+/** Linear easing as a cubic-bezier, for continuous motion such as a caret. */
+export const EASE_LINEAR = [0, 0, 1, 1] as const;
+
 /** Instant transition for reduced-motion contexts */
 export const DURATION_INSTANT = { duration: 0 };
 
