@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 
 import { submitSolutionAction } from '@/lib/data/submissionsActions'
 import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -151,16 +152,6 @@ export function SubmissionDialog({
                     </div>
 
                     <div className="grid min-w-0 gap-1.5">
-                        <Label htmlFor="submission-annotation">Annotation</Label>
-                        <Input
-                            id="submission-annotation"
-                            value={annotation}
-                            onChange={(e) => setAnnotation(e.target.value)}
-                            placeholder="Optional note for this submission"
-                        />
-                    </div>
-
-                    <div className="grid min-w-0 gap-1.5">
                         <Label htmlFor="submission-compiler">Compiler</Label>
                         <Select value={compilerId} onValueChange={setCompilerId}>
                             <SelectTrigger id="submission-compiler" className="w-full min-w-0">
@@ -176,18 +167,30 @@ export function SubmissionDialog({
                         </Select>
                     </div>
 
+                    <div className="grid min-w-0 gap-1.5">
+                        <Label htmlFor="submission-annotation">Annotation</Label>
+                        <Input
+                            id="submission-annotation"
+                            value={annotation}
+                            onChange={(e) => setAnnotation(e.target.value)}
+                            placeholder="Optional note for this submission"
+                        />
+                    </div>
+
                     {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
                 </div>
 
-                <Button
+                <SmoothButton
                     type="button"
+                    variant="candy"
+                    color="blue"
                     onClick={handleSubmit}
                     disabled={pending || !file}
-                    className="mt-4 w-full min-w-0 gap-2"
+                    className="mt-4 w-full min-w-0"
                 >
-                    <SendIcon className="size-4" />
+                    <SendIcon className="size-4" aria-hidden />
                     {pending ? 'Submitting…' : 'Submit'}
-                </Button>
+                </SmoothButton>
             </DialogContent>
         </Dialog>
     )
