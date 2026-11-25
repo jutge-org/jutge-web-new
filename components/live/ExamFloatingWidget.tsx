@@ -10,13 +10,21 @@ import { ExamTimerCard } from '@/components/live/ExamTimerCard'
 import { LiveExamMarkdownDialog } from '@/components/live/LiveExamInfoCard'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useExamFloatingWidgetSession } from '@/hooks/useExamFloatingWidgetSession'
+import { useLiveRankingRefreshPoll } from '@/hooks/useLiveRankingRefreshPoll'
 import {
     abstractProblemsToIconUrlMap,
     abstractProblemsToTitleMap,
     fetchAbstractProblemsDict,
 } from '@/lib/data/problems'
 import { getPreferredLanguageId } from '@/lib/data/auth'
-import { downloadExamDocument, examStatus, finishTimeMs, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
+import {
+    downloadExamDocument,
+    examStatus,
+    fetchStudentRanking,
+    finishTimeMs,
+    formatInstant,
+    liveErrorMessage,
+} from '@/lib/data/liveExam'
 import { documentTypeLabel, getDocumentFileIcon } from '@/lib/instructor/documents'
 import {
     readExamFloatingWidgetTab,
@@ -35,15 +43,34 @@ import {
     Loader2Icon,
     SendIcon,
     SignatureIcon,
+    ListOrderedIcon,
     TimerIcon,
 } from 'lucide-react'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { AbstractStatus, RunningExamDocument, RunningExamProblem } from '@/lib/jutge_api_client'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+    LIVE_RANKING_REFRESH_SPEED_STORAGE_KEY,
+    parseLiveRankingRefreshSpeed,
+    readLiveRankingRefreshSpeed,
+    type LiveRankingRefreshSpeed,
+} from '@/lib/data/liveRankingRefresh'
+import { resolveSiteMode } from '@/lib/siteMode'
+import type { AbstractStatus, Ranking, RunningExamDocument, RunningExamProblem } from '@/lib/jutge_api_client'
 
 export const EXAM_FLOATING_WIDGET_SIZE_PX = 300
 
-const TABS: { id: ExamFloatingWidgetTabId; label: string; icon: ReactNode }[] = [
-    { id: 'info', label: 'Info', icon: <InfoIcon className="size-4 shrink-0" aria-hidden /> },
+const INFO_TAB: { id: ExamFloatingWidgetTabId; label: string; icon: ReactNode } = {
+    id: 'info',
+    label: 'Info',
+    icon: <InfoIcon className="size-4 shrink-0" aria-hidden />,
+}
+
+const RANKING_TAB: { id: ExamFloatingWidgetTabId; label: string; icon: ReactNode } = {
+    id: 'ranking',
+    label: 'Ranking',
+    icon: <ListOrderedIcon className="size-4 shrink-0" aria-hidden />,
+}
+
+const TABS_AFTER_RANKING: { id: ExamFloatingWidgetTabId; label: string; icon: ReactNode }[] = [
     { id: 'timer', label: 'Timer', icon: <TimerIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'problems', label: 'Problems', icon: <FileBracesCornerIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'submissions', label: 'Submissions', icon: <SendIcon className="size-4 shrink-0" aria-hidden /> },
@@ -51,8 +78,111 @@ const TABS: { id: ExamFloatingWidgetTabId; label: string; icon: ReactNode }[] = 
     { id: 'clock', label: 'Clock', icon: <ClockIcon className="size-4 shrink-0" aria-hidden /> },
 ]
 
+function examFloatingWidgetTabs(contest: boolean) {
+    if (contest) return [INFO_TAB, RANKING_TAB, ...TABS_AFTER_RANKING]
+    return [INFO_TAB, ...TABS_AFTER_RANKING]
+}
+
 function formatSubmissionShortTime(timeInMs: number): string {
     return dayjs(timeInMs).format('HH:mm')
+}
+
+function ExamFloatingWidgetRanking({ active }: { active: boolean }) {
+    const [ranking, setRanking] = useState<Ranking | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+    const [refreshSpeed, setRefreshSpeed] = useState<LiveRankingRefreshSpeed>(() => readLiveRankingRefreshSpeed())
+
+    const loadRanking = useCallback(async () => {
+        const next = await fetchStudentRanking()
+        setRanking(next)
+    }, [])
+
+    const refreshRanking = useCallback(() => {
+        void loadRanking().catch((err: unknown) => {
+            setError(liveErrorMessage(err, 'Could not load the ranking.'))
+        })
+    }, [loadRanking])
+
+    useEffect(() => {
+        function onStorage(event: StorageEvent) {
+            if (event.key !== LIVE_RANKING_REFRESH_SPEED_STORAGE_KEY) return
+            setRefreshSpeed(parseLiveRankingRefreshSpeed(event.newValue))
+        }
+        window.addEventListener('storage', onStorage)
+        return () => window.removeEventListener('storage', onStorage)
+    }, [])
+
+    useEffect(() => {
+        if (!active) return
+        let cancelled = false
+        setLoading(true)
+        setError(null)
+        void loadRanking()
+            .catch((err: unknown) => {
+                if (!cancelled) setError(liveErrorMessage(err, 'Could not load the ranking.'))
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false)
+            })
+        return () => {
+            cancelled = true
+        }
+    }, [active, loadRanking])
+
+    useLiveRankingRefreshPoll(active, refreshSpeed, refreshRanking)
+
+    if (!active) return null
+
+    if (loading && ranking === null && !error) {
+        return <WidgetSpinner />
+    }
+
+    if (error && ranking === null) {
+        return (
+            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-destructive">
+                {error}
+            </div>
+        )
+    }
+
+    const rows = ranking ?? []
+    if (rows.length === 0) {
+        return (
+            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-sm text-muted-foreground">
+                The ranking is empty.
+            </div>
+        )
+    }
+
+    return (
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-1">
+            <table className="w-full border-collapse text-sm leading-snug">
+                <caption className="sr-only">Contest ranking</caption>
+                <tbody>
+                    {rows.map((row, index) => (
+                        <tr key={`${row.name}-${index}`} className="border-b border-border last:border-b-0">
+                            <td className="w-8 shrink-0 py-1.5 pl-1 pr-1 text-right align-middle tabular-nums text-muted-foreground">
+                                {row.position ?? '⏺'}
+                            </td>
+                            <td className="max-w-0 truncate py-1.5 pr-2 align-middle font-medium">
+                                {row.name}
+                            </td>
+                            <td className="shrink-0 py-1.5 pr-1 text-right align-middle tabular-nums whitespace-nowrap">
+                                <span className="inline-flex items-center justify-end gap-1">
+                                    <span className="font-semibold">{row.score}</span>
+                                    <span aria-hidden className="text-base leading-none text-border">
+                                        ·
+                                    </span>
+                                    <span className="text-[11px] text-muted-foreground">{Math.floor(row.time)}</span>
+                                </span>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    )
 }
 
 function ExamFloatingWidgetSubmissions({
@@ -87,84 +217,84 @@ function ExamFloatingWidgetSubmissions({
                     {submissions.map((row) => {
                         const caption = captionByProblemNm.get(row.problem_nm)
                         return (
-                        <tr
-                            key={row.rowKey}
-                            className="cursor-pointer border-b border-border last:border-b-0 hover:bg-muted/60"
-                            tabIndex={0}
-                            role="link"
-                            aria-label={`Open submission ${row.submission_id} for ${row.problemTitle}`}
-                            onClick={() => requestExamFloatingWidgetNavigation(row.submissionHref)}
-                            onKeyDown={(event) => {
-                                if (event.key === 'Enter' || event.key === ' ') {
-                                    event.preventDefault()
-                                    requestExamFloatingWidgetNavigation(row.submissionHref)
-                                }
-                            }}
-                        >
-                            <td className="max-w-0 py-1.5 pl-1 pr-1 align-middle">
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <span className="flex min-w-0 items-center gap-1.5">
-                                            {row.iconUrl ? (
-                                                <ProblemIconImage iconUrl={row.iconUrl} size="xs" className="shrink-0" />
-                                            ) : (
-                                                <span className="inline-block size-4 shrink-0" aria-hidden />
-                                            )}
-                                            {caption ? (
-                                                <span className="shrink-0 truncate font-medium tabular-nums">
-                                                    {caption}
-                                                </span>
-                                            ) : null}
-                                            <span
-                                                className={cn(
-                                                    'min-w-0 truncate',
-                                                    caption
-                                                        ? 'text-muted-foreground'
-                                                        : 'font-medium text-foreground',
+                            <tr
+                                key={row.rowKey}
+                                className="cursor-pointer border-b border-border last:border-b-0 hover:bg-muted/60"
+                                tabIndex={0}
+                                role="link"
+                                aria-label={`Open submission ${row.submission_id} for ${row.problemTitle}`}
+                                onClick={() => requestExamFloatingWidgetNavigation(row.submissionHref)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault()
+                                        requestExamFloatingWidgetNavigation(row.submissionHref)
+                                    }
+                                }}
+                            >
+                                <td className="max-w-0 py-1.5 pl-1 pr-1 align-middle">
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="flex min-w-0 items-center gap-1.5">
+                                                {row.iconUrl ? (
+                                                    <ProblemIconImage iconUrl={row.iconUrl} size="xs" className="shrink-0" />
+                                                ) : (
+                                                    <span className="inline-block size-4 shrink-0" aria-hidden />
                                                 )}
-                                            >
-                                                {row.problem_nm}
-                                            </span>
-                                        </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">{row.problemTitle}</TooltipContent>
-                                </Tooltip>
-                            </td>
-                            <td className="w-10 truncate py-1.5 pr-2 align-middle tabular-nums text-muted-foreground">
-                                {row.submission_id}
-                            </td>
-                            <td className="max-w-[5.5rem] truncate py-1.5 pl-2 pr-1 align-middle">
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <span className="flex min-w-0 items-center gap-1">
-                                            {row.verdictEmoji ? (
+                                                {caption ? (
+                                                    <span className="shrink-0 truncate font-medium tabular-nums">
+                                                        {caption}
+                                                    </span>
+                                                ) : null}
                                                 <span
-                                                    aria-hidden
                                                     className={cn(
-                                                        'shrink-0 text-sm leading-none',
-                                                        row.verdict === 'Pending' ? 'animate-pulse' : undefined,
+                                                        'min-w-0 truncate',
+                                                        caption
+                                                            ? 'text-muted-foreground'
+                                                            : 'font-medium text-foreground',
                                                     )}
                                                 >
-                                                    {row.verdictEmoji}
+                                                    {row.problem_nm}
                                                 </span>
-                                            ) : (
-                                                <span className="shrink-0 text-muted-foreground">—</span>
-                                            )}
-                                            <span className="min-w-0 truncate">{row.verdict}</span>
-                                        </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">{row.verdictFullName}</TooltipContent>
-                                </Tooltip>
-                            </td>
-                            <td className="w-10 shrink-0 py-1.5 pr-0.5 text-right align-middle tabular-nums text-muted-foreground">
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <span>{formatSubmissionShortTime(row.time_inMs)}</span>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">{row.time_in}</TooltipContent>
-                                </Tooltip>
-                            </td>
-                        </tr>
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top">{row.problemTitle}</TooltipContent>
+                                    </Tooltip>
+                                </td>
+                                <td className="w-10 truncate py-1.5 pr-2 align-middle tabular-nums text-muted-foreground">
+                                    {row.submission_id}
+                                </td>
+                                <td className="max-w-[5.5rem] truncate py-1.5 pl-2 pr-1 align-middle">
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="flex min-w-0 items-center gap-1">
+                                                {row.verdictEmoji ? (
+                                                    <span
+                                                        aria-hidden
+                                                        className={cn(
+                                                            'shrink-0 text-sm leading-none',
+                                                            row.verdict === 'Pending' ? 'animate-pulse' : undefined,
+                                                        )}
+                                                    >
+                                                        {row.verdictEmoji}
+                                                    </span>
+                                                ) : (
+                                                    <span className="shrink-0 text-muted-foreground">—</span>
+                                                )}
+                                                <span className="min-w-0 truncate">{row.verdict}</span>
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top">{row.verdictFullName}</TooltipContent>
+                                    </Tooltip>
+                                </td>
+                                <td className="w-10 shrink-0 py-1.5 pr-0.5 text-right align-middle tabular-nums text-muted-foreground">
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span>{formatSubmissionShortTime(row.time_inMs)}</span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top">{row.time_in}</TooltipContent>
+                                    </Tooltip>
+                                </td>
+                            </tr>
                         )
                     })}
                 </tbody>
@@ -460,11 +590,22 @@ function ExamFloatingWidgetInfo({
 export function ExamFloatingWidget({ className }: { className?: string }) {
     const [tab, setTab] = useState<ExamFloatingWidgetTabId>(() => readExamFloatingWidgetTab())
     const session = useExamFloatingWidgetSession()
+    const isContest = useMemo(() => resolveSiteMode(window.location.hostname).kind === 'contest', [])
+    const tabs = useMemo(() => examFloatingWidgetTabs(isContest), [isContest])
     const now = useNow(!session.loading)
     const liveStatus = session.exam ? examStatus(session.exam, now, session.examMeta) : 'waiting'
     const started = liveStatus !== 'waiting'
     const finishMs = session.exam ? finishTimeMs(session.exam, session.examMeta) : 0
     const finished = liveStatus === 'finished' || session.examFinished
+    const rankingAvailable =
+        isContest && session.role === 'student' && session.exam !== null && liveStatus !== 'waiting'
+
+    useEffect(() => {
+        if (tabs.some((entry) => entry.id === tab)) return
+        const fallback: ExamFloatingWidgetTabId = 'timer'
+        setTab(fallback)
+        writeExamFloatingWidgetTab(fallback)
+    }, [tab, tabs])
 
     let panel: ReactNode = null
     if (session.loading) {
@@ -484,6 +625,14 @@ export function ExamFloatingWidget({ className }: { className?: string }) {
         )
     } else if (!session.exam) {
         panel = <WidgetSpinner />
+    } else if (tab === 'ranking') {
+        panel = rankingAvailable ? (
+            <ExamFloatingWidgetRanking active={tab === 'ranking'} />
+        ) : (
+            <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-center text-sm text-muted-foreground">
+                The ranking is not available yet.
+            </div>
+        )
     } else if (tab === 'info') {
         panel = (
             <ExamFloatingWidgetInfo
@@ -548,7 +697,7 @@ export function ExamFloatingWidget({ className }: { className?: string }) {
                                 setTab(next)
                                 writeExamFloatingWidgetTab(next)
                             }}
-                            tabs={TABS}
+                            tabs={tabs}
                             variant="segment"
                         />
                     </div>

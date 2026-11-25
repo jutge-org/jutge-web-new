@@ -1,10 +1,11 @@
 export const EXAM_FLOATING_WIDGET_CLOSE_CHANNEL = 'jutge-exam-floating-widget-close'
 export const EXAM_FLOATING_WIDGET_NAV_CHANNEL = 'jutge-exam-floating-widget-nav'
 
-export type ExamFloatingWidgetTabId = 'info' | 'clock' | 'timer' | 'problems' | 'documents' | 'submissions'
+export type ExamFloatingWidgetTabId = 'info' | 'ranking' | 'clock' | 'timer' | 'problems' | 'documents' | 'submissions'
 
 const EXAM_FLOATING_WIDGET_TAB_IDS: ExamFloatingWidgetTabId[] = [
     'info',
+    'ranking',
     'clock',
     'timer',
     'problems',

@@ -76,9 +76,20 @@ function ContestHome() {
     const { reducedMotion } = useAppearancePreferences()
     const motionReduced = isMotionReduced(reducedMotion)
 
+    if (inPreExam) {
+        return (
+            <LivePage className="min-h-0 flex-1 pt-24">
+                <LiveSignInCardShell contest inPreExam>
+                    <LiveSignIn contest polished className="w-full text-left" />
+                </LiveSignInCardShell>
+                <ApiStatusCard className="mt-auto shrink-0" />
+            </LivePage>
+        )
+    }
+
     return (
-        <LivePage className={cn('min-h-0 flex-1', inPreExam && 'pt-10')}>
-            {inPreExam ? null : <LiveArenaHeroImage contest motionReduced={motionReduced} />}
+        <LivePage className="min-h-0 flex-1">
+            <LiveArenaHeroImage contest motionReduced={motionReduced} />
             <AnimatedTabs
                 activeTab={tab}
                 className="flex w-full"
@@ -94,8 +105,8 @@ function ContestHome() {
                 id={`${CONTEST_TABS_LAYOUT_ID}-panel-arena`}
                 role="tabpanel"
             >
-                <LiveSignInCardShell contest inPreExam={inPreExam}>
-                    <LiveSignIn contest className="w-full text-left" />
+                <LiveSignInCardShell contest inPreExam={false}>
+                    <LiveSignIn contest polished className="w-full text-left" />
                 </LiveSignInCardShell>
             </div>
             <div
@@ -288,8 +299,8 @@ function LiveSignIn({
                                     />
                                 </span>
                             </p>
-                            <p className="text-sm" id="live-greeting">
-                                Select your exam and enter its password.
+                            <p className="text-sm" id="live-select-arena-hint">
+                                Select your {contest ? 'contest' : 'exam'} and enter its password.
                             </p>
                         </>
                     ) : (

@@ -1,3 +1,5 @@
+'use client'
+
 import {
     ActivityIcon,
     BookText,
@@ -7,6 +9,7 @@ import {
     FileTextIcon,
     House,
     Info,
+    ListOrderedIcon,
     PocketKnifeIcon,
     ScrollTextIcon,
     SendIcon,
@@ -16,6 +19,7 @@ import {
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
+import { useSiteMode } from '@/components/SiteModeProvider'
 import { cn } from '@/lib/utils'
 
 /** Same icon mapping as the live header menu (`LiveBreadcrumbsInLayout`). */
@@ -26,6 +30,7 @@ export function LiveNavMenuItemIcon({
     href: string
     className?: string
 }): ReactNode {
+    const { kind } = useSiteMode()
     const iconClass = cn(className)
 
     switch (href) {
@@ -38,7 +43,11 @@ export function LiveNavMenuItemIcon({
         case '/documents':
             return <FileTextIcon aria-hidden className={iconClass} />
         case '/ranking':
-            return <TrophyIcon aria-hidden className={iconClass} />
+            return kind === 'contest' ? (
+                <ListOrderedIcon aria-hidden className={iconClass} />
+            ) : (
+                <TrophyIcon aria-hidden className={iconClass} />
+            )
         case '/students':
             return <UsersIcon aria-hidden className={iconClass} />
         case '/statistics':

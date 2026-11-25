@@ -48,3 +48,21 @@ export function examProblemsFromRanking(ranking: Ranking): InstructorExamProblem
         caption: `P${index + 1}`,
     }))
 }
+
+/** Problem columns for a live ranking, preferring running-exam metadata when present. */
+export function liveRankingExamProblems(
+    ranking: Ranking,
+    runningProblems?: { problem_nm: string; weight: number | null; icon: string | null; caption: string | null }[],
+): InstructorExamProblem[] {
+    const byNm = new Map((runningProblems ?? []).map((problem) => [problem.problem_nm, problem]))
+    return (ranking[0]?.rankingResults ?? []).map((result, index) => {
+        const fromExam = byNm.get(result.problem_nm)
+        if (fromExam) return fromExam
+        return {
+            problem_nm: result.problem_nm,
+            weight: null,
+            icon: null,
+            caption: `P${index + 1}`,
+        }
+    })
+}
