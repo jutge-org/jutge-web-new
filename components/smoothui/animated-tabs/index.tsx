@@ -13,6 +13,7 @@ export interface AnimatedTabsProps {
     onChange?: (tabId: string) => void
     tabs: { id: string; label: string; icon?: ReactNode }[]
     hideLabels?: boolean
+    tooltipSide?: React.ComponentProps<typeof TooltipContent>['side']
     variant?: 'underline' | 'pill' | 'segment'
 }
 
@@ -38,6 +39,7 @@ export default function AnimatedTabs({
     layoutId: customLayoutId,
     className,
     hideLabels = false,
+    tooltipSide = 'top',
 }: AnimatedTabsProps) {
     const shouldReduceMotion = useReducedMotion()
     const generatedId = useId()
@@ -124,10 +126,10 @@ export default function AnimatedTabs({
     )
 
     const baseContainerStyles = cn(
-        'relative inline-flex',
-        variant === 'underline' && 'w-full gap-1 border-border border-b',
-        variant === 'pill' && 'gap-1 rounded-full bg-muted p-1',
-        variant === 'segment' && 'gap-0 rounded-lg bg-muted p-1',
+        'relative',
+        variant === 'underline' && 'inline-flex w-full gap-1 border-border border-b',
+        variant === 'pill' && 'inline-flex gap-1 rounded-full bg-muted p-1',
+        variant === 'segment' && 'flex w-full gap-0 rounded-lg bg-muted p-1',
     )
 
     const getTabStyles = (isActive: boolean) =>
@@ -143,8 +145,8 @@ export default function AnimatedTabs({
                 isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             ],
             variant === 'segment' && [
-                'flex-1 rounded-md text-center',
-                hideLabels ? 'gap-0 px-2 py-2' : 'gap-2 px-4 py-2.5',
+                'min-w-0 flex-1 rounded-md text-center',
+                hideLabels ? 'h-full w-full gap-0 px-2 py-2' : 'gap-2 px-4 py-2.5',
                 isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             ],
         )
@@ -206,12 +208,22 @@ export default function AnimatedTabs({
                 )
 
                 if (hideLabels) {
-                    return (
-                        <Tooltip key={tab.id}>
-                            <TooltipTrigger asChild>{tabButton}</TooltipTrigger>
-                            <TooltipContent side="top">{tab.label}</TooltipContent>
-                        </Tooltip>
-                    )
+                    const tabNode =
+                        variant === 'segment' ? (
+                            <div className="flex min-w-0 flex-1">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>{tabButton}</TooltipTrigger>
+                                    <TooltipContent side={tooltipSide}>{tab.label}</TooltipContent>
+                                </Tooltip>
+                            </div>
+                        ) : (
+                            <Tooltip>
+                                <TooltipTrigger asChild>{tabButton}</TooltipTrigger>
+                                <TooltipContent side={tooltipSide}>{tab.label}</TooltipContent>
+                            </Tooltip>
+                        )
+
+                    return <Fragment key={tab.id}>{tabNode}</Fragment>
                 }
 
                 return <Fragment key={tab.id}>{tabButton}</Fragment>

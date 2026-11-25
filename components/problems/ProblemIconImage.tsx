@@ -6,6 +6,7 @@ const sizeConfig = {
     '2xs': { width: 14, height: 14 },
     xs: { width: 16, height: 16 },
     sm: { width: 20, height: 20 },
+    base: { width: 32, height: 32 },
     md: { width: 48, height: 48 },
     lg: { width: 112, height: 112 },
 } as const

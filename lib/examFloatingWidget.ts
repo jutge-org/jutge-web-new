@@ -1,6 +1,39 @@
 export const EXAM_FLOATING_WIDGET_CLOSE_CHANNEL = 'jutge-exam-floating-widget-close'
 export const EXAM_FLOATING_WIDGET_NAV_CHANNEL = 'jutge-exam-floating-widget-nav'
 
+export type ExamFloatingWidgetTabId = 'info' | 'clock' | 'timer' | 'problems' | 'documents' | 'submissions'
+
+const EXAM_FLOATING_WIDGET_TAB_IDS: ExamFloatingWidgetTabId[] = [
+    'info',
+    'clock',
+    'timer',
+    'problems',
+    'documents',
+    'submissions',
+]
+
+export const EXAM_FLOATING_WIDGET_TAB_STORAGE_KEY = 'jutge:exam-floating-widget-tab'
+
+export function parseExamFloatingWidgetTab(value: string | null | undefined): ExamFloatingWidgetTabId | null {
+    if (!value) return null
+    return EXAM_FLOATING_WIDGET_TAB_IDS.includes(value as ExamFloatingWidgetTabId)
+        ? (value as ExamFloatingWidgetTabId)
+        : null
+}
+
+export function readExamFloatingWidgetTab(): ExamFloatingWidgetTabId {
+    if (typeof window === 'undefined') return 'timer'
+    return parseExamFloatingWidgetTab(localStorage.getItem(EXAM_FLOATING_WIDGET_TAB_STORAGE_KEY)) ?? 'timer'
+}
+
+export function writeExamFloatingWidgetTab(tab: ExamFloatingWidgetTabId): void {
+    try {
+        localStorage.setItem(EXAM_FLOATING_WIDGET_TAB_STORAGE_KEY, tab)
+    } catch {
+        // ignore quota / private mode
+    }
+}
+
 export type ExamFloatingWidgetNavMessage = {
     type: 'navigate'
     path: string

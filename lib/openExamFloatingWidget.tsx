@@ -129,6 +129,11 @@ async function openDocumentPictureInPicture(): Promise<boolean> {
     pipStyleSyncCleanup = startPictureInPictureStyleSync(document, pip.document)
 
     const mount = pip.document.createElement('div')
+    mount.style.display = 'flex'
+    mount.style.flexDirection = 'column'
+    mount.style.height = '100%'
+    mount.style.minHeight = '0'
+    mount.style.width = '100%'
     pip.document.body.appendChild(mount)
 
     pipRoot = createRoot(mount)

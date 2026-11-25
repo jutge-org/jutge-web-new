@@ -4,25 +4,37 @@ import dayjs from 'dayjs'
 
 import AnimatedTabs from '@/components/smoothui/animated-tabs'
 import { ProblemIconImage } from '@/components/problems/ProblemIconImage'
-import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
 import { ProblemStatusIcon } from '@/components/problems/ProblemStatusIcon'
 import { CompactClock } from '@/components/utilities/CompactClock'
 import { ExamTimerCard } from '@/components/live/ExamTimerCard'
+import { LiveExamMarkdownDialog } from '@/components/live/LiveExamInfoCard'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useExamFloatingWidgetSession } from '@/hooks/useExamFloatingWidgetSession'
+import {
+    abstractProblemsToIconUrlMap,
+    abstractProblemsToTitleMap,
+    fetchAbstractProblemsDict,
+} from '@/lib/data/problems'
+import { getPreferredLanguageId } from '@/lib/data/auth'
 import { downloadExamDocument, examStatus, finishTimeMs, formatInstant, liveErrorMessage } from '@/lib/data/liveExam'
 import { documentTypeLabel, getDocumentFileIcon } from '@/lib/instructor/documents'
-import { requestExamFloatingWidgetNavigation } from '@/lib/examFloatingWidget'
+import {
+    readExamFloatingWidgetTab,
+    requestExamFloatingWidgetNavigation,
+    writeExamFloatingWidgetTab,
+    type ExamFloatingWidgetTabId,
+} from '@/lib/examFloatingWidget'
 import type { SubmissionRow } from '@/lib/submissions'
 import { cn } from '@/lib/utils'
 import {
+    BookOpenIcon,
     ClockIcon,
-    DownloadIcon,
     FileBracesCornerIcon,
     FileTextIcon,
     InfoIcon,
     Loader2Icon,
     SendIcon,
+    SignatureIcon,
     TimerIcon,
 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
@@ -30,44 +42,17 @@ import type { AbstractStatus, RunningExamDocument, RunningExamProblem } from '@/
 
 export const EXAM_FLOATING_WIDGET_SIZE_PX = 300
 
-type TabId = 'info' | 'clock' | 'timer' | 'problems' | 'documents' | 'submissions'
-
-const TABS: { id: TabId; label: string; icon: ReactNode }[] = [
+const TABS: { id: ExamFloatingWidgetTabId; label: string; icon: ReactNode }[] = [
     { id: 'info', label: 'Info', icon: <InfoIcon className="size-4 shrink-0" aria-hidden /> },
+    { id: 'timer', label: 'Timer', icon: <TimerIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'problems', label: 'Problems', icon: <FileBracesCornerIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'submissions', label: 'Submissions', icon: <SendIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'documents', label: 'Documents', icon: <FileTextIcon className="size-4 shrink-0" aria-hidden /> },
     { id: 'clock', label: 'Clock', icon: <ClockIcon className="size-4 shrink-0" aria-hidden /> },
-    { id: 'timer', label: 'Timer', icon: <TimerIcon className="size-4 shrink-0" aria-hidden /> },
 ]
 
 function formatSubmissionShortTime(timeInMs: number): string {
     return dayjs(timeInMs).format('HH:mm')
-}
-
-function ExamFloatingWidgetProblemIcon({
-    examIcon,
-    iconUrl,
-}: {
-    examIcon: string | null | undefined
-    iconUrl: string | null
-}) {
-    if (examIcon) {
-        return (
-            // eslint-disable-next-line @next/next/no-img-element -- exam icons are external SVGs
-            <img
-                src={`https://jutge.org/img/examicons/${examIcon}.svg`}
-                alt=""
-                className="size-3.5 shrink-0 object-contain"
-                width={14}
-                height={14}
-            />
-        )
-    }
-    if (iconUrl) {
-        return <ProblemIconImage iconUrl={iconUrl} size="2xs" className="shrink-0" />
-    }
-    return <span className="inline-block size-3.5 shrink-0" aria-hidden />
 }
 
 function ExamFloatingWidgetSubmissions({
@@ -77,10 +62,11 @@ function ExamFloatingWidgetSubmissions({
     submissions: SubmissionRow[]
     examProblems: RunningExamProblem[]
 }) {
-    const examIconByProblemNm = useMemo(() => {
-        const map = new Map<string, string | null>()
+    const captionByProblemNm = useMemo(() => {
+        const map = new Map<string, string>()
         for (const problem of examProblems) {
-            map.set(problem.problem_nm, problem.icon)
+            const caption = problem.caption?.trim()
+            if (caption) map.set(problem.problem_nm, caption)
         }
         return map
     }, [examProblems])
@@ -94,79 +80,91 @@ function ExamFloatingWidgetSubmissions({
     }
 
     return (
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-0.5">
-            <table className="w-full border-collapse text-[10px] leading-tight">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-1">
+            <table className="w-full border-collapse text-sm leading-snug">
                 <caption className="sr-only">Exam submissions</caption>
                 <tbody>
                     {submissions.map((row) => {
-                        const examIcon = examIconByProblemNm.get(row.problem_nm)
+                        const caption = captionByProblemNm.get(row.problem_nm)
                         return (
-                            <tr key={row.rowKey} className="border-b border-border last:border-b-0">
-                                <td className="w-5 py-1 pl-0.5 pr-0 align-middle">
-                                    <button
-                                        type="button"
-                                        className="flex w-full items-center justify-center rounded-sm hover:bg-muted/60"
-                                        onClick={() => requestExamFloatingWidgetNavigation(row.submissionHref)}
-                                    >
-                                        {row.verdictEmoji ? (
+                        <tr
+                            key={row.rowKey}
+                            className="cursor-pointer border-b border-border last:border-b-0 hover:bg-muted/60"
+                            tabIndex={0}
+                            role="link"
+                            aria-label={`Open submission ${row.submission_id} for ${row.problemTitle}`}
+                            onClick={() => requestExamFloatingWidgetNavigation(row.submissionHref)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault()
+                                    requestExamFloatingWidgetNavigation(row.submissionHref)
+                                }
+                            }}
+                        >
+                            <td className="max-w-0 py-1.5 pl-1 pr-1 align-middle">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span className="flex min-w-0 items-center gap-1.5">
+                                            {row.iconUrl ? (
+                                                <ProblemIconImage iconUrl={row.iconUrl} size="xs" className="shrink-0" />
+                                            ) : (
+                                                <span className="inline-block size-4 shrink-0" aria-hidden />
+                                            )}
+                                            {caption ? (
+                                                <span className="shrink-0 truncate font-medium tabular-nums">
+                                                    {caption}
+                                                </span>
+                                            ) : null}
                                             <span
-                                                aria-hidden
                                                 className={cn(
-                                                    'text-xs leading-none',
-                                                    row.verdict === 'Pending' ? 'animate-pulse' : undefined,
+                                                    'min-w-0 truncate',
+                                                    caption
+                                                        ? 'text-muted-foreground'
+                                                        : 'font-medium text-foreground',
                                                 )}
                                             >
-                                                {row.verdictEmoji}
+                                                {row.problem_nm}
                                             </span>
-                                        ) : (
-                                            <span className="text-muted-foreground">—</span>
-                                        )}
-                                        <span className="sr-only">{row.verdictFullName}</span>
-                                    </button>
-                                </td>
-                                <td className="w-5 py-1 pr-0 align-middle">
-                                    <ExamFloatingWidgetProblemIcon examIcon={examIcon} iconUrl={row.iconUrl} />
-                                </td>
-                                <td className="max-w-[4.5rem] truncate py-1 pr-1 align-middle font-medium tabular-nums">
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <button
-                                                type="button"
-                                                className="block max-w-full truncate text-left hover:underline"
-                                                onClick={() => requestExamFloatingWidgetNavigation(row.problemHref)}
-                                            >
-                                                <ProblemIdLabel problemId={row.problem_id} />
-                                            </button>
-                                        </TooltipTrigger>
-                                        <TooltipContent side="top">{row.problemTitle}</TooltipContent>
-                                    </Tooltip>
-                                </td>
-                                <td className="w-8 truncate py-1 pr-1 align-middle tabular-nums text-muted-foreground">
-                                    <button
-                                        type="button"
-                                        className="hover:text-foreground hover:underline"
-                                        onClick={() => requestExamFloatingWidgetNavigation(row.submissionHref)}
-                                    >
-                                        {row.submission_id}
-                                    </button>
-                                </td>
-                                <td className="max-w-[3.25rem] truncate py-1 pr-1 align-middle">
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <span className="block truncate">{row.verdict}</span>
-                                        </TooltipTrigger>
-                                        <TooltipContent side="top">{row.verdictFullName}</TooltipContent>
-                                    </Tooltip>
-                                </td>
-                                <td className="w-9 shrink-0 py-1 pr-0.5 text-right align-middle tabular-nums text-muted-foreground">
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <span>{formatSubmissionShortTime(row.time_inMs)}</span>
-                                        </TooltipTrigger>
-                                        <TooltipContent side="top">{row.time_in}</TooltipContent>
-                                    </Tooltip>
-                                </td>
-                            </tr>
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">{row.problemTitle}</TooltipContent>
+                                </Tooltip>
+                            </td>
+                            <td className="w-10 truncate py-1.5 pr-2 align-middle tabular-nums text-muted-foreground">
+                                {row.submission_id}
+                            </td>
+                            <td className="max-w-[5.5rem] truncate py-1.5 pl-2 pr-1 align-middle">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span className="flex min-w-0 items-center gap-1">
+                                            {row.verdictEmoji ? (
+                                                <span
+                                                    aria-hidden
+                                                    className={cn(
+                                                        'shrink-0 text-sm leading-none',
+                                                        row.verdict === 'Pending' ? 'animate-pulse' : undefined,
+                                                    )}
+                                                >
+                                                    {row.verdictEmoji}
+                                                </span>
+                                            ) : (
+                                                <span className="shrink-0 text-muted-foreground">—</span>
+                                            )}
+                                            <span className="min-w-0 truncate">{row.verdict}</span>
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">{row.verdictFullName}</TooltipContent>
+                                </Tooltip>
+                            </td>
+                            <td className="w-10 shrink-0 py-1.5 pr-0.5 text-right align-middle tabular-nums text-muted-foreground">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span>{formatSubmissionShortTime(row.time_inMs)}</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top">{row.time_in}</TooltipContent>
+                                </Tooltip>
+                            </td>
+                        </tr>
                         )
                     })}
                 </tbody>
@@ -236,51 +234,79 @@ function ExamFloatingWidgetDocuments({ documents }: { documents: RunningExamDocu
                     const FileIcon = getDocumentFileIcon(document.type)
                     const typeLabel = documentTypeLabel(document)
                     const downloading = downloadingNm === document.document_nm
+                    const busy = downloadingNm !== null
                     return (
                         <li key={document.document_nm} className="border-b border-border last:border-b-0">
-                            <div className="flex w-full items-center gap-1.5 rounded-md px-1.5 py-1.5">
-                                <FileIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
-                                <span className="min-w-0 flex-1">
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <span className="block truncate text-sm font-medium text-foreground">
-                                                {document.title}
-                                            </span>
-                                        </TooltipTrigger>
-                                        <TooltipContent side="top">{document.title}</TooltipContent>
-                                    </Tooltip>
-                                </span>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <button
-                                            type="button"
-                                            className="flex size-7 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted/60 hover:text-foreground disabled:opacity-50"
-                                            disabled={downloading || downloadingNm !== null}
-                                            aria-label={
-                                                downloading
-                                                    ? `Downloading ${document.title}`
-                                                    : `Download ${document.title} (${typeLabel})`
-                                            }
-                                            onClick={() => void runDownload(document)}
-                                        >
-                                            {downloading ? (
-                                                <Loader2Icon className="size-3.5 animate-spin" aria-hidden />
-                                            ) : (
-                                                <DownloadIcon className="size-3.5" aria-hidden />
-                                            )}
-                                        </button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">
-                                        {downloading ? 'Downloading…' : `Download ${typeLabel}`}
-                                    </TooltipContent>
-                                </Tooltip>
-                            </div>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-muted/60 disabled:opacity-50"
+                                        disabled={busy}
+                                        aria-label={
+                                            downloading
+                                                ? `Downloading ${document.title}`
+                                                : `Download ${document.title} (${typeLabel})`
+                                        }
+                                        onClick={() => void runDownload(document)}
+                                    >
+                                        {downloading ? (
+                                            <Loader2Icon
+                                                className="size-3.5 shrink-0 animate-spin text-muted-foreground"
+                                                aria-hidden
+                                            />
+                                        ) : (
+                                            <FileIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                                        )}
+                                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
+                                            {document.title}
+                                        </span>
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                    {downloading ? 'Downloading…' : `${document.title} (${typeLabel})`}
+                                </TooltipContent>
+                            </Tooltip>
                         </li>
                     )
                 })}
             </ul>
         </div>
     )
+}
+
+function useExamFloatingWidgetProblemMeta(problemNms: readonly string[]): {
+    iconUrls: Map<string, string | null>
+    titles: Map<string, string>
+} {
+    const problemNmsKey = problemNms.join('\0')
+    const [iconUrls, setIconUrls] = useState<Map<string, string | null>>(() => new Map())
+    const [titles, setTitles] = useState<Map<string, string>>(() => new Map())
+
+    useEffect(() => {
+        let cancelled = false
+        void Promise.all([fetchAbstractProblemsDict(), getPreferredLanguageId()]).then(
+            ([dict, preferredLanguageId]) => {
+                if (cancelled) return
+                const allIcons = abstractProblemsToIconUrlMap(dict)
+                const allTitles = abstractProblemsToTitleMap(dict, preferredLanguageId)
+                const nextIcons = new Map<string, string | null>()
+                const nextTitles = new Map<string, string>()
+                for (const problem_nm of problemNms) {
+                    nextIcons.set(problem_nm, allIcons.get(problem_nm) ?? null)
+                    const title = allTitles.get(problem_nm)
+                    if (title) nextTitles.set(problem_nm, title)
+                }
+                setIconUrls(nextIcons)
+                setTitles(nextTitles)
+            },
+        )
+        return () => {
+            cancelled = true
+        }
+    }, [problemNmsKey])
+
+    return { iconUrls, titles }
 }
 
 function ExamFloatingWidgetProblems({
@@ -290,6 +316,9 @@ function ExamFloatingWidgetProblems({
     problems: RunningExamProblem[]
     statuses: Record<string, AbstractStatus>
 }) {
+    const problemNms = useMemo(() => problems.map((problem) => problem.problem_nm), [problems])
+    const { iconUrls, titles } = useExamFloatingWidgetProblemMeta(problemNms)
+
     if (problems.length === 0) {
         return (
             <div className="flex min-h-0 flex-1 items-center justify-center px-4 text-sm text-muted-foreground">
@@ -302,8 +331,10 @@ function ExamFloatingWidgetProblems({
         <ul className="min-h-0 flex-1 list-none overflow-y-auto overscroll-contain p-1">
             {problems.map((problem) => {
                 const status = statuses[problem.problem_nm]
-                const label = problem.caption?.trim() || problem.problem_nm
+                const caption = problem.caption?.trim() || null
+                const title = titles.get(problem.problem_nm) ?? null
                 const problemPath = `/problems/${problem.problem_nm}`
+                const iconUrl = iconUrls.get(problem.problem_nm) ?? null
                 return (
                     <li key={problem.problem_nm} className="border-b border-border last:border-b-0">
                         <button
@@ -311,9 +342,33 @@ function ExamFloatingWidgetProblems({
                             className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-muted/60"
                             onClick={() => requestExamFloatingWidgetNavigation(problemPath)}
                         >
+                            <span className="flex shrink-0 items-center justify-center">
+                                {iconUrl ? (
+                                    <ProblemIconImage iconUrl={iconUrl} size="base" className="shrink-0" />
+                                ) : (
+                                    <span className="inline-block size-5 shrink-0" aria-hidden />
+                                )}
+                            </span>
                             <span className="min-w-0 flex-1">
-                                <span className="block truncate text-sm font-medium text-foreground">{label}</span>
-                                <span className="block truncate text-[11px] text-muted-foreground">
+                                <span className="flex min-w-0 items-baseline gap-1.5 overflow-hidden">
+                                    {caption ? (
+                                        <>
+                                            <span className="shrink-0 truncate text-sm font-medium text-foreground">
+                                                {caption}
+                                            </span>
+                                            {title && title !== caption ? (
+                                                <span className="min-w-0 truncate text-sm text-muted-foreground">
+                                                    {title}
+                                                </span>
+                                            ) : null}
+                                        </>
+                                    ) : (
+                                        <span className="min-w-0 truncate text-sm font-medium text-foreground">
+                                            {title ?? problem.problem_nm}
+                                        </span>
+                                    )}
+                                </span>
+                                <span className="block min-w-0 truncate text-[11px] leading-tight text-muted-foreground">
                                     {problem.problem_nm}
                                 </span>
                             </span>
@@ -350,35 +405,60 @@ function ExamFloatingWidgetInfo({
     title,
     courseTitle,
     instructorName,
+    description,
+    instructions,
+    showInstructions,
 }: {
     title: string
     courseTitle: string | null
     instructorName: string | null
+    description: string | null | undefined
+    instructions: string | null | undefined
+    showInstructions: boolean
 }) {
     return (
         <div className="flex min-h-0 flex-1 flex-col justify-center gap-4 px-4 py-3">
             <div>
-                <p className="text-[11px] font-medium tracking-wide text-muted-foreground">Exam</p>
                 <h1 className="text-base font-semibold leading-snug tracking-tight text-foreground">{title}</h1>
+                {courseTitle || instructorName ? (
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                        {courseTitle ? (
+                            <span className="inline-flex items-center gap-1.5 font-medium">
+                                <BookOpenIcon className="size-3.5 shrink-0" aria-hidden />
+                                {courseTitle}
+                            </span>
+                        ) : null}
+                        {instructorName ? (
+                            <span className="inline-flex items-center gap-1.5">
+                                <SignatureIcon className="size-3.5 shrink-0" aria-hidden />
+                                {instructorName}
+                            </span>
+                        ) : null}
+                    </div>
+                ) : null}
             </div>
-            {courseTitle ? (
-                <div>
-                    <p className="text-[11px] font-medium tracking-wide text-muted-foreground">Course</p>
-                    <p className="text-sm font-medium text-foreground">{courseTitle}</p>
-                </div>
-            ) : null}
-            {instructorName ? (
-                <div>
-                    <p className="text-[11px] font-medium tracking-wide text-muted-foreground">Instructor</p>
-                    <p className="text-sm font-medium text-foreground">{instructorName}</p>
-                </div>
-            ) : null}
+            <div className="flex flex-wrap gap-4">
+                <LiveExamMarkdownDialog
+                    buttonLabel="Description"
+                    dialogTitle="Description"
+                    emptyText="No description"
+                    markdown={description}
+                />
+                {showInstructions ? (
+                    <LiveExamMarkdownDialog
+                        buttonLabel="Instructions"
+                        dialogTitle="Instructions"
+                        emptyText="No instructions"
+                        markdown={instructions}
+                    />
+                ) : null}
+            </div>
         </div>
     )
 }
 
-export function ExamFloatingWidget() {
-    const [tab, setTab] = useState<TabId>('timer')
+export function ExamFloatingWidget({ className }: { className?: string }) {
+    const [tab, setTab] = useState<ExamFloatingWidgetTabId>(() => readExamFloatingWidgetTab())
     const session = useExamFloatingWidgetSession()
     const now = useNow(!session.loading)
     const liveStatus = session.exam ? examStatus(session.exam, now, session.examMeta) : 'waiting'
@@ -410,6 +490,9 @@ export function ExamFloatingWidget() {
                 title={session.exam.title}
                 courseTitle={session.courseTitle}
                 instructorName={session.instructorName}
+                description={session.exam.description}
+                instructions={session.exam.instructions}
+                showInstructions={liveStatus === 'running' || liveStatus === 'finished'}
             />
         )
     } else if (tab === 'clock') {
@@ -423,7 +506,12 @@ export function ExamFloatingWidget() {
     } else if (tab === 'documents') {
         panel = <ExamFloatingWidgetDocuments documents={session.exam.documents} />
     } else if (tab === 'submissions') {
-        panel = <ExamFloatingWidgetSubmissions submissions={session.submissions} examProblems={session.exam.problems} />
+        panel = (
+            <ExamFloatingWidgetSubmissions
+                submissions={session.submissions}
+                examProblems={session.exam.problems}
+            />
+        )
     } else {
         panel = (
             <ExamTimerCard
@@ -440,32 +528,40 @@ export function ExamFloatingWidget() {
     }
 
     return (
-        <TooltipProvider>
-            <div
-                className={cn(
-                    'flex size-[300px] max-h-[300px] max-w-[300px] flex-col overflow-hidden bg-background text-foreground',
-                )}
-            >
-                <section
-                    className="flex min-h-0 flex-1 flex-col overflow-hidden"
-                    role="tabpanel"
-                    id={`exam-floating-widget-panel-${tab}`}
-                    aria-labelledby={`exam-floating-widget-tabs-tab-${tab}`}
-                >
-                    {panel}
-                </section>
-                <div className="shrink-0 border-t border-border px-0.5 py-0.5">
-                    <AnimatedTabs
-                        activeTab={tab}
-                        className="w-full"
-                        hideLabels
-                        layoutId="exam-floating-widget-tabs"
-                        onChange={(id) => setTab(id as TabId)}
-                        tabs={TABS}
-                        variant="segment"
-                    />
-                </div>
-            </div>
-        </TooltipProvider>
+        <div
+            className={cn(
+                'flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-background text-foreground',
+                className,
+            )}
+        >
+            <TooltipProvider>
+                <>
+                    <div className="w-full shrink-0">
+                        <AnimatedTabs
+                            activeTab={tab}
+                            className="rounded-none border-b border-border bg-muted p-0"
+                            hideLabels
+                            tooltipSide="bottom"
+                            layoutId="exam-floating-widget-tabs"
+                            onChange={(id) => {
+                                const next = id as ExamFloatingWidgetTabId
+                                setTab(next)
+                                writeExamFloatingWidgetTab(next)
+                            }}
+                            tabs={TABS}
+                            variant="segment"
+                        />
+                    </div>
+                    <section
+                        className="flex min-h-0 flex-1 flex-col overflow-hidden"
+                        role="tabpanel"
+                        id={`exam-floating-widget-panel-${tab}`}
+                        aria-labelledby={`exam-floating-widget-tabs-tab-${tab}`}
+                    >
+                        {panel}
+                    </section>
+                </>
+            </TooltipProvider>
+        </div>
     )
 }

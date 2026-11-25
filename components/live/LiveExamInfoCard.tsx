@@ -180,7 +180,7 @@ export function LiveExamInfoCard({
     )
 }
 
-function LiveExamMarkdownDialog({
+export function LiveExamMarkdownDialog({
     buttonLabel,
     dialogTitle,
     markdown,

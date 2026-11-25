@@ -3,9 +3,5 @@
 import { ExamFloatingWidget } from '@/components/live/ExamFloatingWidget'
 
 export default function ExamFloatingWidgetPage() {
-    return (
-        <div className="flex min-h-dvh items-start justify-center bg-background">
-            <ExamFloatingWidget />
-        </div>
-    )
+    return <ExamFloatingWidget className="min-h-0 flex-1" />
 }
