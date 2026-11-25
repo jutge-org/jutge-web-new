@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 
 import { SubNav } from '@/components/general/SubNav'
 import { canSuperviseCourse } from '@/lib/courses'
@@ -16,7 +16,7 @@ type CourseDetailNavProps = {
 
 /** Sticky secondary nav for course owners and tutors. */
 export function CourseDetailNav({ courseKey, isOwner, isTutor }: CourseDetailNavProps) {
-    const pathname = usePathname()
+    const pathname = usePublicPathname()
     const activeTab = courseDetailTabFromPathname(pathname, courseKey)
     const showSecondaryNav = canSuperviseCourse({ isOwner, isTutor })
 

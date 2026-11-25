@@ -1,7 +1,6 @@
 'use client'
 
 import { Settings2Icon } from 'lucide-react'
-import { usePathname } from 'next/navigation'
 
 import { LiveBreadcrumbsInLayout } from '@/app/LiveBreadcrumbsInLayout'
 import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
@@ -10,25 +9,17 @@ import { LiveExamWidgetToolbarButton } from '@/components/live/LiveExamWidgetToo
 import { LiveHeaderClock } from '@/components/live/LiveHeaderClock'
 import { LiveWallClockProvider } from '@/hooks/use-live-wall-clock'
 import { ExamFloatingWidgetNavHost } from '@/components/live/ExamFloatingWidgetNavHost'
-import { LiveUnavailable } from '@/components/live/LiveChrome'
 import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
 import { LayoutWidthContainer } from '@/components/layout/LayoutWidthContainer'
 import { SubNavInLayout } from '@/components/layout/SubNavInLayout'
 import { AppFooter } from '@/components/layout/AppFooter'
 import { RootShell } from '@/components/RootShell'
 import SmoothButton from '@/components/smoothui/smooth-button'
-import { useSiteMode } from '@/components/SiteModeProvider'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { dispatchOpenAppearanceSettings } from '@/lib/appearanceSettings'
-import { isLivePath } from '@/lib/livePaths'
 import type { ReactNode } from 'react'
 
 export function LiveAppShell({ children }: { children: ReactNode }) {
-    const site = useSiteMode()
-    const pathname = usePathname() ?? '/'
-
-    const allowed = isLivePath(pathname, site.kind)
-
     return (
         <LiveWallClockProvider>
             <ExamFloatingWidgetNavHost />
@@ -65,11 +56,7 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
                 }
                 footer={<AppFooter />}
             >
-                {allowed ? (
-                    children
-                ) : (
-                    <LiveUnavailable message="This page is not available during an exam or contest." />
-                )}
+                {children}
             </RootShell>
             <AppearanceSettingsDialog />
         </LiveWallClockProvider>

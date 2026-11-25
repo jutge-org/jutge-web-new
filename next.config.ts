@@ -21,12 +21,6 @@ const nextConfig: NextConfig = {
     async redirects() {
         return [
             {
-                // not used, just kept as an example
-                source: '/statistics',
-                destination: '/activity',
-                permanent: true,
-            },
-            {
                 source: '/reset-password/:token',
                 destination: '/password-reset',
                 permanent: false,

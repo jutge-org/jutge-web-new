@@ -5,7 +5,7 @@ import { isFullscreenSolutionEditorPath } from '@/lib/solutions'
 import { isFullscreenSubmissionEditorPath } from '@/lib/submissions'
 import { isBlackScreenPath, isUtilityEditorViewPath } from '@/lib/utilities'
 import { useClockFullscreen } from '@/store/clockFullscreen'
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import type { ReactNode } from 'react'
 
 type RootShellProps = {
@@ -15,7 +15,7 @@ type RootShellProps = {
 }
 
 export function RootShell({ children, header, footer }: RootShellProps) {
-    const pathname = usePathname() ?? ''
+    const pathname = usePublicPathname()
     const clockFullscreen = useClockFullscreen((state) => state.active)
 
     if (

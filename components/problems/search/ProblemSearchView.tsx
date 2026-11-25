@@ -25,7 +25,8 @@ import {
     TagsIcon,
 } from 'lucide-react'
 import dayjs from 'dayjs'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import { JSX, useEffect, useMemo, useState } from 'react'
 import {
     Area,
@@ -1187,7 +1188,7 @@ type SearchTabsComponentProps = {
 }
 
 function SearchTabsComponent(props: SearchTabsComponentProps) {
-    const pathname = usePathname() ?? ''
+    const pathname = usePublicPathname()
     const searchParams = useSearchParams()
     const mode: SearchMode = searchParams.get('mode') === 'fulltext' ? 'fulltext' : 'semantic'
 

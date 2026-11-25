@@ -101,7 +101,9 @@ import {
     TurtleIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import { Fragment, useEffect, useRef, useState, type ComponentType } from 'react'
 
 type MainNavSubmenuItem = {
@@ -485,7 +487,7 @@ export function MainBreadcrumbsInLayout() {
     }, [])
 
     const breadcrumbs = useMainBreadcrumbs((s) => s.breadcrumbs)
-    const pathname = usePathname()
+    const pathname = usePublicPathname()
     const navLinks = getSiteNavLinks({ authenticated, instructor, tutor, administrator })
     const mainMenuLinks = orderMainNavMenuLinks(navLinks)
     const metaStartHref = mainMenuLinks.find(

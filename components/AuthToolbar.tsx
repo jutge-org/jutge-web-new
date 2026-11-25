@@ -1,9 +1,10 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
 import { headerToolbarIconButtonClassName } from '@/components/layout/headerToolbarClasses'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import { useAuth } from '@/components/AuthProvider'
 import { SignInDialog } from '@/components/SignInDialog'
 import { SmoothDropdownMenuContent } from '@/components/smoothui/dropdown-menu/animated-content'
@@ -29,7 +30,7 @@ export function AuthToolbar() {
     const userName = user?.name
     const userNickname = user?.nickname
     const router = useRouter()
-    const pathname = usePathname()
+    const pathname = usePublicPathname()
     const [dialogOpen, setDialogOpen] = useState(false)
     const [signOutPending, startSignOut] = useTransition()
 

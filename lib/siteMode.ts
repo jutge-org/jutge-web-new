@@ -58,6 +58,23 @@ export function isLiveKind(kind: SiteKind): kind is 'exam' | 'contest' {
     return kind === 'exam' || kind === 'contest'
 }
 
+/** Internal prefix for the exam route tree. Public URLs never include it. */
+export const EXAM_SITE_PREFIX = '/exam-site'
+
+export function isExamSitePath(pathname: string): boolean {
+    return pathname === EXAM_SITE_PREFIX || pathname.startsWith(`${EXAM_SITE_PREFIX}/`)
+}
+
+/** Browser path for a pathname that may still carry the internal exam prefix. */
+export function toPublicPathname(pathname: string): string {
+    if (pathname === EXAM_SITE_PREFIX) return '/'
+    if (pathname.startsWith(`${EXAM_SITE_PREFIX}/`)) {
+        const rest = pathname.slice(EXAM_SITE_PREFIX.length)
+        return rest || '/'
+    }
+    return pathname
+}
+
 export function siteBrand(kind: SiteKind): string {
     if (kind === 'exam') return 'Jutge.org: Exam'
     if (kind === 'contest') return 'Jutge.org: Contest'

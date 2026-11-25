@@ -1,6 +1,5 @@
-import { AppShell } from '@/components/AppShell'
-import { AppToaster } from '@/components/AppToaster'
 import { AppearancePreferencesProvider } from '@/components/AppearancePreferencesProvider'
+import { AppToaster } from '@/components/AppToaster'
 import { AuthProvider } from '@/components/AuthProvider'
 import { LayoutWidthProvider } from '@/components/layout/LayoutWidthProvider'
 import { SettingsProvider } from '@/components/SettingsProvider'
@@ -42,7 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                             <SettingsProvider>
                                 <LayoutWidthProvider>
                                     <AppearancePreferencesProvider>
-                                        <AppShell>{children}</AppShell>
+                                        {children}
                                         <AppToaster />
                                     </AppearancePreferencesProvider>
                                 </LayoutWidthProvider>

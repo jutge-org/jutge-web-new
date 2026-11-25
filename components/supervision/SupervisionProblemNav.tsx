@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 
 import { useAuth } from '@/components/AuthProvider'
 import { SubNav } from '@/components/general/SubNav'
@@ -51,7 +51,7 @@ export function SupervisionProblemNav({
     shared_testcases = 0,
 }: SupervisionProblemNavProps) {
     const { user } = useAuth()
-    const pathname = usePathname()
+    const pathname = usePublicPathname()
     const activeTab = supervisionProblemTabFromPathname(pathname, pageKey, context)
     const isInstructorOwner = useInstructorOwnsProblem(problem_nm)
     const isAdministrator = Boolean(user?.administrator)

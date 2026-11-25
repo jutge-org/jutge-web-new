@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 
 import { useAuth } from '@/components/AuthProvider'
 import { SubNav } from '@/components/general/SubNav'
@@ -29,7 +29,7 @@ export function ProblemNav({
     isInstructorOwner,
 }: ProblemNavProps) {
     const { user } = useAuth()
-    const pathname = usePathname()
+    const pathname = usePublicPathname()
     const activeTab = problemTabFromPathname(pathname, pageKey)
     const showSecondaryNav = Boolean(user?.instructor || user?.administrator)
 

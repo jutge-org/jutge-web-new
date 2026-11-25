@@ -19,7 +19,7 @@ import {
     type RecentsData,
 } from '@/lib/recents'
 import { useOpenWebRecents, useOpenWebSettingsReady, useOpenWebSettingsStore } from '@/store/openWebSettings'
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 
 const EMPTY_COURSE_KEYS: ReadonlySet<string> = new Set()
@@ -43,7 +43,7 @@ type RecentsProviderProps = {
 export function RecentsProvider({ children }: RecentsProviderProps) {
     const { user } = useAuth()
     const authenticated = user !== null
-    const pathname = usePathname() ?? ''
+    const pathname = usePublicPathname()
     const ready = useOpenWebSettingsReady()
     const recents = useOpenWebRecents()
     const setRecents = useOpenWebSettingsStore((state) => state.setRecents)

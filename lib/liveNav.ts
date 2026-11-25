@@ -25,16 +25,15 @@ export function liveNavItems(
     started: boolean,
 ): LiveNavItem[] {
     if (role === 'tutor') {
-        return [
+        const items: LiveNavItem[] = [
             { href: '/', label: 'Home' },
             { href: '/problems', label: 'Problems' },
             { href: '/students', label: 'Students' },
             { href: '/submissions', label: 'Submissions' },
-            { href: '/ranking', label: 'Ranking' },
-            { href: '/statistics', label: 'Statistics' },
-            { href: '/logins', label: 'Logins' },
-            ...LIVE_META_NAV,
         ]
+        if (kind === 'contest') items.push({ href: '/ranking', label: 'Ranking' })
+        items.push({ href: '/statistics', label: 'Statistics' }, { href: '/logins', label: 'Logins' }, ...LIVE_META_NAV)
+        return items
     }
     if (role === 'student') {
         const items: LiveNavItem[] = [

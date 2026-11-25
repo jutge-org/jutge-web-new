@@ -1,11 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { LiveNotice } from '@/components/live/LiveChrome'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import { SignInDialog } from '@/components/SignInDialog'
 import { useSiteMode } from '@/components/SiteModeProvider'
 
@@ -23,7 +24,7 @@ export function LoginGate() {
 
 function NormalLoginGate() {
     const router = useRouter()
-    const pathname = usePathname()
+    const pathname = usePublicPathname()
     const [open, setOpen] = useState(true)
 
     return (

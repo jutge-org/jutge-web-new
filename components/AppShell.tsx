@@ -1,8 +1,6 @@
 'use client'
 
 import { AuthToolbar } from '@/components/AuthToolbar'
-import { LiveAppShell } from '@/components/live/LiveAppShell'
-import { useSiteMode } from '@/components/SiteModeProvider'
 import { CommandPalette } from '@/components/CommandPalette'
 import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
 import { useAppearancePreferences } from '@/components/AppearancePreferencesProvider'
@@ -23,7 +21,7 @@ import { isContextualHeaderGradientsEnabled } from '@/lib/contextualHeaderGradie
 import { cn } from '@/lib/utils'
 import { useDashboardCustomizationStore } from '@/store/dashboardCustomization'
 import { Settings2Icon } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import { useEffect } from 'react'
 
 function headerBarClassName(pathname: string, gradientsEnabled: boolean): string {
@@ -36,7 +34,7 @@ function headerBarClassName(pathname: string, gradientsEnabled: boolean): string
 function AppShellInner({ children }: { children: React.ReactNode }) {
     const { user } = useAuth()
     const authenticated = user !== null
-    const pathname = usePathname() ?? ''
+    const pathname = usePublicPathname()
     const { contextualHeaderGradients } = useAppearancePreferences()
     const gradientsEnabled = isContextualHeaderGradientsEnabled(contextualHeaderGradients)
     const stopDashboardEditing = useDashboardCustomizationStore((state) => state.stopEditing)
@@ -96,13 +94,5 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname() ?? ''
-    const site = useSiteMode()
-
-    if (pathname === '/exam-floating-widget') {
-        return <>{children}</>
-    }
-
-    if (site.kind !== 'normal') return <LiveAppShell>{children}</LiveAppShell>
     return <AppShellInner>{children}</AppShellInner>
 }

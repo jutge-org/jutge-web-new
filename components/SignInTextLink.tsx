@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import { useState } from 'react'
 
 import { SignInDialog } from '@/components/SignInDialog'
@@ -11,7 +11,7 @@ type SignInTextLinkProps = {
 }
 
 export function SignInTextLink({ className }: SignInTextLinkProps) {
-    const pathname = usePathname()
+    const pathname = usePublicPathname()
     const [dialogOpen, setDialogOpen] = useState(false)
 
     return (

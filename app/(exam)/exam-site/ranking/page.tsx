@@ -7,6 +7,6 @@ import { useSiteMode } from '@/components/SiteModeProvider'
 
 export default function RankingPage() {
     const site = useSiteMode()
-    if (site.kind === 'normal') notFound()
+    if (site.kind !== 'contest') notFound()
     return <LiveRankingPage />
 }

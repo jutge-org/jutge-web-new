@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 
 import { SubNav } from '@/components/general/SubNav'
 import { instructorNavItems, instructorShowsMainSubNav, instructorTabFromPathname } from '@/lib/instructor'
@@ -14,7 +14,7 @@ const instructorSubNavItems: readonly SubNavItem[] = instructorNavItems.map(({ t
 
 /** Registers main instructor section links in the sticky header sub-nav. */
 export function InstructorNav() {
-    const pathname = usePathname() ?? ''
+    const pathname = usePublicPathname()
 
     if (!instructorShowsMainSubNav(pathname)) {
         return null

@@ -1,8 +1,9 @@
 'use client'
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import {
     LIVE_EXAM_LIST_LAYOUT_PARAM,
     type LiveExamListLayout,
@@ -16,7 +17,7 @@ import {
 
 export function useLiveExamListLayout(scope: LiveExamListLayoutScope) {
     const router = useRouter()
-    const pathname = usePathname()
+    const pathname = usePublicPathname()
     const searchParams = useSearchParams()
     const [layout, setLayoutState] = useState<LiveExamListLayout>(() => readLiveExamListLayout(scope))
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 
 import { SubNav } from '@/components/general/SubNav'
 import { administratorNavItems, administratorTabFromPathname } from '@/lib/administrator'
@@ -14,7 +14,7 @@ const administratorSubNavItems: readonly SubNavItem[] = administratorNavItems.ma
 
 /** Registers administrator section links in the sticky header sub-nav. */
 export function AdministratorNav() {
-    const pathname = usePathname() ?? ''
+    const pathname = usePublicPathname()
     const activeTab = administratorTabFromPathname(pathname)
 
     return <SubNav ariaLabel="Administrator sections" activeKey={activeTab} items={administratorSubNavItems} />

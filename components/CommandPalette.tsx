@@ -75,7 +75,9 @@ import {
 } from 'lucide-react'
 import { useAppearanceThemePreference } from '@/components/AppearancePreferencesProvider'
 import { useTheme } from 'next-themes'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import { useOpenWebShowHeaderSearch } from '@/store/openWebSettings'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { toast } from 'sonner'
@@ -123,7 +125,7 @@ export function CommandPalette() {
     const tutor = user?.tutor ?? false
     const administrator = user?.administrator ?? false
     const router = useRouter()
-    const pathname = usePathname()
+    const pathname = usePublicPathname()
     const [, setAppearanceTheme] = useAppearanceThemePreference()
     const { resolvedTheme } = useTheme()
     const { setLayoutWidth } = useLayoutWidth()

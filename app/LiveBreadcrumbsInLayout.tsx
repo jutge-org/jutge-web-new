@@ -69,7 +69,7 @@ import {
     WrenchIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePublicPathname } from '@/hooks/usePublicPathname'
 import { Fragment, useEffect, useMemo, useRef, type ComponentType } from 'react'
 
 type LiveNavSubmenuItem = {
@@ -246,7 +246,7 @@ function menuSeparatorBefore(href: string): boolean {
 export function LiveBreadcrumbsInLayout() {
     const site = useSiteMode()
     const session = useLiveSession()
-    const pathname = usePathname() ?? '/'
+    const pathname = usePublicPathname()
     const brand = liveSiteBrand(site.kind)
     const menuItems = useMemo(
         () => liveNavItemsForSession(site.kind, session.role, session.exam),
