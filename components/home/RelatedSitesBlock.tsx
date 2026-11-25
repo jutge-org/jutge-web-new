@@ -36,16 +36,28 @@ const relatedSites = [
         imageSrc: '/news/quizzes.webp',
     },
     {
+        title: 'Games',
+        description: "🆕 Battles of brains and code",
+        href: 'https://games.jutge.org',
+        imageSrc: '/news/games.webp',
+    },
+    {
         title: 'Mussol',
         description: 'The peer grading tool of Jutge.org',
         href: 'https://mussol.jutge.org',
         imageSrc: '/news/mussol.webp',
     },
     {
-        title: 'Games',
-        description: "🆕 Battles of brains and code",
-        href: 'https://games.jutge.org',
-        imageSrc: '/news/games.webp',
+        title: 'Exams',
+        description: 'Programming exams for courses',
+        href: 'https://exam.jutge.org',
+        imageSrc: '/news/exam.webp',
+    },
+    {
+        title: 'Contests',
+        description: 'Programming contests',
+        href: 'https://contest.jutge.org',
+        imageSrc: '/news/contest.webp',
     },
 ]
 
@@ -78,12 +90,12 @@ export function RelatedSitesBlock() {
                         aria-hidden
                         className="pointer-events-none absolute left-1/2 top-1/2 hidden size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-3xl dark:block sm:size-80"
                     />
-                    <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="relative grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {relatedSites.map((site, index) => {
                             const isExternal = site.href.startsWith('http')
                             return (
                                 <motion.a
-                                    className="group relative flex h-full flex-col items-center overflow-hidden rounded-xl border bg-muted p-6 text-center transition-all hover:scale-[1.02] hover:shadow-md max-sm:flex-row max-sm:gap-4 max-sm:p-4 max-sm:text-left dark:bg-primary/5 dark:ring-1 dark:ring-primary/10"
+                                    className="group relative flex h-full min-h-0 flex-col items-center self-stretch overflow-hidden rounded-xl border bg-muted p-6 text-center transition-all hover:scale-[1.02] hover:shadow-md max-sm:flex-row max-sm:gap-4 max-sm:p-4 max-sm:text-left dark:bg-primary/5 dark:ring-1 dark:ring-primary/10"
                                     href={site.href}
                                     initial={false}
                                     key={site.title}
@@ -100,16 +112,16 @@ export function RelatedSitesBlock() {
                                         alt=""
                                         width={128}
                                         height={128}
-                                        className="mb-3 size-32 rounded-md object-contain max-sm:mb-0 max-sm:size-20 max-sm:shrink-0"
+                                        className="mb-3 size-32 shrink-0 rounded-md object-contain max-sm:mb-0 max-sm:size-20"
                                     />
-                                    <div className="contents max-sm:block max-sm:min-w-0 max-sm:flex-1">
-                                        <h3 className="mb-1 font-semibold text-[var(--color-brand-title)] text-2xl max-sm:text-xl">
+                                    <div className="flex w-full min-w-0 flex-1 flex-col items-center max-sm:min-w-0 max-sm:flex-1 max-sm:items-start max-sm:justify-center max-sm:text-left">
+                                        <h3 className="mb-1 line-clamp-2 min-h-[3.25rem] w-full font-semibold text-[var(--color-brand-title)] text-2xl max-sm:mb-0 max-sm:min-h-0 max-sm:text-xl">
                                             {site.title}
                                             {isExternal ? (
                                                 <span className="sr-only"> (opens in new window)</span>
                                             ) : null}
                                         </h3>
-                                        <p className="text-foreground text-sm leading-relaxed dark:text-foreground/70">
+                                        <p className="line-clamp-3 min-h-[4.125rem] w-full text-foreground text-sm leading-relaxed max-sm:min-h-0 dark:text-foreground/70">
                                             {site.description}
                                         </p>
                                     </div>
