@@ -168,7 +168,7 @@ function ProblemListItem({ problem }: { problem: ProblemRow }) {
     return (
         <li>
             <Link
-                href={`/problems/${problem.problem_nm}_en`}
+                href={`/problems/${problem.problem_nm}`}
                 className="flex items-center gap-3 rounded-xl border border-transparent px-2 py-2 transition-colors hover:border-border hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
                 {problem.iconUrl ? (
