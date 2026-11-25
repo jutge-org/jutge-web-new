@@ -1,5 +1,5 @@
 import jutge from '@/lib/jutge'
-import type { CredentialsOut, ExamCredentialsIn, ReadyExam } from '@/lib/jutge_api_client'
+import type { CredentialsOut, ExamCredentialsIn, GetReadyExamsOut } from '@/lib/jutge_api_client'
 import { UnauthorizedError } from '@/lib/jutge_api_client'
 
 /** Exam/contest auth phases (normal Jutge uses AuthProvider only). */
@@ -13,13 +13,7 @@ export const LIVE_SESSION_STORAGE = {
     examKey: 'live_exam_key',
 } as const
 
-export type AuthReadyExamsOut = {
-    exams: ReadyExam[]
-    name: string
-    administrator: boolean
-    instructor: boolean
-    username: string | null
-}
+export type AuthReadyExamsOut = GetReadyExamsOut
 
 /** Step B — credentials only, no session token (`auth.getReadyExams`). */
 export async function fetchReadyExamsUnauthenticated(

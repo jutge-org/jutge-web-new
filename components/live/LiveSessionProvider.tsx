@@ -214,9 +214,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             try {
                 const {
                     exams: ready,
-                    name: userName,
-                    instructor: isInstructor,
-                    administrator: isAdministrator,
+                    user: { name: userName, instructor: isInstructor, administrator: isAdministrator },
                 } = await fetchReadyExamsUnauthenticated(trimmedEmail, credentials.password)
                 const filtered = filterReadyExams(ready, contest)
                 if (filtered.length === 0) {

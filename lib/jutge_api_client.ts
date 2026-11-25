@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-11-24T09:09:05.351Z
+ * This file has been automatically generated at 2026-11-25T09:05:22.114Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -83,6 +83,30 @@ export type ConfirmChangeEmailIn = {
     new_email_code: string
     password: string
     recaptcha_token: string
+}
+
+export type ReadyExamsUser = {
+    name: string // Display name of the user
+    administrator: boolean // Whether the user is a Jutge administrator
+    instructor: boolean // Whether the user is an instructor
+    username: string | null
+}
+
+export type GetReadyExamsOut = {
+    exams: {
+        exam_key: string /* Unique key for the exam, in the format "username:exam_nm" */
+        title: string /* Title of the exam */
+        place: string /* Place where the exam t */
+        description: string /* Description of the exam in Markdown format */
+        course_name: string /* Title of the course this exam belongs to */
+        instructor_name: string /* Name of the instructor who owns this exam */
+        exp_time_start: Iso8601Date /* Expected start time of the exam */
+        time_start: Iso8601Date | null
+        running_time: number /* Nomimal running time of the exam (in minutes) */
+        extra_minutes: number /* Extra time granted to this user for the exam (in minutes) */
+        contest: boolean /* Whether the exam is a contest */
+    }[]
+    user: ReadyExamsUser
 }
 
 export type Time = {
@@ -608,12 +632,16 @@ export type Passcode = {
 
 export type ReadyExam = {
     exam_key: string // Unique key for the exam, in the format "username:exam_nm"
-    title: string
-    place: string
-    description: string
-    exp_time_start: Iso8601Date
-    running_time: number
-    contest: boolean
+    title: string // Title of the exam
+    place: string // Place where the exam t
+    description: string // Description of the exam in Markdown format
+    course_name: string // Title of the course this exam belongs to
+    instructor_name: string // Name of the instructor who owns this exam
+    exp_time_start: Iso8601Date // Expected start time of the exam
+    time_start: Iso8601Date | null
+    running_time: number // Nomimal running time of the exam (in minutes)
+    extra_minutes: number // Extra time granted to this user for the exam (in minutes)
+    contest: boolean // Whether the exam is a contest
 }
 
 export type RunningExamProblem = {
@@ -1831,22 +1859,14 @@ class Module_auth {
     }
 
     /**
-     * Get list of ready exams for a user, given their credentials.
+     * List exams available for exam login.
      *
-     * Validates user credentials and returns the list of ready exams. Does not create a session or return a token.
+     * Validates email and password, then returns exams the user is enrolled in as a participant (not finished or banned) that have not ended for them—including exams that have not started yet. Results are ordered by closeness to the expected start time. Also returns a `user` object (name, role flags, and instructor username when applicable). Does not create a session or return a token; use loginExam to obtain one. Throws UnauthorizedError on failure.
      *
-     * 🗂️ Domains: exam, contest
+     * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
      */
-    async getReadyExams(
-        data: CredentialsIn,
-    ): Promise<{
-        exams: ReadyExam[]
-        name: string
-        administrator: boolean
-        instructor: boolean
-        username: string | null
-    }> {
+    async getReadyExams(data: CredentialsIn): Promise<{ exams: ReadyExam[]; user: ReadyExamsUser }> {
         const [output, ofiles] = await this.root.execute("auth.getReadyExams", data)
         return output
     }
