@@ -32,13 +32,11 @@ const INSTANT_MARK_NEAR_NOW_MS = 5 * 60 * 1000
 const RING_SIZE = 136
 const RING_STROKE = 8
 const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
 /** Gap at noon on each side; ring runs clockwise from right gap to left gap. */
 const RING_GAP_CLOCK_DEG = 20
 const RING_START_CLOCK_DEG = RING_GAP_CLOCK_DEG
 const RING_END_CLOCK_DEG = 360 - RING_GAP_CLOCK_DEG
 const RING_SPAN_CLOCK_DEG = RING_END_CLOCK_DEG - RING_START_CLOCK_DEG
-const RING_ARC_LENGTH = RING_CIRCUMFERENCE * (RING_SPAN_CLOCK_DEG / 360)
 
 function ringPointFromClockDeg(clockDeg: number, cx: number, cy: number, r: number) {
     const rad = (clockDeg * Math.PI) / 180
@@ -164,7 +162,6 @@ function TimerRing({
 }) {
     const center = RING_SIZE / 2
     const trackPath = ringArcPath(RING_START_CLOCK_DEG, RING_END_CLOCK_DEG, center, center, RING_RADIUS)
-    const dotGap = RING_ARC_LENGTH / 28
 
     return (
         <svg
@@ -179,9 +176,8 @@ function TimerRing({
                     d={trackPath}
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth={5}
+                    strokeWidth={RING_STROKE}
                     strokeLinecap="round"
-                    strokeDasharray={`1 ${dotGap - 1}`}
                     className={cn('text-smooth-600 dark:text-smooth-700', dashedPulse && 'animate-pulse')}
                 />
             ) : null}
