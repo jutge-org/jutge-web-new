@@ -287,8 +287,15 @@ export function runningExamDurationMinutes(exam: RunningExam): number {
 type RunningExamWithCourse = RunningExam & { course?: StudentExamCourse }
 
 export function runningExamCourseTitle(exam: RunningExam): string | null {
+    const fromApi = exam.course_name?.trim()
+    if (fromApi) return fromApi
     const title = (exam as RunningExamWithCourse).course?.title?.trim()
     return title || null
+}
+
+export function runningExamInstructorName(exam: RunningExam): string | null {
+    const fromApi = exam.instructor_name?.trim()
+    return fromApi || null
 }
 
 export async function resolveLiveExamCourseTitle(

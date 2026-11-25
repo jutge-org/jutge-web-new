@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-11-25T09:05:22.114Z
+ * This file has been automatically generated at 2026-11-25T09:16:36.005Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -645,31 +645,33 @@ export type ReadyExam = {
 }
 
 export type RunningExamProblem = {
-    problem_nm: string
+    problem_nm: string // Problem name
     icon: string | null
     caption: string | null
     weight: number | null
 }
 
 export type RunningExamDocument = {
-    document_nm: string
-    title: string
-    description: string
+    document_nm: string // Document name
+    title: string // Title of the document
+    description: string // Description of the document
     type: string // The type of the document: pdf|zip
 }
 
 export type RunningExam = {
-    title: string
-    description: string
-    instructions: string
+    title: string // Title of the exam
+    description: string // Description of the exam in Markdown format
+    course_name: string // Title of the course this exam belongs to
+    instructor_name: string // Name of the instructor who owns this exam
+    instructions: string // Instructions of the exam (placeholder text if the exam has not started yet)
     time_start: Iso8601Date | null
-    exp_time_start: Iso8601Date
-    extra_minutes: number
-    running_time: number
-    contest: number
-    problems: RunningExamProblem[]
-    compilers: string[]
-    documents: RunningExamDocument[]
+    exp_time_start: Iso8601Date // Expected start time of the exam
+    extra_minutes: number // Extra time granted to this user for the exam (in minutes)
+    running_time: number // Nomimal running time of the exam (in minutes)
+    contest: number // Whether the exam is a contest
+    problems: RunningExamProblem[] // Problems of the exam (empty if the exam has not started yet)
+    compilers: string[] // Compiler IDs allowed in the exam (empty if the exam has not started yet)
+    documents: RunningExamDocument[] // Documents attached to the exam (empty if the exam has not started yet)
 }
 
 export type StudentExamCourse = {

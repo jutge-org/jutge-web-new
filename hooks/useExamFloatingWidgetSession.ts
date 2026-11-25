@@ -10,6 +10,7 @@ import {
     probeLiveRole,
     resolveLiveExamCourseTitle,
     runningExamCourseTitle,
+    runningExamInstructorName,
     type LiveTutorStatus,
 } from '@/lib/data/liveExam'
 import { LIVE_SESSION_STORAGE, validateLiveSessionToken } from '@/lib/data/liveAuth'
@@ -96,6 +97,11 @@ export function useExamFloatingWidgetSession(): ExamFloatingWidgetSession {
                 if (!cancelled) setCourseTitle(resolved)
             }
 
+            const inlineInstructor = runningExamInstructorName(studentExam)
+            if (inlineInstructor) {
+                setInstructorName(inlineInstructor)
+            }
+
             const key = examKey?.trim()
             if (!key) return
 
@@ -103,7 +109,9 @@ export function useExamFloatingWidgetSession(): ExamFloatingWidgetSession {
                 const detail = await jutge.student.exams.get(key)
                 if (cancelled) return
                 setExamMeta(detail)
-                setInstructorName(ownerDisplayName(detail.owner))
+                if (!inlineInstructor) {
+                    setInstructorName(ownerDisplayName(detail.owner))
+                }
                 if (!inlineCourse) {
                     const title = detail.course?.title?.trim()
                     if (title) setCourseTitle(title)

@@ -1,5 +1,6 @@
 'use client'
 
+import { BookOpenIcon, SignatureIcon } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 import { MarkdownText } from '@/components/general/MarkdownText'
@@ -15,6 +16,7 @@ import {
     resolveLiveExamCourseTitle,
     runningExamCourseTitle,
     runningExamDurationMinutes,
+    runningExamInstructorName,
 } from '@/lib/data/liveExam'
 import { LIVE_WALL_CLOCK_PLACEHOLDER } from '@/hooks/use-live-wall-clock'
 import type { RunningExam } from '@/lib/jutge_api_client'
@@ -112,6 +114,7 @@ export function LiveExamInfoCard({
     const rows = useMemo(() => buildExamInfoRows(exam, status, now, finishMs), [exam, status, now, finishMs])
     const showInstructions = status === 'running' || status === 'finished'
     const courseTitle = useLiveExamCourseTitle(exam, examKey)
+    const instructorName = runningExamInstructorName(exam)
 
     return (
         <Card className={cn('w-full overflow-hidden rounded-2xl border border-border py-0 shadow-sm ring-0', className)}>
@@ -128,10 +131,21 @@ export function LiveExamInfoCard({
                                 >
                                     {exam.title}
                                 </h2>
-                                {courseTitle ? (
-                                    <p className="mt-0.5 text-sm font-medium text-muted-foreground">
-                                        {courseTitle}
-                                    </p>
+                                {courseTitle || instructorName ? (
+                                    <div className="mt-0.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                                        {courseTitle ? (
+                                            <span className="inline-flex items-center gap-1.5 font-medium">
+                                                <BookOpenIcon className="size-3.5 shrink-0" aria-hidden />
+                                                {courseTitle}
+                                            </span>
+                                        ) : null}
+                                        {instructorName ? (
+                                            <span className="inline-flex items-center gap-1.5">
+                                                <SignatureIcon className="size-3.5 shrink-0" aria-hidden />
+                                                {instructorName}
+                                            </span>
+                                        ) : null}
+                                    </div>
                                 ) : null}
                             </td>
                         </tr>
