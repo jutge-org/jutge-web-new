@@ -19,7 +19,9 @@ import {
     fetchReadyExamsUnauthenticated,
     LIVE_SESSION_STORAGE,
     loginLiveExam,
+    readLiveControllerEntry,
     validateLiveSessionToken,
+    writeLiveControllerEntry,
     type LiveAuthPhase,
 } from '@/lib/data/liveAuth'
 import {
@@ -53,6 +55,8 @@ export type LiveSessionValue = {
     readyExams: ReadyExam[] | null
     exam: RunningExam | null
     examKey: string | null
+    /** Entered via `ReadyExam.role === 'controller'` (owner or tutor), including restored sessions. */
+    controllerEntry: boolean
     tutorStatus: LiveTutorStatus | null
     error: string | null
     refresh(): Promise<void>
@@ -82,6 +86,7 @@ function clearStoredSession() {
     localStorage.removeItem(LIVE_SESSION_STORAGE.userUid)
     localStorage.removeItem(LIVE_SESSION_STORAGE.email)
     localStorage.removeItem(LIVE_SESSION_STORAGE.examKey)
+    localStorage.removeItem(LIVE_SESSION_STORAGE.controllerEntry)
 }
 
 function persistSignedInExam(credentials: CredentialsOut, email: string, examKey: string) {
@@ -107,6 +112,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     const [examKey, setExamKey] = useState<string | null>(() =>
         typeof window !== 'undefined' ? localStorage.getItem(LIVE_SESSION_STORAGE.examKey) : null,
     )
+    const [controllerEntry, setControllerEntry] = useState(() => readLiveControllerEntry())
     const [tutorStatus, setTutorStatus] = useState<LiveTutorStatus | null>(null)
     const [profile, setProfile] = useState<Profile | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -121,6 +127,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         setRole(null)
         setExam(null)
         setExamKey(null)
+        setControllerEntry(false)
         setTutorStatus(null)
         setProfile(null)
     }, [])
@@ -134,19 +141,26 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         setPhase('signed-out')
     }, [])
 
-    const applyProbe = useCallback(async () => {
+    const applyProbe = useCallback(async (): Promise<LiveRole> => {
         const probed = await probeLiveRole()
         if (probed.role === 'tutor') {
             setRole('tutor')
             setTutorStatus(probed.status)
             setExam(null)
-        } else {
-            setRole('student')
-            setExam(probed.exam)
-            setTutorStatus(null)
+            writeLiveControllerEntry(false)
+            setControllerEntry(false)
+            setPhase('signed-in-exam')
+            setError(null)
+            return 'tutor'
         }
+        setRole('student')
+        setExam(probed.exam)
+        setTutorStatus(null)
+        const storedControllerEntry = readLiveControllerEntry()
+        setControllerEntry(storedControllerEntry)
         setPhase('signed-in-exam')
         setError(null)
+        return 'student'
     }, [])
 
     const refresh = useCallback(async () => {
@@ -259,6 +273,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
                 return { ok: false, error: 'Sign in again before entering the exam.' }
             }
             try {
+                const examKeyTrimmed = input.exam.trim()
+                const enteredAsController =
+                    readyExams?.find((ready) => ready.exam_key === examKeyTrimmed)?.role === 'controller'
                 const credentials = await loginLiveExam({
                     email: cached.email,
                     password: cached.password,
@@ -269,11 +286,17 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
                 setReadyExams(null)
                 jutge.clearCache()
                 persistSignedInExam(credentials, cached.email, input.exam)
-                setExamKey(input.exam.trim() || null)
+                setExamKey(examKeyTrimmed || null)
                 setEmail(cached.email)
-                await applyProbe()
+                writeLiveControllerEntry(enteredAsController)
+                setControllerEntry(enteredAsController)
+                const liveRole = await applyProbe()
                 setProfile(await jutge.student.profile.get())
-                void openExamFloatingWidget()
+                if (liveRole === 'student' && !enteredAsController) {
+                    void openExamFloatingWidget()
+                } else {
+                    closeExamFloatingWidget()
+                }
                 return { ok: true }
             } catch (loginError) {
                 jutge.meta = null
@@ -281,7 +304,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
                 return { ok: false, error: liveErrorMessage(loginError, 'Sign in failed.') }
             }
         },
-        [applyProbe, clearLiveRoleState],
+        [applyProbe, clearLiveRoleState, readyExams],
     )
 
     const cancelPreExam = useCallback(() => {
@@ -334,6 +357,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             readyExams,
             exam,
             examKey,
+            controllerEntry,
             tutorStatus,
             error,
             refresh,
@@ -355,6 +379,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             readyExams,
             exam,
             examKey,
+            controllerEntry,
             tutorStatus,
             error,
             refresh,

@@ -18,6 +18,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useAuth } from '@/components/AuthProvider'
 import { useSiteMode } from '@/components/SiteModeProvider'
 import { dispatchOpenAppearanceSettings } from '@/lib/appearanceSettings'
+import { liveSessionMayUseExamFloatingWidget } from '@/lib/examFloatingWidget'
 import { openExamFloatingWidget } from '@/lib/openExamFloatingWidget'
 import Link from 'next/link'
 import {
@@ -39,6 +40,7 @@ export function LiveAuthToolbar() {
     const noun = site.kind === 'contest' ? 'contest' : 'exam'
     const floatingWidgetLabel = ' Floating widget'
     const isStudent = session.role === 'student'
+    const showExamFloatingWidget = liveSessionMayUseExamFloatingWidget(session.role, session.controllerEntry)
 
     if (!session.authenticated) return null
 
@@ -102,14 +104,16 @@ export function LiveAuthToolbar() {
                             Profile
                         </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onClick={() => {
-                            void openExamFloatingWidget()
-                        }}
-                    >
-                        <PictureInPicture2Icon aria-hidden />
-                        {floatingWidgetLabel}
-                    </DropdownMenuItem>
+                    {showExamFloatingWidget ? (
+                        <DropdownMenuItem
+                            onClick={() => {
+                                void openExamFloatingWidget()
+                            }}
+                        >
+                            <PictureInPicture2Icon aria-hidden />
+                            {floatingWidgetLabel}
+                        </DropdownMenuItem>
+                    ) : null}
                     <DropdownMenuItem onClick={dispatchOpenAppearanceSettings}>
                         <Settings2Icon aria-hidden />
                         Settings

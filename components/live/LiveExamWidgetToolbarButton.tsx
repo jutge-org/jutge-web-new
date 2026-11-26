@@ -5,6 +5,7 @@ import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import SmoothButton from '@/components/smoothui/smooth-button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useSiteMode } from '@/components/SiteModeProvider'
+import { liveSessionMayUseExamFloatingWidget } from '@/lib/examFloatingWidget'
 import { openExamFloatingWidget } from '@/lib/openExamFloatingWidget'
 import { PictureInPicture2Icon } from 'lucide-react'
 
@@ -14,6 +15,7 @@ export function LiveExamWidgetToolbarButton() {
     const label = site.kind === 'contest' ? 'Contest floating widget' : 'Exam floating widget'
 
     if (!session.authenticated) return null
+    if (!liveSessionMayUseExamFloatingWidget(session.role, session.controllerEntry)) return null
 
     return (
         <TooltipProvider>

@@ -11,7 +11,23 @@ export const LIVE_SESSION_STORAGE = {
     userUid: 'user_uid',
     email: 'live_email',
     examKey: 'live_exam_key',
+    /** Set when the user entered as a course owner or tutor (`ReadyExam.role === 'controller'`). */
+    controllerEntry: 'live_controller_entry',
 } as const
+
+export function readLiveControllerEntry(): boolean {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem(LIVE_SESSION_STORAGE.controllerEntry) === '1'
+}
+
+export function writeLiveControllerEntry(controller: boolean): void {
+    if (typeof window === 'undefined') return
+    if (controller) {
+        localStorage.setItem(LIVE_SESSION_STORAGE.controllerEntry, '1')
+    } else {
+        localStorage.removeItem(LIVE_SESSION_STORAGE.controllerEntry)
+    }
+}
 
 export type AuthReadyExamsOut = GetReadyExamsOut
 

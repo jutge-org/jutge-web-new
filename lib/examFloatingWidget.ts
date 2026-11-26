@@ -15,6 +15,14 @@ const EXAM_FLOATING_WIDGET_TAB_IDS: ExamFloatingWidgetTabId[] = [
 
 export const EXAM_FLOATING_WIDGET_TAB_STORAGE_KEY = 'jutge:exam-floating-widget-tab'
 
+/** Participants only — tutors and exam controllers use the main UI instead. */
+export function liveSessionMayUseExamFloatingWidget(
+    role: 'student' | 'tutor' | null,
+    controllerEntry: boolean,
+): boolean {
+    return role === 'student' && !controllerEntry
+}
+
 export function parseExamFloatingWidgetTab(value: string | null | undefined): ExamFloatingWidgetTabId | null {
     if (!value) return null
     return EXAM_FLOATING_WIDGET_TAB_IDS.includes(value as ExamFloatingWidgetTabId)
