@@ -1,8 +1,9 @@
 import jutge from '@/lib/jutge'
 import { OPENWEB_SETTINGS_API_KEY, parseOpenWebSettings, type OpenWebSettings } from '@/lib/openWebSettings'
+import { isStudentSettingsApiAvailable } from '@/lib/siteMode'
 
 export async function fetchOpenWebSettings(): Promise<OpenWebSettings | null> {
-    if (!jutge.meta?.token) {
+    if (!isStudentSettingsApiAvailable() || !jutge.meta?.token) {
         return null
     }
 
@@ -19,6 +20,10 @@ export async function fetchOpenWebSettings(): Promise<OpenWebSettings | null> {
 }
 
 export async function saveOpenWebSettings(settings: OpenWebSettings): Promise<void> {
+    if (!isStudentSettingsApiAvailable()) {
+        return
+    }
+
     if (!jutge.meta?.token) {
         throw new Error('Not authenticated')
     }

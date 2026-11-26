@@ -1,4 +1,5 @@
 import { fetchOpenWebSettings, saveOpenWebSettings } from '@/lib/data/settingsActions'
+import { isStudentSettingsApiAvailable } from '@/lib/siteMode'
 import {
     clearLegacySettingsStorage,
     clearLocalOpenWebSettings,
@@ -61,7 +62,7 @@ function flushPendingSave() {
     pendingSave = null
     saveTimeoutId = undefined
 
-    if (persistenceMode === 'local') {
+    if (persistenceMode === 'local' || !isStudentSettingsApiAvailable()) {
         writeLocalOpenWebSettings(settings)
         return
     }
@@ -127,9 +128,16 @@ export function hydrateLocalOpenWebSettings() {
 
 function finishApiHydration(settings: OpenWebSettings, dirty: boolean) {
     useOpenWebSettingsStore.getState().hydrate(settings, { dirty })
-    clearLocalOpenWebSettings()
-    clearLegacySettingsStorage()
-    setSettingsPersistenceMode('api')
+
+    if (isStudentSettingsApiAvailable()) {
+        clearLocalOpenWebSettings()
+        clearLegacySettingsStorage()
+        setSettingsPersistenceMode('api')
+    } else {
+        writeLocalOpenWebSettings(settings)
+        setSettingsPersistenceMode('local')
+    }
+
     if (dirty) {
         scheduleSave(settings)
     }
@@ -138,6 +146,11 @@ function finishApiHydration(settings: OpenWebSettings, dirty: boolean) {
 export async function hydrateOpenWebSettingsFromApi(): Promise<boolean> {
     const generation = ++hydrateGeneration
     setSettingsPersistenceMode('none')
+
+    if (!isStudentSettingsApiAvailable()) {
+        hydrateLocalOpenWebSettings()
+        return false
+    }
 
     const settings = await fetchOpenWebSettings()
     if (generation !== hydrateGeneration) {

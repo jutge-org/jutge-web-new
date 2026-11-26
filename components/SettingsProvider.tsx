@@ -1,6 +1,8 @@
 'use client'
 
 import { useAuth } from '@/components/AuthProvider'
+import { useSiteMode } from '@/components/SiteModeProvider'
+import { supportsStudentSettingsApi } from '@/lib/siteMode'
 import {
     hydrateLocalOpenWebSettings,
     hydrateOpenWebSettingsFromApi,
@@ -22,6 +24,8 @@ type SettingsProviderProps = {
 
 export function SettingsProvider({ children }: SettingsProviderProps) {
     const { user, loading } = useAuth()
+    const site = useSiteMode()
+    const settingsViaApi = supportsStudentSettingsApi(site.kind)
     const { setTheme } = useTheme()
     const setThemeRef = useRef(setTheme)
     const previousUserIdRef = useRef<string | null>(null)
@@ -40,10 +44,18 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         const currentUserId = user?.id ?? null
         const previousUserId = previousUserIdRef.current
 
+        const hydrateForUser = () => {
+            if (currentUserId && settingsViaApi) {
+                void hydrateOpenWebSettingsFromApi()
+            } else {
+                hydrateLocalOpenWebSettings()
+            }
+        }
+
         if (!initializedRef.current) {
             initializedRef.current = true
             if (currentUserId) {
-                void hydrateOpenWebSettingsFromApi()
+                hydrateForUser()
             } else {
                 hydrateLocalOpenWebSettings()
             }
@@ -56,14 +68,14 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         }
 
         if (currentUserId) {
-            void hydrateOpenWebSettingsFromApi()
+            hydrateForUser()
         } else {
             resetOpenWebSettingsPersistence()
             hydrateLocalOpenWebSettings()
         }
 
         previousUserIdRef.current = currentUserId
-    }, [loading, user?.id])
+    }, [loading, settingsViaApi, user?.id])
 
     useEffect(() => {
         return () => {

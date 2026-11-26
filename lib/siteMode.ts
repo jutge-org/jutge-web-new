@@ -58,6 +58,19 @@ export function isLiveKind(kind: SiteKind): kind is 'exam' | 'contest' {
     return kind === 'exam' || kind === 'contest'
 }
 
+/** Exam and contest APIs do not expose `student.settings.get` / `student.settings.set`. */
+export function supportsStudentSettingsApi(kind: SiteKind): boolean {
+    return !isLiveKind(kind)
+}
+
+export function isStudentSettingsApiAvailable(hostname?: string): boolean {
+    if (typeof window === 'undefined') {
+        return false
+    }
+    const host = hostname ?? window.location.hostname
+    return supportsStudentSettingsApi(resolveSiteMode(host).kind)
+}
+
 /** Internal prefix for the exam route tree. Public URLs never include it. */
 export const EXAM_SITE_PREFIX = '/exam-site'
 
