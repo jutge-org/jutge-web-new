@@ -25,10 +25,14 @@ export function liveNavItems(
     started: boolean,
 ): LiveNavItem[] {
     if (role === 'tutor') {
+        const rosterNav: LiveNavItem =
+            kind === 'exam'
+                ? { href: '/participants', label: 'Participants' }
+                : { href: '/students', label: 'Students' }
         const items: LiveNavItem[] = [
             { href: '/', label: 'Home' },
             { href: '/problems', label: 'Problems' },
-            { href: '/students', label: 'Students' },
+            rosterNav,
             { href: '/submissions', label: 'Submissions' },
         ]
         if (kind === 'contest') items.push({ href: '/ranking', label: 'Ranking' })

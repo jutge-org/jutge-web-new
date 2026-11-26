@@ -49,6 +49,7 @@ export function LiveNavMenuItemIcon({
                 <TrophyIcon aria-hidden className={iconClass} />
             )
         case '/students':
+        case '/participants':
             return <UsersIcon aria-hidden className={iconClass} />
         case '/statistics':
             return <ChartPieIcon aria-hidden className={iconClass} />
