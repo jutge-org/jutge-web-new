@@ -6,6 +6,10 @@ import {
     fetchInstructorExamStatistics,
     fetchMiscHexColors,
 } from '@/lib/instructor/client'
+import {
+    fetchLiveExamStatisticsViewData,
+    type LiveExamStatisticsViewSource,
+} from '@/lib/data/liveExamStatisticsView'
 import SimpleSpinner from '@/components/administrator/SimpleSpinner'
 import { Warning } from '@/components/instructor/Warning'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,30 +41,48 @@ dayjs.extend(duration)
 
 type ExamStatisticsViewProps = {
     profile: Profile
+    /** When set, loads from the live exam tutor API instead of the instructor routes. */
+    live?: LiveExamStatisticsViewSource
 }
 
-export function ExamStatisticsView({ profile }: ExamStatisticsViewProps) {
-    const { exam_nm } = useParams<{ exam_nm: string }>()
+export function ExamStatisticsView({ profile, live }: ExamStatisticsViewProps) {
+    const { exam_nm: routeExamNm } = useParams<{ exam_nm?: string }>()
     const [exam, setExam] = useState<InstructorExam | null>(null)
     const [statistics, setStatistics] = useState<ExamStatistics | null>(null)
     const [abstractProblems, setAbstractProblems] = useState<Dict<AbstractProblem> | null>(null)
     const [colors, setColors] = useState<ColorMapping | null>(null)
 
     useEffect(() => {
-        async function fetchData() {
-            const exam = await fetchInstructorExam(exam_nm)
-            const statistics = await fetchInstructorExamStatistics(exam_nm)
-            const problem_nms = exam.problems.map((problem) => problem.problem_nm).join(',')
-            const allAbstractProblems = await fetchAbstractProblems(problem_nms)
-            const colors = await fetchMiscHexColors()
+        let cancelled = false
 
-            setExam(exam)
-            setStatistics(statistics)
+        async function fetchData() {
+            if (live) {
+                const data = await fetchLiveExamStatisticsViewData(live)
+                if (cancelled) return
+                setExam(data.exam)
+                setStatistics(data.statistics)
+                setAbstractProblems(data.abstractProblems)
+                setColors(data.colors)
+                return
+            }
+            if (!routeExamNm) return
+            const fetchedExam = await fetchInstructorExam(routeExamNm)
+            const fetchedStatistics = await fetchInstructorExamStatistics(routeExamNm)
+            const problem_nms = fetchedExam.problems.map((problem) => problem.problem_nm).join(',')
+            const allAbstractProblems = await fetchAbstractProblems(problem_nms)
+            const fetchedColors = await fetchMiscHexColors()
+            if (cancelled) return
+            setExam(fetchedExam)
+            setStatistics(fetchedStatistics)
             setAbstractProblems(allAbstractProblems)
-            setColors(colors)
+            setColors(fetchedColors)
         }
-        fetchData()
-    }, [exam_nm])
+
+        void fetchData()
+        return () => {
+            cancelled = true
+        }
+    }, [live, routeExamNm])
 
     if (exam === null || statistics === null || abstractProblems === null || colors === null) {
         return <SimpleSpinner />
