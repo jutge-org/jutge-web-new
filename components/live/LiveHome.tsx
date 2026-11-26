@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { type ReactNode, useEffect, useState } from 'react'
+import { Fragment, type ReactNode, useEffect, useMemo, useState } from 'react'
 
 import { LiveDashboard } from '@/components/live/LiveDashboard'
 import { ApiStatusCard } from '@/components/live/ApiStatusCard'
@@ -27,8 +27,17 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectSeparator,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { formatLiveDateTime } from '@/lib/data/liveExam'
+import type { ReadyExam } from '@/lib/jutge_api_client'
 import { isMotionReduced } from '@/lib/reducedMotion'
 import { cn } from '@/lib/utils'
 
@@ -231,6 +240,18 @@ function LiveSignIn({
         })
     }, [readyExams])
 
+    const selectedReadyExam = useMemo(
+        () => readyExams?.find((exam) => exam.exam_key === examKey) ?? null,
+        [readyExams, examKey],
+    )
+    const controllerEntry = selectedReadyExam?.role === 'controller'
+    const participantEntry = selectedReadyExam?.role === 'participant'
+
+    useEffect(() => {
+        if (!inPreExam) return
+        setExamPassword(controllerEntry ? '' : '0000')
+    }, [controllerEntry, inPreExam])
+
     async function continueToExams() {
         setError(null)
         setPending(true)
@@ -247,7 +268,10 @@ function LiveSignIn({
     async function enterExam() {
         setError(null)
         setPending(true)
-        const result = await session.enterExam({ exam: examKey, exam_password: examPassword })
+        const result = await session.enterExam({
+            exam: examKey,
+            exam_password: controllerEntry ? '' : examPassword,
+        })
         setPending(false)
         if (!result.ok) {
             setError(result.error)
@@ -290,9 +314,9 @@ function LiveSignIn({
                     {inPreExam ? (
                         <>
                             <p className="text-sm" id="live-greeting">
-                                Welcome&nbsp;
+                                Welcome, &nbsp;
                                 <span className="font-bold">{session.name ?? email}</span>.
-                                <span className="inline-flex items-center gap-0.5 text-muted-foreground">
+                                <span className="ml-2 inline-flex items-center gap-0.5 text-muted-foreground">
                                     <LiveAccountRoleIcons
                                         administrator={session.administrator}
                                         instructor={session.instructor}
@@ -300,7 +324,8 @@ function LiveSignIn({
                                 </span>
                             </p>
                             <p className="text-sm" id="live-select-arena-hint">
-                                Select your {contest ? 'contest' : 'exam'} and enter its password.
+                                Select your {contest ? 'contest' : 'exam'}
+                                {participantEntry ? ' and enter its password' : ''}.
                             </p>
                         </>
                     ) : (
@@ -348,30 +373,53 @@ function LiveSignIn({
                                 </div>
                             </div>
                             <Select value={examKey} onValueChange={setExamKey} disabled={pending}>
-                                <SelectTrigger className="w-full" id="live-exam">
+                                <SelectTrigger
+                                    className="h-auto w-full min-h-16 items-center py-3 pl-2.5 *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:w-full *:data-[slot=select-value]:whitespace-normal"
+                                    id="live-exam"
+                                >
                                     <SelectValue placeholder={`Choose a ${contest ? 'contest' : 'exam'}`} />
                                 </SelectTrigger>
-                                <SelectContent>
-                                    {readyExams.map((exam) => (
-                                        <SelectItem key={exam.exam_key} value={exam.exam_key}>
-                                            {exam.title}
-                                        </SelectItem>
+                                <SelectContent className="p-0">
+                                    {readyExams.map((exam, index) => (
+                                        <Fragment key={exam.exam_key}>
+                                            {index > 0 ? (
+                                                <SelectSeparator className="mx-0 my-0" />
+                                            ) : null}
+                                            <SelectItem
+                                                className="items-start rounded-none py-3 pr-8 pl-2.5"
+                                                textValue={
+                                                    exam.course_name
+                                                        ? `${exam.title} ${exam.course_name}`
+                                                        : exam.title
+                                                }
+                                                value={exam.exam_key}
+                                            >
+                                                <ReadyExamSelectOption exam={exam} />
+                                            </SelectItem>
+                                        </Fragment>
                                     ))}
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="live-exam-password">
+                            <Label
+                                className={cn(controllerEntry && 'text-muted-foreground')}
+                                htmlFor="live-exam-password"
+                            >
                                 {contest ? 'Contest' : 'Exam'} password
                             </Label>
                             <Input
                                 id="live-exam-password"
                                 type="text"
                                 autoComplete="off"
-                                placeholder="Exam password"
+                                placeholder={
+                                    controllerEntry
+                                        ? 'Not required for controllers'
+                                        : 'Exam password'
+                                }
                                 value={examPassword}
                                 onChange={(event) => setExamPassword(event.target.value)}
-                                disabled={pending}
+                                disabled={pending || controllerEntry}
                             />
                         </div>
                     </>
@@ -453,6 +501,31 @@ function LiveSignIn({
                 </div>
             </form>
         </>
+    )
+}
+
+function ReadyExamSelectOption({ exam }: { exam: ReadyExam }) {
+    const isController = exam.role === 'controller'
+
+    return (
+        <div className="flex min-w-0 flex-col gap-1 text-left">
+            <span className="flex min-w-0 items-center gap-1.5 leading-snug">
+                <span className="min-w-0 truncate font-medium">{exam.title}</span>
+                {isController ? (
+                    <span className="inline-flex shrink-0 text-foreground" role="img" aria-label="Instructor">
+                        <GraduationCapIcon aria-hidden className="size-3.5" />
+                    </span>
+                ) : null}
+            </span>
+            <span className="min-w-0 truncate text-xs leading-snug text-muted-foreground">
+                {formatLiveDateTime(exam.exp_time_start)}
+                {exam.course_name ? (
+                    <span className="text-muted-foreground ml-2">
+                        {exam.course_name}
+                    </span>
+                ) : null}
+            </span>
+        </div>
     )
 }
 

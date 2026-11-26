@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-11-25T09:16:36.005Z
+ * This file has been automatically generated at 2026-11-26T11:17:45.676Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -105,6 +105,7 @@ export type GetReadyExamsOut = {
         running_time: number /* Nomimal running time of the exam (in minutes) */
         extra_minutes: number /* Extra time granted to this user for the exam (in minutes) */
         contest: boolean /* Whether the exam is a contest */
+        role: string /* How the user may enter this exam: `participant` (student) or `controller` (course owner or tutor) */
     }[]
     user: ReadyExamsUser
 }
@@ -642,6 +643,7 @@ export type ReadyExam = {
     running_time: number // Nomimal running time of the exam (in minutes)
     extra_minutes: number // Extra time granted to this user for the exam (in minutes)
     contest: boolean // Whether the exam is a contest
+    role: string // How the user may enter this exam: `participant` (student) or `controller` (course owner or tutor)
 }
 
 export type RunningExamProblem = {
@@ -1863,7 +1865,7 @@ class Module_auth {
     /**
      * List exams available for exam login.
      *
-     * Validates email and password, then returns exams the user is enrolled in as a participant (not finished or banned) that have not ended for them—including exams that have not started yet. Results are ordered by closeness to the expected start time. Also returns a `user` object (name, role flags, and instructor username when applicable). Does not create a session or return a token; use loginExam to obtain one. Throws UnauthorizedError on failure.
+     * Validates email and password, then returns exams the user may open: as a participant (not finished, banned, or past their running window) or as a controller for the course (owner or tutor). Each exam includes a `role` of `participant` or `controller`. Results are ordered by closeness to the expected start time. Also returns a `user` object (name, role flags, and instructor username when applicable). Does not create a session or return a token; use loginExam to obtain one. Throws UnauthorizedError on failure.
      *
      * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
