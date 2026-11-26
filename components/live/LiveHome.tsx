@@ -270,7 +270,7 @@ function LiveSignIn({
 
     function handleBack() {
         session.cancelPreExam()
-        setExamPassword('0000')
+        setExamPassword('')
         setError(null)
     }
 
@@ -368,9 +368,10 @@ function LiveSignIn({
                                 id="live-exam-password"
                                 type="text"
                                 autoComplete="off"
+                                placeholder="Exam password"
                                 value={examPassword}
                                 onChange={(event) => setExamPassword(event.target.value)}
-                                required
+                                disabled={pending}
                             />
                         </div>
                     </>
