@@ -202,6 +202,8 @@ function LiveStudentManageDialog({
 
     if (!student) return null
 
+    const rosterEntry = student
+
     const dirty =
         finished !== !!student.finished ||
         banned !== !!student.banned ||
@@ -210,10 +212,10 @@ function LiveStudentManageDialog({
 
     async function applyChanges(event: FormEvent) {
         event.preventDefault()
-        const email = student.email
-        const wasFinished = !!student.finished
-        const wasBanned = !!student.banned
-        const wasInvited = !!student.invited
+        const email = rosterEntry.email
+        const wasFinished = !!rosterEntry.finished
+        const wasBanned = !!rosterEntry.banned
+        const wasInvited = !!rosterEntry.invited
         const ok = await onRun(async () => {
             if (finished !== wasFinished) {
                 if (finished) await jutge.tutor.examctl.finish({ email })
@@ -431,7 +433,7 @@ function LiveStudentsTable({ rows, contest, onRowOpen }: LiveStudentsTableProps)
                 rowData={rows}
                 columnDefs={colDefs}
                 defaultColDef={defaultColDef}
-                getRowId={(params) => params.data.email}
+                getRowId={(params: { data: LiveRosterEntry }) => params.data.email}
                 onRowClicked={onRowClicked}
             />
         </div>
