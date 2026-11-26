@@ -218,6 +218,13 @@ export function formatInstant(value: string | null): string {
     return date.toLocaleString()
 }
 
+export function formatLiveDateTimeSeconds(value: string | number | null): string {
+    if (value == null) return '—'
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return String(value)
+    return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+}
+
 export function formatLiveDateTime(value: string | number): string {
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) return String(value)
