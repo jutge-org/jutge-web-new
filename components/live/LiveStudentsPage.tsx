@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { toast } from 'sonner'
 
-import { AgTableAutoHeight } from '@/components/administrator/AgTable'
+import { AgTableFull } from '@/components/administrator/AgTable'
 import { EmailAddressText } from '@/components/general/EmailAddressText'
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { ProfileFormRow } from '@/components/profile/ProfileFormRow'
@@ -426,14 +426,8 @@ function LiveStudentsTable({ rows, contest, onRowOpen }: LiveStudentsTableProps)
     )
 
     return (
-        <div
-            className={cn(
-                'min-w-0 overflow-x-auto px-1 pb-px',
-                '[&_.ag-cell]:overflow-visible',
-                '[&_.ag-row]:cursor-pointer',
-            )}
-        >
-            <AgTableAutoHeight
+        <div className={cn('min-w-0', '[&_.ag-cell]:overflow-visible', '[&_.ag-row]:cursor-pointer')}>
+            <AgTableFull
                 rowData={rows}
                 columnDefs={colDefs}
                 defaultColDef={defaultColDef}
