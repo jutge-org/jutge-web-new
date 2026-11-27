@@ -17,6 +17,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
     DEFAULT_SUBMISSIONS_COLUMN_VISIBILITY,
+    LIVE_SUBMISSIONS_COLUMN_VISIBILITY,
     PENDING_SUBMISSION_REFRESH_INTERVAL_MS,
     PENDING_SUBMISSION_REFRESH_MAX_COUNT,
     type ProblemSubmissionRow,
@@ -38,6 +39,7 @@ type SubmissionsListProps =
         rows: SubmissionRow[]
         variant?: 'default'
         showHelp?: boolean
+        showAnnotationColumn?: boolean
         loading?: boolean
         onRefreshPending?: () => Promise<SubmissionRow[]>
         emptyMessage?: string
@@ -61,6 +63,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
         rows: initialRows,
         variant = 'default',
         showHelp = false,
+        showAnnotationColumn = true,
         loading = false,
         onRefreshPending,
         emptyMessage,
@@ -71,7 +74,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
     const [searchQuery, setSearchQuery] = useState('')
     const [verdictFilter, setVerdictFilter] = useState<SubmissionsVerdictFilter>('all')
     const [columnVisibility, setColumnVisibility] = useState<SubmissionsColumnVisibility>(
-        DEFAULT_SUBMISSIONS_COLUMN_VISIBILITY,
+        showAnnotationColumn ? DEFAULT_SUBMISSIONS_COLUMN_VISIBILITY : LIVE_SUBMISSIONS_COLUMN_VISIBILITY,
     )
 
     useEffect(() => {
@@ -226,7 +229,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
             {
                 field: 'verdict',
                 headerName: 'Verdict',
-                width: 180,
+                ...(showAnnotationColumn ? { width: 180 } : { flex: 1, minWidth: 180 }),
                 sortable: true,
                 filter: true,
                 hide: !columnVisibility.verdict,
@@ -292,21 +295,25 @@ export function SubmissionsList(props: SubmissionsListProps) {
                 ),
                 valueGetter: (params: { data: SubmissionRow }) => params.data.time_inMs,
             },
-            {
-                field: 'annotation',
-                headerName: 'Annotation',
-                flex: 1,
-                sortable: true,
-                filter: true,
-                hide: !columnVisibility.annotation,
-                cellRenderer: (params: { data: SubmissionRow }) =>
-                    params.data.annotation ? (
-                        <span className="text-muted-foreground">{params.data.annotation}</span>
-                    ) : null,
-                valueGetter: (params: { data: SubmissionRow }) => params.data.annotation ?? '',
-            },
+            ...(showAnnotationColumn
+                ? [
+                      {
+                          field: 'annotation',
+                          headerName: 'Annotation',
+                          flex: 1,
+                          sortable: true,
+                          filter: true,
+                          hide: !columnVisibility.annotation,
+                          cellRenderer: (params: { data: SubmissionRow }) =>
+                              params.data.annotation ? (
+                                  <span className="text-muted-foreground">{params.data.annotation}</span>
+                              ) : null,
+                          valueGetter: (params: { data: SubmissionRow }) => params.data.annotation ?? '',
+                      },
+                  ]
+                : []),
         ],
-        [columnVisibility, showStudentEmail, variant],
+        [columnVisibility, showAnnotationColumn, showStudentEmail, variant],
     )
 
     if (loading) {
@@ -321,6 +328,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
                     columnVisibility={columnVisibility}
                     onColumnVisibilityChange={handleColumnVisibilityChange}
                     showHelp={showHelp}
+                    showAnnotationColumn={showAnnotationColumn}
                     tutorLatestLimit={tutorLatestLimit}
                 />
                 <div
@@ -360,6 +368,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
                 okCount={okKoCounts.ok}
                 koCount={okKoCounts.ko}
                 showHelp={showHelp}
+                showAnnotationColumn={showAnnotationColumn}
                 tutorLatestLimit={tutorLatestLimit}
             />
 

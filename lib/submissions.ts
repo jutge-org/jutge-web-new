@@ -22,6 +22,12 @@ export const DEFAULT_SUBMISSIONS_COLUMN_VISIBILITY: SubmissionsColumnVisibility 
     annotation: true,
 }
 
+/** Column defaults for exam/contest controller `/submissions` (annotations are not shown). */
+export const LIVE_SUBMISSIONS_COLUMN_VISIBILITY: SubmissionsColumnVisibility = {
+    ...DEFAULT_SUBMISSIONS_COLUMN_VISIBILITY,
+    annotation: false,
+}
+
 export const SUBMISSIONS_COLUMN_LABELS: Record<SubmissionsColumnField, string> = {
     problem_id: 'Problem',
     language_id: 'Language',

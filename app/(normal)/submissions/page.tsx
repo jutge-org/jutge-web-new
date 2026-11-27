@@ -87,6 +87,7 @@ function LiveSubmissionsPageContent() {
             tutorLatestLimit={
                 isTutor ? { limit: latestLimit, onLimitChange: setLatestLimit } : undefined
             }
+            showAnnotationColumn={!isTutor}
         />
     )
 }
@@ -97,6 +98,7 @@ function SubmissionsPageLayout({
     onRefreshPending,
     emptyMessage,
     showHelp = true,
+    showAnnotationColumn = true,
     tutorLatestLimit,
 }: {
     rows: SubmissionRow[] | null
@@ -104,6 +106,7 @@ function SubmissionsPageLayout({
     onRefreshPending: () => Promise<SubmissionRow[]>
     emptyMessage?: string
     showHelp?: boolean
+    showAnnotationColumn?: boolean
     tutorLatestLimit?: {
         limit: number
         onLimitChange: (limit: number) => void
@@ -116,6 +119,7 @@ function SubmissionsPageLayout({
             <SubmissionsList
                 rows={rows ?? []}
                 showHelp={showHelp}
+                showAnnotationColumn={showAnnotationColumn}
                 loading={loading}
                 onRefreshPending={onRefreshPending}
                 emptyMessage={emptyMessage}

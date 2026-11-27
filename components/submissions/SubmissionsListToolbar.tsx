@@ -63,6 +63,7 @@ type SubmissionsListToolbarProps = {
     okCount?: number
     koCount?: number
     showHelp?: boolean
+    showAnnotationColumn?: boolean
     tutorLatestLimit?: {
         limit: number
         onLimitChange: (limit: number) => void
@@ -82,13 +83,18 @@ export function SubmissionsListToolbar({
     okCount,
     koCount,
     showHelp = false,
+    showAnnotationColumn = true,
     tutorLatestLimit,
 }: SubmissionsListToolbarProps) {
     const latestLimitLabel =
         tutorLatestLimit?.limit === TUTOR_EXAM_LATEST_SUBMISSIONS_ALL_LIMIT
             ? 'All'
             : String(tutorLatestLimit?.limit ?? '')
-    const columns = variant === 'problem' ? PROBLEM_TOGGLEABLE_COLUMNS : DEFAULT_TOGGLEABLE_COLUMNS
+    const toggleableColumns =
+        variant === 'problem' ? PROBLEM_TOGGLEABLE_COLUMNS : DEFAULT_TOGGLEABLE_COLUMNS
+    const columns = showAnnotationColumn
+        ? toggleableColumns
+        : toggleableColumns.filter((field) => field !== 'annotation')
     const showCountBadge = false && visibleCount !== undefined && totalCount !== undefined
     const showOkKoBadges = okCount !== undefined && koCount !== undefined
 
