@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-11-27T10:11:54.202Z
+ * This file has been automatically generated at 2026-11-27T16:01:02.226Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -3829,9 +3829,13 @@ class Module_tutor_examctl {
         time_end_avg: Iso8601Date | null
         time_end_mode: Iso8601Date | null
         title: string /* Title of the exam */
+        place: string /* Place of the exam */
         description: string /* Description of the exam in Markdown format */
         course_name: string /* Title of the course this exam belongs to */
         instructor_name: string /* Name of the instructor who owns this exam */
+        password: string | null
+        starter_name: string | null
+        starter_email: string | null
         instructions: string /* Instructions of the exam (placeholder text if the exam has not started yet) */
         time_start: Iso8601Date | null
         exp_time_start: Iso8601Date /* Expected start time of the exam */

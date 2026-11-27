@@ -115,11 +115,24 @@ export type TutorExamCtl = Awaited<ReturnType<JutgeApiClient['tutor']['examctl']
 
 export type LiveTutorStatus = Pick<
     TutorExamCtl,
-    'status' | 'time_start' | 'time_end_min' | 'time_end_max' | 'time_end_avg' | 'time_end_mode'
+    | 'status'
+    | 'time_start'
+    | 'time_end_min'
+    | 'time_end_max'
+    | 'time_end_avg'
+    | 'time_end_mode'
+    | 'password'
+    | 'starter_name'
+    | 'starter_email'
 >
 
+function tutorExamCtlPlace(ctl: TutorExamCtl): string | null {
+    const place = (ctl as TutorExamCtl & { place?: string }).place?.trim()
+    return place || null
+}
+
 export function tutorExamCtlToRunningExam(ctl: TutorExamCtl): RunningExam {
-    return {
+    const exam: RunningExam & { place?: string } = {
         title: ctl.title,
         description: ctl.description,
         course_name: ctl.course_name,
@@ -134,6 +147,9 @@ export function tutorExamCtlToRunningExam(ctl: TutorExamCtl): RunningExam {
         compilers: ctl.compilers,
         documents: ctl.documents,
     }
+    const place = tutorExamCtlPlace(ctl)
+    if (place) exam.place = place
+    return exam
 }
 
 export function tutorExamCtlToLiveTutorStatus(ctl: TutorExamCtl): LiveTutorStatus {
@@ -144,7 +160,22 @@ export function tutorExamCtlToLiveTutorStatus(ctl: TutorExamCtl): LiveTutorStatu
         time_end_max: ctl.time_end_max,
         time_end_avg: ctl.time_end_avg,
         time_end_mode: ctl.time_end_mode,
+        password: ctl.password,
+        starter_name: ctl.starter_name,
+        starter_email: ctl.starter_email,
     }
+}
+
+export function formatExamStarterLabel(
+    starterName: string | null,
+    starterEmail: string | null,
+): string | null {
+    const name = starterName?.trim() ?? ''
+    const email = starterEmail?.trim() ?? ''
+    if (name && email) return `${name} (${email})`
+    if (name) return name
+    if (email) return email
+    return null
 }
 
 export type LiveRosterEntry = {
@@ -273,6 +304,55 @@ export async function fetchLiveRoster(): Promise<LiveRosterEntry[]> {
     return jutge.tutor.examctl.liveRoster()
 }
 
+function liveRosterEndTimeMs(endTime: string | null): number | null {
+    if (!endTime) return null
+    const ms = new Date(endTime).getTime()
+    return Number.isFinite(ms) ? ms : null
+}
+
+/** Live exam roster size (denominator for end-time participant counts). */
+export function liveRosterParticipantTotal(roster: LiveRosterEntry[]): number {
+    return roster.length
+}
+
+export type LiveRosterParticipantStats = {
+    total: number
+    entered: number
+    finished: number
+    banned: number
+    invited: number
+}
+
+export function liveRosterParticipantStats(roster: LiveRosterEntry[]): LiveRosterParticipantStats {
+    let entered = 0
+    let finished = 0
+    let banned = 0
+    let invited = 0
+    for (const entry of roster) {
+        if (entry.entered) entered += 1
+        if (entry.finished) finished += 1
+        if (entry.banned) banned += 1
+        if (entry.invited) invited += 1
+    }
+    return { total: roster.length, entered, finished, banned, invited }
+}
+
+/** Roster students whose computed end time matches the given instant (second precision). */
+export function liveRosterCountAtEndMs(roster: LiveRosterEntry[], endMs: number): number {
+    const targetSec = Math.floor(endMs / 1000)
+    let count = 0
+    for (const entry of roster) {
+        const ms = liveRosterEndTimeMs(entry.end_time)
+        if (ms == null) continue
+        if (Math.floor(ms / 1000) === targetSec) count += 1
+    }
+    return count
+}
+
+export function formatEndMarkParticipantLabel(count: number, total: number): string {
+    return `${count}/${total} participants`
+}
+
 export async function fetchMultipleIps() {
     return jutge.tutor.examctl.multipleIPs()
 }
@@ -297,6 +377,18 @@ export async function fetchExamStatistics() {
 }
 
 export type LiveExamStatus = 'waiting' | 'running' | 'finished'
+
+export function tutorExamCtlStatusToLiveStatus(status: string): LiveExamStatus {
+    if (status === 'finished') return 'finished'
+    if (status === 'started') return 'running'
+    return 'waiting'
+}
+
+export function formatTutorExamCtlStatusLabel(status: string): string {
+    if (status === 'started') return 'Running'
+    if (status === 'finished') return 'Finished'
+    return 'Waiting to start'
+}
 
 export function finishTimeMs(exam: RunningExam, meta: Exam | null): number {
     if (meta?.time_end) {
@@ -421,15 +513,21 @@ function pluralUnit(value: number, singular: string, plural: string): string {
     return `${value} ${value === 1 ? singular : plural}`
 }
 
-/** Whole minutes as an exact phrase (e.g. "2 hours 30 minutes"). */
+/** Whole minutes as an exact phrase (e.g. "1 day 2 hours 30 minutes"). */
 export function formatRunningTimeHumanExact(minutes: number): string {
     const rounded = Math.max(0, Math.round(minutes))
-    const duration = dayjs.duration(rounded, 'minutes')
-    const hours = Math.floor(duration.asHours())
-    const mins = duration.minutes()
+    const days = Math.floor(rounded / (24 * 60))
+    const remainderMinutes = rounded - days * 24 * 60
+    const hours = Math.floor(remainderMinutes / 60)
+    const mins = remainderMinutes % 60
     const parts: string[] = []
-    if (hours > 0) parts.push(pluralUnit(hours, 'hour', 'hours'))
-    if (mins > 0 || hours === 0) parts.push(pluralUnit(mins, 'minute', 'minutes'))
+    if (days > 0) {
+        parts.push(pluralUnit(days, 'day', 'days'))
+        if (hours > 0) parts.push(pluralUnit(hours, 'hour', 'hours'))
+    } else {
+        if (hours > 0) parts.push(pluralUnit(hours, 'hour', 'hours'))
+        if (mins > 0 || parts.length === 0) parts.push(pluralUnit(mins, 'minute', 'minutes'))
+    }
     return parts.join(' ')
 }
 
@@ -476,6 +574,23 @@ export function runningExamCourseTitle(exam: RunningExam): string | null {
 export function runningExamInstructorName(exam: RunningExam): string | null {
     const fromApi = exam.instructor_name?.trim()
     return fromApi || null
+}
+
+export function runningExamPlace(exam: RunningExam): string | null {
+    const fromExam = (exam as RunningExam & { place?: string }).place?.trim()
+    return fromExam || null
+}
+
+export async function resolveLiveExamPlace(examKey: string | null | undefined): Promise<string | null> {
+    const key = examKey?.trim()
+    if (!key) return null
+    try {
+        const detail = await jutge.student.exams.get(key)
+        const place = detail.place?.trim()
+        return place || null
+    } catch {
+        return null
+    }
 }
 
 export async function resolveLiveExamCourseTitle(

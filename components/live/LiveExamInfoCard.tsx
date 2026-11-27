@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpenIcon, SignatureIcon } from 'lucide-react'
+import { BookOpenIcon, SignatureIcon, XIcon } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 import { MarkdownText } from '@/components/general/MarkdownText'
@@ -14,9 +14,11 @@ import {
     formatRemainingHumanExact,
     formatRunningTimeHumanExact,
     resolveLiveExamCourseTitle,
+    resolveLiveExamPlace,
     runningExamCourseTitle,
     runningExamDurationMinutes,
     runningExamInstructorName,
+    runningExamPlace,
 } from '@/lib/data/liveExam'
 import { LIVE_WALL_CLOCK_PLACEHOLDER } from '@/hooks/use-live-wall-clock'
 import type { RunningExam } from '@/lib/jutge_api_client'
@@ -94,6 +96,27 @@ export function useLiveExamCourseTitle(exam: RunningExam, examKey?: string | nul
     }, [exam, examKey])
 
     return courseTitle
+}
+
+export function useLiveExamPlace(exam: RunningExam, examKey?: string | null): string | null {
+    const [place, setPlace] = useState<string | null>(() => runningExamPlace(exam))
+
+    useEffect(() => {
+        let active = true
+        const inline = runningExamPlace(exam)
+        if (inline) {
+            setPlace(inline)
+            return
+        }
+        void resolveLiveExamPlace(examKey).then((resolved) => {
+            if (active) setPlace(resolved)
+        })
+        return () => {
+            active = false
+        }
+    }, [exam, examKey])
+
+    return place
 }
 
 type LiveExamInfoCardProps = {
@@ -189,24 +212,28 @@ export function LiveExamMarkdownDialog({
     dialogTitle,
     markdown,
     emptyText,
+    triggerStyle = 'accent',
 }: {
     buttonLabel: string
     dialogTitle: string
     markdown: string | null | undefined
     emptyText: string
+    /** `accent` = blue candy (student dashboard); `neutral` = outline without blue. */
+    triggerStyle?: 'accent' | 'neutral'
 }) {
     const [open, setOpen] = useState(false)
     const hasContent = Boolean(markdown?.trim())
+    const triggerNeutral = triggerStyle === 'neutral'
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <SmoothButton
                     className="min-w-[6.5rem]"
-                    color="blue"
+                    color={triggerNeutral ? undefined : 'blue'}
                     size="xs"
                     type="button"
-                    variant="candy"
+                    variant={triggerNeutral ? 'outline' : 'candy'}
                 >
                     {buttonLabel}
                 </SmoothButton>
@@ -220,6 +247,16 @@ export function LiveExamMarkdownDialog({
                 ) : (
                     <p className="text-sm text-muted-foreground">{emptyText}</p>
                 )}
+                <SmoothButton
+                    type="button"
+                    color="blue"
+                    variant="candy"
+                    className="mt-4 w-full"
+                    onClick={() => setOpen(false)}
+                >
+                    <XIcon aria-hidden />
+                    Close
+                </SmoothButton>
             </DialogContent>
         </Dialog>
     )

@@ -6,6 +6,12 @@ import Link from 'next/link'
 import { useEffect, useState, type ReactNode } from 'react'
 
 import {
+    createExamRingLayout,
+    EXAM_RING_START_CLOCK_DEG,
+    fractionToRingClockDeg,
+    ringArcPath,
+} from '@/components/live/examRingGeometry'
+import {
     EXAM_RED_ZONE_FRACTION,
     examElapsedProgress,
     examRedZoneElapsedFraction,
@@ -29,37 +35,7 @@ type TimerPhase = 'waiting' | 'running' | 'finished'
 
 /** Show seconds on footer instants when within five minutes of now. */
 const INSTANT_MARK_NEAR_NOW_MS = 5 * 60 * 1000
-const RING_SIZE = 136
-const RING_STROKE = 8
-const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2
-/** Gap at noon on each side; ring runs clockwise from right gap to left gap. */
-const RING_GAP_CLOCK_DEG = 20
-const RING_START_CLOCK_DEG = RING_GAP_CLOCK_DEG
-const RING_END_CLOCK_DEG = 360 - RING_GAP_CLOCK_DEG
-const RING_SPAN_CLOCK_DEG = RING_END_CLOCK_DEG - RING_START_CLOCK_DEG
-
-function ringPointFromClockDeg(clockDeg: number, cx: number, cy: number, r: number) {
-    const rad = (clockDeg * Math.PI) / 180
-    return {
-        x: cx + r * Math.sin(rad),
-        y: cy - r * Math.cos(rad),
-    }
-}
-
-/** Clockwise arc along the exam ring (clock degrees: 0 = noon, increases clockwise). */
-function ringArcPath(fromClockDeg: number, toClockDeg: number, cx: number, cy: number, r: number): string {
-    if (toClockDeg <= fromClockDeg) return ''
-    const start = ringPointFromClockDeg(fromClockDeg, cx, cy, r)
-    const end = ringPointFromClockDeg(toClockDeg, cx, cy, r)
-    const delta = toClockDeg - fromClockDeg
-    const largeArc = delta > 180 ? 1 : 0
-    return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`
-}
-
-function examProgressToClockDeg(elapsedFraction: number): number {
-    const clamped = Math.max(0, Math.min(1, elapsedFraction))
-    return RING_START_CLOCK_DEG + clamped * RING_SPAN_CLOCK_DEG
-}
+const STUDENT_RING = createExamRingLayout(136, 8)
 
 export type ExamTimerAction = { href: string } | { onClick: () => void }
 
@@ -160,14 +136,13 @@ function TimerRing({
     redZoneStartProgress?: number
     dashedPulse?: boolean
 }) {
-    const center = RING_SIZE / 2
-    const trackPath = ringArcPath(RING_START_CLOCK_DEG, RING_END_CLOCK_DEG, center, center, RING_RADIUS)
+    const { size: ringSize, stroke: ringStroke, radius, center, trackPath } = STUDENT_RING
 
     return (
         <svg
-            width={RING_SIZE}
-            height={RING_SIZE}
-            viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
+            width={ringSize}
+            height={ringSize}
+            viewBox={`0 0 ${ringSize} ${ringSize}`}
             className="shrink-0"
             aria-hidden
         >
@@ -176,7 +151,7 @@ function TimerRing({
                     d={trackPath}
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth={RING_STROKE}
+                    strokeWidth={ringStroke}
                     strokeLinecap="round"
                     className={cn('text-smooth-600 dark:text-smooth-700', dashedPulse && 'animate-pulse')}
                 />
@@ -188,19 +163,25 @@ function TimerRing({
                         fill="none"
                         stroke="var(--border)"
                         strokeOpacity={0.85}
-                        strokeWidth={RING_STROKE}
+                        strokeWidth={ringStroke}
                         strokeLinecap="round"
                     />
                     {(() => {
                         const elapsed = Math.max(0, Math.min(1, progress))
                         const threshold = Math.max(0, Math.min(1, redZoneStartProgress))
-                        const elapsedClock = examProgressToClockDeg(elapsed)
-                        const thresholdClock = examProgressToClockDeg(threshold)
-                        const blueEndClock = examProgressToClockDeg(Math.min(elapsed, threshold))
-                        const bluePath = ringArcPath(RING_START_CLOCK_DEG, blueEndClock, center, center, RING_RADIUS)
+                        const elapsedClock = fractionToRingClockDeg(elapsed)
+                        const thresholdClock = fractionToRingClockDeg(threshold)
+                        const blueEndClock = fractionToRingClockDeg(Math.min(elapsed, threshold))
+                        const bluePath = ringArcPath(
+                            EXAM_RING_START_CLOCK_DEG,
+                            blueEndClock,
+                            center,
+                            center,
+                            radius,
+                        )
                         const redPath =
                             elapsed > threshold
-                                ? ringArcPath(thresholdClock, elapsedClock, center, center, RING_RADIUS)
+                                ? ringArcPath(thresholdClock, elapsedClock, center, center, radius)
                                 : ''
                         const nearComplete = elapsed > 0.985
                         return (
@@ -210,7 +191,7 @@ function TimerRing({
                                         d={redPath}
                                         fill="none"
                                         stroke="var(--color-destructive)"
-                                        strokeWidth={RING_STROKE}
+                                        strokeWidth={ringStroke}
                                         strokeLinecap={nearComplete ? 'butt' : 'round'}
                                     />
                                 ) : null}
@@ -219,7 +200,7 @@ function TimerRing({
                                         d={bluePath}
                                         fill="none"
                                         stroke="var(--color-blue)"
-                                        strokeWidth={RING_STROKE}
+                                        strokeWidth={ringStroke}
                                         strokeLinecap="round"
                                     />
                                 ) : null}
@@ -233,7 +214,7 @@ function TimerRing({
                     d={trackPath}
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth={RING_STROKE}
+                    strokeWidth={ringStroke}
                     strokeLinecap="round"
                     className="text-destructive-ink"
                 />
@@ -256,7 +237,7 @@ function TimerFace({
     children: ReactNode
 }) {
     return (
-        <div className="relative shrink-0" style={{ width: RING_SIZE, height: RING_SIZE }}>
+        <div className="relative shrink-0" style={{ width: STUDENT_RING.size, height: STUDENT_RING.size }}>
             <TimerRing
                 variant={variant}
                 progress={progress}

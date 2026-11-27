@@ -8,6 +8,14 @@ import { ExamTimerCard } from '@/components/live/ExamTimerCard'
 import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { LiveExamDocumentsSection } from '@/components/live/LiveExamDocumentsSection'
 import { LiveExamProblemsCards } from '@/components/live/LiveExamProblemsSection'
+import { ControllerExamTimerCard } from '@/components/live/ControllerExamTimerCard'
+import {
+    ControllerExamMarkdownCard,
+    ControllerExamParticipantsCard,
+    ControllerExamPasswordCard,
+    LiveControllerExamCard,
+    LiveControllerExamResourcesCard,
+} from '@/components/live/LiveControllerExamCard'
 import { LiveExamInfoCard } from '@/components/live/LiveExamInfoCard'
 import { LiveSectionHeading } from '@/components/live/LiveSectionHeading'
 import {
@@ -17,7 +25,7 @@ import {
 } from '@/components/smoothui/collapsible'
 import { LiveStudentExamYamlCard } from '@/components/live/LiveStudentExamYamlCard'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import {
     examStartedAtMs,
     examStatus,
@@ -47,6 +55,14 @@ export function LiveDashboard() {
 
     useEffect(() => {
         if (!session.authenticated || session.role !== 'student' || examStatus(session.exam) !== 'waiting') return
+        const timer = window.setInterval(() => {
+            void session.refresh()
+        }, 10_000)
+        return () => window.clearInterval(timer)
+    }, [session])
+
+    useEffect(() => {
+        if (!session.authenticated || session.role !== 'tutor') return
         const timer = window.setInterval(() => {
             void session.refresh()
         }, 10_000)
@@ -90,16 +106,62 @@ export function LiveDashboard() {
 
     if (session.role === 'tutor') {
         const tutorExam = session.exam
-        if (!tutorExam) return <LiveSpinner label="Loading exam…" />
+        const tutorStatus = session.tutorStatus
+        if (!tutorExam || !tutorStatus) return <LiveSpinner label="Loading exam…" />
+
+        const timerNow = clockReady ? now : new Date(tutorExam.exp_time_start).getTime()
 
         return (
             <LivePage>
                 {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
-                <Card className="w-full border border-border shadow-sm ring-0">
-                    <CardHeader>
-                        <CardTitle>{tutorExam.title}</CardTitle>
-                    </CardHeader>
-                </Card>
+                <section
+                    aria-labelledby="live-controller-exam-heading"
+                    className="flex w-full flex-col gap-4"
+                >
+                    <LiveControllerExamCard
+                        className="w-full"
+                        exam={tutorExam}
+                        examKey={session.examKey}
+                        headingId="live-controller-exam-heading"
+                    />
+                    <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-stretch">
+                        <ControllerExamPasswordCard
+                            className="w-full sm:min-w-0 sm:flex-1"
+                            exam={tutorExam}
+                            tutorStatus={tutorStatus}
+                        />
+                        <ControllerExamParticipantsCard
+                            className="w-full sm:min-w-0 sm:flex-1"
+                            exam={tutorExam}
+                        />
+                    </div>
+                    <Card className="w-full overflow-hidden rounded-2xl border border-border bg-card py-0 shadow-sm ring-0">
+                        <CardContent className="p-0">
+                            <ControllerExamTimerCard
+                                exam={tutorExam}
+                                now={timerNow}
+                                tutorStatus={tutorStatus}
+                            />
+                        </CardContent>
+                    </Card>
+                    <LiveControllerExamResourcesCard className="w-full" exam={tutorExam} />
+                    <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-stretch">
+                        <ControllerExamMarkdownCard
+                            className="w-full sm:min-w-0"
+                            emptyText="No description"
+                            headingId="live-controller-description-heading"
+                            markdown={tutorExam.description}
+                            title="Description"
+                        />
+                        <ControllerExamMarkdownCard
+                            className="w-full sm:min-w-0"
+                            emptyText="No instructions"
+                            headingId="live-controller-instructions-heading"
+                            markdown={tutorExam.instructions}
+                            title="Instructions"
+                        />
+                    </div>
+                </section>
             </LivePage>
         )
     }

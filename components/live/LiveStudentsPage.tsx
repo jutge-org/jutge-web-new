@@ -150,12 +150,13 @@ function LiveStudentsToolbar({ pending, onApplyAll }: LiveStudentsToolbarProps) 
                                 id="all-minutes"
                                 type="number"
                                 className="w-24 tabular-nums"
-                                min={ALL_MINUTES_SLIDER_MIN}
-                                max={ALL_MINUTES_SLIDER_MAX}
                                 step={1}
                                 value={minutes}
                                 disabled={pending}
-                                onChange={(event) => liveMinutesInputChange(event, setMinutes)}
+                                onChange={(event) => {
+                                    const next = Number(event.target.value)
+                                    setMinutes(Number.isNaN(next) ? 0 : next)
+                                }}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
