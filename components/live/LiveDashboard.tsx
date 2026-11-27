@@ -95,7 +95,7 @@ export function LiveDashboard() {
     if (session.role === 'tutor') {
         const tutorStatus = session.tutorStatus
         return (
-            <LivePage title="Dashboard">
+            <LivePage>
                 {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
                 <p>
                     Status: <strong>{tutorStatus?.status ?? 'unknown'}</strong>

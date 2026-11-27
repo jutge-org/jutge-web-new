@@ -31,7 +31,7 @@ export function liveNavItems(
             { href: '/participants', label: 'Participants' },
             { href: '/submissions', label: 'Submissions' },
         ]
-        if (kind === 'contest') items.push({ href: '/ranking', label: 'Ranking' })
+        if (kind === 'contest') items.push({ href: '/ranking', label: 'Rankings' })
         items.push({ href: '/statistics', label: 'Statistics' }, { href: '/logins', label: 'Logins' }, ...LIVE_META_NAV)
         return items
     }
@@ -42,7 +42,7 @@ export function liveNavItems(
             { href: '/submissions', label: 'Submissions' },
             { href: '/documents', label: 'Documents' },
         ]
-        if (kind === 'contest' && started) items.push({ href: '/ranking', label: 'Ranking' })
+        if (kind === 'contest' && started) items.push({ href: '/ranking', label: 'Rankings' })
         return appendLiveMetaNav(items)
     }
     const items: LiveNavItem[] = [{ href: '/', label: 'Home' }]
@@ -77,6 +77,15 @@ export function liveNavItemsForSession(
     exam: RunningExam | null,
 ): LiveNavItem[] {
     return liveNavItems(kind, role, examStatus(exam) !== 'waiting')
+}
+
+const LIVE_META_NAV_HREFS = new Set(LIVE_META_NAV.map((item) => item.href))
+
+/** Tutor quick links on the live home dashboard (no Home or site meta sections). */
+export function liveTutorHomeNavItems(kind: SiteKind): LiveNavItem[] {
+    return liveNavItems(kind, 'tutor', true).filter(
+        (item) => item.href !== '/' && !LIVE_META_NAV_HREFS.has(item.href),
+    )
 }
 
 export function liveSiteBrand(kind: SiteKind): string {
