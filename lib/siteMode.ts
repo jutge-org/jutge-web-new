@@ -13,9 +13,9 @@ export const CONTEST_API_URL =
 
 const NORMAL_HOSTS = new Set(['www.jutge.net', 'jutge.net', 'www.jutge.org', 'jutge.org', 'new.jutge.org'])
 
-const EXAM_HOSTS = new Set(['exam.jutge.net', 'exam.jutge.org', 'exambach.jutge.net'])
+const EXAM_HOSTS = new Set(['exam.jutge.net', 'exam.jutge.org', 'exambach.jutge.net', 'localhost'])
 
-const CONTEST_HOSTS = new Set(['contest.jutge.net', 'contest.jutge.org', 'contestbach.jutge.net', 'localhost'])
+const CONTEST_HOSTS = new Set(['contest.jutge.net', 'contest.jutge.org', 'contestbach.jutge.net'])
 
 const API_URL_BY_KIND: Record<SiteKind, string | null> = {
     normal: null,

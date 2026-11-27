@@ -1,7 +1,7 @@
 'use client'
 
 import dayjs from 'dayjs'
-import { MailIcon, MinusIcon } from 'lucide-react'
+import { CheckIcon, MailIcon } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import {
@@ -10,8 +10,13 @@ import {
     fractionToRingClockDeg,
     ringArcPath,
     ringPointFromClockDeg,
+    ringTickSegment,
 } from '@/components/live/examRingGeometry'
-import { ControllerExamStatusBadge } from '@/components/live/LiveControllerExamCard'
+import {
+    ControllerExamStatusBadge,
+    ControllerStartExamButton,
+} from '@/components/live/LiveControllerExamCard'
+import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import {
     fetchLiveRoster,
@@ -33,8 +38,14 @@ import type { RunningExam } from '@/lib/jutge_api_client'
 import { cn } from '@/lib/utils'
 
 const CONTROLLER_RING = createExamRingLayout(260, 34)
+/** Matches `bg-destructive/15` on the Finished status badge. */
+const CONTROLLER_FINISHED_RING_STROKE =
+    'color-mix(in oklab, var(--color-destructive) 20%, var(--color-background))'
 const INSTANT_MARK_NEAR_NOW_MS = 5 * 60 * 1000
 const END_MARK_DOT_R = 4.5
+/** Radial extent of the blue “now” tick on each side of the ring track centerline. */
+const NOW_TICK_HALF_LENGTH = 20
+const NOW_TICK_STROKE = 2
 /** Signed offset from the ring track (separate radii so marks do not overlap). */
 const END_MARK_DOT_RADIUS_OFFSET: Record<string, number> = {
     min: 10,
@@ -166,6 +177,7 @@ function TimeReadout({
 function ControllerRingFace({
     variant,
     progress,
+    nowTickFraction,
     endMarks,
     now,
     topOverlay,
@@ -173,6 +185,8 @@ function ControllerRingFace({
 }: {
     variant: 'dashed' | 'drain' | 'full'
     progress?: number
+    /** Position on the exam timeline (0–1) for the blue current-time tick; omit before the window. */
+    nowTickFraction?: number | null
     endMarks: EndMarkSpec[]
     now: number
     topOverlay?: ReactNode
@@ -184,6 +198,20 @@ function ControllerRingFace({
         variant === 'drain'
             ? ringArcPath(EXAM_RING_START_CLOCK_DEG, fractionToRingClockDeg(elapsed), center, center, radius)
             : ''
+    const showNowTick =
+        nowTickFraction != null &&
+        Number.isFinite(nowTickFraction) &&
+        nowTickFraction >= 0 &&
+        nowTickFraction <= 1
+    const nowTickPath = showNowTick
+        ? ringTickSegment(
+            fractionToRingClockDeg(nowTickFraction),
+            center,
+            center,
+            radius,
+            NOW_TICK_HALF_LENGTH,
+        )
+        : ''
 
     return (
         <div className="relative shrink-0" style={{ width: size, height: size }}>
@@ -204,12 +232,21 @@ function ControllerRingFace({
                         className="text-smooth-600 dark:text-smooth-700"
                     />
                 ) : null}
-                {variant === 'drain' || variant === 'full' ? (
+                {variant === 'drain' ? (
                     <path
                         d={trackPath}
                         fill="none"
                         stroke="var(--border)"
                         strokeOpacity={0.85}
+                        strokeWidth={stroke}
+                        strokeLinecap="round"
+                    />
+                ) : null}
+                {variant === 'full' ? (
+                    <path
+                        d={trackPath}
+                        fill="none"
+                        stroke={CONTROLLER_FINISHED_RING_STROKE}
                         strokeWidth={stroke}
                         strokeLinecap="round"
                     />
@@ -221,6 +258,16 @@ function ControllerRingFace({
                         stroke="var(--color-blue)"
                         strokeWidth={stroke}
                         strokeLinecap="round"
+                    />
+                ) : null}
+                {nowTickPath ? (
+                    <path
+                        d={nowTickPath}
+                        fill="none"
+                        stroke={variant === 'full' ? CONTROLLER_FINISHED_RING_STROKE : 'currentColor'}
+                        strokeWidth={NOW_TICK_STROKE}
+                        strokeLinecap="round"
+                        className={variant === 'full' ? undefined : 'text-blue-ink'}
                     />
                 ) : null}
             </svg>
@@ -412,29 +459,13 @@ function ControllerExamTimingPanel({
 
 function ControllerTimerLegendPanel({
     phase,
-    opensAtMs,
     endMarks,
     now,
 }: {
     phase: ControllerPhase
-    opensAtMs: number
     endMarks: EndMarkSpec[]
     now: number
 }) {
-    if (phase === 'waiting') {
-        return (
-            <div className="flex w-full max-w-sm flex-col gap-2 text-base">
-                <p className="text-lg font-semibold text-foreground">Timeline</p>
-                <p className="text-muted-foreground">
-                    Expected start{' '}
-                    <span className="font-medium tabular-nums text-foreground">
-                        {formatInstantMark(opensAtMs, now)}
-                    </span>
-                </p>
-            </div>
-        )
-    }
-
     if (phase === 'running') {
         return (
             <div className="flex w-full max-w-sm flex-col gap-4 text-base">
@@ -469,13 +500,15 @@ export function ControllerExamTimerCard({
     now: number
     className?: string
 }) {
+    const session = useLiveSession()
     const liveStatus = tutorExamCtlStatusToLiveStatus(tutorStatus.status)
     const statusLabel = formatTutorExamCtlStatusLabel(tutorStatus.status)
     const phase: ControllerPhase =
         liveStatus === 'finished' ? 'finished' : liveStatus === 'running' ? 'running' : 'waiting'
-
     const opensAtMs = new Date(exam.exp_time_start).getTime()
     const untilStartMs = Math.max(0, opensAtMs - now)
+    const startDelayed = phase === 'waiting' && now > opensAtMs
+    const delayedMs = startDelayed ? Math.max(0, now - opensAtMs) : 0
 
     const { startMs, endMaxMs, spanMs } = useMemo(
         () => controllerRingWindow(exam, tutorStatus),
@@ -521,18 +554,23 @@ export function ControllerExamTimerCard({
     }, [phase, tutorStatus, startMs, spanMs, roster])
 
     const nowFraction = phase === 'running' ? Math.max(0, Math.min(1, (now - startMs) / spanMs)) : null
+    const nowTickFraction =
+        phase === 'waiting' ? null : Math.max(0, Math.min(1, (now - startMs) / spanMs))
     const elapsedMs = phase === 'running' ? Math.max(0, now - startMs) : 0
     const untilLatestEndMs = phase === 'running' ? Math.max(0, endMaxMs - now) : 0
     const showHumanUntilEnd = untilLatestEndMs > 15 * 60 * 1000
 
     const ringAriaLabel = useMemo(() => {
-        if (phase === 'waiting') return `Countdown to start, ${speakDuration(untilStartMs)} remaining`
+        if (phase === 'waiting') {
+            if (startDelayed) return `Delayed ${speakDuration(delayedMs)} past expected start`
+            return `Countdown to start, ${speakDuration(untilStartMs)} remaining`
+        }
         if (phase === 'running') {
             const markText = endMarks.map((m) => `${m.label} ${formatInstantMark(m.ms, now)}`).join(', ')
             return `Exam in progress. Elapsed ${speakDuration(elapsedMs)}. Student end times: ${markText || 'none yet'}`
         }
         return 'Exam finished'
-    }, [phase, untilStartMs, elapsedMs, endMarks, now])
+    }, [phase, startDelayed, delayedMs, untilStartMs, elapsedMs, endMarks, now])
 
     return (
         <div
@@ -550,13 +588,14 @@ export function ControllerExamTimerCard({
                     <ControllerRingFace
                         variant="dashed"
                         endMarks={[]}
+                        nowTickFraction={nowTickFraction}
                         now={now}
                         topOverlay={<ControllerExamStatusBadge label={statusLabel} status={liveStatus} />}
                     >
                         <TimeReadout
-                            value={formatClock(untilStartMs)}
-                            spoken={speakDuration(untilStartMs)}
-                            caption="until start"
+                            value={formatClock(startDelayed ? delayedMs : untilStartMs)}
+                            spoken={speakDuration(startDelayed ? delayedMs : untilStartMs)}
+                            caption={startDelayed ? 'delayed' : 'until start'}
                         />
                     </ControllerRingFace>
                 ) : null}
@@ -564,6 +603,7 @@ export function ControllerExamTimerCard({
                     <ControllerRingFace
                         variant="drain"
                         progress={nowFraction ?? 0}
+                        nowTickFraction={nowTickFraction}
                         endMarks={endMarks}
                         now={now}
                         topOverlay={<ControllerExamStatusBadge label={statusLabel} status={liveStatus} />}
@@ -580,20 +620,25 @@ export function ControllerExamTimerCard({
                     <ControllerRingFace
                         variant="full"
                         endMarks={endMarks}
+                        nowTickFraction={nowTickFraction}
                         now={now}
                         topOverlay={<ControllerExamStatusBadge label={statusLabel} status={liveStatus} />}
                     >
-                        <MinusIcon className="size-8 text-muted-foreground" strokeWidth={2} aria-hidden />
+                        <CheckIcon className="size-8 text-foreground" strokeWidth={2.25} aria-hidden />
                     </ControllerRingFace>
                 ) : null}
             </div>
-            <div className="flex min-w-0 justify-center lg:justify-start">
-                <ControllerTimerLegendPanel
-                    phase={phase}
-                    opensAtMs={opensAtMs}
-                    endMarks={endMarks}
-                    now={now}
-                />
+            <div className="flex min-h-[min(100%,17.5rem)] min-w-0 items-center justify-center self-stretch">
+                {phase === 'waiting' ? (
+                    <ControllerStartExamButton
+                        contest={exam.contest != 0}
+                        onStarted={session.refresh}
+                    />
+                ) : (
+                    <div className="flex w-full max-w-sm justify-center lg:justify-start">
+                        <ControllerTimerLegendPanel phase={phase} endMarks={endMarks} now={now} />
+                    </div>
+                )}
             </div>
         </div>
     )

@@ -39,7 +39,7 @@ const STUDENT_RING = createExamRingLayout(136, 8)
 
 export type ExamTimerAction = { href: string } | { onClick: () => void }
 
-function useTimerReducedMotion(): boolean {
+export function useTimerReducedMotion(): boolean {
     const storePreference = useOpenWebSettingsStore((state) => state.settings.appearance.reducedMotion)
     const storeReady = useOpenWebSettingsStore((state) => state.ready)
     const [systemReduced, setSystemReduced] = useState(systemPrefersReducedMotion)

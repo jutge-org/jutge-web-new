@@ -3,18 +3,23 @@
 import {
     BookOpenIcon,
     CheckIcon,
+    CircleCheckIcon,
     ClockIcon,
     EyeIcon,
     EyeOffIcon,
     Loader2Icon,
     MapPinIcon,
+    PlayIcon,
     SignatureIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { MarkdownText } from '@/components/general/MarkdownText'
 import { useLiveExamCourseTitle, useLiveExamPlace } from '@/components/live/LiveExamInfoCard'
+import { useTimerReducedMotion } from '@/components/live/ExamTimerCard'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -284,6 +289,77 @@ function ParticipantStatsValue({
     )
 }
 
+export function ControllerStartExamButton({
+    contest,
+    onStarted,
+}: {
+    contest: boolean
+    onStarted: () => Promise<void>
+}) {
+    const noun = contest ? 'contest' : 'exam'
+    const [confirmed, setConfirmed] = useState(false)
+    const [pending, setPending] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (!confirmed || pending) return
+        const timer = window.setTimeout(() => {
+            setConfirmed(false)
+        }, 10_000)
+        return () => window.clearTimeout(timer)
+    }, [confirmed, pending])
+
+    async function handleClick() {
+        if (!confirmed) {
+            setConfirmed(true)
+            setError(null)
+            return
+        }
+        setPending(true)
+        setError(null)
+        try {
+            await jutge.tutor.examctl.start()
+            await onStarted()
+            toast.success(`The ${noun} has started.`)
+            setConfirmed(false)
+        } catch (startError: unknown) {
+            setError(liveErrorMessage(startError, `Could not start the ${noun}.`))
+            setConfirmed(false)
+        } finally {
+            setPending(false)
+        }
+    }
+
+    const actionLabel = pending
+        ? 'Starting…'
+        : confirmed
+            ? `Yes, start ${noun}`
+            : `Start ${noun}`
+
+    return (
+        <div className="flex w-full max-w-sm flex-col items-center justify-center gap-1.5">
+            {error ? (
+                <p role="alert" className="max-w-sm text-center text-xs text-destructive">
+                    {error}
+                </p>
+            ) : null}
+            <SmoothButton
+                type="button"
+                color={confirmed ? 'green' : 'blue'}
+                variant="candy"
+                size="default"
+                className="w-48"
+                disabled={pending}
+                aria-live="polite"
+                onClick={() => void handleClick()}
+            >
+                {confirmed ? <CircleCheckIcon aria-hidden /> : <PlayIcon aria-hidden />}
+                {actionLabel}
+            </SmoothButton>
+        </div>
+    )
+}
+
 function ControllerExamIdentityCard({
     exam,
     headingId,
@@ -506,6 +582,7 @@ export function LiveControllerExamCard({
     const courseTitle = useLiveExamCourseTitle(exam, examKey)
     const place = useLiveExamPlace(exam, examKey)
     const instructorName = runningExamInstructorName(exam)
+
     return (
         <div className={cn(CONTROLLER_INFO_ROOT_CLASS, className)}>
             <ControllerExamIdentityCard
@@ -562,6 +639,9 @@ export function ControllerExamStatusBadge({
     status: ReturnType<typeof tutorExamCtlStatusToLiveStatus>
     label: string
 }) {
+    const motionReduced = useTimerReducedMotion()
+    const waitingClockPulse = status === 'waiting' && !motionReduced
+
     return (
         <Badge
             className={cn(
@@ -572,7 +652,9 @@ export function ControllerExamStatusBadge({
                 status === 'finished' && 'bg-destructive/15 text-destructive-ink',
             )}
         >
-            {status === 'waiting' ? <ClockIcon aria-hidden /> : null}
+            {status === 'waiting' ? (
+                <ClockIcon className={cn(waitingClockPulse && 'animate-pulse')} aria-hidden />
+            ) : null}
             {status === 'running' ? (
                 <span
                     className="size-1.5 shrink-0 animate-pulse rounded-full bg-blue"
