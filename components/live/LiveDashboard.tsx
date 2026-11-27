@@ -17,15 +17,12 @@ import {
 } from '@/components/smoothui/collapsible'
 import { LiveStudentExamYamlCard } from '@/components/live/LiveStudentExamYamlCard'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     examStartedAtMs,
     examStatus,
     fetchLiveExamSubmissions,
     finishTimeMs,
-    formatInstant,
-    liveErrorMessage,
 } from '@/lib/data/liveExam'
 import jutge from '@/lib/jutge'
 import type { SubmissionRow } from '@/lib/submissions'
@@ -37,7 +34,6 @@ export function LiveDashboard() {
     const session = useLiveSession()
     const now = useLiveWallClockMs()
     const [docError, setDocError] = useState<string | null>(null)
-    const [starting, setStarting] = useState(false)
     const [submissions, setSubmissions] = useState<SubmissionRow[] | undefined>(undefined)
     const studentExam = session.role === 'student' ? session.exam : null
     const clockReady = now > 0
@@ -93,32 +89,17 @@ export function LiveDashboard() {
     }
 
     if (session.role === 'tutor') {
-        const tutorStatus = session.tutorStatus
+        const tutorExam = session.exam
+        if (!tutorExam) return <LiveSpinner label="Loading exam…" />
+
         return (
             <LivePage>
                 {session.error ? <LiveNotice>{session.error}</LiveNotice> : null}
-                <p>
-                    Status: <strong>{tutorStatus?.status ?? 'unknown'}</strong>
-                </p>
-                <p>Start: {formatInstant(tutorStatus?.time_start ?? null)}</p>
-                <p>Latest end: {formatInstant(tutorStatus?.time_end_max ?? null)}</p>
-                {tutorStatus?.status === 'waiting' ? (
-                    <Button
-                        type="button"
-                        disabled={starting}
-                        onClick={() => {
-                            setStarting(true)
-                            void jutge.tutor.examctl
-                                .start()
-                                .then(() => session.refresh())
-                                .catch((error: unknown) => setDocError(liveErrorMessage(error, 'Could not start.')))
-                                .finally(() => setStarting(false))
-                        }}
-                    >
-                        {starting ? 'Starting…' : 'Start'}
-                    </Button>
-                ) : null}
-                {docError ? <LiveNotice>{docError}</LiveNotice> : null}
+                <Card className="w-full border border-border shadow-sm ring-0">
+                    <CardHeader>
+                        <CardTitle>{tutorExam.title}</CardTitle>
+                    </CardHeader>
+                </Card>
             </LivePage>
         )
     }
