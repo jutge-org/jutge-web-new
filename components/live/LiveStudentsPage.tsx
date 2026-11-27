@@ -1,7 +1,7 @@
 'use client'
 
 import type { ColDef, RowClickedEvent } from 'ag-grid-community'
-import { CheckIcon, ClockPlusIcon } from 'lucide-react'
+import { CheckIcon, CircleCheckIcon, ClockPlusIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { toast } from 'sonner'
@@ -88,15 +88,29 @@ function LiveStudentsToolbar({ pending, onApplyAll }: LiveStudentsToolbarProps) 
     const [open, setOpen] = useState(false)
     const [minutes, setMinutes] = useState(5)
     const [reason, setReason] = useState('')
+    const [confirmed, setConfirmed] = useState(false)
+
+    useEffect(() => {
+        if (!open) setConfirmed(false)
+    }, [open])
+
+    useEffect(() => {
+        setConfirmed(false)
+    }, [minutes, reason])
 
     async function submit(event: FormEvent) {
         event.preventDefault()
+        if (!confirmed) {
+            setConfirmed(true)
+            return
+        }
         const ok = await onApplyAll(minutes, reason.trim())
         if (!ok) return
         toast.success('Exam time updated for all participants.')
         setOpen(false)
         setReason('')
         setMinutes(5)
+        setConfirmed(false)
     }
 
     return (
@@ -121,6 +135,7 @@ function LiveStudentsToolbar({ pending, onApplyAll }: LiveStudentsToolbarProps) 
                     if (!next) {
                         setReason('')
                         setMinutes(5)
+                        setConfirmed(false)
                     }
                 }}
             >
@@ -154,14 +169,23 @@ function LiveStudentsToolbar({ pending, onApplyAll }: LiveStudentsToolbarProps) 
                         </div>
                         <SmoothButton
                             className="w-full mt-4"
-                            color="blue"
+                            color={confirmed ? 'green' : 'blue'}
                             disabled={pending}
                             loading={pending}
                             type="submit"
                             variant="candy"
+                            aria-live="polite"
                         >
-                            <ClockPlusIcon className="size-4" aria-hidden />
-                            Change time to all participants
+                            {confirmed ? (
+                                <CircleCheckIcon className="size-4" aria-hidden />
+                            ) : (
+                                <ClockPlusIcon className="size-4" aria-hidden />
+                            )}
+                            {pending
+                                ? 'Updating…'
+                                : confirmed
+                                  ? 'Yes, change time for all'
+                                  : 'Change time to all participants'}
                         </SmoothButton>
                     </form>
                 </DialogContent>
@@ -191,6 +215,7 @@ function LiveStudentManageDialog({
     const [banned, setBanned] = useState(false)
     const [invited, setInvited] = useState(false)
     const [minutes, setMinutes] = useState(0)
+    const [confirmed, setConfirmed] = useState(false)
 
     useEffect(() => {
         if (!open || !student) return
@@ -198,7 +223,16 @@ function LiveStudentManageDialog({
         setBanned(!!student.banned)
         setInvited(!!student.invited)
         setMinutes(0)
+        setConfirmed(false)
     }, [open, student])
+
+    useEffect(() => {
+        if (!open) setConfirmed(false)
+    }, [open])
+
+    useEffect(() => {
+        setConfirmed(false)
+    }, [finished, banned, invited, minutes])
 
     if (!student) return null
 
@@ -212,6 +246,11 @@ function LiveStudentManageDialog({
 
     async function applyChanges(event: FormEvent) {
         event.preventDefault()
+        if (!dirty) return
+        if (!confirmed) {
+            setConfirmed(true)
+            return
+        }
         const email = rosterEntry.email
         const wasFinished = !!rosterEntry.finished
         const wasBanned = !!rosterEntry.banned
@@ -343,14 +382,19 @@ function LiveStudentManageDialog({
                     </dl>
                     <SmoothButton
                         className="w-full"
-                        color="blue"
+                        color={confirmed ? 'green' : 'blue'}
                         disabled={pending || !dirty}
                         loading={pending}
                         type="submit"
                         variant="candy"
+                        aria-live="polite"
                     >
-                        <CheckIcon className="size-4" aria-hidden />
-                        Apply
+                        {confirmed ? (
+                            <CircleCheckIcon className="size-4" aria-hidden />
+                        ) : (
+                            <CheckIcon className="size-4" aria-hidden />
+                        )}
+                        {pending ? 'Applying…' : confirmed ? 'Yes, apply changes' : 'Apply'}
                     </SmoothButton>
                 </form>
             </DialogContent>
