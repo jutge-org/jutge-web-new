@@ -13,7 +13,7 @@ export const CONTEST_API_URL =
 
 const NORMAL_HOSTS = new Set(['www.jutge.net', 'jutge.net', 'www.jutge.org', 'jutge.org', 'new.jutge.org'])
 
-const EXAM_HOSTS = new Set(['exam.jutge.net', 'exam.jutge.org', 'exambach.jutge.net', 'localhost'])
+const EXAM_HOSTS = new Set(['exam.jutge.net', 'exam.jutge.org', 'exambach.jutge.net'])
 
 const CONTEST_HOSTS = new Set(['contest.jutge.net', 'contest.jutge.org', 'contestbach.jutge.net'])
 
