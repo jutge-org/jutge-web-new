@@ -101,7 +101,7 @@ export function LiveDashboard() {
                     Status: <strong>{tutorStatus?.status ?? 'unknown'}</strong>
                 </p>
                 <p>Start: {formatInstant(tutorStatus?.time_start ?? null)}</p>
-                <p>Latest end: {formatInstant(tutorStatus?.time_end ?? null)}</p>
+                <p>Latest end: {formatInstant(tutorStatus?.time_end_max ?? null)}</p>
                 {tutorStatus?.status === 'waiting' ? (
                     <Button
                         type="button"

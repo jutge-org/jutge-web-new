@@ -18,9 +18,10 @@ export function LiveStatisticsPage() {
                       examKey: session.examKey,
                       instructor: session.instructor,
                       tutorStatus: session.tutorStatus,
+                      tutorExam: session.exam,
                   }
                 : undefined,
-        [session.examKey, session.instructor, session.role, session.tutorStatus],
+        [session.exam, session.examKey, session.instructor, session.role, session.tutorStatus],
     )
 
     if (session.loading) return <LiveSpinner />

@@ -618,7 +618,7 @@ export function ExamFloatingWidget({ className }: { className?: string }) {
                     <>
                         <p>Status: {session.tutorStatus.status}</p>
                         <p className="tabular-nums">Start: {formatInstant(session.tutorStatus.time_start)}</p>
-                        <p className="tabular-nums">End: {formatInstant(session.tutorStatus.time_end)}</p>
+                        <p className="tabular-nums">End: {formatInstant(session.tutorStatus.time_end_max)}</p>
                     </>
                 ) : null}
             </div>

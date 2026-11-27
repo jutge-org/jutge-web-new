@@ -140,7 +140,7 @@ export function useExamFloatingWidgetSession(): ExamFloatingWidgetSession {
                 if (probed.role === 'tutor') {
                     setRole('tutor')
                     setTutorStatus(probed.status)
-                    setExam(null)
+                    setExam(probed.exam)
                     setExamMeta(null)
                     setCourseTitle(null)
                     setInstructorName(null)

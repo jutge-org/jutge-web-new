@@ -146,7 +146,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         if (probed.role === 'tutor') {
             setRole('tutor')
             setTutorStatus(probed.status)
-            setExam(null)
+            setExam(probed.exam)
             writeLiveControllerEntry(false)
             setControllerEntry(false)
             setPhase('signed-in-exam')

@@ -110,10 +110,40 @@ export async function fetchTutorExamLatestSubmissions(
     return rows.sort((a, b) => b.time_inMs - a.time_inMs)
 }
 
-export type LiveTutorStatus = {
-    status: string
-    time_start: string | null
-    time_end: string | null
+export type TutorExamCtl = Awaited<ReturnType<JutgeApiClient['tutor']['examctl']['get']>>
+
+export type LiveTutorStatus = Pick<
+    TutorExamCtl,
+    'status' | 'time_start' | 'time_end_min' | 'time_end_max' | 'time_end_avg' | 'time_end_mode'
+>
+
+export function tutorExamCtlToRunningExam(ctl: TutorExamCtl): RunningExam {
+    return {
+        title: ctl.title,
+        description: ctl.description,
+        course_name: ctl.course_name,
+        instructor_name: ctl.instructor_name,
+        instructions: ctl.instructions,
+        time_start: ctl.time_start,
+        exp_time_start: ctl.exp_time_start,
+        extra_minutes: 0,
+        running_time: ctl.running_time,
+        contest: ctl.contest,
+        problems: ctl.problems,
+        compilers: ctl.compilers,
+        documents: ctl.documents,
+    }
+}
+
+export function tutorExamCtlToLiveTutorStatus(ctl: TutorExamCtl): LiveTutorStatus {
+    return {
+        status: ctl.status,
+        time_start: ctl.time_start,
+        time_end_min: ctl.time_end_min,
+        time_end_max: ctl.time_end_max,
+        time_end_avg: ctl.time_end_avg,
+        time_end_mode: ctl.time_end_mode,
+    }
 }
 
 export type LiveRosterEntry = {
@@ -145,11 +175,15 @@ export function filterReadyExams(exams: ReadyExam[], contest: boolean): ReadyExa
 export { fetchReadyExamsUnauthenticated as fetchReadyExams } from '@/lib/data/liveAuth'
 
 export async function probeLiveRole(): Promise<
-    { role: 'tutor'; status: LiveTutorStatus } | { role: 'student'; exam: RunningExam }
+    { role: 'tutor'; status: LiveTutorStatus; exam: RunningExam } | { role: 'student'; exam: RunningExam }
 > {
     try {
-        const status = await jutge.tutor.examctl.getStatus()
-        return { role: 'tutor', status }
+        const ctl = await jutge.tutor.examctl.get()
+        return {
+            role: 'tutor',
+            status: tutorExamCtlToLiveTutorStatus(ctl),
+            exam: tutorExamCtlToRunningExam(ctl),
+        }
     } catch (error) {
         if (!isLiveAuthFailure(error)) throw error
     }
@@ -169,8 +203,17 @@ export async function fetchLiveExamSubmissions(client: JutgeApiClient, exam: Run
     return rows.filter((row) => problemNms.has(row.problem_nm)).sort((a, b) => b.time_inMs - a.time_inMs)
 }
 
+export async function refreshTutorExam(): Promise<{ status: LiveTutorStatus; exam: RunningExam }> {
+    const ctl = await jutge.tutor.examctl.get()
+    return {
+        status: tutorExamCtlToLiveTutorStatus(ctl),
+        exam: tutorExamCtlToRunningExam(ctl),
+    }
+}
+
 export async function refreshTutorStatus(): Promise<LiveTutorStatus> {
-    return jutge.tutor.examctl.getStatus()
+    const ctl = await jutge.tutor.examctl.get()
+    return tutorExamCtlToLiveTutorStatus(ctl)
 }
 
 async function downloadExamDocumentFile(

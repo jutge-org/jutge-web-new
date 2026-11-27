@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-11-26T11:17:45.676Z
+ * This file has been automatically generated at 2026-11-27T07:43:54.457Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -1865,7 +1865,7 @@ class Module_auth {
     /**
      * List exams available for exam login.
      *
-     * Validates email and password, then returns exams the user may open: as a participant (not finished, banned, or past their running window) or as a controller for the course (owner or tutor). Each exam includes a `role` of `participant` or `controller`. Results are ordered by closeness to the expected start time. Also returns a `user` object (name, role flags, and instructor username when applicable). Does not create a session or return a token; use loginExam to obtain one. Throws UnauthorizedError on failure.
+     * Validates email and password, then returns exams the user may open: as a participant (not finished, banned, or past their running window) or as a controller (Jutge administrator for any exam, or owner or tutor of the course). Each exam includes a `role` of `participant` or `controller`. Results are ordered by closeness to the expected start time. Also returns a `user` object (name, role flags, and instructor username when applicable). Does not create a session or return a token; use loginExam to obtain one. Throws UnauthorizedError on failure.
      *
      * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any
@@ -3815,19 +3815,33 @@ class Module_tutor_examctl {
     }
 
     /**
-     * Get the status of the exam.
+     * Get the exam.
      *
-     * Returns waiting, started, or finished, plus the start time and the latest end time among students who have not finished.
+     * Returns the exam lifecycle status, aggregated participant end times, and exam metadata. Problems, compilers, and documents are empty until the exam has started, like student.exam.get.
      *
      * 🗂️ Domains: exam, contest
      * 🔐 Authentication: examctl
      */
-    async getStatus(): Promise<{
+    async get(): Promise<{
         status: string /* waiting, started, or finished */
+        time_end_max: Iso8601Date | null
+        time_end_min: Iso8601Date | null
+        time_end_avg: Iso8601Date | null
+        time_end_mode: Iso8601Date | null
+        title: string /* Title of the exam */
+        description: string /* Description of the exam in Markdown format */
+        course_name: string /* Title of the course this exam belongs to */
+        instructor_name: string /* Name of the instructor who owns this exam */
+        instructions: string /* Instructions of the exam (placeholder text if the exam has not started yet) */
         time_start: Iso8601Date | null
-        time_end: Iso8601Date | null
+        exp_time_start: Iso8601Date /* Expected start time of the exam */
+        running_time: number /* Nomimal running time of the exam (in minutes) */
+        contest: number /* Whether the exam is a contest */
+        problems: RunningExamProblem[] /* Problems of the exam (empty if the exam has not started yet) */
+        compilers: string[] /* Compiler IDs allowed in the exam (empty if the exam has not started yet) */
+        documents: RunningExamDocument[] /* Documents attached to the exam (empty if the exam has not started yet) */
     }> {
-        const [output, ofiles] = await this.root.execute("tutor.examctl.getStatus", null)
+        const [output, ofiles] = await this.root.execute("tutor.examctl.get", null)
         return output
     }
 

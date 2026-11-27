@@ -77,6 +77,7 @@ export type LiveExamStatisticsViewSource = {
     examKey: string | null
     instructor: boolean
     tutorStatus: LiveTutorStatus | null
+    tutorExam: RunningExam | null
 }
 
 export async function fetchLiveExamStatisticsViewData(
@@ -88,7 +89,8 @@ export async function fetchLiveExamStatisticsViewData(
     colors: ColorMapping
 }> {
     const exam_nm = liveExamNmFromKey(input.examKey)
-    const exp_time_start = input.tutorStatus?.time_start ?? new Date(0).toISOString()
+    const exp_time_start =
+        input.tutorExam?.exp_time_start ?? input.tutorStatus?.time_start ?? new Date(0).toISOString()
 
     const [statistics, colors] = await Promise.all([fetchExamStatistics(), jutge.misc.getHexColors()])
 
@@ -99,11 +101,13 @@ export async function fetchLiveExamStatisticsViewData(
         ranking = null
     }
 
-    let runningExam: RunningExam | null = null
-    try {
-        runningExam = await jutge.student.exam.get()
-    } catch {
-        runningExam = null
+    let runningExam: RunningExam | null = input.tutorExam
+    if (!runningExam) {
+        try {
+            runningExam = await jutge.student.exam.get()
+        } catch {
+            runningExam = null
+        }
     }
 
     let exam: InstructorExam | null = null
