@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { fetchProblemSubmissionsRowsAction, fetchSubmissionsRowsAction } from '@/lib/data/submissionsActions'
 import { AgTable, AgTableFull } from '@/components/administrator/AgTable'
 import { CompilerLink, VerdictLink } from '@/components/documentation/ReferenceLink'
+import { EmailAddressText } from '@/components/general/EmailAddressText'
 import { ProblemIdLabel } from '@/components/problems/ProblemIdLabel'
 import { SubmissionsListToolbar } from '@/components/submissions/SubmissionsListToolbar'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
@@ -26,6 +27,7 @@ import {
     buildProblemSubmissionSearchHaystack,
     filterSubmissions,
     tallySubmissionOkKo,
+    TUTOR_SUBMISSION_ID_PLACEHOLDER,
 } from '@/lib/submissions'
 import { Skeleton } from '../ui/skeleton'
 
@@ -39,6 +41,10 @@ type SubmissionsListProps =
         loading?: boolean
         onRefreshPending?: () => Promise<SubmissionRow[]>
         emptyMessage?: string
+        tutorLatestLimit?: {
+            limit: number
+            onLimitChange: (limit: number) => void
+        }
     }
     | {
         rows: ProblemSubmissionRow[]
@@ -58,6 +64,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
         loading = false,
         onRefreshPending,
         emptyMessage,
+        tutorLatestLimit,
     } = props
     const problemNm = props.variant === 'problem' ? props.problemNm : undefined
     const [rows, setRows] = useState(initialRows)
@@ -113,6 +120,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
     }, [rows, searchQuery, verdictFilter, variant])
 
     const okKoCounts = useMemo(() => tallySubmissionOkKo(rows), [rows])
+    const showStudentEmail = variant === 'default' && rows.some((row) => row.studentEmail)
 
     function handleColumnVisibilityChange(field: SubmissionsColumnField, visible: boolean) {
         setColumnVisibility((current) => ({ ...current, [field]: visible }))
@@ -135,6 +143,22 @@ export function SubmissionsList(props: SubmissionsListProps) {
                         '—'
                     ),
             },
+            ...(showStudentEmail
+                ? [
+                      {
+                          field: 'studentEmail',
+                          headerName: 'Student',
+                          width: 220,
+                          sortable: true,
+                          filter: true,
+                          cellRenderer: (params: { data: SubmissionRow }) =>
+                              params.data.studentEmail ? (
+                                  <EmailAddressText email={params.data.studentEmail} className="text-sm" />
+                              ) : null,
+                          valueGetter: (params: { data: SubmissionRow }) => params.data.studentEmail ?? '',
+                      },
+                  ]
+                : []),
             variant === 'problem'
                 ? {
                     field: 'language_id',
@@ -187,11 +211,17 @@ export function SubmissionsList(props: SubmissionsListProps) {
                 sortable: true,
                 filter: true,
                 hide: !columnVisibility.submission_id,
-                cellRenderer: (params: { data: SubmissionRow }) => (
-                    <Link href={params.data.submissionHref} className="text-sm hover:text-primary hover:underline">
-                        {params.data.submission_id}
-                    </Link>
-                ),
+                cellRenderer: (params: { data: SubmissionRow }) =>
+                    params.data.submission_id === TUTOR_SUBMISSION_ID_PLACEHOLDER ? (
+                        <span className="text-sm text-muted-foreground">{TUTOR_SUBMISSION_ID_PLACEHOLDER}</span>
+                    ) : (
+                        <Link
+                            href={params.data.submissionHref}
+                            className="text-sm hover:text-primary hover:underline"
+                        >
+                            {params.data.submission_id}
+                        </Link>
+                    ),
             },
             {
                 field: 'verdict',
@@ -276,7 +306,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
                 valueGetter: (params: { data: SubmissionRow }) => params.data.annotation ?? '',
             },
         ],
-        [columnVisibility, variant],
+        [columnVisibility, showStudentEmail, variant],
     )
 
     if (loading) {
@@ -291,6 +321,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
                     columnVisibility={columnVisibility}
                     onColumnVisibilityChange={handleColumnVisibilityChange}
                     showHelp={showHelp}
+                    tutorLatestLimit={tutorLatestLimit}
                 />
                 <div
                     aria-busy="true"
@@ -329,6 +360,7 @@ export function SubmissionsList(props: SubmissionsListProps) {
                 okCount={okKoCounts.ok}
                 koCount={okKoCounts.ko}
                 showHelp={showHelp}
+                tutorLatestLimit={tutorLatestLimit}
             />
 
             {visibleRows.length === 0 ? (

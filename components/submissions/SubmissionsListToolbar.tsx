@@ -1,6 +1,6 @@
 'use client'
 
-import { Columns3Icon, FunnelIcon } from 'lucide-react'
+import { Columns3Icon, FunnelIcon, ListIcon } from 'lucide-react'
 
 import { ProblemCountBadge } from '@/components/courses/ProblemCountBadge'
 import { SubmissionsHelpDialog } from '@/components/submissions/SubmissionsHelpDialog'
@@ -18,6 +18,11 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+    TUTOR_EXAM_LATEST_SUBMISSION_LIMIT_OPTIONS,
+    TUTOR_EXAM_LATEST_SUBMISSIONS_ALL_LIMIT,
+} from '@/lib/data/liveExam'
 import {
     SUBMISSIONS_COLUMN_LABELS,
     type SubmissionsColumnField,
@@ -58,6 +63,10 @@ type SubmissionsListToolbarProps = {
     okCount?: number
     koCount?: number
     showHelp?: boolean
+    tutorLatestLimit?: {
+        limit: number
+        onLimitChange: (limit: number) => void
+    }
 }
 
 export function SubmissionsListToolbar({
@@ -73,7 +82,12 @@ export function SubmissionsListToolbar({
     okCount,
     koCount,
     showHelp = false,
+    tutorLatestLimit,
 }: SubmissionsListToolbarProps) {
+    const latestLimitLabel =
+        tutorLatestLimit?.limit === TUTOR_EXAM_LATEST_SUBMISSIONS_ALL_LIMIT
+            ? 'All'
+            : String(tutorLatestLimit?.limit ?? '')
     const columns = variant === 'problem' ? PROBLEM_TOGGLEABLE_COLUMNS : DEFAULT_TOGGLEABLE_COLUMNS
     const showCountBadge = false && visibleCount !== undefined && totalCount !== undefined
     const showOkKoBadges = okCount !== undefined && koCount !== undefined
@@ -154,7 +168,26 @@ export function SubmissionsListToolbar({
                     className="w-64 shrink-0"
                     aria-label="Search submissions"
                 />
-                {showHelp ? <SubmissionsHelpDialog /> : null}
+                {tutorLatestLimit ? (
+                    <Select
+                        value={String(tutorLatestLimit.limit)}
+                        onValueChange={(value) => tutorLatestLimit.onLimitChange(Number(value))}
+                    >
+                        <SelectTrigger className="w-28" aria-label="Number of latest submissions to show">
+                            <ListIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                            <SelectValue>{latestLimitLabel}</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent align="end">
+                            {TUTOR_EXAM_LATEST_SUBMISSION_LIMIT_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={String(option.value)}>
+                                    {option.label === 'All' ? 'All' : `Latest ${option.label}`}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                ) : showHelp ? (
+                    <SubmissionsHelpDialog />
+                ) : null}
             </div>
         </TooltipProvider>
     )

@@ -45,6 +45,7 @@ function buildSubmissionSearchHaystack(row: SubmissionRow): string {
         row.compiler_id,
         row.compilerFullName,
         row.annotation ?? '',
+        row.studentEmail ?? '',
     ].join(' ')
 }
 
@@ -280,7 +281,12 @@ export type SubmissionRow = {
     time_in: string
     time_inMs: number
     annotation: string | null
+    /** Set for live exam controllers (`tutor.examctl.latestSubmissions`). */
+    studentEmail?: string
 }
+
+/** Placeholder when the API row has no submission id (tutor latest-submissions feed). */
+export const TUTOR_SUBMISSION_ID_PLACEHOLDER = '—'
 
 export type ProblemSubmissionRow = SubmissionRow & {
     language_id: string

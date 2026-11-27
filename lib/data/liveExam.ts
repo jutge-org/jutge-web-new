@@ -4,8 +4,19 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 
 import jutge from '@/lib/jutge'
 import { saveFileWithDialog } from '@/lib/saveFileWithDialog'
+import { getPreferredLanguageId } from '@/lib/data/auth'
+import {
+    abstractProblemsToIconUrlMap,
+    abstractProblemsToTitleMap,
+} from '@/lib/data/problems'
 import { fetchSubmissionsInRange } from '@/lib/data/submissions'
-import type { SubmissionRow } from '@/lib/submissions'
+import { parseProblemKey } from '@/lib/problems'
+import {
+    formatSubmissionTime,
+    parseSubmissionTime,
+    TUTOR_SUBMISSION_ID_PLACEHOLDER,
+    type SubmissionRow,
+} from '@/lib/submissions'
 import { isDocumentZip } from '@/lib/instructor/documents'
 import { getExamStatus } from '@/lib/exams'
 import type {
@@ -22,6 +33,82 @@ import { NotFoundError, UnauthorizedError } from '@/lib/jutge_api_client'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
+
+export const TUTOR_EXAM_LATEST_SUBMISSIONS_DEFAULT_LIMIT = 100
+export const TUTOR_EXAM_LATEST_SUBMISSIONS_ALL_LIMIT = 1_000_000
+
+export const TUTOR_EXAM_LATEST_SUBMISSION_LIMIT_OPTIONS = [
+    { label: '100', value: 100 },
+    { label: '250', value: 250 },
+    { label: '1000', value: 1000 },
+    { label: '5000', value: 5000 },
+    { label: 'All', value: TUTOR_EXAM_LATEST_SUBMISSIONS_ALL_LIMIT },
+] as const
+
+export type TutorExamLatestSubmissionsLimit =
+    (typeof TUTOR_EXAM_LATEST_SUBMISSION_LIMIT_OPTIONS)[number]['value']
+
+export async function fetchTutorExamLatestSubmissions(
+    client: JutgeApiClient,
+    limit: number = TUTOR_EXAM_LATEST_SUBMISSIONS_DEFAULT_LIMIT,
+): Promise<SubmissionRow[]> {
+    const [entries, tables, preferredLanguageId] = await Promise.all([
+        client.tutor.examctl.latestSubmissions({ limit }),
+        client.tables.get(),
+        getPreferredLanguageId(),
+    ])
+
+    const problemNms = [...new Set(entries.map((entry) => entry.problem))]
+    let problemTitles = new Map<string, string>()
+    let problemIconUrls = new Map<string, string | null>()
+
+    if (problemNms.length > 0) {
+        try {
+            const abstractProblems = await client.problems.getAbstractProblems(problemNms.join(','))
+            problemTitles = abstractProblemsToTitleMap(abstractProblems, preferredLanguageId)
+            problemIconUrls = abstractProblemsToIconUrlMap(abstractProblems)
+        } catch {
+            // Titles fall back to problem id.
+        }
+    }
+
+    const rows = entries.map((entry): SubmissionRow => {
+        const problem_id = entry.problem_id
+        const problem_nm = entry.problem
+        const parsed = parseProblemKey(problem_id)
+        const problemTitle =
+            problemTitles.get(problem_id) ?? problemTitles.get(problem_nm) ?? problem_nm
+        const problemHref =
+            parsed.kind === 'problem_id' ? `/problems/${parsed.problem_nm}` : `/problems/${problem_id}`
+        const iconUrl = problemIconUrls.get(problem_id) ?? problemIconUrls.get(problem_nm) ?? null
+        const verdict = entry.verdict ?? 'Pending'
+        const verdictMeta = tables.verdicts[verdict]
+        const compilerMeta = tables.compilers[entry.compiler_id]
+
+        return {
+            submission_id: TUTOR_SUBMISSION_ID_PLACEHOLDER,
+            rowKey: `${entry.email}:${problem_id}:${entry.time_in}`,
+            submissionHref: problemHref,
+            problem_id,
+            problem_nm,
+            problemTitle,
+            problemHref,
+            iconUrl,
+            verdict,
+            verdictFullName: verdictMeta?.name ?? verdict,
+            verdict_info: entry.verdict_info,
+            verdictEmoji: verdictMeta?.emoji,
+            compiler_id: entry.compiler_id,
+            compilerFullName: compilerMeta?.name ?? entry.compiler_id,
+            time_in: formatSubmissionTime(entry.time_in),
+            time_inMs: parseSubmissionTime(entry.time_in).getTime(),
+            annotation: null,
+            studentEmail: entry.email,
+        }
+    })
+
+    return rows.sort((a, b) => b.time_inMs - a.time_inMs)
+}
 
 export type LiveTutorStatus = {
     status: string

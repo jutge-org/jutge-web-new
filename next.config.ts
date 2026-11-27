@@ -50,6 +50,11 @@ const nextConfig: NextConfig = {
                 destination: '/activity/wrapped',
                 permanent: true,
             },
+            {
+                source: '/students',
+                destination: '/participants',
+                permanent: true,
+            },
         ]
     },
 }
