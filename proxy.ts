@@ -49,13 +49,8 @@ export function proxy(request: NextRequest) {
         return NextResponse.next()
     }
 
-    if (
-        site.kind === 'exam' &&
-        (pathname === '/watch' ||
-            pathname.startsWith('/watch/') ||
-            pathname === '/ranking' ||
-            pathname.startsWith('/ranking/'))
-    ) {
+    // Ranking is allowed on exam hosts (controllers); participants are gated in LiveRankingPage.
+    if (site.kind === 'exam' && (pathname === '/watch' || pathname.startsWith('/watch/'))) {
         return missing(request)
     }
 

@@ -28,13 +28,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectSeparator,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
+    Combobox,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxList,
+    ComboboxSeparator,
+} from '@/components/ui/combobox'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { formatLiveDateTime } from '@/lib/data/liveExam'
 import type { ReadyExam } from '@/lib/jutge_api_client'
@@ -240,10 +241,15 @@ function LiveSignIn({
         })
     }, [readyExams])
 
-    const selectedReadyExam = useMemo(
-        () => readyExams?.find((exam) => exam.exam_key === examKey) ?? null,
-        [readyExams, examKey],
+    const readyExamItems = useMemo(
+        () => (readyExams ?? []).map(toReadyExamItem),
+        [readyExams],
     )
+    const selectedReadyExamItem = useMemo(
+        () => readyExamItems.find((item) => item.value === examKey) ?? null,
+        [readyExamItems, examKey],
+    )
+    const selectedReadyExam = selectedReadyExamItem?.exam ?? null
     const controllerEntry = selectedReadyExam?.role === 'controller'
     const participantEntry = selectedReadyExam?.role === 'participant'
 
@@ -372,34 +378,40 @@ function LiveSignIn({
                                     />
                                 </div>
                             </div>
-                            <Select value={examKey} onValueChange={setExamKey} disabled={pending}>
-                                <SelectTrigger
-                                    className="h-auto w-full min-h-16 items-center py-3 pl-2.5 *:data-[slot=select-value]:line-clamp-none *:data-[slot=select-value]:w-full *:data-[slot=select-value]:whitespace-normal"
+                            <Combobox
+                                isItemEqualToValue={(a, b) => a.value === b.value}
+                                items={readyExamItems}
+                                onValueChange={(item) => setExamKey(item?.value ?? '')}
+                                value={selectedReadyExamItem}
+                            >
+                                <ComboboxInput
+                                    className="w-full"
+                                    disabled={pending}
                                     id="live-exam"
-                                >
-                                    <SelectValue placeholder={`Choose a ${contest ? 'contest' : 'exam'}`} />
-                                </SelectTrigger>
-                                <SelectContent className="p-0">
-                                    {readyExams.map((exam, index) => (
-                                        <Fragment key={exam.exam_key}>
-                                            {index > 0 ? (
-                                                <SelectSeparator className="mx-0 my-0" />
-                                            ) : null}
-                                            <SelectItem
-                                                className="items-start rounded-none py-3 pr-8 pl-2.5"
-                                                textValue={
-                                                    exam.course_name
-                                                        ? `${exam.title} ${exam.course_name}`
-                                                        : exam.title
-                                                }
-                                                value={exam.exam_key}
-                                            >
-                                                <ReadyExamSelectOption exam={exam} />
-                                            </SelectItem>
-                                        </Fragment>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                    placeholder={`Search ${contest ? 'contests' : 'exams'}…`}
+                                    showClear
+                                />
+                                <ComboboxContent className="p-0">
+                                    <ComboboxEmpty>
+                                        No {contest ? 'contests' : 'exams'} found.
+                                    </ComboboxEmpty>
+                                    <ComboboxList className="p-0">
+                                        {(item: ReadyExamItem, index: number) => (
+                                            <Fragment key={item.value}>
+                                                {index > 0 ? (
+                                                    <ComboboxSeparator className="mx-0 my-0" />
+                                                ) : null}
+                                                <ComboboxItem
+                                                    className="items-start rounded-none py-3 pr-8 pl-2.5"
+                                                    value={item}
+                                                >
+                                                    <ReadyExamSelectOption exam={item.exam} />
+                                                </ComboboxItem>
+                                            </Fragment>
+                                        )}
+                                    </ComboboxList>
+                                </ComboboxContent>
+                            </Combobox>
                         </div>
                         <div className="flex flex-col gap-2">
                             <Label
@@ -502,6 +514,17 @@ function LiveSignIn({
             </form>
         </>
     )
+}
+
+type ReadyExamItem = {
+    value: string
+    label: string
+    exam: ReadyExam
+}
+
+function toReadyExamItem(exam: ReadyExam): ReadyExamItem {
+    const label = exam.course_name ? `${exam.title} ${exam.course_name}` : exam.title
+    return { value: exam.exam_key, label, exam }
 }
 
 function ReadyExamSelectOption({ exam }: { exam: ReadyExam }) {

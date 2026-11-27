@@ -6,6 +6,7 @@ import { LiveBreadcrumbsInLayout } from '@/app/LiveBreadcrumbsInLayout'
 import { AppearanceSettingsDialog } from '@/components/AppearanceSettingsDialog'
 import { LiveAuthToolbar } from '@/components/live/LiveAuthToolbar'
 import { LiveExamWidgetToolbarButton } from '@/components/live/LiveExamWidgetToolbarButton'
+import { LiveStudentSubNav } from '@/components/live/LiveStudentSubNav'
 import { LiveTutorSubNav } from '@/components/live/LiveTutorSubNav'
 import { LiveHeaderClock } from '@/components/live/LiveHeaderClock'
 import { LiveWallClockProvider } from '@/hooks/use-live-wall-clock'
@@ -24,6 +25,7 @@ export function LiveAppShell({ children }: { children: ReactNode }) {
     return (
         <LiveWallClockProvider>
             <ExamFloatingWidgetNavHost />
+            <LiveStudentSubNav />
             <LiveTutorSubNav />
             <RootShell
                 header={

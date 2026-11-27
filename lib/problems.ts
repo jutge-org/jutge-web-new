@@ -117,6 +117,16 @@ export function isGraphicProblem(driverId: string | null | undefined): boolean {
     return driverId === 'graphic'
 }
 
+/** True when the pathname is a problem statement tab or sub-route (`/problems/P68688/...`), not the list or search pages. */
+export function isProblemDetailPath(pathname: string): boolean {
+    if (!pathname.startsWith('/problems/')) return false
+    const rest = pathname.slice('/problems/'.length)
+    if (!rest || rest.includes('//')) return false
+    const segment = rest.split('/')[0] ?? ''
+    if (segment === 'public' || segment === 'search' || segment === 'passcodes') return false
+    return parseProblemKey(segment).kind !== 'invalid'
+}
+
 export function parseProblemKey(key: string): ParsedProblemKey {
     const idMatch = key.match(PROBLEM_ID_RE)
     if (idMatch) {

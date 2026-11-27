@@ -19,6 +19,7 @@ import {
 } from '@/lib/submissions'
 import { isDocumentZip } from '@/lib/instructor/documents'
 import { getExamStatus } from '@/lib/exams'
+import type { SiteKind } from '@/lib/siteMode'
 import type {
     Download,
     Exam,
@@ -300,6 +301,16 @@ export function examStatus(
     if (exam.time_start == null) return 'waiting'
     if (finishTimeMs(exam, meta) <= now) return 'finished'
     return 'running'
+}
+
+/** Controllers (`tutor`) on exams and contests; participants (`student`) on started contests only. */
+export function canAccessLiveRanking(
+    kind: SiteKind,
+    role: 'student' | 'tutor' | null,
+    exam: RunningExam | null,
+): boolean {
+    if (role === 'tutor') return true
+    return role === 'student' && kind === 'contest' && examStatus(exam) !== 'waiting'
 }
 
 export function examStartedAtMs(exam: RunningExam): number {

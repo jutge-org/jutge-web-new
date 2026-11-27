@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 
 import { SubNav } from '@/components/general/SubNav'
+import { LiveNavMenuItemIcon } from '@/components/live/LiveNavMenuItemIcon'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { useSiteMode } from '@/components/SiteModeProvider'
 import { usePublicPathname } from '@/hooks/usePublicPathname'
@@ -20,6 +21,7 @@ export function LiveTutorSubNav() {
             key: href,
             label,
             href,
+            icon: <LiveNavMenuItemIcon href={href} className="size-4 shrink-0" />,
         }))
     }, [site.kind])
 

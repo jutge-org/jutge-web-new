@@ -16,7 +16,13 @@ import {
     fetchPublicContestWatchColors,
     liveRankingExamProblems,
 } from '@/lib/data/contestWatch'
-import { examStatus, fetchStudentRanking, fetchTutorRanking, liveErrorMessage } from '@/lib/data/liveExam'
+import {
+    canAccessLiveRanking,
+    examStatus,
+    fetchStudentRanking,
+    fetchTutorRanking,
+    liveErrorMessage,
+} from '@/lib/data/liveExam'
 import {
     parseLiveRankingRefreshSpeed,
     readLiveRankingRefreshSpeed,
@@ -44,9 +50,7 @@ export function LiveRankingPage() {
         [ranking, session.exam?.problems],
     )
 
-    const canLoad =
-        session.role === 'tutor' ||
-        (site.kind === 'contest' && session.role === 'student' && examStatus(session.exam) !== 'waiting')
+    const canLoad = canAccessLiveRanking(site.kind, session.role, session.exam)
 
     const loadRanking = useCallback(async () => {
         const load = session.role === 'tutor' ? fetchTutorRanking() : fetchStudentRanking()

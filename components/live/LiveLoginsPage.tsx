@@ -57,10 +57,10 @@ function LiveLoginsRefreshToolbar({
         <div className="flex flex-row items-center gap-2">
             {studentCount !== null && studentCount > 0 ? (
                 <p className="min-w-0 text-sm text-muted-foreground">
-                    {`${studentCount} participant${studentCount === 1 ? '' : 's'} with multiple IPs.`}
+                    {`${studentCount} access${studentCount === 1 ? '' : 'es'} with multiple IPs.`}
                 </p>
             ) : null}
-            <div className="flex-grow" />
+            <div className="grow" />
             <div className="flex shrink-0 flex-row items-center gap-2">
                 <Select
                     value={speed}

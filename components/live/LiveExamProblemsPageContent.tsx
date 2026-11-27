@@ -11,8 +11,7 @@ export function LiveExamProblemsPageContent({ exam }: { exam: RunningExam }) {
 
     return (
         <LivePage>
-            <div className="flex items-center justify-between gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight">Problems</h1>
+            <div className="flex justify-end">
                 <LiveListLayoutToggle layout={layout} onToggle={toggleLayout} />
             </div>
             <LiveExamProblemsList exam={exam} layout={layout} />

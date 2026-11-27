@@ -17,7 +17,6 @@ export function LiveExamDocumentCard({ document, onError }: LiveExamDocumentCard
     const [downloading, setDownloading] = useState(false)
     const FileIcon = getDocumentFileIcon(document.type)
     const typeLabel = documentTypeLabel(document)
-    const description = document.description?.trim()
     const actionLabel =
         typeLabel === 'PDF' ? `Open ${document.title} (${typeLabel})` : `Download ${document.title} (${typeLabel})`
 
@@ -64,13 +63,10 @@ export function LiveExamDocumentCard({ document, onError }: LiveExamDocumentCard
                 ) : (
                     <FileIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden />
                 )}
-                <div className="min-w-0 flex-1 space-y-0.5">
+                <div className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold leading-snug tracking-tight text-foreground">
                         {document.title}
                     </span>
-                    {description ? (
-                        <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">{description}</p>
-                    ) : null}
                 </div>
             </button>
         </article>

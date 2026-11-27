@@ -1,10 +1,4 @@
-export type ProblemTab =
-    | 'statement'
-    | 'submissions'
-    | 'solutions'
-    | 'testcases'
-    | 'statistics'
-    | 'properties'
+export type ProblemTab = 'statement' | 'submissions' | 'solutions' | 'testcases' | 'statistics' | 'properties'
 
 export type ProblemNavItem = {
     tab: ProblemTab

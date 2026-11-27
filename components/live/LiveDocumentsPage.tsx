@@ -21,20 +21,13 @@ function LiveDocumentsPageAuthenticated() {
         return [...list].sort((a, b) => a.title.localeCompare(b.title))
     }, [session.exam?.documents])
 
-    if (session.role !== 'student') {
-        return (
-            <LivePage title="Documents">
-                <LiveNotice>This page is only available to students taking the exam.</LiveNotice>
-            </LivePage>
-        )
-    }
-
     return (
         <LivePage>
-            <div className="flex items-center justify-between gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight">Documents</h1>
-                {documents.length > 0 ? <LiveListLayoutToggle layout={layout} onToggle={toggleLayout} /> : null}
-            </div>
+            {documents.length > 0 ? (
+                <div className="flex justify-end">
+                    <LiveListLayoutToggle layout={layout} onToggle={toggleLayout} />
+                </div>
+            ) : null}
             {error ? <LiveNotice>{error}</LiveNotice> : null}
             {documents.length === 0 ? (
                 <p className="text-sm text-muted-foreground">There are no documents for this exam.</p>
@@ -49,7 +42,7 @@ function LiveDocumentsPageAuthenticatedWithSearchParams() {
     return (
         <Suspense
             fallback={
-                <LivePage title="Documents">
+                <LivePage>
                     <p className="text-muted-foreground" role="status">
                         Loading…
                     </p>
@@ -65,7 +58,7 @@ export function LiveDocumentsPage() {
     return (
         <LiveSessionGate
             signedOut={
-                <LivePage title="Documents">
+                <LivePage>
                     <LiveNotice>
                         <Link href="/">Sign in</Link> to see exam documents.
                     </LiveNotice>

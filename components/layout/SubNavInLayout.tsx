@@ -34,6 +34,7 @@ export function SubNavInLayout() {
                             <li key={item.key} className="shrink-0">
                                 {item.external ? (
                                     <ExternalLink href={item.href} icon={false} className={className}>
+                                        {item.icon}
                                         {item.label}
                                         {item.badge}
                                     </ExternalLink>
@@ -43,6 +44,7 @@ export function SubNavInLayout() {
                                         className={className}
                                         aria-current={isActive ? 'page' : undefined}
                                     >
+                                        {item.icon}
                                         {item.label}
                                         {item.badge}
                                     </Link>

@@ -112,10 +112,13 @@ function SubmissionsPageLayout({
         onLimitChange: (limit: number) => void
     }
 }) {
+    const site = useSiteMode()
+    const showPageTitle = site.kind === 'normal'
+
     return (
         <div className="flex flex-col gap-6">
             <MainBreadcrumbs breadcrumbs={[{ title: 'Submissions', url: '/submissions' }]} />
-            <PageTitle section="/submissions" authenticated />
+            <PageTitle section="/submissions" authenticated hidden={!showPageTitle} />
             <SubmissionsList
                 rows={rows ?? []}
                 showHelp={showHelp}

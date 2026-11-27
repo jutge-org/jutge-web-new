@@ -7,6 +7,8 @@ export type SubNavItem = Readonly<{
     label: string
     href: string
     external?: boolean
+    /** Optional leading icon (e.g. live controller sub-nav). */
+    icon?: ReactNode
     /** Optional count/status chip shown after the label (e.g. course list badges). */
     badge?: ReactNode
 }>

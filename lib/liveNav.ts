@@ -30,9 +30,14 @@ export function liveNavItems(
             { href: '/problems', label: 'Problems' },
             { href: '/participants', label: 'Participants' },
             { href: '/submissions', label: 'Submissions' },
+            { href: '/documents', label: 'Documents' },
         ]
-        if (kind === 'contest') items.push({ href: '/ranking', label: 'Rankings' })
-        items.push({ href: '/statistics', label: 'Statistics' }, { href: '/logins', label: 'Logins' }, ...LIVE_META_NAV)
+        items.push(
+            { href: '/ranking', label: 'Ranking' },
+            { href: '/statistics', label: 'Statistics' },
+            { href: '/logins', label: 'Logins' },
+            ...LIVE_META_NAV,
+        )
         return items
     }
     if (role === 'student') {
@@ -81,11 +86,23 @@ export function liveNavItemsForSession(
 
 const LIVE_META_NAV_HREFS = new Set(LIVE_META_NAV.map((item) => item.href))
 
-/** Tutor quick links on the live home dashboard (no Home or site meta sections). */
+/** Controller quick links in the sticky sub-nav (exam sections; no site meta). */
 export function liveTutorHomeNavItems(kind: SiteKind): LiveNavItem[] {
-    return liveNavItems(kind, 'tutor', true).filter(
-        (item) => item.href !== '/' && !LIVE_META_NAV_HREFS.has(item.href),
-    )
+    return liveNavItems(kind, 'tutor', true).filter((item) => !LIVE_META_NAV_HREFS.has(item.href))
+}
+
+/** Participant quick links in the sticky sub-nav (exam or contest; no meta sections). */
+export function liveStudentLiveNavItems(kind: SiteKind, exam: RunningExam | null): LiveNavItem[] {
+    const items: LiveNavItem[] = [
+        { href: '/', label: 'Home' },
+        { href: '/problems', label: 'Problems' },
+        { href: '/documents', label: 'Documents' },
+        { href: '/submissions', label: 'Submissions' },
+    ]
+    if (kind === 'contest' && examStatus(exam) !== 'waiting') {
+        items.push({ href: '/ranking', label: 'Ranking' })
+    }
+    return items
 }
 
 export function liveSiteBrand(kind: SiteKind): string {
