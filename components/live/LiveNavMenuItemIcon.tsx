@@ -1,7 +1,7 @@
 'use client'
 
 import {
-    ActivityIcon,
+    MonitorIcon,
     BookText,
     ChartPieIcon,
     EyeIcon,
@@ -52,8 +52,8 @@ export function LiveNavMenuItemIcon({
             return <UsersIcon aria-hidden className={iconClass} />
         case '/statistics':
             return <ChartPieIcon aria-hidden className={iconClass} />
-        case '/logins':
-            return <ActivityIcon aria-hidden className={iconClass} />
+        case '/ip-control':
+            return <MonitorIcon aria-hidden className={iconClass} />
         case '/watch':
             return <EyeIcon aria-hidden className={iconClass} />
         case '/interpreters':

@@ -1,5 +1,5 @@
 /**
- * This file has been automatically generated at 2026-11-27T07:43:54.457Z
+ * This file has been automatically generated at 2026-11-27T10:11:54.202Z
  *
  * Name:    Jutge API
  * Version: 2.0.0
@@ -1865,7 +1865,7 @@ class Module_auth {
     /**
      * List exams available for exam login.
      *
-     * Validates email and password, then returns exams the user may open: as a participant (not finished, banned, or past their running window) or as a controller (Jutge administrator for any exam, or owner or tutor of the course). Each exam includes a `role` of `participant` or `controller`. Results are ordered by closeness to the expected start time. Also returns a `user` object (name, role flags, and instructor username when applicable). Does not create a session or return a token; use loginExam to obtain one. Throws UnauthorizedError on failure.
+     * Validates email and password, then returns exams the user may open: as a participant (not finished, banned, or past their running window) or as a controller (user U00000 for any exam, or owner or tutor of the course). Each exam includes a `role` of `participant` or `controller`. Results are ordered by closeness to the expected start time. Also returns a `user` object (name, role flags, and instructor username when applicable). Does not create a session or return a token; use loginExam to obtain one. Throws UnauthorizedError on failure.
      *
      * 🗂️ Domains: jutge, exam, contest
      * 🔐 Authentication: any

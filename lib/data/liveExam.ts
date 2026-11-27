@@ -277,6 +277,21 @@ export async function fetchMultipleIps() {
     return jutge.tutor.examctl.multipleIPs()
 }
 
+export type LiveMultipleIpRow = Awaited<ReturnType<typeof fetchMultipleIps>>[number]
+
+export async function fetchLiveLoginsPageData(): Promise<{
+    roster: LiveRosterEntry[]
+    multipleIpByEmail: Map<string, LiveMultipleIpRow>
+}> {
+    const [multipleIpRows, roster] = await Promise.all([fetchMultipleIps(), fetchLiveRoster()])
+    const multipleIpByEmail = new Map(multipleIpRows.map((entry) => [entry.email, entry]))
+    const sortedRoster = [...roster].sort((a, b) => {
+        const byName = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+        return byName !== 0 ? byName : a.email.localeCompare(b.email)
+    })
+    return { roster: sortedRoster, multipleIpByEmail }
+}
+
 export async function fetchExamStatistics() {
     return jutge.tutor.examctl.getStatistics()
 }

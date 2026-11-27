@@ -35,7 +35,7 @@ export function liveNavItems(
         items.push(
             { href: '/ranking', label: 'Ranking' },
             { href: '/statistics', label: 'Statistics' },
-            { href: '/logins', label: 'Logins' },
+            { href: '/ip-control', label: 'IP Control' },
             ...LIVE_META_NAV,
         )
         return items

@@ -2,6 +2,6 @@
 
 import { LiveLoginsPage } from '@/components/live/LiveLoginsPage'
 
-export default function LoginsPage() {
+export default function IpControlPage() {
     return <LiveLoginsPage />
 }

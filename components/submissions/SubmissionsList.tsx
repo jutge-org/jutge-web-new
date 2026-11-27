@@ -63,12 +63,13 @@ export function SubmissionsList(props: SubmissionsListProps) {
         rows: initialRows,
         variant = 'default',
         showHelp = false,
-        showAnnotationColumn = true,
         loading = false,
         onRefreshPending,
         emptyMessage,
-        tutorLatestLimit,
     } = props
+    const showAnnotationColumn =
+        props.variant === 'problem' ? true : (props.showAnnotationColumn ?? true)
+    const tutorLatestLimit = props.variant === 'problem' ? undefined : props.tutorLatestLimit
     const problemNm = props.variant === 'problem' ? props.problemNm : undefined
     const [rows, setRows] = useState(initialRows)
     const [searchQuery, setSearchQuery] = useState('')
