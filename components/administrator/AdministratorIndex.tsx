@@ -7,7 +7,7 @@ import {
     ChartPie,
     LayoutDashboard,
     ScrollText,
-    Trophy,
+    TrophyIcon,
     UserRoundPen,
     Users,
 } from 'lucide-react'
@@ -22,7 +22,7 @@ const indexIcons: Record<string, typeof LayoutDashboard> = {
     Courses: BookOpenCheck,
     Statistics: ChartPie,
     Heatmaps: AudioLines,
-    Ranking: Trophy,
+    Ranking: TrophyIcon,
 }
 
 export function AdministratorIndex() {

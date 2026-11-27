@@ -43,8 +43,8 @@ import {
     Loader2Icon,
     SendIcon,
     SignatureIcon,
-    ListOrderedIcon,
     TimerIcon,
+    TrophyIcon,
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
@@ -67,7 +67,7 @@ const INFO_TAB: { id: ExamFloatingWidgetTabId; label: string; icon: ReactNode } 
 const RANKING_TAB: { id: ExamFloatingWidgetTabId; label: string; icon: ReactNode } = {
     id: 'ranking',
     label: 'Ranking',
-    icon: <ListOrderedIcon className="size-4 shrink-0" aria-hidden />,
+    icon: <TrophyIcon className="size-4 shrink-0" aria-hidden />,
 }
 
 const TABS_AFTER_RANKING: { id: ExamFloatingWidgetTabId; label: string; icon: ReactNode }[] = [
