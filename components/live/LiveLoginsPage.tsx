@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Clock3Icon, PauseIcon, RabbitIcon, RefreshCwIcon } from 'lucide-react'
+import { Clock3Icon, PauseIcon, RabbitIcon, RefreshCwIcon, ShieldCheckIcon } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 import { EmailAddressText } from '@/components/general/EmailAddressText'
@@ -9,6 +9,7 @@ import { LiveNotice, LivePage, LiveSpinner } from '@/components/live/LiveChrome'
 import { useLiveSession } from '@/components/live/LiveSessionProvider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLiveRankingRefreshPoll } from '@/hooks/useLiveRankingRefreshPoll'
@@ -54,13 +55,11 @@ function LiveLoginsRefreshToolbar({
 }) {
     return (
         <div className="flex flex-row items-center gap-2">
-            <p className="min-w-0 text-sm text-muted-foreground">
-                {studentCount === null
-                    ? 'Students who signed in from more than one IP address.'
-                    : studentCount === 0
-                        ? 'No student has logged in from more than one IP.'
-                        : `${studentCount} participant${studentCount === 1 ? '' : 's'} with multiple IPs.`}
-            </p>
+            {studentCount !== null && studentCount > 0 ? (
+                <p className="min-w-0 text-sm text-muted-foreground">
+                    {`${studentCount} participant${studentCount === 1 ? '' : 's'} with multiple IPs.`}
+                </p>
+            ) : null}
             <div className="flex-grow" />
             <div className="flex shrink-0 flex-row items-center gap-2">
                 <Select
@@ -118,6 +117,27 @@ function LiveLoginsRefreshToolbar({
                 </TooltipProvider>
             </div>
         </div>
+    )
+}
+
+function LiveLoginsEmptyCard() {
+    return (
+        <Card className="w-full border border-dashed border-border bg-muted/20 py-0 shadow-none">
+            <CardContent className="py-12">
+                <Empty className="border-0 p-0">
+                    <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                            <ShieldCheckIcon aria-hidden />
+                        </EmptyMedia>
+                        <EmptyTitle>No multi-IP sign-ins</EmptyTitle>
+                        <EmptyDescription>
+                            Every participant has signed in from a single IP address so far. This list updates when
+                            someone uses more than one IP during the exam.
+                        </EmptyDescription>
+                    </EmptyHeader>
+                </Empty>
+            </CardContent>
+        </Card>
     )
 }
 
@@ -227,6 +247,7 @@ export function LiveLoginsPage() {
                     ))}
                 </ul>
             ) : null}
+            {rows !== null && rows.length === 0 ? <LiveLoginsEmptyCard /> : null}
         </LivePage>
     )
 }
