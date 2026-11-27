@@ -145,13 +145,13 @@ function LiveLoginStudentCard({ row }: { row: LoginRow[number] }) {
     return (
         <Card className="w-full gap-0 border border-border py-0 shadow-sm">
             <CardContent className="grid gap-4 py-4 sm:grid-cols-2 sm:items-start">
-                <div className="flex min-w-0 flex-col gap-1 sm:pr-4">
+                <div className="flex min-w-0 flex-col gap-1">
                     <p className="text-base font-medium">{row.name}</p>
                     <p className="text-sm">
                         <EmailAddressText email={row.email} />
                     </p>
                 </div>
-                <ul className="flex min-w-0 flex-col gap-2 sm:border-l sm:border-border sm:pl-4">
+                <ul className="flex min-w-0 flex-col gap-2">
                     {row.ips.map((entry) => (
                         <li
                             key={`${entry.ip}-${entry.at}`}
