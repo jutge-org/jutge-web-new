@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { SendHorizonalIcon } from 'lucide-react'
 
 import { useAuth } from '@/components/AuthProvider'
+import { problemHeaderRoundIconClassName } from '@/components/problems/problemHeaderRoundIcon'
 import { SubmissionDialog } from '@/components/problems/SubmissionDialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Compiler } from '@/lib/jutge_api_client'
@@ -28,9 +29,9 @@ export function ProblemSubmitButton({ problemId, compilers, defaultCompilerId }:
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Button
-                        variant="default"
+                        variant="outline"
                         size="icon-lg"
-                        className="size-16 shrink-0 rounded-full hover:bg-primary/80"
+                        className={problemHeaderRoundIconClassName}
                         aria-label="New submission"
                         onClick={() => setDialogOpen(true)}
                     >

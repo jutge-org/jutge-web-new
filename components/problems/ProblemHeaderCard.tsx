@@ -20,6 +20,10 @@ import type { ProblemDetailData } from '@/lib/data/problemDetail'
 import { problemIconUrl } from '@/lib/problems'
 import { isMotionReduced } from '@/lib/reducedMotion'
 import { isSoundEffectsEnabled } from '@/lib/soundEffects'
+import {
+    problemHeaderRoundIconClassName,
+    problemHeaderRoundIconGlowClassName,
+} from '@/components/problems/problemHeaderRoundIcon'
 import { supervisionProblemHref, type SupervisionContext } from '@/lib/supervision'
 import { cn } from '@/lib/utils'
 
@@ -40,12 +44,13 @@ function ProblemHeaderAction({ children }: { children: ReactNode }) {
 
     return (
         <motion.div
-            className={cn('inline-flex', !motionReduced && 'group')}
+            className="group relative inline-flex"
             whileHover={motionReduced ? undefined : { scale: 1.08, y: -2 }}
             whileTap={motionReduced ? undefined : { scale: 0.96 }}
             transition={motionReduced ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 22 }}
         >
-            {children}
+            <span aria-hidden className={problemHeaderRoundIconGlowClassName} />
+            <div className="relative z-[1]">{children}</div>
         </motion.div>
     )
 }
@@ -57,9 +62,9 @@ function ProblemHeaderNavButton({ href, label, children }: { href: string; label
                 <TooltipTrigger asChild>
                     <Button
                         asChild
-                        variant="default"
+                        variant="outline"
                         size="icon-lg"
-                        className="size-16 shrink-0 rounded-full hover:bg-primary/80"
+                        className={problemHeaderRoundIconClassName}
                         aria-label={label}
                     >
                         <Link href={href}>{children}</Link>
