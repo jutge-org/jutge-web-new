@@ -44,7 +44,7 @@ Public exam and contest URLs stay `/`, `/problems`, and so on. `proxy.ts` rewrit
 - `app/layout.tsx` — Root server layout: theme, `SiteModeProvider`, `AuthProvider`, settings, appearance. Metadata brand comes from the request host.
 - `app/MainBreadcrumbsInLayout.tsx` — Normal-site header breadcrumbs and audience nav. Wired from `AppShell`.
 - `app/LiveBreadcrumbsInLayout.tsx` — Live-site header breadcrumbs. Wired from `LiveAppShell`.
-- `proxy.ts` — Hostname to site mode, normal `/statistics` redirect, exam/contest rewrite.
+- `proxy.ts` — Hostname to site mode and exam/contest rewrite.
 - `components/` — React UI by domain (`problems/`, `submissions/`, `instructor/`, `live/`, …).
 - `components/AppShell.tsx` — Normal chrome: breadcrumbs, command palette, recents, auth toolbar, footer. Wired from `app/(normal)/layout.tsx`.
 - `components/live/LiveAppShell.tsx` — Live chrome: live breadcrumbs, clock, exam widget, live auth toolbar. Wired from `app/(exam)/exam-site/layout.tsx` (skipped for `/exam-floating-widget`).

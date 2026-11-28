@@ -40,11 +40,6 @@ export function proxy(request: NextRequest) {
     if (pathname === MISSING_PATH) return NextResponse.next()
 
     if (!live) {
-        if (pathname === '/statistics') {
-            const url = request.nextUrl.clone()
-            url.pathname = '/activity'
-            return NextResponse.redirect(url, 308)
-        }
         if (isExamSitePath(pathname)) return missing(request)
         return NextResponse.next()
     }

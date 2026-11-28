@@ -22,46 +22,6 @@ const nextConfig: NextConfig = {
             },
         ],
     },
-
-    async redirects() {
-        return [
-            {
-                source: '/reset-password/:token',
-                destination: '/password-reset',
-                permanent: false,
-            },
-            {
-                source: '/utilities/draw',
-                destination: '/utilities/whiteboard',
-                permanent: true,
-            },
-            {
-                source: '/utilities/pyodide',
-                destination: '/interpreters/pyodide',
-                permanent: true,
-            },
-            {
-                source: '/utilities/pyweb',
-                destination: '/interpreters/pyweb',
-                permanent: true,
-            },
-            {
-                source: '/utilities/jscpp',
-                destination: '/interpreters/jscpp',
-                permanent: true,
-            },
-            {
-                source: '/wrapped',
-                destination: '/activity/wrapped',
-                permanent: true,
-            },
-            {
-                source: '/students',
-                destination: '/participants',
-                permanent: true,
-            },
-        ]
-    },
 }
 
 export default nextConfig
