@@ -7,15 +7,33 @@ export type SiteResolution = {
 }
 
 export const NORMAL_API_URL = process.env.NEXT_PUBLIC_JUTGE_API_URL?.trim() || 'https://api.jutge.org/api'
+
 export const EXAM_API_URL = process.env.NEXT_PUBLIC_JUTGE_EXAM_API_URL?.trim() || 'https://exam.api.jutge.org/api'
+
 export const CONTEST_API_URL =
     process.env.NEXT_PUBLIC_JUTGE_CONTEST_API_URL?.trim() || 'https://contest.api.jutge.org/api'
 
 const NORMAL_HOSTS = new Set(['www.jutge.net', 'jutge.net', 'www.jutge.org', 'jutge.org', 'new.jutge.org'])
 
-const EXAM_HOSTS = new Set(['exam.jutge.net', 'exam.jutge.org', 'exambach.jutge.net'])
+const EXAM_HOSTS_LIST = ['exam.jutge.net', 'exam.jutge.org', 'exambach.jutge.net']
 
-const CONTEST_HOSTS = new Set(['contest.jutge.net', 'contest.jutge.org', 'contestbach.jutge.net'])
+const CONTEST_HOSTS_LIST = ['contest.jutge.net', 'contest.jutge.org', 'contestbach.jutge.net']
+
+function jutgeDevHostKind(): 'exam' | 'contest' | null {
+    const raw = (process.env.JUTGE_DEV_HOST ?? process.env.NEXT_PUBLIC_JUTGE_DEV_HOST)?.trim().toLowerCase()
+    if (raw === 'exam' || raw === 'contest') return raw
+    return null
+}
+
+function hostsForKind(kind: 'exam' | 'contest', defaults: string[]): Set<string> {
+    const hosts = [...defaults]
+    if (jutgeDevHostKind() === kind) hosts.push('localhost')
+    return new Set(hosts)
+}
+
+const EXAM_HOSTS = hostsForKind('exam', EXAM_HOSTS_LIST)
+
+const CONTEST_HOSTS = hostsForKind('contest', CONTEST_HOSTS_LIST)
 
 const API_URL_BY_KIND: Record<SiteKind, string | null> = {
     normal: null,
