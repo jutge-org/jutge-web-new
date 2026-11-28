@@ -1,5 +1,4 @@
 export type AdministratorTab =
-    | 'index'
     | 'dashboard'
     | 'queue'
     | 'exams'
@@ -17,8 +16,7 @@ export type AdministratorNavItem = {
 }
 
 export const administratorNavItems: AdministratorNavItem[] = [
-    { tab: 'index', label: 'Index', href: '/administrator' },
-    { tab: 'dashboard', label: 'Dashboard', href: '/administrator/dashboard' },
+    { tab: 'dashboard', label: 'Dashboard', href: '/administrator' },
     { tab: 'queue', label: 'Queue', href: '/administrator/queue' },
     { tab: 'exams', label: 'Exams', href: '/administrator/exams' },
     { tab: 'users', label: 'Users', href: '/administrator/users' },
@@ -31,25 +29,20 @@ export const administratorNavItems: AdministratorNavItem[] = [
 
 export function administratorTabFromPathname(pathname: string): AdministratorTab {
     if (pathname === '/administrator' || pathname === '/administrator/') {
-        return 'index'
+        return 'dashboard'
     }
 
     for (const item of administratorNavItems) {
-        if (item.tab === 'index') continue
+        if (item.tab === 'dashboard') continue
         if (pathname === item.href || pathname.startsWith(`${item.href}/`)) {
             return item.tab
         }
     }
 
-    return 'index'
+    return 'dashboard'
 }
 
 export const administratorIndexItems = [
-    {
-        href: '/administrator/dashboard',
-        label: 'Dashboard',
-        description: 'Operations overview, alerts, and server health',
-    },
     {
         href: '/administrator/queue',
         label: 'Queue',

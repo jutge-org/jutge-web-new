@@ -14,7 +14,7 @@ export function HomeAdmin() {
         <Card className="rounded-2xl border border-border border-t-2 border-t-amber-500 shadow-sm">
             <CardHeader className="p-0">
                 <Link
-                    href="/administrator/dashboard"
+                    href="/administrator"
                     className="group flex min-h-11 items-center justify-between gap-2 px-4 py-2 transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 >
                     <h2 className="flex min-w-0 items-center gap-2 font-heading text-base font-semibold leading-snug text-foreground">

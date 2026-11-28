@@ -66,7 +66,6 @@ import {
     FolderGit2Icon,
     GavelIcon,
     HelpCircleIcon,
-    LayoutDashboardIcon,
     ListIcon,
     MegaphoneIcon,
     ScrollTextIcon,
@@ -212,8 +211,6 @@ function MainNavInstructorSubItemIcon({ href }: { href: string }) {
 
 function MainNavAdministratorSubItemIcon({ href }: { href: string }) {
     switch (href) {
-        case '/administrator/dashboard':
-            return <LayoutDashboardIcon aria-hidden />
         case '/administrator/queue':
             return <ScrollTextIcon aria-hidden />
         case '/administrator/exams':
@@ -362,6 +359,7 @@ type MainNavRoleSubmenuProps = {
     href: string
     label: string
     indexHref: string
+    indexLabel?: string
     items: readonly MainNavSubmenuItem[]
     footerItems?: readonly MainNavSubmenuItem[]
     pathname: string
@@ -373,6 +371,7 @@ function MainNavRoleSubmenu({
     href,
     label,
     indexHref,
+    indexLabel = 'Index',
     items,
     footerItems,
     pathname,
@@ -398,7 +397,7 @@ function MainNavRoleSubmenu({
                             )}
                         >
                             <MainNavMenuItemIcon href={href} />
-                            Index
+                            {indexLabel}
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -564,6 +563,7 @@ export function MainBreadcrumbsInLayout() {
                                         href={href}
                                         label={label}
                                         indexHref="/administrator"
+                                        indexLabel="Dashboard"
                                         items={administratorIndexItems}
                                         pathname={pathname}
                                         isCurrentSection={linkIsCurrentMainSection(href)}
