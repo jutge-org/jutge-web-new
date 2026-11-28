@@ -107,7 +107,7 @@ export default function HeaderWidget() {
     }
 
     return (
-        <section aria-label="Overview" className="mx-auto grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section aria-label="Overview" className="grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {statCards.map((card) => {
                 const { key, label, icon: Icon, borderAccent, iconAccent } = card
                 const iesAlert = key === 'ies' && (zombies?.ies ?? 0) > 0
