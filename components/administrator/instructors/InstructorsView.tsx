@@ -7,7 +7,7 @@ import { useAddInstructorDialog } from '@/components/administrator/instructors/A
 import { useIsMobile } from '@/hooks/use-mobile'
 import { emailRenderer } from '@/lib/administrator/grid-renderers'
 import type { InstructorEntries, InstructorEntry } from '@/lib/jutge_api_client'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import type { RowSelectionOptions } from 'ag-grid-community'
 import { AgGridReact } from 'ag-grid-react'
 import { CircleMinusIcon, CirclePlusIcon } from 'lucide-react'
@@ -20,7 +20,10 @@ export default function InstructorsView() {
     const [colDefs, setColDefs] = useState<Record<string, unknown>[]>([])
     const gridRef = useRef<AgGridReact<InstructorEntry>>(null)
     const [runAddInstructorDialog, AddInstructorDialog] = useAddInstructorDialog()
-    const [runConfirmDialog, ConfirmDialog] = useConfirmDialog({ title: 'Are you sure?' })
+    const [runConfirmDialog, ConfirmDialog] = useConfirmDialog({
+        title: 'Are you sure?',
+        smoothActions: true,
+    })
 
     useEffect(() => {
         setColDefs([
@@ -82,12 +85,26 @@ export default function InstructorsView() {
         <>
             <div className="mb-4 flex flex-row gap-2">
                 <div className="grow" />
-                <Button className="w-32 justify-start" onClick={() => void addAction()}>
+                <SmoothButton
+                    type="button"
+                    color="blue"
+                    variant="candy"
+                    size="xs"
+                    className="w-32 justify-start"
+                    onClick={() => void addAction()}
+                >
                     <CirclePlusIcon /> Add
-                </Button>
-                <Button className="w-32 justify-start" onClick={() => void removeAction()}>
+                </SmoothButton>
+                <SmoothButton
+                    type="button"
+                    color="blue"
+                    variant="candy"
+                    size="xs"
+                    className="w-32 justify-start"
+                    onClick={() => void removeAction()}
+                >
                     <CircleMinusIcon /> Remove
-                </Button>
+                </SmoothButton>
             </div>
             <AgTableFull rowData={rows} columnDefs={colDefs} ref={gridRef} rowSelection={rowSelection} />
             <AddInstructorDialog />

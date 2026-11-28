@@ -2,7 +2,7 @@
 
 import { adminSetPassword } from '@/lib/administrator/client'
 import HtmlEditor from '@/components/administrator/HtmlEditor'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { KeyRoundIcon } from 'lucide-react'
@@ -82,10 +82,10 @@ export default function ChangePasswordView() {
                         </Field>
                     </FieldGroup>
                     <div className="flex justify-end pt-4">
-                        <Button type="submit" className="w-44">
+                        <SmoothButton type="submit" color="blue" variant="candy" size="xs" className="w-44">
                             <KeyRoundIcon />
                             Change password
-                        </Button>
+                        </SmoothButton>
                     </div>
                 </form>
             </div>

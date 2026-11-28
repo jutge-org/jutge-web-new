@@ -2,23 +2,18 @@
 
 import { adminRemoveSpamUsers, fetchAdminSpamUsers } from '@/lib/administrator/client'
 import { AgTableFull } from '@/components/administrator/AgTable'
-import { useConfirmDialog } from '@/components/administrator/ConfirmDialog'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Trash2Icon } from 'lucide-react'
+import { CircleCheckIcon, Trash2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 export default function GetSpamUsersView() {
     const router = useRouter()
-    const [runConfirmDialog, ConfirmDialogComponent] = useConfirmDialog({
-        title: 'Remove spam users',
-        acceptIcon: <Trash2Icon />,
-        acceptLabel: 'Yes, remove',
-        cancelLabel: 'No',
-    })
     const [spammers, setSpammers] = useState<string[] | null>(null)
+    const [confirmed, setConfirmed] = useState(false)
+    const [pending, setPending] = useState(false)
 
     const colDefs = [
         {
@@ -35,15 +30,26 @@ export default function GetSpamUsersView() {
         void fetchAdminSpamUsers().then(setSpammers)
     }, [])
 
+    useEffect(() => {
+        if (!confirmed || pending) return
+        const timer = window.setTimeout(() => setConfirmed(false), 10_000)
+        return () => window.clearTimeout(timer)
+    }, [confirmed, pending])
+
     async function remove() {
-        if (spammers === null) return
-        const message = `Are you sure you want to remove ${spammers.length} spam users?`
-        if (!(await runConfirmDialog(message))) return
+        if (spammers === null || pending) return
+        if (!confirmed) {
+            setConfirmed(true)
+            return
+        }
+        setPending(true)
         try {
             await adminRemoveSpamUsers(spammers)
             toast.success('Spam users are being removed')
         } catch {
             toast.error('Error removing spam users')
+            setConfirmed(false)
+            setPending(false)
             return
         }
         router.push('/administrator/users')
@@ -65,12 +71,21 @@ export default function GetSpamUsersView() {
     return (
         <>
             <div className="mb-4 flex flex-row-reverse gap-2">
-                <Button onClick={() => void remove()} className="w-36">
-                    <Trash2Icon /> Remove
-                </Button>
+                <SmoothButton
+                    type="button"
+                    color={confirmed ? 'green' : 'blue'}
+                    variant="candy"
+                    size="xs"
+                    className="w-36"
+                    disabled={pending}
+                    aria-live="polite"
+                    onClick={() => void remove()}
+                >
+                    {confirmed ? <CircleCheckIcon /> : <Trash2Icon />}
+                    {pending ? 'Removing…' : confirmed ? 'Yes, remove' : 'Remove'}
+                </SmoothButton>
             </div>
             <AgTableFull rowData={rows} columnDefs={colDefs} />
-            <ConfirmDialogComponent />
         </>
     )
 }

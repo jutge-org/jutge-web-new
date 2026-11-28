@@ -9,7 +9,8 @@ import { ScrollIcon, TableIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { UpcomingExams } from '@/lib/jutge_api_client'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { DualRangeSlider } from '@/components/administrator/DualRangeSlider'
 import {
     Timeline,
@@ -106,13 +107,25 @@ export default function ExamsView() {
                         step={1}
                     />
                 </div>
-                <Button
-                    className="ml-4 rounded-full w-12 h-12 bg-primary fg-background"
-                    title="Change view"
-                    onClick={() => setView(view === 'table' ? 'timeline' : 'table')}
-                >
-                    {view === 'table' ? <ScrollIcon /> : <TableIcon />}
-                </Button>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <SmoothButton
+                                type="button"
+                                color="blue"
+                                variant="candy"
+                                shape="pill"
+                                size="icon"
+                                className="ml-4 size-12"
+                                aria-label="Change view"
+                                onClick={() => setView(view === 'table' ? 'timeline' : 'table')}
+                            >
+                                {view === 'table' ? <ScrollIcon /> : <TableIcon />}
+                            </SmoothButton>
+                        </TooltipTrigger>
+                        <TooltipContent>Change view</TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
             {view === 'table' ? <AgTableFull rowData={exams} columnDefs={colDefs} /> : <ExamsTimeline exams={exams} />}
         </>

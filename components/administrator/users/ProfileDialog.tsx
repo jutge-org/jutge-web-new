@@ -5,7 +5,7 @@ import type { ProfileForAdmin } from '@/lib/jutge_api_client'
 import dayjs from 'dayjs'
 import { XIcon } from 'lucide-react'
 import { JSX, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import ReactMarkdown from 'react-markdown'
@@ -79,10 +79,17 @@ export const useProfileDialog = (): [(profile: ProfileForAdmin) => Promise<Profi
                         </ScrollArea>
                     ) : null}
                     <div className="flex w-full flex-row gap-2 pt-4">
-                        <Button className="w-full" onClick={acceptAction}>
+                        <SmoothButton
+                            type="button"
+                            color="blue"
+                            variant="candy"
+                            size="xs"
+                            className="w-full"
+                            onClick={acceptAction}
+                        >
                             <XIcon />
                             Close
-                        </Button>
+                        </SmoothButton>
                     </div>
                 </DialogContent>
             </Dialog>

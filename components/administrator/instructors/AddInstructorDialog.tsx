@@ -4,7 +4,7 @@ import { CirclePlusIcon } from 'lucide-react'
 import { JSX, useState } from 'react'
 import { toast } from 'sonner'
 import validator from 'validator'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -80,9 +80,16 @@ export const useAddInstructorDialog = (): [() => Promise<AddInstructorDialogResu
                                 onChange={(e) => setUsername(e.target.value)}
                             />
                         </div>
-                        <Button onClick={acceptAction} className="mt-4">
+                        <SmoothButton
+                            type="button"
+                            color="blue"
+                            variant="candy"
+                            size="xs"
+                            className="mt-4"
+                            onClick={acceptAction}
+                        >
                             <CirclePlusIcon /> Add instructor
-                        </Button>
+                        </SmoothButton>
                     </div>
                 </DialogContent>
             </Dialog>

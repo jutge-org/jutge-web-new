@@ -39,7 +39,7 @@ import { parseProblemKey } from '@/lib/problems'
 import { buildSubmissionHref } from '@/lib/submissions'
 import { cn } from '@/lib/utils'
 import { Compiler, SubmissionQueueItem, SubmissionQueueItems, Verdict } from '@/lib/jutge_api_client'
-import { Button } from '@/components/ui/button'
+import SmoothButton from '@/components/smoothui/smooth-button'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -431,11 +431,17 @@ export default function QueueView() {
                 <div className="flex-grow" />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button className="w-32 justify-start flex flex-row">
+                        <SmoothButton
+                            type="button"
+                            color="blue"
+                            variant="candy"
+                            size="xs"
+                            className="w-32 justify-start"
+                        >
                             Actions
                             <div className="flex-grow" />
                             <ChevronDownIcon />
-                        </Button>
+                        </SmoothButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56">
                         <DropdownMenuLabel>Internal errors</DropdownMenuLabel>
